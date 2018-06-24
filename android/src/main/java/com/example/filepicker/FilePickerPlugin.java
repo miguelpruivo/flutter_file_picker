@@ -56,10 +56,6 @@ public class FilePickerPlugin implements MethodCallHandler {
     }
   }
 
-  private void setOnActivityResult()
-  {
-
-  }
 
 
   private void startFileExplorer()

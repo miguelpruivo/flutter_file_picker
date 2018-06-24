@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
@@ -18,8 +17,8 @@ class _MyAppState extends State<MyApp> {
   void _openFileExplorer() async {
     try {
       _path = await FilePicker.getFilePath;
-    } on PlatformException {
-      print('Something went wrong...');
+    } on PlatformException catch (e) {
+      print(e.toString());
     }
 
     if (!mounted) return;
@@ -46,7 +45,7 @@ class _MyAppState extends State<MyApp> {
             child: new Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Padding(
+            new Padding(
               padding: const EdgeInsets.all(20.0),
               child: new RaisedButton(
                 onPressed: () => _openFileExplorer(),
@@ -55,18 +54,27 @@ class _MyAppState extends State<MyApp> {
             ),
             new Text(
               'URI PATH ',
+              textAlign: TextAlign.center,
               style: new TextStyle(fontWeight: FontWeight.bold),
             ),
             new Text(
               _path,
+              textAlign: TextAlign.center,
               softWrap: true,
               textScaleFactor: 0.85,
             ),
-            Padding(
+            new Padding(
               padding: const EdgeInsets.only(top: 10.0),
-              child: new Text('FILE NAME ', style: new TextStyle(fontWeight: FontWeight.bold)),
+              child: new Text(
+                'FILE NAME ',
+                textAlign: TextAlign.center,
+                style: new TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
-            new Text(_fileName),
+            new Text(
+              _fileName,
+              textAlign: TextAlign.center,
+            ),
           ],
         )),
       ),

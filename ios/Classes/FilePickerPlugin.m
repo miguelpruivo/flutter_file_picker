@@ -7,12 +7,12 @@
     UIDocumentInteractionController *_interactionController;
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
+  
   FlutterMethodChannel* channel = [FlutterMethodChannel
       methodChannelWithName:@"file_picker"
             binaryMessenger:[registrar messenger]];
-  
-
-   UIViewController *viewController = [UIApplication sharedApplication].delegate.window.rootViewController;
+    
+    UIViewController *viewController = [UIApplication sharedApplication].delegate.window.rootViewController;
     FilePickerPlugin* instance = [[FilePickerPlugin alloc] initWithViewController:viewController];
     
   [registrar addMethodCallDelegate:instance channel:channel];
@@ -61,13 +61,13 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 
     [_pickerController dismissViewControllerAnimated:YES completion:nil];
 
-    NSMutableArray *resultUrls = [[NSMutableArray alloc] init];
+    NSString * uri;
 
     for (NSURL *url in urls) {
-        [resultUrls addObject: (NSString *)[url path]];
+     uri = (NSString *)[url path];
     }
 
-    _result(resultUrls);
+    _result(uri);
 }
 
 // DocumentInteractionController delegate
