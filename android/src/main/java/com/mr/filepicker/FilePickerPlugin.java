@@ -60,7 +60,7 @@ public class FilePickerPlugin implements MethodCallHandler {
     }
   }
 
-  
+
   private boolean checkPermission() {
     Activity activity = instance.activity();
     Log.i("SimplePermission", "Checking permission : " + permission);

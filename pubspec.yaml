@@ -1,7 +1,7 @@
 name: file_picker
-description: A new flutter plugin project.
-version: 0.0.1
-author:
+description: Native file path picker for both iOS and Android.
+version: 0.1.0
+author: Miguel Ruivo
 homepage:
 
 dependencies:
@@ -14,7 +14,7 @@ dependencies:
 # The following section is specific to Flutter.
 flutter:
   plugin:
-    androidPackage: com.example.filepicker
+    androidPackage: com.mr.filepicker
     pluginClass: FilePickerPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
