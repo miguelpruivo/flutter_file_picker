@@ -53,7 +53,6 @@ public class FilePickerPlugin implements MethodCallHandler {
   public void onMethodCall(MethodCall call, Result result) {
     if (call.method.equals("pickPDF")) {
       this.result = result;
-
       startFileExplorer();
 
     } else {
@@ -61,16 +60,7 @@ public class FilePickerPlugin implements MethodCallHandler {
     }
   }
 
-  private String resolveFileType(String type) {
-    switch (type) {
-    case "PDF":
-      break;
-
-    case "IMAGES":
-      break;
-    }
-  }
-
+  
   private boolean checkPermission() {
     Activity activity = instance.activity();
     Log.i("SimplePermission", "Checking permission : " + permission);
