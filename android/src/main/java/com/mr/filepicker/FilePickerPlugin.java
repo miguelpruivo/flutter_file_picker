@@ -1,4 +1,4 @@
-package com.example.filepicker;
+package com.mr.filepicker;
 
 import android.Manifest;
 import android.app.Activity;
@@ -53,10 +53,21 @@ public class FilePickerPlugin implements MethodCallHandler {
   public void onMethodCall(MethodCall call, Result result) {
     if (call.method.equals("pickPDF")) {
       this.result = result;
+
       startFileExplorer();
 
     } else {
       result.notImplemented();
+    }
+  }
+
+  private String resolveFileType(String type) {
+    switch (type) {
+    case "PDF":
+      break;
+
+    case "IMAGES":
+      break;
     }
   }
 
@@ -69,18 +80,18 @@ public class FilePickerPlugin implements MethodCallHandler {
   private void requestPermission() {
     Activity activity = instance.activity();
     Log.i("File_Picker", "Requesting permission : " + permission);
-    String[] perm = {permission};
+    String[] perm = { permission };
     ActivityCompat.requestPermissions(activity, perm, 0);
   }
 
   private void startFileExplorer() {
 
-    if(checkPermission()) {
+    if (checkPermission()) {
       Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
       intent.setType("application/pdf");
       intent.addCategory(Intent.CATEGORY_OPENABLE);
       instance.activity().startActivityForResult(intent, REQUEST_CODE);
-    }else {
+    } else {
       requestPermission();
     }
   }
