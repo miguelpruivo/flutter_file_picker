@@ -1,4 +1,4 @@
-group 'com.example.filepicker'
+group 'com.mr.filepicker'
 version '1.0-SNAPSHOT'
 buildscript {
     repositories {
