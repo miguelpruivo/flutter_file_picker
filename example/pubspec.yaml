@@ -12,8 +12,6 @@ version: 1.0.0+1
 dependencies:
   flutter:
     sdk: flutter
-  file_picker:
-    path: /Users/miguelruivo/Desktop/file_picker/file_picker
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -22,6 +20,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  file_picker:
+    path: ../
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec

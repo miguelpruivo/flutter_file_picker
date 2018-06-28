@@ -1,5 +1,6 @@
-group 'com.mr.filepicker'
+group 'com.mr.flutter.plugin.filepicker'
 version '1.0-SNAPSHOT'
+
 buildscript {
     repositories {
         google()
@@ -10,13 +11,16 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.1.2'
     }
 }
+
 rootProject.allprojects {
     repositories {
         google()
         jcenter()
     }
 }
+
 apply plugin: 'com.android.library'
+
 android {
     compileSdkVersion 27
 
@@ -30,6 +34,5 @@ android {
 }
 
 dependencies {
-    compileOnly files('tmplibs/flutter.jar')
     implementation 'in.gauriinfotech:commons:1.0.8'
 }
