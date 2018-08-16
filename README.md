@@ -57,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: new Center(
         child: _filePath == null
             ? new Text('No file selected.')
-            : new Text('Path' + filePath),
+            : new Text('Path' + _filePath),
       ),
       floatingActionButton: new FloatingActionButton(
         onPressed: getFilePath,
