@@ -19,6 +19,11 @@ Add `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /
 ## iOS
 No configuration required - the plugin should work out of the box.
 
+## To-do
+[X] Load paths from local & cloud
+[X] Load pdf files
+[ ] Load a custom format
+
 ## Example
 ```
 import 'package:file_picker/file_picker.dart';
