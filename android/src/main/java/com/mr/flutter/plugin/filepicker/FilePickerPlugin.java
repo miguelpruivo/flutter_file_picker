@@ -48,23 +48,23 @@ public class FilePickerPlugin implements MethodCallHandler {
             Uri uri = data.getData();
             Log.i(TAG, "URI:" +data.getData().toString());
             String fullPath = Commons.getPath(uri, instance.context());
-
             String cloudFile = null;
+
             if(fullPath == null)
             {
               FileOutputStream fos = null;
-              cloudFile = instance.activeContext().getCacheDir()+data.getData().toString().split("/")[data.getData().toString().split("/").length-1];
+              cloudFile = instance.activeContext().getCacheDir().getAbsolutePath() + "/Document";
 
               try {
                 fos = new FileOutputStream(cloudFile);
-                try {
-                     BufferedOutputStream out = new BufferedOutputStream(fos);
-                     InputStream in = instance.activeContext().getContentResolver().openInputStream(uri);
+                try{
+                  BufferedOutputStream out = new BufferedOutputStream(fos);
+                  InputStream in = instance.activeContext().getContentResolver().openInputStream(uri);
 
                   byte[] buffer = new byte[8192];
                   int len = 0;
 
-                  while ((len = in.read(buffer)) >= 0) {
+                  while ((len = in.read(buffer)) >= 0){
                     out.write(buffer, 0, len);
                   }
 
@@ -76,22 +76,12 @@ public class FilePickerPlugin implements MethodCallHandler {
               } catch (Exception e) {
                 e.printStackTrace();
               }
-            }
-            Log.i(TAG, "FilePath:" + cloudFile);
-            fullPath = cloudFile;
-            File file = new File(cloudFile);
-            if (Integer.parseInt(String.valueOf(file.length() / 1024)) > 1024) {
-              InputStream imageStream = null;
 
-              try {
-                imageStream = instance.activeContext().getContentResolver().openInputStream(uri);
-              } catch (FileNotFoundException e) {
-                e.printStackTrace();
-              }
-
-              Log.i(TAG, "FilePath:" + cloudFile);
+              Log.i(TAG, "Loaded file from cloud created on:" + cloudFile);
+              fullPath = cloudFile;
             }
-            Log.i(TAG, "FilePath:" + fullPath);
+
+            Log.i(TAG, "Absolute file path:" + fullPath);
             result.success(fullPath);
           }
 
