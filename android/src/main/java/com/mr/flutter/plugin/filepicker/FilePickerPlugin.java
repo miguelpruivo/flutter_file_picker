@@ -9,6 +9,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+
 import in.gauriinfotech.commons.Commons;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -21,6 +27,8 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 public class FilePickerPlugin implements MethodCallHandler {
 
   private static final int REQUEST_CODE = 43;
+  private static final String TAG = "FilePicker";
+
   private static final String permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
   private static Result result;
   private static Registrar instance;
@@ -38,7 +46,52 @@ public class FilePickerPlugin implements MethodCallHandler {
 
           if (data != null) {
             Uri uri = data.getData();
+            Log.i(TAG, "URI:" +data.getData().toString());
             String fullPath = Commons.getPath(uri, instance.context());
+
+            String cloudFile = null;
+            if(fullPath == null)
+            {
+              FileOutputStream fos = null;
+              cloudFile = instance.activeContext().getCacheDir()+data.getData().toString().split("/")[data.getData().toString().split("/").length-1];
+
+              try {
+                fos = new FileOutputStream(cloudFile);
+                try {
+                     BufferedOutputStream out = new BufferedOutputStream(fos);
+                     InputStream in = instance.activeContext().getContentResolver().openInputStream(uri);
+
+                  byte[] buffer = new byte[8192];
+                  int len = 0;
+
+                  while ((len = in.read(buffer)) >= 0) {
+                    out.write(buffer, 0, len);
+                  }
+
+                  out.flush();
+                } finally {
+                  fos.getFD().sync();
+                }
+
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            }
+            Log.i(TAG, "FilePath:" + cloudFile);
+            fullPath = cloudFile;
+            File file = new File(cloudFile);
+            if (Integer.parseInt(String.valueOf(file.length() / 1024)) > 1024) {
+              InputStream imageStream = null;
+
+              try {
+                imageStream = instance.activeContext().getContentResolver().openInputStream(uri);
+              } catch (FileNotFoundException e) {
+                e.printStackTrace();
+              }
+
+              Log.i(TAG, "FilePath:" + cloudFile);
+            }
+            Log.i(TAG, "FilePath:" + fullPath);
             result.success(fullPath);
           }
 
@@ -46,7 +99,6 @@ public class FilePickerPlugin implements MethodCallHandler {
         return false;
       }
     });
-
   }
 
   @Override
@@ -54,7 +106,6 @@ public class FilePickerPlugin implements MethodCallHandler {
     if (call.method.equals("pickPDF")) {
       this.result = result;
       startFileExplorer();
-
     } else {
       result.notImplemented();
     }
@@ -62,13 +113,13 @@ public class FilePickerPlugin implements MethodCallHandler {
 
   private boolean checkPermission() {
     Activity activity = instance.activity();
-    Log.i("SimplePermission", "Checking permission : " + permission);
+    Log.i(TAG, "Checking permission: " + permission);
     return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(activity, permission);
   }
 
   private void requestPermission() {
     Activity activity = instance.activity();
-    Log.i("File_Picker", "Requesting permission : " + permission);
+    Log.i(TAG, "Requesting permission: " + permission);
     String[] perm = { permission };
     ActivityCompat.requestPermissions(activity, perm, 0);
   }
