@@ -13,13 +13,13 @@ file_picker:
       url: https://github.com/miguelpruivo/plugins_flutter_file_picker.git
 ```
 
-##Android
+## Android
 Add `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />` to your app `AndroidManifest.xml` file.
 
-##iOS
+## iOS
 No configuration required - the plugin should work out of the box.
 
-##Example
+## Example
 ```
 import 'package:file_picker/file_picker.dart';
 
