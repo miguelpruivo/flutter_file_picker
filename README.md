@@ -43,6 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
         return;
       }
       Logger(widget.tag).info("File path: " + filePath);
+      setState((){this._filePath = filePath;});
     } on PlatformException catch (e) {
       print("Error while picking the file: " + e.toString());
     }
