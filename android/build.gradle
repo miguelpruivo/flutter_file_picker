@@ -35,5 +35,5 @@ android {
 
 dependencies {
     implementation 'in.gauriinfotech:commons:1.0.8'
-    compileOnly files('tmplibs/flutter.jar')
+    //compileOnly files('tmplibs/flutter.jar')
 }
