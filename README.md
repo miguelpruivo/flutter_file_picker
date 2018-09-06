@@ -6,7 +6,7 @@ File picker plugin alows you to use a native file explorer to load absolute file
 
 First, add file_picker as a dependency in [your pubspec.yaml file](https://flutter.io/platform-plugins/).
 
-Note: for now, just add it as remote plugin.
+Note: for now, just add it as git plugin.
 ```
 file_picker:
     git:
