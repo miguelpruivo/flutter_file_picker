@@ -13,10 +13,11 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _path = '...';
   String _fileName = '...';
+  FileType _pickingType;
 
   void _openFileExplorer() async {
     try {
-      _path = await FilePicker.getFilePath;
+      _path = await FilePicker.getFilePath(type: _pickingType);
     } on PlatformException catch (e) {
       print(e.toString());
     }
@@ -24,7 +25,7 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {
-      _fileName = _path.split('/').last;
+      _fileName = _path != null ? _path.split('/').last : '...';
     });
   }
 
@@ -45,6 +46,32 @@ class _MyAppState extends State<MyApp> {
             child: new Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            new Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: new DropdownButton(
+                hint: new Text('LOAD FILE PATH FROM...'),
+                value: _pickingType,
+                items: <DropdownMenuItem>[
+                  new DropdownMenuItem(
+                    child: new Text('FROM CAMERA'),
+                    value: FileType.CAPTURE,
+                  ),
+                  new DropdownMenuItem(
+                    child: new Text('FROM GALLERY'),
+                    value: FileType.IMAGE,
+                  ),
+                  new DropdownMenuItem(
+                    child: new Text('FROM PDF'),
+                    value: FileType.PDF,
+                  )
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _pickingType = value;
+                  });
+                },
+              ),
+            ),
             new Padding(
               padding: const EdgeInsets.all(20.0),
               child: new RaisedButton(
