@@ -1,3 +1,6 @@
+## 0.1.5
+* Minor correction on README file. 
+
 ## 0.1.4
 * Changed Meta minimum version due to versioning conflict with flutter_localization. 
 
