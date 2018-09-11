@@ -1,15 +1,17 @@
 name: file_picker
-description: A new flutter plugin project.
-version: 0.0.1
-author:
-homepage:
+description: A plugin that allows you to pick absolute paths from diferent file types.
+version: 0.1.4
+author: Miguel Ruivo <miguelpruivo@hotmail.com>
+homepage: https://github.com/miguelpruivo/plugins_flutter_file_picker
 
 dependencies:
   flutter:
     sdk: flutter
+  image_picker: ^0.4.10
+  meta: ^1.1.5
 
 environment:
-  sdk: '<3.0.0'
+  sdk: ">=1.19.0 <3.0.0"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
