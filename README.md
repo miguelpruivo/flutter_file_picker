@@ -20,11 +20,11 @@ Since we are using *image_picker* as a dependency from this plugin to load paths
 * `NSMicrophoneUsageDescription` - describe why your app needs access to the microphone, if you intend to record videos. This is called _Privacy - Microphone Usage Description_ in the visual editor.
 
 ## To-do
-[X] Load paths from local files & cloud (GDrive, Dropbox, iCloud)<br>
-[X] Load PDF file path<br>
-[X] Load path from gallery<br>
-[X] Load path from camera shot<br>
-[ ] Load a custom format<br>
+* [X] Load paths from local files & cloud (GDrive, Dropbox, iCloud)
+* [X] Load PDF file path
+* [X] Load path from gallery
+* [X] Load path from camera shot
+* [ ] Load a custom format
 
 ## Demo App
 
