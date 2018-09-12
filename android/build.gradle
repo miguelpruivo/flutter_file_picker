@@ -34,6 +34,5 @@ android {
 }
 
 dependencies {
-    implementation 'in.gauriinfotech:commons:1.0.8'
-    //compileOnly files('tmplibs/flutter.jar')
+    implementation 'com.android.support:appcompat-v7:27.0.0'
 }

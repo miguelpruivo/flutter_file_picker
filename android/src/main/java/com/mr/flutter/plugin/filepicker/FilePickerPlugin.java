@@ -5,17 +5,16 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
-import in.gauriinfotech.commons.Commons;
+
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -47,7 +46,7 @@ public class FilePickerPlugin implements MethodCallHandler {
           if (data != null) {
             Uri uri = data.getData();
             Log.i(TAG, "URI:" +data.getData().toString());
-            String fullPath = Commons.getPath(uri, instance.context());
+            String fullPath = FilePath.getPath(uri, instance.context());
             String cloudFile = null;
 
             if(fullPath == null)
@@ -115,9 +114,15 @@ public class FilePickerPlugin implements MethodCallHandler {
   }
 
   private void startFileExplorer() {
+    Intent intent;
 
     if (checkPermission()) {
-      Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+      if(Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT){
+        intent = new Intent(Intent.ACTION_PICK);
+      }else{
+        intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+      }
+
       intent.setType("application/pdf");
       intent.addCategory(Intent.CATEGORY_OPENABLE);
       instance.activity().startActivityForResult(intent, REQUEST_CODE);
