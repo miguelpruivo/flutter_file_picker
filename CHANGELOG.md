@@ -1,3 +1,6 @@
+## 0.1.6
+* Replaces commons dependency with FilePath class on Android, to handle path resolution on different SDK. 
+
 ## 0.1.5
 * Minor correction on README file. 
 
