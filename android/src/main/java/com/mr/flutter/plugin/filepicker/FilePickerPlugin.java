@@ -31,6 +31,7 @@ public class FilePickerPlugin implements MethodCallHandler {
   private static final String permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
   private static Result result;
   private static Registrar instance;
+  private static String fileType;
 
   /** Plugin registration. */
   public static void registerWith(Registrar registrar) {
@@ -41,6 +42,7 @@ public class FilePickerPlugin implements MethodCallHandler {
     instance.addActivityResultListener(new PluginRegistry.ActivityResultListener() {
       @Override
       public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
 
           if (data != null) {
@@ -88,47 +90,77 @@ public class FilePickerPlugin implements MethodCallHandler {
         return false;
       }
     });
+
+    instance.addRequestPermissionsResultListener(new PluginRegistry.RequestPermissionsResultListener() {
+      @Override
+      public boolean onRequestPermissionsResult(int requestCode, String[] strings, int[] grantResults) {
+        if (requestCode == 0 && grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+          startFileExplorer(fileType);
+          return true;
+        }
+        return false;
+      }
+    });
   }
 
   @Override
   public void onMethodCall(MethodCall call, Result result) {
-    if (call.method.equals("pickPDF")) {
-      this.result = result;
-      startFileExplorer();
-    } else {
+    this.result = result;
+    fileType = resolveType(call.method);
+
+    if(fileType == null){
       result.notImplemented();
+    } else {
+      startFileExplorer(fileType);
     }
+
   }
 
-  private boolean checkPermission() {
+  private static boolean checkPermission() {
     Activity activity = instance.activity();
     Log.i(TAG, "Checking permission: " + permission);
     return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(activity, permission);
   }
 
-  private void requestPermission() {
+  private static void requestPermission() {
+
     Activity activity = instance.activity();
     Log.i(TAG, "Requesting permission: " + permission);
     String[] perm = { permission };
     ActivityCompat.requestPermissions(activity, perm, 0);
   }
 
-  private void startFileExplorer() {
+  private String resolveType(String type) {
+
+    switch (type){
+      case "PDF":
+        return "application/pdf";
+      case "ANY":
+        return "*/*";
+      default:
+        return null;
+    }
+  }
+
+
+
+
+  private static void startFileExplorer(String type) {
     Intent intent;
 
     if (checkPermission()) {
       if(Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT){
         intent = new Intent(Intent.ACTION_PICK);
-      }else{
-        intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+      } else {
+        intent = new Intent(Intent.ACTION_GET_CONTENT);
       }
 
-      intent.setType("application/pdf");
+      intent.setType(type);
       intent.addCategory(Intent.CATEGORY_OPENABLE);
       instance.activity().startActivityForResult(intent, REQUEST_CODE);
     } else {
       requestPermission();
-      startFileExplorer();
     }
   }
 

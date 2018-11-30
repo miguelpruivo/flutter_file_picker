@@ -11,8 +11,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _path = '...';
   String _fileName = '...';
+  String _path = '...';
   FileType _pickingType;
 
   void _openFileExplorer() async {
@@ -63,6 +63,10 @@ class _MyAppState extends State<MyApp> {
                   new DropdownMenuItem(
                     child: new Text('FROM PDF'),
                     value: FileType.PDF,
+                  ),
+                  new DropdownMenuItem(
+                    child: new Text('ANY'),
+                    value: FileType.ANY,
                   )
                 ],
                 onChanged: (value) {
@@ -85,7 +89,7 @@ class _MyAppState extends State<MyApp> {
               style: new TextStyle(fontWeight: FontWeight.bold),
             ),
             new Text(
-              _path,
+              _path ?? '...',
               textAlign: TextAlign.center,
               softWrap: true,
               textScaleFactor: 0.85,
