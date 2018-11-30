@@ -4,5 +4,7 @@
 .packages
 .pub/
 pubspec.lock
+.vscode
+.idea
 
 build/
