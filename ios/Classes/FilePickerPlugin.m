@@ -1,32 +1,56 @@
 #import "FilePickerPlugin.h"
 
-@implementation FilePickerPlugin
- FlutterResult _result;
-    UIViewController *_viewController;
-    UIDocumentPickerViewController *_pickerController;
-    UIDocumentInteractionController *_interactionController;
+@interface FilePickerPlugin()
+@property (nonatomic) FlutterResult result;
+@property (nonatomic) UIViewController *viewController;
+@property (nonatomic) UIDocumentPickerViewController *pickerController;
+@property (nonatomic) UIDocumentInteractionController *interactionController;
+@property (nonatomic) NSString * fileType;
+@end
 
+@implementation FilePickerPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-  
-  FlutterMethodChannel* channel = [FlutterMethodChannel
-      methodChannelWithName:@"file_picker"
-            binaryMessenger:[registrar messenger]];
+    
+    FlutterMethodChannel* channel = [FlutterMethodChannel
+                                     methodChannelWithName:@"file_picker"
+                                     binaryMessenger:[registrar messenger]];
     
     UIViewController *viewController = [UIApplication sharedApplication].delegate.window.rootViewController;
     FilePickerPlugin* instance = [[FilePickerPlugin alloc] initWithViewController:viewController];
     
-  [registrar addMethodCallDelegate:instance channel:channel];
+    [registrar addMethodCallDelegate:instance channel:channel];
 }
+
 
 - (instancetype)initWithViewController:(UIViewController *)viewController {
     self = [super init];
-    if (self) {
-        _viewController = viewController;
-        _pickerController = [[UIDocumentPickerViewController alloc]
-                                                               initWithDocumentTypes:@[@"com.adobe.pdf"]
-                                                               inMode:UIDocumentPickerModeImport];
+    if(self){
+        self.viewController = viewController;
+        
     }
     return self;
+}
+
+- (NSString*) resolveType:(NSString*)type {
+    
+    if ([type isEqualToString:@"PDF"]) {
+        return @"com.adobe.pdf";
+    }
+    else if ([type isEqualToString:@"ANY"])  {
+        return @"public.item";
+    } else {
+        return nil;
+    }
+    
+}
+
+- (void)initPicker {
+    self.pickerController = [[UIDocumentPickerViewController alloc]
+                         initWithDocumentTypes:@[self.fileType]
+                         inMode:UIDocumentPickerModeImport];
+    
+    self.pickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
+    self.pickerController.delegate = self;
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
@@ -36,37 +60,36 @@
                                     details:nil]);
         _result = nil;
     }
-
-
-  if ([@"pickPDF" isEqualToString:call.method]) {
-
-      _pickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
-      _pickerController.delegate = self;
-
-      _result = result;
-      [_viewController presentViewController:_pickerController animated:YES completion:^{
-          if (@available(iOS 11.0, *)) {
-              _pickerController.allowsMultipleSelection = NO;
-          }
-      }];
-
-  }
-  else {
-      result(FlutterMethodNotImplemented);
-  }
+    
+    self.fileType = [self resolveType:call.method];
+    
+    if(self.fileType == nil){
+        result(FlutterMethodNotImplemented);
+    } else {
+        
+        [self initPicker];
+        _result = result;
+        [_viewController presentViewController:self.pickerController animated:YES completion:^{
+            if (@available(iOS 11.0, *)) {
+                self.pickerController.allowsMultipleSelection = NO;
+            }
+        }];
+        
+    }
+    
 }
 
 - (void)documentPicker:(UIDocumentPickerViewController *)controller
 didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
-
-    [_pickerController dismissViewControllerAnimated:YES completion:nil];
-
+    
+    [self.pickerController dismissViewControllerAnimated:YES completion:nil];
+    
     NSString * uri;
-
+    
     for (NSURL *url in urls) {
-     uri = (NSString *)[url path];
+        uri = (NSString *)[url path];
     }
-
+    
     _result(uri);
 }
 
@@ -82,12 +105,12 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 }
 
 - (void)documentInteractionController:(UIDocumentInteractionController *)controller willBeginSendingToApplication:(NSString *)application {
-
+    
     NSLog(@"Starting to send this puppy to %@", application);
 }
 
 - (void)documentInteractionController:(UIDocumentInteractionController *)controller didEndSendingToApplication:(NSString *)application {
-
+    
     NSLog(@"We're done sending the document.");
 }
 
