@@ -1,4 +1,4 @@
 #import <Flutter/Flutter.h>
 
-@interface FilePickerPlugin : NSObject<FlutterPlugin>
+@interface FilePickerPlugin : NSObject<FlutterPlugin, UIDocumentPickerDelegate>
 @end
