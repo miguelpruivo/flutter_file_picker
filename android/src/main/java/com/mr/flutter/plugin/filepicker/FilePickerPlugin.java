@@ -136,6 +136,8 @@ public class FilePickerPlugin implements MethodCallHandler {
     switch (type){
       case "PDF":
         return "application/pdf";
+      case "VIDEO":
+        return "video/*";
       case "ANY":
         return "*/*";
       default:

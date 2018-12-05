@@ -29,12 +29,6 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-
-  // If the widget was removed from the tree while the asynchronous platform
-  // message was in flight, we want to discard the reply rather than calling
-  // setState to update our non-existent appearance.
-
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -65,14 +59,20 @@ class _MyAppState extends State<MyApp> {
                     value: FileType.PDF,
                   ),
                   new DropdownMenuItem(
+                    child: new Text('VIDEO'),
+                    value: FileType.VIDEO,
+                  ),
+                  new DropdownMenuItem(
                     child: new Text('ANY'),
                     value: FileType.ANY,
                   )
                 ],
                 onChanged: (value) {
-                  setState(() {
-                    _pickingType = value;
-                  });
+                  setState(
+                    () {
+                      _pickingType = value;
+                    },
+                  );
                 },
               ),
             ),
