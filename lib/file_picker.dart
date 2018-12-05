@@ -7,6 +7,7 @@ enum FileType {
   ANY,
   PDF,
   IMAGE,
+  VIDEO,
   CAPTURE,
 }
 
@@ -23,12 +24,14 @@ class FilePicker {
 
   static Future<String> getFilePath({FileType type = FileType.ANY}) async {
     switch (type) {
-      case FileType.PDF:
-        return _getPath('PDF');
       case FileType.IMAGE:
         return _getImage(ImageSource.gallery);
       case FileType.CAPTURE:
         return _getImage(ImageSource.camera);
+      case FileType.PDF:
+        return _getPath('PDF');
+      case FileType.VIDEO:
+        return _getPath('VIDEO');
       default:
         return _getPath('ANY');
     }

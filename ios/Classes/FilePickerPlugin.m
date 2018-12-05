@@ -1,4 +1,5 @@
 #import "FilePickerPlugin.h"
+#import "FileUtils.h"
 
 @interface FilePickerPlugin()
 @property (nonatomic) FlutterResult result;
@@ -24,30 +25,18 @@
 
 - (instancetype)initWithViewController:(UIViewController *)viewController {
     self = [super init];
-    if(self){
+    if(self) {
         self.viewController = viewController;
-        
     }
+    
     return self;
 }
 
-- (NSString*) resolveType:(NSString*)type {
-    
-    if ([type isEqualToString:@"PDF"]) {
-        return @"com.adobe.pdf";
-    }
-    else if ([type isEqualToString:@"ANY"])  {
-        return @"public.item";
-    } else {
-        return nil;
-    }
-    
-}
-
 - (void)initPicker {
+    
     self.pickerController = [[UIDocumentPickerViewController alloc]
-                         initWithDocumentTypes:@[self.fileType]
-                         inMode:UIDocumentPickerModeImport];
+                             initWithDocumentTypes:@[self.fileType]
+                             inMode:UIDocumentPickerModeImport];
     
     self.pickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
     self.pickerController.delegate = self;
@@ -61,20 +50,26 @@
         _result = nil;
     }
     
-    self.fileType = [self resolveType:call.method];
+    _result = result;
     
-    if(self.fileType == nil){
-        result(FlutterMethodNotImplemented);
-    } else {
+    
+    if([call.method isEqualToString:@"VIDEO"]) {
+        [self resolvePickVideo];
+    }
+    else {
+        self.fileType = [FileUtils resolveType:call.method];
         
-        [self initPicker];
-        _result = result;
-        [_viewController presentViewController:self.pickerController animated:YES completion:^{
-            if (@available(iOS 11.0, *)) {
-                self.pickerController.allowsMultipleSelection = NO;
-            }
-        }];
-        
+        if(self.fileType == nil){
+            result(FlutterMethodNotImplemented);
+        } else {
+            [self initPicker];
+            [_viewController presentViewController:self.pickerController animated:YES completion:^{
+                if (@available(iOS 11.0, *)) {
+                    self.pickerController.allowsMultipleSelection = NO;
+                }
+            }];
+            
+        }
     }
     
 }
@@ -83,35 +78,32 @@
 didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
     [self.pickerController dismissViewControllerAnimated:YES completion:nil];
-    
-    NSString * uri;
-    
-    for (NSURL *url in urls) {
-        uri = (NSString *)[url path];
-    }
-    
-    _result(uri);
+    _result([FileUtils resolvePath:urls]);
 }
 
-// DocumentInteractionController delegate
 
-- (void)documentInteractionControllerDidEndPreview:(UIDocumentInteractionController *)controller {
-    _result(@"Finished");
-}
+// VideoPicker delegate
 
-- (UIViewController *)documentInteractionControllerViewControllerForPreview:(UIDocumentInteractionController *)controller {
-    NSLog(@"Finished");
-    return  _viewController;
-}
-
-- (void)documentInteractionController:(UIDocumentInteractionController *)controller willBeginSendingToApplication:(NSString *)application {
+- (void) resolvePickVideo{
     
-    NSLog(@"Starting to send this puppy to %@", application);
+    UIImagePickerController *videoPicker = [[UIImagePickerController alloc] init];
+    videoPicker.delegate = self;
+    videoPicker.modalPresentationStyle = UIModalPresentationCurrentContext;
+    videoPicker.mediaTypes = @[(NSString*)kUTTypeMovie, (NSString*)kUTTypeAVIMovie, (NSString*)kUTTypeVideo, (NSString*)kUTTypeMPEG4];
+    videoPicker.videoQuality = UIImagePickerControllerQualityTypeHigh;
+    
+    [self.viewController presentViewController:videoPicker animated:YES completion:nil];
 }
 
-- (void)documentInteractionController:(UIDocumentInteractionController *)controller didEndSendingToApplication:(NSString *)application {
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     
-    NSLog(@"We're done sending the document.");
+    NSURL *videoURL = [info objectForKey:UIImagePickerControllerMediaURL];
+    [picker dismissViewControllerAnimated:YES completion:NULL];
+    _result([videoURL path]);
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    [picker dismissViewControllerAnimated:YES completion:NULL];
 }
 
 @end
