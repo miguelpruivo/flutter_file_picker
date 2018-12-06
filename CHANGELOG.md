@@ -1,8 +1,12 @@
+## 1.0.2
+
+ * Minor update of README file. 
+
 ## 1.0.1
 
  * Adds comments for public API
 
-## 1.0.1
+## 1.0.0
 
  * **Version 1.0** release.
  * Adds support for ANY and VIDEO files.
