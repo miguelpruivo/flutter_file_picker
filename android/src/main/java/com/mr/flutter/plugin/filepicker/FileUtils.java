@@ -8,12 +8,13 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 
 /**
  * Credits to NiRRaNjAN from package in.gauriinfotech.commons;.
  **/
-public class FilePath
+public class FileUtils
 {
 
     private static final String tag = "FilePathPicker";
@@ -56,16 +57,22 @@ public class FilePath
                     Log.e(tag, "+++ Primary External Document URI");
                     return Environment.getExternalStorageDirectory() + "/" + split[1];
                 }
-            } else if (isDownloadsDocument(uri))
-            {
+            } else if (isDownloadsDocument(uri)) {
                 Log.e(tag, "+++ Downloads External Document URI");
                 final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
 
-                return getDataColumn(context, contentUri, null, null);
-            } else if (isMediaDocument(uri))
-            {
+                if (!TextUtils.isEmpty(id)) {
+                    if (id.startsWith("raw:")) {
+                        return id.replaceFirst("raw:", "");
+                    }
+                    try {
+                        final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                        return getDataColumn(context, contentUri, null, null);
+                    } catch (Exception e) {
+                        Log.e(tag, "+++ Something went wrong while retrieving document path: " + e.toString());
+                    }
+                }
+            } else if (isMediaDocument(uri)) {
                 Log.e(tag, "+++ Media Document URI");
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");

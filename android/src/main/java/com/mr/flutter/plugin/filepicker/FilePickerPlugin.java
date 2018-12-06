@@ -48,7 +48,7 @@ public class FilePickerPlugin implements MethodCallHandler {
           if (data != null) {
             Uri uri = data.getData();
             Log.i(TAG, "URI:" +data.getData().toString());
-            String fullPath = FilePath.getPath(uri, instance.context());
+            String fullPath = FileUtils.getPath(uri, instance.context());
             String cloudFile = null;
 
             if(fullPath == null)
