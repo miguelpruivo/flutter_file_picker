@@ -13,7 +13,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _fileName = '...';
   String _path = '...';
-  FileType _pickingType;
+  FileType _pickingType = FileType.ANY;
 
   void _openFileExplorer() async {
     try {
