@@ -133,7 +133,7 @@ public class FilePickerPlugin implements MethodCallHandler {
 
   private String resolveType(String type) {
 
-    switch (type){
+    switch (type) {
       case "PDF":
         return "application/pdf";
       case "VIDEO":

@@ -32,6 +32,8 @@ class FilePicker {
         return _getPath('PDF');
       case FileType.VIDEO:
         return _getPath('VIDEO');
+      case FileType.ANY:
+        return _getPath('ANY');
       default:
         return _getPath('ANY');
     }
