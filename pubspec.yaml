@@ -4,6 +4,7 @@ version: 1.0.0
 author: Miguel Ruivo <miguelpruivo@outlook.com>
 homepage: https://github.com/miguelpruivo/plugins_flutter_file_picker
 
+
 dependencies:
   flutter:
     sdk: flutter
@@ -11,7 +12,7 @@ dependencies:
   meta: ^1.1.5
 
 environment:
-  sdk: ">=1.19.0 <3.0.0"
+  sdk: ">=2.0.0 <3.0.0"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec

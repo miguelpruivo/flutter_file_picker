@@ -35,4 +35,5 @@ android {
 
 dependencies {
     implementation 'com.android.support:appcompat-v7:27.0.0'
+    compileOnly files('/Users/miguelruivo/DevTools/flutter/bin/cache/artifacts/engine/android-arm64/flutter.jar')
 }
