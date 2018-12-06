@@ -1,4 +1,8 @@
-## 1.0.0
+## 1.0.1
+
+ * Adds comments for public API
+
+## 1.0.1
 
  * **Version 1.0** release.
  * Adds support for ANY and VIDEO files.

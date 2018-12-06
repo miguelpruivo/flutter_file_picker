@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
+/// Supported file types, [ANY] should be used if the file you need isn't listed
 enum FileType {
   ANY,
   PDF,
@@ -22,6 +23,7 @@ class FilePicker {
     return image?.path;
   }
 
+  /// Returns a [String] with the absolute path for the selected file
   static Future<String> getFilePath({FileType type = FileType.ANY}) async {
     switch (type) {
       case FileType.IMAGE:
