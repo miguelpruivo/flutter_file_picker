@@ -59,11 +59,11 @@ class _MyAppState extends State<MyApp> {
                     value: FileType.PDF,
                   ),
                   new DropdownMenuItem(
-                    child: new Text('VIDEO'),
+                    child: new Text('FROM VIDEO'),
                     value: FileType.VIDEO,
                   ),
                   new DropdownMenuItem(
-                    child: new Text('ANY'),
+                    child: new Text('FROM ANY'),
                     value: FileType.ANY,
                   )
                 ],

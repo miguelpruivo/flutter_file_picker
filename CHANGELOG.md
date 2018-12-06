@@ -1,3 +1,12 @@
+## 1.0.0
+
+ * **Version 1.0** release.
+ * Adds support for ANY and VIDEO files.
+ * Fixes an issue where permissions were recursively asked on Android.
+ * Fixes an issue where some paths from document files couldn't be loaded with Android 8.0.
+ * Updates README file to match changes. 
+ * General refactor & cleanup. 
+
 ## 0.1.6
 * Replaces commons dependency with FilePath class on Android, to handle path resolution on different SDK. 
 

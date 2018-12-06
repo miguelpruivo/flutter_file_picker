@@ -7,7 +7,7 @@ File picker plugin alows you to use a native file explorer to load absolute file
 First, add  *file_picker*  as a dependency in [your pubspec.yaml file](https://flutter.io/platform-plugins/).
 
 ```
-file_picker: ^0.1.3
+file_picker: ^1.0
 ```
 ## Android
 Add `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />` to your app `AndroidManifest.xml` file.
@@ -21,10 +21,12 @@ Since we are using *image_picker* as a dependency from this plugin to load paths
 
 ## To-do
 * [X] Load paths from local files & cloud (GDrive, Dropbox, iCloud)
-* [X] Load PDF file path
-* [X] Load path from gallery
-* [X] Load path from camera shot
-* [ ] Load a custom format
+* [X] Load path from **PDF**
+* [X] Load path from **gallery**
+* [X] Load path from **camera**
+* [X] Load path from **video**
+* [X] Load path from **any** type of file (without filtering)
+* [ ] Load path from a **custom format**
 
 ## Demo App
 
@@ -44,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void getFilePath() async {
    try {
-      String filePath = await FilePicker.getFilePath(type: FileType.PDF);
+      String filePath = await FilePicker.getFilePath(type: FileType.ANY);
       if (filePath == '') {
         return;
       }
