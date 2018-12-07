@@ -1,3 +1,7 @@
+## 1.0.3
+
+ * Fixes `build.gradle`.  
+
 ## 1.0.2
 
  * Minor update of README file. 
