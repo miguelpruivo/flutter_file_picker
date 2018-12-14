@@ -1,3 +1,5 @@
+[![pub package](https://img.shields.io/pub/v/file_picker.svg)](https://pub.dartlang.org/packages/file_picker)
+
 # file_picker
 
 File picker plugin alows you to use a native file explorer to load absolute file path from different types of files.
