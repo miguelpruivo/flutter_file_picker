@@ -1,3 +1,20 @@
+## 1.1.0
+
+**Breaking changes** 
+ * `FileType.PDF` was removed since now it can be used along with custom file types by using the `FileType.CUSTOM` and providing the file extension (e.g. PDF, SVG, ZIP, etc.).
+ * `FileType.CAPTURE` is now `FileType.CAMERA`
+ 
+**New features**
+ * Now it is possible to provide a custom file extension to filter file picking options by using `FileType.CUSTOM`
+ 
+**Bug fixes and updates**
+ * Fixes file names from cloud on Android. Previously it would always display **Document**
+ * Fixes an issue on iOS where an exception was being thrown after canceling and re-opening the picker.
+ * Fixes an issue where collision could happen with request codes on Android.
+ * Adds public documentation to `file_picker`
+ * Example app updated.
+ * Updates .gitignore
+
 ## 1.0.3
 
  * Fixes `build.gradle`.  
