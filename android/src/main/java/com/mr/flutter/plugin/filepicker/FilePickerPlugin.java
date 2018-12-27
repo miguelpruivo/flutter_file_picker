@@ -6,11 +6,14 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
@@ -25,10 +28,11 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 /** FilePickerPlugin */
 public class FilePickerPlugin implements MethodCallHandler {
 
-  private static final int REQUEST_CODE = 43;
+  private static final int REQUEST_CODE = FilePickerPlugin.class.hashCode() + 43;
+  private static final int PERM_CODE = FilePickerPlugin.class.hashCode() + 50;
   private static final String TAG = "FilePicker";
-
   private static final String permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
   private static Result result;
   private static Registrar instance;
   private static String fileType;
@@ -54,7 +58,7 @@ public class FilePickerPlugin implements MethodCallHandler {
             if(fullPath == null)
             {
               FileOutputStream fos = null;
-              cloudFile = instance.activeContext().getCacheDir().getAbsolutePath() + "/Document";
+              cloudFile = instance.activeContext().getCacheDir().getAbsolutePath() + "/" + FileUtils.getFileName(uri, instance.activeContext());
 
               try {
                 fos = new FileOutputStream(cloudFile);
@@ -78,7 +82,7 @@ public class FilePickerPlugin implements MethodCallHandler {
                 e.printStackTrace();
               }
 
-              Log.i(TAG, "Loaded file from cloud created on:" + cloudFile);
+              Log.i(TAG, "Cloud file loaded and cached on:" + cloudFile);
               fullPath = cloudFile;
             }
 
@@ -94,7 +98,7 @@ public class FilePickerPlugin implements MethodCallHandler {
     instance.addRequestPermissionsResultListener(new PluginRegistry.RequestPermissionsResultListener() {
       @Override
       public boolean onRequestPermissionsResult(int requestCode, String[] strings, int[] grantResults) {
-        if (requestCode == 0 && grantResults.length > 0
+        if (requestCode == PERM_CODE && grantResults.length > 0
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
           startFileExplorer(fileType);
           return true;
@@ -128,10 +132,19 @@ public class FilePickerPlugin implements MethodCallHandler {
     Activity activity = instance.activity();
     Log.i(TAG, "Requesting permission: " + permission);
     String[] perm = { permission };
-    ActivityCompat.requestPermissions(activity, perm, 0);
+    ActivityCompat.requestPermissions(activity, perm, PERM_CODE);
   }
 
   private String resolveType(String type) {
+
+    final boolean isCustom = type.contains("__CUSTOM_");
+
+    if(isCustom) {
+      final String extension = type.split("__CUSTOM_")[1].toLowerCase();
+      String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+      Log.i(TAG, "Custom file type: " + mime);
+      return mime;
+    }
 
     switch (type) {
       case "PDF":
@@ -152,14 +165,19 @@ public class FilePickerPlugin implements MethodCallHandler {
     Intent intent;
 
     if (checkPermission()) {
-      if(Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT){
+      if(Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
         intent = new Intent(Intent.ACTION_PICK);
       } else {
         intent = new Intent(Intent.ACTION_GET_CONTENT);
       }
 
+      Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
+      intent.setDataAndType(uri, type);
       intent.setType(type);
       intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+      Log.d(TAG, "Intent: " + intent.toString());
+
       instance.activity().startActivityForResult(intent, REQUEST_CODE);
     } else {
       requestPermission();

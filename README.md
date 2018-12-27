@@ -4,17 +4,17 @@
 </a>
 # file_picker
 
-File picker plugin alows you to use a native file explorer to load absolute file path from different types of files.
+File picker plugin alows you to use a native file explorer to load absolute file path from different file types.
 
 ## Installation
 
 First, add  *file_picker*  as a dependency in [your pubspec.yaml file](https://flutter.io/platform-plugins/).
 
 ```
-file_picker: ^1.0.2
+file_picker: ^1.1.0
 ```
 ## Android
-Add `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />` to your app `AndroidManifest.xml` file.
+Add `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>` to your app `AndroidManifest.xml` file.
 
 ## iOS
 Since we are using *image_picker* as a dependency from this plugin to load paths from gallery and camera, we need the following keys to your _Info.plist_ file, located in `<project root>/ios/Runner/Info.plist`:
@@ -22,19 +22,19 @@ Since we are using *image_picker* as a dependency from this plugin to load paths
 * `NSPhotoLibraryUsageDescription` - describe why your app needs permission for the photo library. This is called _Privacy - Photo Library Usage Description_ in the visual editor.
 * `NSCameraUsageDescription` - describe why your app needs access to the camera. This is called _Privacy - Camera Usage Description_ in the visual editor.
 * `NSMicrophoneUsageDescription` - describe why your app needs access to the microphone, if you intend to record videos. This is called _Privacy - Microphone Usage Description_ in the visual editor.
+* `UIBackgroundModes` with the `fetch` and `remote-notifications` keys - describe why your app needs to access background taks, such downloading files (from cloud services) when not cached to locate path. This is called _Required background modes_, with the keys _App download content from network_ and _App downloads content in response to push notifications_ respectively in the visual editor (since both methods aren't actually overriden, not adding this property/keys may only display a warning, but shouldn't prevent its correct usage).
 
-## To-do
+## Currently supported features
 * [X] Load paths from **cloud files** (GDrive, Dropbox, iCloud)
-* [X] Load path from **PDF**
 * [X] Load path from **gallery**
 * [X] Load path from **camera**
 * [X] Load path from **video**
 * [X] Load path from **any** type of file (without filtering)
-* [ ] Load path from a **custom format**
+* [X] Load path from a **custom format** by providing a file extension (pdf, svg, zip, etc.)
 
 ## Demo App
 
-![Demo](https://github.com/miguelpruivo/plugins_flutter_file_picker/blob/master/example/demo.png)
+![Demo](https://github.com/miguelpruivo/plugins_flutter_file_picker/blob/master/example/example.gif)
 
 ## Example
 ```

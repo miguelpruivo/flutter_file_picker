@@ -83,7 +83,6 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 
 
 // VideoPicker delegate
-
 - (void) resolvePickVideo{
     
     UIImagePickerController *videoPicker = [[UIImagePickerController alloc] init];
@@ -102,7 +101,13 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     _result([videoURL path]);
 }
 
+- (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller {
+    _result = nil;
+    [controller dismissViewControllerAnimated:YES completion:NULL];
+}
+
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    _result = nil;
     [picker dismissViewControllerAnimated:YES completion:NULL];
 }
 
