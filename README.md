@@ -1,7 +1,6 @@
 [![pub package](https://img.shields.io/pub/v/file_picker.svg)](https://pub.dartlang.org/packages/file_picker)
-<a href="https://github.com/Solido/awesome-flutter">
-   <img alt="Awesome Flutter" src="https://img.shields.io/badge/Awesome-Flutter-blue.svg?longCache=true&style=flat-square" />
-</a>
+[![Awesome Flutter](https://img.shields.io/badge/Awesome-Flutter-blue.svg?longCache=true&style=flat-square)](https://github.com/Solido/awesome-flutter)
+
 # file_picker
 
 File picker plugin alows you to use a native file explorer to load absolute file path from different file types.
@@ -11,7 +10,7 @@ File picker plugin alows you to use a native file explorer to load absolute file
 First, add  *file_picker*  as a dependency in [your pubspec.yaml file](https://flutter.io/platform-plugins/).
 
 ```
-file_picker: ^1.1.0
+file_picker: ^1.1.1
 ```
 ## Android
 Add `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>` to your app `AndroidManifest.xml` file.
@@ -23,6 +22,18 @@ Since we are using *image_picker* as a dependency from this plugin to load paths
 * `NSCameraUsageDescription` - describe why your app needs access to the camera. This is called _Privacy - Camera Usage Description_ in the visual editor.
 * `NSMicrophoneUsageDescription` - describe why your app needs access to the microphone, if you intend to record videos. This is called _Privacy - Microphone Usage Description_ in the visual editor.
 * `UIBackgroundModes` with the `fetch` and `remote-notifications` keys - describe why your app needs to access background taks, such downloading files (from cloud services) when not cached to locate path. This is called _Required background modes_, with the keys _App download content from network_ and _App downloads content in response to push notifications_ respectively in the visual editor (since both methods aren't actually overriden, not adding this property/keys may only display a warning, but shouldn't prevent its correct usage).
+
+## Usage
+There's only one method within this package
+`FilePicker.getFilePath()`
+this receives 2 optional parameters, the `fileType` and a `fileExtension` to be used along with `FileType.CUSTOM`. 
+So, 2 basically usages may be:
+```
+await FilePicker.getFilePath(type: FileType.ANY); // will display all file types
+await FilePicker.getFilePath(type: FileType.CUSTOM, fileExtension: 'svg'); // will filter and display only files with SVG extension.
+```
+
+**Note:** When using `FileType.CUSTOM`, unsupported extensions will throw a `MissingPluginException` that is handled by the plugin.
 
 ## Currently supported features
 * [X] Load paths from **cloud files** (GDrive, Dropbox, iCloud)
