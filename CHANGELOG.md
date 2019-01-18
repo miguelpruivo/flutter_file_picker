@@ -1,3 +1,7 @@
+## 1.1.1
+
+* Updates README file.
+
 ## 1.1.0
 
 **Breaking changes** 
