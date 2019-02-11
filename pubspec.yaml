@@ -8,7 +8,7 @@ homepage: https://github.com/miguelpruivo/plugins_flutter_file_picker
 dependencies:
   flutter:
     sdk: flutter
-  image_picker: ^0.4.10
+  image_picker: ^0.5.0+3
   meta: ^1.1.5
 
 environment:
