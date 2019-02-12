@@ -10,7 +10,7 @@ File picker plugin alows you to use a native file explorer to load absolute file
 First, add  *file_picker*  as a dependency in [your pubspec.yaml file](https://flutter.io/platform-plugins/).
 
 ```
-file_picker: ^1.1.1
+file_picker: ^1.2.0
 ```
 ## Android
 Add `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>` to your app `AndroidManifest.xml` file.
