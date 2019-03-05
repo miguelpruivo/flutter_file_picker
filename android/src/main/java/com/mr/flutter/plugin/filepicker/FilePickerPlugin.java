@@ -15,6 +15,7 @@ import android.webkit.MimeTypeMap;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 
@@ -62,14 +63,14 @@ public class FilePickerPlugin implements MethodCallHandler {
 
               try {
                 fos = new FileOutputStream(cloudFile);
-                try{
+                try {
                   BufferedOutputStream out = new BufferedOutputStream(fos);
                   InputStream in = instance.activeContext().getContentResolver().openInputStream(uri);
 
                   byte[] buffer = new byte[8192];
                   int len = 0;
 
-                  while ((len = in.read(buffer)) >= 0){
+                  while ((len = in.read(buffer)) >= 0) {
                     out.write(buffer, 0, len);
                   }
 
@@ -77,15 +78,18 @@ public class FilePickerPlugin implements MethodCallHandler {
                 } finally {
                   fos.getFD().sync();
                 }
-
               } catch (Exception e) {
-                e.printStackTrace();
+                try {
+                  fos.close();
+                } catch(IOException ex) {
+                  result.error(TAG, "Failed to close file streams: " + e.getMessage(),null);
+                }
+                result.error(TAG, "Failed to retrieve path: " + e.getMessage(),null);
               }
 
               Log.i(TAG, "Cloud file loaded and cached on:" + cloudFile);
               fullPath = cloudFile;
             }
-
             Log.i(TAG, "Absolute file path:" + fullPath);
             result.success(fullPath);
           }
@@ -147,8 +151,6 @@ public class FilePickerPlugin implements MethodCallHandler {
     }
 
     switch (type) {
-      case "PDF":
-        return "application/pdf";
       case "VIDEO":
         return "video/*";
       case "ANY":
