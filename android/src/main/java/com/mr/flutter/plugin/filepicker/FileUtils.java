@@ -19,7 +19,7 @@ import android.webkit.MimeTypeMap;
 
 public class FileUtils {
 
-    private static final String tag = "FilePathPicker";
+    private static final String tag = "FilePickerUtils";
 
     public static String getPath(final Uri uri, Context context) {
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
@@ -38,27 +38,26 @@ public class FileUtils {
 
     @TargetApi(19)
     private static String getForApi19(Context context, Uri uri) {
-        Log.e(tag, "+++ API 19 URI :: " + uri);
+        Log.e(tag, " --- API 19 URI --- " + uri);
         if (DocumentsContract.isDocumentUri(context, uri)) {
-            Log.e(tag, "+++ Document URI");
+            Log.e(tag, "--- Document URI ---");
             if (isExternalStorageDocument(uri)) {
-                Log.e(tag, "+++ External Document URI");
+                Log.e(tag, "--- External Document URI ---");
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
                 if ("primary".equalsIgnoreCase(type)) {
-                    Log.e(tag, "+++ Primary External Document URI");
+                    Log.e(tag, "--- Primary External Document URI ---");
                     return Environment.getExternalStorageDirectory() + "/" + split[1];
                 }
             } else if (isDownloadsDocument(uri)) {
-                Log.e(tag, "+++ Downloads External Document URI");
+                Log.e(tag, "--- Downloads External Document URI ---");
                 final String id = DocumentsContract.getDocumentId(uri);
 
                 if (!TextUtils.isEmpty(id)) {
                     if (id.startsWith("raw:")) {
                         return id.replaceFirst("raw:", "");
                     }
-
                         String[] contentUriPrefixesToTry = new String[]{
                                 "content://downloads/public_downloads",
                                 "content://downloads/my_downloads",
@@ -72,26 +71,26 @@ public class FileUtils {
                                     return path;
                                 }
                             } catch (Exception e) {
-                                Log.e(tag, "+++ Something went wrong while retrieving document path: " + e.toString());
+                                Log.e(tag, "Something went wrong while retrieving document path: " + e.toString());
                             }
                         }
 
                     }
             } else if (isMediaDocument(uri)) {
-                Log.e(tag, "+++ Media Document URI");
+                Log.e(tag, "--- Media Document URI ---");
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
 
                 Uri contentUri = null;
                 if ("image".equals(type)) {
-                    Log.e(tag, "+++ Image Media Document URI");
+                    Log.e(tag, "--- Image Media Document URI ---");
                     contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
                 } else if ("video".equals(type)) {
-                    Log.e(tag, "+++ Video Media Document URI");
+                    Log.e(tag, "--- Video Media Document URI ---");
                     contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
                 } else if ("audio".equals(type)) {
-                    Log.e(tag, "+++ Audio Media Document URI");
+                    Log.e(tag, "--- Audio Media Document URI ---");
                     contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
                 }
 
@@ -103,13 +102,13 @@ public class FileUtils {
                 return getDataColumn(context, contentUri, selection, selectionArgs);
             }
         } else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            Log.e(tag, "+++ No DOCUMENT URI :: CONTENT ");
+            Log.e(tag, "--- NO DOCUMENT URI - CONTENT ---");
             if (isGooglePhotosUri(uri))
                 return uri.getLastPathSegment();
 
             return getDataColumn(context, uri, null, null);
         } else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            Log.e(tag, "+++ No DOCUMENT URI :: FILE ");
+            Log.e(tag, "--- No DOCUMENT URI - FILE ---");
             return uri.getPath();
         }
         return null;

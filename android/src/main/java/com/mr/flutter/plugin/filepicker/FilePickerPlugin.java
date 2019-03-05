@@ -87,7 +87,7 @@ public class FilePickerPlugin implements MethodCallHandler {
                 result.error(TAG, "Failed to retrieve path: " + e.getMessage(),null);
               }
 
-              Log.i(TAG, "Cloud file loaded and cached on:" + cloudFile);
+              Log.i(TAG, "Remote file loaded and cached at:" + cloudFile);
               fullPath = cloudFile;
             }
             Log.i(TAG, "Absolute file path:" + fullPath);
@@ -151,6 +151,10 @@ public class FilePickerPlugin implements MethodCallHandler {
     }
 
     switch (type) {
+      case "AUDIO":
+        return "audio/*";
+      case "IMAGE":
+        return "image/*";
       case "VIDEO":
         return "video/*";
       case "ANY":

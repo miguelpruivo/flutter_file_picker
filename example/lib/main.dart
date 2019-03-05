@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 
-void main() => runApp(new MyApp());
+void main() => runApp(new FilePickerDemo());
 
-class MyApp extends StatefulWidget {
+class FilePickerDemo extends StatefulWidget {
   @override
-  _MyAppState createState() => new _MyAppState();
+  _FilePickerDemoState createState() => new _FilePickerDemoState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _FilePickerDemoState extends State<FilePickerDemo> {
   String _fileName = '...';
   String _path = '...';
   String _extension;
@@ -60,9 +60,13 @@ class _MyAppState extends State<MyApp> {
                       hint: new Text('LOAD PATH FROM'),
                       value: _pickingType,
                       items: <DropdownMenuItem>[
+                        // new DropdownMenuItem(
+                        //   child: new Text('FROM CAMERA'),
+                        //   value: FileType.CAMERA,
+                        // ),
                         new DropdownMenuItem(
-                          child: new Text('FROM CAMERA'),
-                          value: FileType.CAMERA,
+                          child: new Text('FROM AUDIO'),
+                          value: FileType.AUDIO,
                         ),
                         new DropdownMenuItem(
                           child: new Text('FROM GALLERY'),

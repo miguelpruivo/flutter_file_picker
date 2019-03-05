@@ -23,10 +23,7 @@
         return [UTIString containsString:@"dyn."] ? nil : UTIString;
     }
     
-    if ([type isEqualToString:@"PDF"]) {
-        return @"com.adobe.pdf";
-    }
-    else if ([type isEqualToString:@"ANY"])  {
+    if ([type isEqualToString:@"ANY"]) {
         return @"public.item";
     } else {
         return nil;
