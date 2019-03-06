@@ -7,7 +7,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 @interface FileUtils : NSObject 
 + (NSString*) resolveType:(NSString*)type;
-+ (NSString*) resolvePath:(NSArray<NSURL *> *)urls;
++ (NSArray*) resolvePath:(NSArray<NSURL *> *)urls;
 @end
 
 

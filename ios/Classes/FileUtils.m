@@ -30,15 +30,16 @@
     }
 }
 
-
-+ (NSString*) resolvePath:(NSArray<NSURL *> *)urls{
++ (NSMutableArray*) resolvePath:(NSArray<NSURL *> *)urls{
     NSString * uri;
+    NSMutableArray * paths = [[NSMutableArray alloc] init];
     
     for (NSURL *url in urls) {
         uri = (NSString *)[url path];
+        [paths addObject:uri];
     }
     
-    return uri;
+    return paths;
 }
 
 @end

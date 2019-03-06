@@ -7,8 +7,8 @@
 @property (nonatomic) UIViewController *viewController;
 @property (nonatomic) UIImagePickerController *galleryPickerController;
 @property (nonatomic) UIDocumentPickerViewController *pickerController;
-@property (nonatomic) MPMediaPickerController *audioPickerController;
 @property (nonatomic) UIDocumentInteractionController *interactionController;
+@property (nonatomic) MPMediaPickerController *audioPickerController;
 @property (nonatomic) NSString * fileType;
 @end
 
@@ -60,7 +60,7 @@
         if(self.fileType == nil){
             result(FlutterMethodNotImplemented);
         } else {
-            [self resolvePickDocument];
+            [self resolvePickDocumentWithMultipleSelection:call.arguments];
         }
     }
     
@@ -68,17 +68,18 @@
 
 #pragma mark - Resolvers
 
-- (void)resolvePickDocument {
+- (void)resolvePickDocumentWithMultipleSelection:(BOOL)allowsMultipleSelection {
     
     self.pickerController = [[UIDocumentPickerViewController alloc]
                              initWithDocumentTypes:@[self.fileType]
                              inMode:UIDocumentPickerModeImport];
     
     if (@available(iOS 11.0, *)) {
-        self.pickerController.allowsMultipleSelection = NO;
-    } else {
-        // Fallback on earlier versions
+        self.pickerController.allowsMultipleSelection = allowsMultipleSelection;
+    } else if(allowsMultipleSelection) {
+       NSLog(@"Multiple file selection is only supported on iOS 11 and above. Single selection will be used.");
     }
+    
     self.pickerController.delegate = self;
     self.pickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
     self.galleryPickerController.allowsEditing = NO;
@@ -124,7 +125,14 @@
 didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
     [self.pickerController dismissViewControllerAnimated:YES completion:nil];
-    _result([FileUtils resolvePath:urls]);
+    NSArray * result = [FileUtils resolvePath:urls];
+    
+    if([result count] > 1) {
+        _result(result);
+    } else {
+       _result([result objectAtIndex:0]);
+    }
+    
 }
 
 
