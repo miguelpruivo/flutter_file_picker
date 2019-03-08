@@ -30,15 +30,15 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     if (_pickingType != FileType.CUSTOM || _hasValidMime) {
       try {
         if (_multiPick) {
+          _path = null;
           _paths = await FilePicker.getMultiFilePath(fileExtension: _extension);
-          print("cenas");
         } else {
+          _paths = null;
           _path = await FilePicker.getFilePath(type: _pickingType, fileExtension: _extension);
         }
       } on PlatformException catch (e) {
         print("Unsupported operation" + e.toString());
       }
-
       if (!mounted) return;
 
       setState(() {
@@ -90,7 +90,15 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                             value: FileType.CUSTOM,
                           ),
                         ],
-                        onChanged: (value) => setState(() => _pickingType = value)),
+                        onChanged: (value) => setState(() {
+                              _pickingType = value;
+                              if (_pickingType != FileType.CUSTOM && _pickingType != FileType.ANY) {
+                                _multiPick = false;
+                              }
+                              if (_pickingType != FileType.CUSTOM) {
+                                _controller.text = _extension = '';
+                              }
+                            })),
                   ),
                   _pickingType == FileType.CUSTOM
                       ? new TextFormField(
@@ -131,7 +139,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                     style: new TextStyle(fontWeight: FontWeight.bold),
                   ),
                   new Text(
-                    _path ?? _paths?.values?.map((path) => path + '\n\n').toString() ?? '...',
+                    _path ?? ((_paths != null && _paths.isNotEmpty) ? _paths.values.map((path) => path + '\n\n').toString() : '...'),
                     textAlign: TextAlign.center,
                     softWrap: true,
                     textScaleFactor: 0.85,

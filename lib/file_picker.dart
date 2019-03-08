@@ -16,10 +16,12 @@ class FilePicker {
   static const MethodChannel _channel = const MethodChannel('file_picker');
   static const String _tag = 'FilePicker';
 
+  FilePicker._();
+
   static Future<dynamic> _getPath(String type, [bool multipleSelection = false]) async {
     try {
       dynamic result = await _channel.invokeMethod(type, multipleSelection);
-      if (multipleSelection) {
+      if (result != null && multipleSelection) {
         if (result is String) {
           result = [result];
         }
@@ -43,7 +45,7 @@ class FilePicker {
   /// If provided, it will be use the `FileType.CUSTOM` for that [fileExtension].
   /// If not, `FileType.ANY` will be used and any combination of files can be multi picked at once.
   static Future<Map<String, String>> getMultiFilePath({String fileExtension}) async =>
-      await _getPath(fileExtension != null ? (_kCustomType + fileExtension) : 'ANY', true);
+      await _getPath(fileExtension != null && fileExtension != '' ? (_kCustomType + fileExtension) : 'ANY', true);
 
   /// Returns an absolute file path from the calling platform
   ///

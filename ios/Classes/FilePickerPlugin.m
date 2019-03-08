@@ -77,7 +77,7 @@
     if (@available(iOS 11.0, *)) {
         self.pickerController.allowsMultipleSelection = allowsMultipleSelection;
     } else if(allowsMultipleSelection) {
-       NSLog(@"Multiple file selection is only supported on iOS 11 and above. Single selection will be used.");
+       Log(@"Multiple file selection is only supported on iOS 11 and above. Single selection will be used.");
     }
     
     self.pickerController.delegate = self;
@@ -171,7 +171,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     [mediaPicker dismissViewControllerAnimated:YES completion:NULL];
     NSURL *url = [[[mediaItemCollection items] objectAtIndex:0] valueForKey:MPMediaItemPropertyAssetURL];
     if(url == nil) {
-        NSLog(@"Couldn't retrieve the audio file path, either is not locally downloaded or the file DRM protected.");
+        Log(@"Couldn't retrieve the audio file path, either is not locally downloaded or the file DRM protected.");
     }
      _result([url absoluteString]);
 }
@@ -179,16 +179,22 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 #pragma mark - Actions canceled
 
 - (void)mediaPickerDidCancel:(MPMediaPickerController *)controller {
+    Log(@"FilePicker canceled");
+    _result(nil);
     _result = nil;
     [controller dismissViewControllerAnimated:YES completion:NULL];
 }
 
 - (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller {
+    Log(@"FilePicker canceled");
+    _result(nil);
     _result = nil;
     [controller dismissViewControllerAnimated:YES completion:NULL];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    Log(@"FilePicker canceled");
+    _result(nil);
     _result = nil;
     [picker dismissViewControllerAnimated:YES completion:NULL];
 }

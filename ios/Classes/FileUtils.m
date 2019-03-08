@@ -19,7 +19,7 @@
         CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[format pathExtension], NULL);
         NSString * UTIString = (__bridge NSString *)(UTI);
         CFRelease(UTI);
-        NSLog(@"Custom file type: %@", UTIString);
+        Log(@"Custom file type: %@", UTIString);
         return [UTIString containsString:@"dyn."] ? nil : UTIString;
     }
     
