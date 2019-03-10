@@ -12,11 +12,8 @@ import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import java.io.BufferedOutputStream;
+
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 
 
@@ -175,8 +172,6 @@ public class FilePickerPlugin implements MethodCallHandler {
       intent.setType(type);
       intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection);
       intent.addCategory(Intent.CATEGORY_OPENABLE);
-
-      Log.d(TAG, "Intent: " + intent.toString());
 
       instance.activity().startActivityForResult(intent, REQUEST_CODE);
     } else {

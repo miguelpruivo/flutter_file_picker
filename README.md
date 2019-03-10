@@ -44,15 +44,21 @@ Picking multiple paths from iOS gallery (image and video) aren't currently suppo
 
 #### Usages
 
-So, a few basically usages can be as follow:
+So, a few example usages can be as follow:
 ```
+// Single file path
 String filePath;
 filePath = await FilePicker.getFilePath(type: FileType.ANY); // will let you pick one file, from all extensions
 filePath = await FilePicker.getFilePath(type: FileType.CUSTOM, fileExtension: 'svg'); // will filter and only let you pick files with svg extension.
 
+// Multi file path
 Map<String,String> filesPaths;
 filePaths = await FilePicker.getMultiFilePath(); // will let you pick multiple files of any format at once
 filePaths = await FilePicker.getMultiFilePath(fileExtension: 'pdf'); // will let you pick multiple pdf files at once
+
+List<String> allNames = filePaths.keys; // List of all file names
+List<String> allPaths = filePaths.values; // List of all paths
+String someFilePath = filePaths['fileName']; // Access a file path directly by its name (matching a key)
 ```
 
 ##### A few notes
@@ -73,51 +79,7 @@ filePaths = await FilePicker.getMultiFilePath(fileExtension: 'pdf'); // will let
 ![Demo](https://github.com/miguelpruivo/plugins_flutter_file_picker/blob/master/example/example.gif)
 
 ## Example
-```
-import 'package:file_picker/file_picker.dart';
-
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() => new _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  String _filePath;
-
-  void getFilePath() async {
-   try {
-      String filePath = await FilePicker.getFilePath(type: FileType.ANY);
-      if (filePath == '') {
-        return;
-      }
-      print("File path: " + filePath);
-      setState((){this._filePath = filePath;});
-    } on PlatformException catch (e) {
-      print("Error while picking the file: " + e.toString());
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text('File Picker Example'),
-      ),
-      body: new Center(
-        child: _filePath == null
-            ? new Text('No file selected.')
-            : new Text('Path' + _filePath),
-      ),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: getFilePath,
-        tooltip: 'Select file',
-        child: new Icon(Icons.sd_storage),
-      ),
-    );
-  }
-}
-
-```
+See example app.
 
 ## Getting Started
 
