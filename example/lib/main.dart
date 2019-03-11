@@ -29,7 +29,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   void _openFileExplorer() async {
     if (_pickingType != FileType.CUSTOM || _hasValidMime) {
       try {
-        if (_multiPick) {
+        if (_pickingType == FileType.DIRECTORY_ONLY) {
+          _path = await FilePicker.getDirectoryPath();
+          print("PATH: " + _path);
+        } else if (_multiPick) {
           _path = null;
           _paths = await FilePicker.getMultiFilePath(fileExtension: _extension);
         } else {
@@ -88,6 +91,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                           new DropdownMenuItem(
                             child: new Text('CUSTOM FORMAT'),
                             value: FileType.CUSTOM,
+                          ),
+                          new DropdownMenuItem(
+                            child: new Text('DIRECTORY ONLY'),
+                            value: FileType.DIRECTORY_ONLY,
                           ),
                         ],
                         onChanged: (value) => setState(() {

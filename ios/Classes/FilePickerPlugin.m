@@ -6,7 +6,7 @@
 @property (nonatomic) FlutterResult result;
 @property (nonatomic) UIViewController *viewController;
 @property (nonatomic) UIImagePickerController *galleryPickerController;
-@property (nonatomic) UIDocumentPickerViewController *pickerController;
+@property (nonatomic) UIDocumentPickerViewController *documentPickerController;
 @property (nonatomic) UIDocumentInteractionController *interactionController;
 @property (nonatomic) MPMediaPickerController *audioPickerController;
 @property (nonatomic) NSString * fileType;
@@ -37,10 +37,11 @@
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
     if (_result) {
-        _result([FlutterError errorWithCode:@"multiple_request"
+        result([FlutterError errorWithCode:@"multiple_request"
                                     message:@"Cancelled by a second request"
                                     details:nil]);
         _result = nil;
+        return;
     }
     
     _result = result;
@@ -56,7 +57,6 @@
         [self resolvePickImage];
     } else {
         self.fileType = [FileUtils resolveType:call.method];
-        
         if(self.fileType == nil){
             result(FlutterMethodNotImplemented);
         } else {
@@ -70,20 +70,27 @@
 
 - (void)resolvePickDocumentWithMultipleSelection:(BOOL)allowsMultipleSelection {
     
-    self.pickerController = [[UIDocumentPickerViewController alloc]
+    @try{
+        self.documentPickerController = [[UIDocumentPickerViewController alloc]
                              initWithDocumentTypes:@[self.fileType]
                              inMode:UIDocumentPickerModeImport];
+    } @catch (NSException * e) {
+       Log(@"Can't use documents fie picker. Probably due to iOS version being below 11.0 and not having the iCloud entitlement. If so, just make sure to enable it for your app in Xcode. Exception was: %@", e);
+        _result = nil;
+        return;
+    }
     
     if (@available(iOS 11.0, *)) {
-        self.pickerController.allowsMultipleSelection = allowsMultipleSelection;
+        self.documentPickerController.allowsMultipleSelection = allowsMultipleSelection;
     } else if(allowsMultipleSelection) {
        Log(@"Multiple file selection is only supported on iOS 11 and above. Single selection will be used.");
     }
     
-    self.pickerController.delegate = self;
-    self.pickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
+    self.documentPickerController.delegate = self;
+    self.documentPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
     self.galleryPickerController.allowsEditing = NO;
-    [_viewController presentViewController:self.pickerController animated:YES completion:nil];
+    
+    [_viewController presentViewController:self.documentPickerController animated:YES completion:nil];
 }
 
 - (void) resolvePickImage {
@@ -124,7 +131,7 @@
 - (void)documentPicker:(UIDocumentPickerViewController *)controller
 didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
-    [self.pickerController dismissViewControllerAnimated:YES completion:nil];
+    [self.documentPickerController dismissViewControllerAnimated:YES completion:nil];
     NSArray * result = [FileUtils resolvePath:urls];
     
     if([result count] > 1) {
@@ -132,6 +139,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     } else {
        _result([result objectAtIndex:0]);
     }
+    _result = nil;
     
 }
 
@@ -159,9 +167,12 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         _result([FlutterError errorWithCode:@"file_picker_error"
                                     message:@"Temporary file could not be created"
                                     details:nil]);
+        _result = nil;
+        return;
     }
     
     _result([pickedVideoUrl != nil ? pickedVideoUrl : pickedImageUrl path]);
+    _result = nil;
 }
 
 
@@ -174,6 +185,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         Log(@"Couldn't retrieve the audio file path, either is not locally downloaded or the file DRM protected.");
     }
      _result([url absoluteString]);
+     _result = nil;
 }
 
 #pragma mark - Actions canceled

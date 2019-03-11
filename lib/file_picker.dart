@@ -4,13 +4,7 @@ import 'package:flutter/services.dart';
 
 String _kCustomType = '__CUSTOM_';
 
-enum FileType {
-  ANY,
-  IMAGE,
-  VIDEO,
-  AUDIO,
-  CUSTOM,
-}
+enum FileType { ANY, IMAGE, VIDEO, AUDIO, CUSTOM, DIRECTORY_ONLY }
 
 class FilePicker {
   static const MethodChannel _channel = const MethodChannel('file_picker');
@@ -29,11 +23,24 @@ class FilePicker {
       }
       return result;
     } on PlatformException catch (e) {
-      print("[$_tag] Platform exception: " + e.toString());
+      print('[$_tag] Platform exception: ' + e.toString());
     } catch (e) {
       print(e.toString());
       print(
-          "[$_tag] Unsupported operation. This probably have happened because [${type.split('_').last}] is an unsupported file type. You may want to try FileType.ALL instead.");
+          '[$_tag] Unsupported operation. This probably have happened because [${type.split('_').last}] is an unsupported file type. You may want to try FileType.ALL instead.');
+    }
+    return null;
+  }
+
+  static Future<String> getDirectoryPath() async {
+    try {
+      final String result = await _channel.invokeMethod("getDirectoryPath");
+      return result;
+    } on PlatformException catch (e) {
+      print('[$_tag] Platform exception: ' + e.toString());
+    } catch (e) {
+      print(e.toString());
+      print('[$_tag] Unsupported operation.');
     }
     return null;
   }
