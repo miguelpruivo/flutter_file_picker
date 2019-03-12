@@ -6,7 +6,7 @@
 @property (nonatomic) FlutterResult result;
 @property (nonatomic) UIViewController *viewController;
 @property (nonatomic) UIImagePickerController *galleryPickerController;
-@property (nonatomic) UIDocumentPickerViewController *pickerController;
+@property (nonatomic) UIDocumentPickerViewController *documentPickerController;
 @property (nonatomic) UIDocumentInteractionController *interactionController;
 @property (nonatomic) MPMediaPickerController *audioPickerController;
 @property (nonatomic) NSString * fileType;
@@ -37,31 +37,34 @@
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
     if (_result) {
-        _result([FlutterError errorWithCode:@"multiple_request"
+        result([FlutterError errorWithCode:@"multiple_request"
                                     message:@"Cancelled by a second request"
                                     details:nil]);
         _result = nil;
+        return;
     }
     
     _result = result;
-    
-    
-    if([call.method isEqualToString:@"VIDEO"]) {
+    BOOL isMultiplePick = [call.arguments boolValue];
+    if(isMultiplePick || [call.method isEqualToString:@"ANY"] || [call.method containsString:@"__CUSTOM"]) {
+        self.fileType = [FileUtils resolveType:call.method];
+        if(self.fileType == nil) {
+            _result([FlutterError errorWithCode:@"Unsupported file extension"
+                                        message:@"Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.ALL instead."
+                                        details:nil]);
+            _result = nil;
+        } else if(self.fileType != nil) {
+            [self resolvePickDocumentWithMultipleSelection:isMultiplePick];
+        }
+    } else if([call.method isEqualToString:@"VIDEO"]) {
         [self resolvePickVideo];
-    }
-    else if([call.method isEqualToString:@"AUDIO"]) {
+    } else if([call.method isEqualToString:@"AUDIO"]) {
         [self resolvePickAudio];
-    }
-    else if([call.method isEqualToString:@"IMAGE"]) {
+    } else if([call.method isEqualToString:@"IMAGE"]) {
         [self resolvePickImage];
     } else {
-        self.fileType = [FileUtils resolveType:call.method];
-        
-        if(self.fileType == nil){
-            result(FlutterMethodNotImplemented);
-        } else {
-            [self resolvePickDocumentWithMultipleSelection:call.arguments];
-        }
+        result(FlutterMethodNotImplemented);
+        _result = nil;
     }
     
 }
@@ -70,20 +73,27 @@
 
 - (void)resolvePickDocumentWithMultipleSelection:(BOOL)allowsMultipleSelection {
     
-    self.pickerController = [[UIDocumentPickerViewController alloc]
+    @try{
+        self.documentPickerController = [[UIDocumentPickerViewController alloc]
                              initWithDocumentTypes:@[self.fileType]
                              inMode:UIDocumentPickerModeImport];
+    } @catch (NSException * e) {
+       Log(@"Couldn't launch documents file picker. Probably due to iOS version being below 11.0 and not having the iCloud entitlement. If so, just make sure to enable it for your app in Xcode. Exception was: %@", e);
+        _result = nil;
+        return;
+    }
     
     if (@available(iOS 11.0, *)) {
-        self.pickerController.allowsMultipleSelection = allowsMultipleSelection;
+        self.documentPickerController.allowsMultipleSelection = allowsMultipleSelection;
     } else if(allowsMultipleSelection) {
        Log(@"Multiple file selection is only supported on iOS 11 and above. Single selection will be used.");
     }
     
-    self.pickerController.delegate = self;
-    self.pickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
+    self.documentPickerController.delegate = self;
+    self.documentPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
     self.galleryPickerController.allowsEditing = NO;
-    [_viewController presentViewController:self.pickerController animated:YES completion:nil];
+    
+    [_viewController presentViewController:self.documentPickerController animated:YES completion:nil];
 }
 
 - (void) resolvePickImage {
@@ -104,6 +114,7 @@
     self.audioPickerController.showsCloudItems = NO;
     self.audioPickerController.allowsPickingMultipleItems = NO;
     self.audioPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
+    
     [self.viewController presentViewController:self.audioPickerController animated:YES completion:nil];
 }
 
@@ -124,7 +135,7 @@
 - (void)documentPicker:(UIDocumentPickerViewController *)controller
 didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
-    [self.pickerController dismissViewControllerAnimated:YES completion:nil];
+    [self.documentPickerController dismissViewControllerAnimated:YES completion:nil];
     NSArray * result = [FileUtils resolvePath:urls];
     
     if([result count] > 1) {
@@ -132,6 +143,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     } else {
        _result([result objectAtIndex:0]);
     }
+    _result = nil;
     
 }
 
@@ -159,9 +171,12 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         _result([FlutterError errorWithCode:@"file_picker_error"
                                     message:@"Temporary file could not be created"
                                     details:nil]);
+        _result = nil;
+        return;
     }
     
     _result([pickedVideoUrl != nil ? pickedVideoUrl : pickedImageUrl path]);
+    _result = nil;
 }
 
 
@@ -171,9 +186,10 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     [mediaPicker dismissViewControllerAnimated:YES completion:NULL];
     NSURL *url = [[[mediaItemCollection items] objectAtIndex:0] valueForKey:MPMediaItemPropertyAssetURL];
     if(url == nil) {
-        Log(@"Couldn't retrieve the audio file path, either is not locally downloaded or the file DRM protected.");
+        Log(@"Couldn't retrieve the audio file path, either is not locally downloaded or the file is DRM protected.");
     }
      _result([url absoluteString]);
+     _result = nil;
 }
 
 #pragma mark - Actions canceled
