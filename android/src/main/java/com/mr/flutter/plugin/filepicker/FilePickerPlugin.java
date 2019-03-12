@@ -65,8 +65,6 @@ public class FilePickerPlugin implements MethodCallHandler {
             Uri uri = data.getData();
             Log.i(TAG, "[SingleFilePick] File URI:" +data.getData().toString());
             String fullPath = FileUtils.getPath(uri, instance.context());
-            String cloudFile = null;
-
 
             if(fullPath == null) {
              fullPath =  FileUtils.getUriFromRemote(instance.activeContext(), uri, result);
@@ -84,7 +82,7 @@ public class FilePickerPlugin implements MethodCallHandler {
             result.success(null);
             return true;
         }
-        result.error(TAG, "Unknown activity error, please report issue." ,null);
+        result.error(TAG, "Unknown activity error, please fill an issue." ,null);
         return false;
       }
     });
@@ -110,6 +108,8 @@ public class FilePickerPlugin implements MethodCallHandler {
 
     if(fileType == null) {
       result.notImplemented();
+    } else if(fileType.equals("unsupported")) {
+      result.error(TAG, "Unsupported filter. Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.ALL instead." ,null);
     } else {
       startFileExplorer(fileType);
     }
@@ -136,6 +136,7 @@ public class FilePickerPlugin implements MethodCallHandler {
     if(isCustom) {
       final String extension = type.split("__CUSTOM_")[1].toLowerCase();
       String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+      mime = mime == null ? "unsupported" : mime;
       Log.i(TAG, "Custom file type: " + mime);
       return mime;
     }

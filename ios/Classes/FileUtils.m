@@ -25,6 +25,12 @@
     
     if ([type isEqualToString:@"ANY"]) {
         return @"public.item";
+    } else if ([type isEqualToString:@"IMAGE"]) {
+        return @"public.image";
+    } else if ([type isEqualToString:@"VIDEO"]) {
+        return @"public.movie";
+    } else if ([type isEqualToString:@"AUDIO"]) {
+        return @"public.audio";
     } else {
         return nil;
     }

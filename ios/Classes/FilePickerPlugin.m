@@ -45,23 +45,26 @@
     }
     
     _result = result;
-    
-    
-    if([call.method isEqualToString:@"VIDEO"]) {
+    BOOL isMultiplePick = [call.arguments boolValue];
+    if(isMultiplePick || [call.method isEqualToString:@"ANY"] || [call.method containsString:@"__CUSTOM"]) {
+        self.fileType = [FileUtils resolveType:call.method];
+        if(self.fileType == nil) {
+            _result([FlutterError errorWithCode:@"Unsupported file extension"
+                                        message:@"Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.ALL instead."
+                                        details:nil]);
+            _result = nil;
+        } else if(self.fileType != nil) {
+            [self resolvePickDocumentWithMultipleSelection:isMultiplePick];
+        }
+    } else if([call.method isEqualToString:@"VIDEO"]) {
         [self resolvePickVideo];
-    }
-    else if([call.method isEqualToString:@"AUDIO"]) {
+    } else if([call.method isEqualToString:@"AUDIO"]) {
         [self resolvePickAudio];
-    }
-    else if([call.method isEqualToString:@"IMAGE"]) {
+    } else if([call.method isEqualToString:@"IMAGE"]) {
         [self resolvePickImage];
     } else {
-        self.fileType = [FileUtils resolveType:call.method];
-        if(self.fileType == nil){
-            result(FlutterMethodNotImplemented);
-        } else {
-            [self resolvePickDocumentWithMultipleSelection:call.arguments];
-        }
+        result(FlutterMethodNotImplemented);
+        _result = nil;
     }
     
 }
@@ -75,7 +78,7 @@
                              initWithDocumentTypes:@[self.fileType]
                              inMode:UIDocumentPickerModeImport];
     } @catch (NSException * e) {
-       Log(@"Can't use documents fie picker. Probably due to iOS version being below 11.0 and not having the iCloud entitlement. If so, just make sure to enable it for your app in Xcode. Exception was: %@", e);
+       Log(@"Couldn't launch documents file picker. Probably due to iOS version being below 11.0 and not having the iCloud entitlement. If so, just make sure to enable it for your app in Xcode. Exception was: %@", e);
         _result = nil;
         return;
     }
@@ -111,6 +114,7 @@
     self.audioPickerController.showsCloudItems = NO;
     self.audioPickerController.allowsPickingMultipleItems = NO;
     self.audioPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
+    
     [self.viewController presentViewController:self.audioPickerController animated:YES completion:nil];
 }
 
@@ -182,7 +186,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     [mediaPicker dismissViewControllerAnimated:YES completion:NULL];
     NSURL *url = [[[mediaItemCollection items] objectAtIndex:0] valueForKey:MPMediaItemPropertyAssetURL];
     if(url == nil) {
-        Log(@"Couldn't retrieve the audio file path, either is not locally downloaded or the file DRM protected.");
+        Log(@"Couldn't retrieve the audio file path, either is not locally downloaded or the file is DRM protected.");
     }
      _result([url absoluteString]);
      _result = nil;
