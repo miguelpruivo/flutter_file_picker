@@ -19,29 +19,33 @@
         CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[format pathExtension], NULL);
         NSString * UTIString = (__bridge NSString *)(UTI);
         CFRelease(UTI);
-        NSLog(@"Custom file type: %@", UTIString);
+        Log(@"Custom file type: %@", UTIString);
         return [UTIString containsString:@"dyn."] ? nil : UTIString;
     }
     
-    if ([type isEqualToString:@"PDF"]) {
-        return @"com.adobe.pdf";
-    }
-    else if ([type isEqualToString:@"ANY"])  {
+    if ([type isEqualToString:@"ANY"]) {
         return @"public.item";
+    } else if ([type isEqualToString:@"IMAGE"]) {
+        return @"public.image";
+    } else if ([type isEqualToString:@"VIDEO"]) {
+        return @"public.movie";
+    } else if ([type isEqualToString:@"AUDIO"]) {
+        return @"public.audio";
     } else {
         return nil;
     }
 }
 
-
-+ (NSString*) resolvePath:(NSArray<NSURL *> *)urls{
++ (NSMutableArray*) resolvePath:(NSArray<NSURL *> *)urls{
     NSString * uri;
+    NSMutableArray * paths = [[NSMutableArray alloc] init];
     
     for (NSURL *url in urls) {
         uri = (NSString *)[url path];
+        [paths addObject:uri];
     }
     
-    return uri;
+    return paths;
 }
 
 @end

@@ -12,10 +12,9 @@ import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import java.io.BufferedOutputStream;
+
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.util.ArrayList;
 
 
 import io.flutter.plugin.common.MethodCall;
@@ -36,6 +35,7 @@ public class FilePickerPlugin implements MethodCallHandler {
   private static Result result;
   private static Registrar instance;
   private static String fileType;
+  private static boolean isMultipleSelection = false;
 
   /** Plugin registration. */
   public static void registerWith(Registrar registrar) {
@@ -49,48 +49,40 @@ public class FilePickerPlugin implements MethodCallHandler {
 
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
 
-          if (data != null) {
+          if(data.getClipData() != null) {
+            int count = data.getClipData().getItemCount();
+            int currentItem = 0;
+            ArrayList<String> paths = new ArrayList<>();
+            while(currentItem < count) {
+              final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
+              String path = FileUtils.getPath(currentUri, instance.context());
+              paths.add(path);
+              Log.i(TAG, "[MultiFilePick] File #" + currentItem + " - URI: " +currentUri.getPath());
+              currentItem++;
+            }
+            result.success(paths);
+          } else if (data != null) {
             Uri uri = data.getData();
-            Log.i(TAG, "URI:" +data.getData().toString());
+            Log.i(TAG, "[SingleFilePick] File URI:" +data.getData().toString());
             String fullPath = FileUtils.getPath(uri, instance.context());
-            String cloudFile = null;
 
-            if(fullPath == null)
-            {
-              FileOutputStream fos = null;
-              cloudFile = instance.activeContext().getCacheDir().getAbsolutePath() + "/" + FileUtils.getFileName(uri, instance.activeContext());
-
-              try {
-                fos = new FileOutputStream(cloudFile);
-                try{
-                  BufferedOutputStream out = new BufferedOutputStream(fos);
-                  InputStream in = instance.activeContext().getContentResolver().openInputStream(uri);
-
-                  byte[] buffer = new byte[8192];
-                  int len = 0;
-
-                  while ((len = in.read(buffer)) >= 0){
-                    out.write(buffer, 0, len);
-                  }
-
-                  out.flush();
-                } finally {
-                  fos.getFD().sync();
-                }
-
-              } catch (Exception e) {
-                e.printStackTrace();
-              }
-
-              Log.i(TAG, "Cloud file loaded and cached on:" + cloudFile);
-              fullPath = cloudFile;
+            if(fullPath == null) {
+             fullPath =  FileUtils.getUriFromRemote(instance.activeContext(), uri, result);
             }
 
-            Log.i(TAG, "Absolute file path:" + fullPath);
-            result.success(fullPath);
+            if(fullPath != null) {
+              Log.i(TAG, "Absolute file path:" + fullPath);
+              result.success(fullPath);
+            } else {
+              result.error(TAG, "Failed to retrieve path." ,null);
+            }
           }
-
+          return true;
+        } else if(requestCode == REQUEST_CODE && resultCode == Activity.RESULT_CANCELED) {
+            result.success(null);
+            return true;
         }
+        result.error(TAG, "Unknown activity error, please fill an issue." ,null);
         return false;
       }
     });
@@ -112,9 +104,12 @@ public class FilePickerPlugin implements MethodCallHandler {
   public void onMethodCall(MethodCall call, Result result) {
     this.result = result;
     fileType = resolveType(call.method);
+    isMultipleSelection = (boolean)call.arguments;
 
-    if(fileType == null){
+    if(fileType == null) {
       result.notImplemented();
+    } else if(fileType.equals("unsupported")) {
+      result.error(TAG, "Unsupported filter. Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.ALL instead." ,null);
     } else {
       startFileExplorer(fileType);
     }
@@ -128,7 +123,6 @@ public class FilePickerPlugin implements MethodCallHandler {
   }
 
   private static void requestPermission() {
-
     Activity activity = instance.activity();
     Log.i(TAG, "Requesting permission: " + permission);
     String[] perm = { permission };
@@ -142,13 +136,16 @@ public class FilePickerPlugin implements MethodCallHandler {
     if(isCustom) {
       final String extension = type.split("__CUSTOM_")[1].toLowerCase();
       String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+      mime = mime == null ? "unsupported" : mime;
       Log.i(TAG, "Custom file type: " + mime);
       return mime;
     }
 
     switch (type) {
-      case "PDF":
-        return "application/pdf";
+      case "AUDIO":
+        return "audio/*";
+      case "IMAGE":
+        return "image/*";
       case "VIDEO":
         return "video/*";
       case "ANY":
@@ -174,9 +171,8 @@ public class FilePickerPlugin implements MethodCallHandler {
       Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
       intent.setDataAndType(uri, type);
       intent.setType(type);
+      intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection);
       intent.addCategory(Intent.CATEGORY_OPENABLE);
-
-      Log.d(TAG, "Intent: " + intent.toString());
 
       instance.activity().startActivityForResult(intent, REQUEST_CODE);
     } else {

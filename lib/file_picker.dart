@@ -1,14 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
 
-/// Supported file types, [ANY] should be used if the file you need isn't listed
 enum FileType {
   ANY,
   IMAGE,
   VIDEO,
-  CAMERA,
+  AUDIO,
   CUSTOM,
 }
 
@@ -16,47 +15,66 @@ class FilePicker {
   static const MethodChannel _channel = const MethodChannel('file_picker');
   static const String _tag = 'FilePicker';
 
-  static Future<String> _getPath(String type) async {
-    try {
-      return await _channel.invokeMethod(type);
-    } on PlatformException catch (e) {
-      print("[$_tag] Platform exception: " + e.toString());
-    } catch (e) {
-      print(
-          "[$_tag] Unsupported operation. This probably have happened because [${type.split('_').last}] is an unsupported file type. You may want to try FileType.ALL instead.");
-    }
-    return null;
-  }
+  FilePicker._();
 
-  static Future<String> _getImage(ImageSource type) async {
-    try {
-      var image = await ImagePicker.pickImage(source: type);
-      return image?.path;
-    } on PlatformException catch (e) {
-      print("[$_tag] Platform exception: " + e.toString());
-    }
-    return null;
-  }
+  /// Returns an iterable `Map<String,String>` where the `key` is the name of the file
+  /// and the `value` the path.
+  ///
+  /// A [fileExtension] can be provided to filter the picking results.
+  /// If provided, it will be use the `FileType.CUSTOM` for that [fileExtension].
+  /// If not, `FileType.ANY` will be used and any combination of files can be multi picked at once.
+  static Future<Map<String, String>> getMultiFilePath({FileType type = FileType.ANY, String fileExtension}) async =>
+      await _getPath(_handleType(type, fileExtension), true);
 
-  /// Returns an absolute file path from the calling platform
+  /// Returns an absolute file path from the calling platform.
   ///
   /// A [type] must be provided to filter the picking results.
   /// Can be used a custom file type with `FileType.CUSTOM`. A [fileExtension] must be provided (e.g. PDF, SVG, etc.)
   /// Defaults to `FileType.ANY` which will display all file types.
-  static Future<String> getFilePath({FileType type = FileType.ANY, String fileExtension}) async {
+  static Future<String> getFilePath({FileType type = FileType.ANY, String fileExtension}) async =>
+      await _getPath(_handleType(type, fileExtension), false);
+
+  /// Returns a `File` object from the selected file path.
+  ///
+  /// This is an utility method that does the same of `getFilePath()` but saving some boilerplate if
+  /// you are planing to create a `File` for the returned path.
+  static Future<File> getFile({FileType type = FileType.ANY, String fileExtension}) async {
+    final String filePath = await _getPath(_handleType(type, fileExtension), false);
+    return File(filePath);
+  }
+
+  static Future<dynamic> _getPath(String type, bool multipleSelection) async {
+    try {
+      dynamic result = await _channel.invokeMethod(type, multipleSelection);
+      if (result != null && multipleSelection) {
+        if (result is String) {
+          result = [result];
+        }
+        return Map<String, String>.fromIterable(result, key: (path) => path.split('/').last, value: (path) => path);
+      }
+      return result;
+    } on PlatformException catch (e) {
+      print('[$_tag] Platform exception: ' + e.toString());
+    } catch (e) {
+      print('[$_tag] Unsupported operation. Method not found. The exception thrown was: ' + e.toString());
+    }
+    return null;
+  }
+
+  static String _handleType(FileType type, String fileExtension) {
     switch (type) {
       case FileType.IMAGE:
-        return _getImage(ImageSource.gallery);
-      case FileType.CAMERA:
-        return _getImage(ImageSource.camera);
+        return 'IMAGE';
+      case FileType.AUDIO:
+        return 'AUDIO';
       case FileType.VIDEO:
-        return _getPath('VIDEO');
+        return 'VIDEO';
       case FileType.ANY:
-        return _getPath('ANY');
+        return 'ANY';
       case FileType.CUSTOM:
-        return _getPath('__CUSTOM_' + (fileExtension ?? ''));
+        return '__CUSTOM_' + (fileExtension ?? '');
       default:
-        return _getPath('ANY');
+        return 'ANY';
     }
   }
 }
