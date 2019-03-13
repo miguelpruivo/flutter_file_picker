@@ -1,3 +1,7 @@
+## 1.3.1
+
+**Bug fix:** Fixes an issue on Android, where other activity would try to call `FilePicker`'s result object when it shouldn't.  
+
 ## 1.3.0
 
 **Breaking changes**
@@ -63,7 +67,7 @@
 * Replaces commons dependency with FilePath class on Android, to handle path resolution on different SDK. 
 
 ## 0.1.5
-* Minor correction on README file. 
+* Minor correction in the README file. 
 
 ## 0.1.4
 * Changed Meta minimum version due to versioning conflict with flutter_localization. 
