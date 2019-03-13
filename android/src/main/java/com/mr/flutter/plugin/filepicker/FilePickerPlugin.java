@@ -81,8 +81,9 @@ public class FilePickerPlugin implements MethodCallHandler {
         } else if(requestCode == REQUEST_CODE && resultCode == Activity.RESULT_CANCELED) {
             result.success(null);
             return true;
+        } else if (requestCode == REQUEST_CODE) {
+          result.error(TAG, "Unknown activity error, please fill an issue." ,null);
         }
-        result.error(TAG, "Unknown activity error, please fill an issue." ,null);
         return false;
       }
     });
