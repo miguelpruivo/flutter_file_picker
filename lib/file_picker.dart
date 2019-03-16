@@ -40,7 +40,7 @@ class FilePicker {
   /// you are planing to create a `File` for the returned path.
   static Future<File> getFile({FileType type = FileType.ANY, String fileExtension}) async {
     final String filePath = await _getPath(_handleType(type, fileExtension), false);
-    return File(filePath);
+    return filePath != null ? File(filePath) : null;
   }
 
   static Future<dynamic> _getPath(String type, bool multipleSelection) async {
