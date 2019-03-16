@@ -1,3 +1,7 @@
+## 1.3.2
+
+**Bug fix:** Returns a `null` value in the `getFile()` when the picker is canceled.
+
 ## 1.3.1
 
 **Bug fix:** Fixes an issue on Android, where other activity would try to call `FilePicker`'s result object when it shouldn't.  
