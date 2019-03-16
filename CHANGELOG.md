@@ -1,28 +1,3 @@
-## 1.3.6
-
-**Improvements**
- * Removes the Android write permissions requirement.
- * Minor improvements in the example app.
- * Now the exceptions are rethrown in case the user wants to handle them, despite that already being done in the plugin call.
-
-## 1.3.5
-
-**Bug fix:** Fixes an issue that could prevent users to pick files from the iCloud Drive app, on versions below iOS 11. 
-
-## 1.3.4+1
-
-**Rollback:** Removes a local dependency that shouldn't have been committed with `1.3.4` which would cause Android build to fail.
-
-## 1.3.4
-
-**Bug fix:** Protects the `registrar.activity()` in the Android side of being accessed when it's `null`.
-
-## 1.3.3
-
-**Bug fixes**
- * Fixes an issue where sometimes a single file path was being returned as a `List` instead of `String`.
- * `requestCode` in Android intents are now restricted to 16 bits.
-
 ## 1.3.2
 
 **Bug fix:** Returns a `null` value in the `getFile()` when the picker is canceled.
@@ -117,6 +92,6 @@
 
 ## 0.1.0
 
-* Initial release.
+* Initial realise.
 * Supports picking paths from files on local storage, cloud.
 * Supports picking paths from both gallery & camera due to [image_picker](https://pub.dartlang.org/packages/image_picker) dependency.
