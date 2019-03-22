@@ -60,7 +60,11 @@ public class FilePickerPlugin implements MethodCallHandler {
               Log.i(TAG, "[MultiFilePick] File #" + currentItem + " - URI: " +currentUri.getPath());
               currentItem++;
             }
-            result.success(paths);
+            if(paths.size() > 1){
+              result.success(paths);
+            } else {
+              result.success(paths.get(0));
+            }
           } else if (data != null) {
             Uri uri = data.getData();
             Log.i(TAG, "[SingleFilePick] File URI:" +data.getData().toString());
