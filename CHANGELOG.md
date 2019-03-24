@@ -1,3 +1,9 @@
+## 1.3.3
+
+**Bug fixes**
+ * Fixes an issue where sometimes a single file path was being returned as a `List` instead of `String`.
+ * `requestCode` in Android intents are now restricted to 16 bits.
+
 ## 1.3.2
 
 **Bug fix:** Returns a `null` value in the `getFile()` when the picker is canceled.
