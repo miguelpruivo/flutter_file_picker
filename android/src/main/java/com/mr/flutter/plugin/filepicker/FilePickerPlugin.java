@@ -27,8 +27,8 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 /** FilePickerPlugin */
 public class FilePickerPlugin implements MethodCallHandler {
 
-  private static final int REQUEST_CODE = FilePickerPlugin.class.hashCode() + 43;
-  private static final int PERM_CODE = FilePickerPlugin.class.hashCode() + 50;
+  private static final int REQUEST_CODE = (FilePickerPlugin.class.hashCode() + 43) & 0x0000ffff;
+  private static final int PERM_CODE = (FilePickerPlugin.class.hashCode() + 50) & 0x0000ffff;
   private static final String TAG = "FilePicker";
   private static final String permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
 

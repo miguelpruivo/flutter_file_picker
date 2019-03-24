@@ -56,7 +56,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         ),
         body: new Center(
             child: new Padding(
-          padding: const EdgeInsets.only(top: 50.0, left: 10.0, right: 10.0),
+          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
           child: new SingleChildScrollView(
             child: new Column(
               mainAxisAlignment: MainAxisAlignment.center,
