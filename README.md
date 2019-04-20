@@ -10,10 +10,15 @@ A package that allows you to use a native file explorer to pick single or multip
 First, add  *file_picker*  as a dependency in [your pubspec.yaml file](https://flutter.io/platform-plugins/).
 
 ```
-file_picker: ^1.3.3
+file_picker: ^1.3.4
 ```
 ### Android
-Add `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>` to your app `AndroidManifest.xml` file. This is required due to file caching when a path is required from a remote file (eg. Google Drive).
+Add 
+```
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.INTERNET"/>
+```
+before `<application>` to your app's `AndroidManifest.xml` file. This is required due to file caching when a path is required from a remote file (eg. Google Drive).
 
 ### iOS
 Based on the location of the files that you are willing to pick paths, you may need to add some keys to your iOS app's _Info.plist_ file, located in `<project root>/ios/Runner/Info.plist`:
