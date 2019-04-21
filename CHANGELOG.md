@@ -1,3 +1,7 @@
+## 1.3.4+1
+
+**Rollback:** Removes a local dependency that shouldn't have been committed with `1.3.4` which would cause Android build to fail.
+
 ## 1.3.4
 
 **Bug fix:** Protects the `registrar.activity()` in the Android side of being accessed when it's `null`.
