@@ -1,3 +1,7 @@
+## 1.3.5
+
+**Bug fix:** Fixes an issue that could prevent users to pick files from the iCloud Drive app, on versions below iOS 11. 
+
 ## 1.3.4+1
 
 **Rollback:** Removes a local dependency that shouldn't have been committed with `1.3.4` which would cause Android build to fail.
@@ -106,6 +110,6 @@
 
 ## 0.1.0
 
-* Initial realise.
+* Initial release.
 * Supports picking paths from files on local storage, cloud.
 * Supports picking paths from both gallery & camera due to [image_picker](https://pub.dartlang.org/packages/image_picker) dependency.
