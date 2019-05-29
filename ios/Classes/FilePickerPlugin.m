@@ -131,6 +131,14 @@
 
 #pragma mark - Delegates
 
+// DocumentPicker delegate - iOS 10 only
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url{
+    [self.documentPickerController dismissViewControllerAnimated:YES completion:nil];
+    NSString * path = (NSString *)[url path];
+    _result(path);
+    _result = nil;
+}
+
 // DocumentPicker delegate
 - (void)documentPicker:(UIDocumentPickerViewController *)controller
 didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{

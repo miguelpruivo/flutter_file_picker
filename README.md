@@ -11,7 +11,7 @@ A package that allows you to use a native file explorer to pick single or multip
 First, add  *file_picker*  as a dependency in [your pubspec.yaml file](https://flutter.io/platform-plugins/).
 
 ```
-file_picker: ^1.3.4+1
+file_picker: ^1.3.5
 ```
 ### Android
 Add 
