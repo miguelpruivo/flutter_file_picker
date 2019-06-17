@@ -13,6 +13,7 @@ First, add  *file_picker*  as a dependency in [your pubspec.yaml file](https://f
 ```
 file_picker: ^1.3.6
 ```
+
 ### Android
 
 No aditional steps are required, you are good to go!
