@@ -173,23 +173,19 @@ public class FilePickerPlugin implements MethodCallHandler {
   private static void startFileExplorer(String type) {
     Intent intent;
 
-    if (checkPermission()) {
-      if(Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-        intent = new Intent(Intent.ACTION_PICK);
-      } else {
-        intent = new Intent(Intent.ACTION_GET_CONTENT);
-      }
-
-      Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
-      intent.setDataAndType(uri, type);
-      intent.setType(type);
-      intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection);
-      intent.addCategory(Intent.CATEGORY_OPENABLE);
-
-      instance.activity().startActivityForResult(intent, REQUEST_CODE);
+    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+      intent = new Intent(Intent.ACTION_PICK);
     } else {
-      requestPermission();
+      intent = new Intent(Intent.ACTION_GET_CONTENT);
     }
+
+    Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
+    intent.setDataAndType(uri, type);
+    intent.setType(type);
+    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection);
+    intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+    instance.activity().startActivityForResult(intent, REQUEST_CODE);
   }
 
 }
