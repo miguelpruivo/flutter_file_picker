@@ -54,11 +54,12 @@ class FilePicker {
       }
       return result;
     } on PlatformException catch (e) {
-      print('[$_tag] Platform exception: ' + e.toString());
+      print('[$_tag] Platform exception: $e');
+      rethrow;
     } catch (e) {
-      print('[$_tag] Unsupported operation. Method not found. The exception thrown was: ' + e.toString());
+      print('[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
+      rethrow;
     }
-    return null;
   }
 
   static String _handleType(FileType type, String fileExtension) {

@@ -1,3 +1,10 @@
+## 1.3.6
+
+**Improvements**
+ * Removes the Android write permissions requirement.
+ * Minor improvements in the example app.
+ * Now the exceptions are rethrown in case the user wants to handle them, despite that already being done in the plugin call.
+
 ## 1.3.5
 
 **Bug fix:** Fixes an issue that could prevent users to pick files from the iCloud Drive app, on versions below iOS 11. 
