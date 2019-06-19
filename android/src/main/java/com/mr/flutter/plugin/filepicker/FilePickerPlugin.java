@@ -185,7 +185,12 @@ public class FilePickerPlugin implements MethodCallHandler {
     intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection);
     intent.addCategory(Intent.CATEGORY_OPENABLE);
 
-    instance.activity().startActivityForResult(intent, REQUEST_CODE);
+    if(intent.resolveActivity(instance.activity().getPackageManager()) != null) {
+      instance.activity().startActivityForResult(intent, REQUEST_CODE);
+    } else {
+      Log.e(TAG, "Can't find a valid activity to handle the request. Make sure you've a file explorer installed.");
+      result.error(TAG, "Can't handle the provided file type." ,null);
+    }
   }
 
 }

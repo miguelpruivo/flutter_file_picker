@@ -19,10 +19,6 @@ import java.io.InputStream;
 
 import io.flutter.plugin.common.MethodChannel;
 
-/**
- * Credits to NiRRaNjAN from utils extracted of in.gauriinfotech.commons;.
- **/
-
 public class FileUtils {
 
     private static final String TAG = "FilePickerUtils";
@@ -34,6 +30,9 @@ public class FileUtils {
         } else if ("content".equalsIgnoreCase(uri.getScheme())) {
             if (isGooglePhotosUri(uri)) {
                 return uri.getLastPathSegment();
+            }
+            if (isDropBoxUri(uri)) {
+                return null;
             }
             return getDataColumn(context, uri, null, null);
         } else if ("file".equalsIgnoreCase(uri.getScheme())) {
@@ -212,6 +211,9 @@ public class FileUtils {
             return cloudFile;
     }
 
+    private static boolean isDropBoxUri(Uri uri) {
+        return "com.dropbox.android.FileCache".equals(uri.getAuthority());
+    }
 
     private static boolean isExternalStorageDocument(Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());
