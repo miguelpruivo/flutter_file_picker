@@ -31,9 +31,6 @@ public class FileUtils {
             if (isGooglePhotosUri(uri)) {
                 return uri.getLastPathSegment();
             }
-            if (isDropBoxUri(uri)) {
-                return null;
-            }
             return getDataColumn(context, uri, null, null);
         } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
@@ -108,9 +105,11 @@ public class FileUtils {
             }
         } else if ("content".equalsIgnoreCase(uri.getScheme())) {
             Log.e(TAG, "NO DOCUMENT URI - CONTENT");
-            if (isGooglePhotosUri(uri))
+            if (isGooglePhotosUri(uri)) {
                 return uri.getLastPathSegment();
-
+            } else if (isDropBoxUri(uri)) {
+                return null;
+            }
             return getDataColumn(context, uri, null, null);
         } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             Log.e(TAG, "No DOCUMENT URI - FILE");
