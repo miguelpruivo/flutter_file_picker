@@ -104,6 +104,8 @@ String someFilePath = filePaths['fileName']; // Access a file path directly by i
 * [X] Load path from **any** 
 * [X] Create a `File` object from **any** selected file
 
+If you have any feature that you want to see in this package, please add it [here](https://github.com/miguelpruivo/plugins_flutter_file_picker/issues/99). 🎉
+
 ## Demo App
 
 ![Demo](https://github.com/miguelpruivo/plugins_flutter_file_picker/blob/master/example/example.gif)
