@@ -175,11 +175,12 @@ public class FileUtils {
 
     public static String getUriFromRemote(Context context, Uri uri, MethodChannel.Result result) {
 
+        Log.i(TAG, "Caching file from remote/external URI");
         FileOutputStream fos = null;
-        String cloudFile = context.getCacheDir().getAbsolutePath() + "/" + FileUtils.getFileName(uri, context);
+        String externalFile = context.getCacheDir().getAbsolutePath() + "/" + FileUtils.getFileName(uri, context);
 
             try {
-                fos = new FileOutputStream(cloudFile);
+                fos = new FileOutputStream(externalFile);
                 try {
                     BufferedOutputStream out = new BufferedOutputStream(fos);
                     InputStream in = context.getContentResolver().openInputStream(uri);
@@ -206,8 +207,8 @@ public class FileUtils {
                 return null;
             }
 
-            Log.i(TAG, "Remote file loaded and cached at:" + cloudFile);
-            return cloudFile;
+            Log.i(TAG, "File loaded and cached at:" + externalFile);
+            return externalFile;
     }
 
     private static boolean isDropBoxUri(Uri uri) {

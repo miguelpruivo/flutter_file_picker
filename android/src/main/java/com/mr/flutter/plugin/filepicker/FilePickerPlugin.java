@@ -30,7 +30,7 @@ public class FilePickerPlugin implements MethodCallHandler {
   private static final int REQUEST_CODE = (FilePickerPlugin.class.hashCode() + 43) & 0x0000ffff;
   private static final int PERM_CODE = (FilePickerPlugin.class.hashCode() + 50) & 0x0000ffff;
   private static final String TAG = "FilePicker";
-  private static final String permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+  private static final String permission = Manifest.permission.READ_EXTERNAL_STORAGE;
 
   private static Result result;
   private static Registrar instance;
@@ -63,6 +63,9 @@ public class FilePickerPlugin implements MethodCallHandler {
             while(currentItem < count) {
               final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
               String path = FileUtils.getPath(currentUri, instance.context());
+              if(path == null) {
+                path =  FileUtils.getUriFromRemote(instance.activeContext(), currentUri, result);
+              }
               paths.add(path);
               Log.i(TAG, "[MultiFilePick] File #" + currentItem + " - URI: " +currentUri.getPath());
               currentItem++;
@@ -173,23 +176,27 @@ public class FilePickerPlugin implements MethodCallHandler {
   private static void startFileExplorer(String type) {
     Intent intent;
 
-    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-      intent = new Intent(Intent.ACTION_PICK);
-    } else {
-      intent = new Intent(Intent.ACTION_GET_CONTENT);
-    }
+    if (checkPermission()) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            intent = new Intent(Intent.ACTION_PICK);
+        } else {
+            intent = new Intent(Intent.ACTION_GET_CONTENT);
+        }
 
-    Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
-    intent.setDataAndType(uri, type);
-    intent.setType(type);
-    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection);
-    intent.addCategory(Intent.CATEGORY_OPENABLE);
+        Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
+        intent.setDataAndType(uri, type);
+        intent.setType(type);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
 
-    if(intent.resolveActivity(instance.activity().getPackageManager()) != null) {
-      instance.activity().startActivityForResult(intent, REQUEST_CODE);
+        if (intent.resolveActivity(instance.activity().getPackageManager()) != null) {
+            instance.activity().startActivityForResult(intent, REQUEST_CODE);
+        } else {
+            Log.e(TAG, "Can't find a valid activity to handle the request. Make sure you've a file explorer installed.");
+            result.error(TAG, "Can't handle the provided file type.", null);
+        }
     } else {
-      Log.e(TAG, "Can't find a valid activity to handle the request. Make sure you've a file explorer installed.");
-      result.error(TAG, "Can't handle the provided file type." ,null);
+        requestPermission();
     }
   }
 

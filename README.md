@@ -15,7 +15,12 @@ file_picker: ^1.3.6
 ```
 ### Android
 
-No aditional steps are required, you are good to go!
+Add
+```
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+```
+before `<application>` to your app's `AndroidManifest.xml` file. This is required to access files from external storage.
+
 
 ### iOS
 Based on the location of the files that you are willing to pick paths, you may need to add some keys to your iOS app's _Info.plist_ file, located in `<project root>/ios/Runner/Info.plist`:
