@@ -1,3 +1,15 @@
+## 1.3.7
+
+**Rollback - Breaking change:** Re-adds runtime verification for external storage read permission. Don't forget to add the permission to the `AndroidManifest.xml` file as well. More info in the README file.
+**Bug fix:** Fixes a crash that could cause some Android API to crash when multiple files were selected from external storage.
+
+## 1.3.6
+
+**Improvements**
+ * Removes the Android write permissions requirement.
+ * Minor improvements in the example app.
+ * Now the exceptions are rethrown in case the user wants to handle them, despite that already being done in the plugin call.
+
 ## 1.3.5
 
 **Bug fix:** Fixes an issue that could prevent users to pick files from the iCloud Drive app, on versions below iOS 11. 
