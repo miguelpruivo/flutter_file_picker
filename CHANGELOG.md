@@ -4,7 +4,6 @@
 
 **Changes:** Updates Android target API to 29.
 
-
 ## 1.3.7
 
 **Rollback - Breaking change:** Re-adds runtime verification for external storage read permission. Don't forget to add the permission to the `AndroidManifest.xml` file as well. More info in the README file.
