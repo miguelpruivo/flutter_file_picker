@@ -199,7 +199,7 @@ public class FileUtils {
             } catch (Exception e) {
                 try {
                     fos.close();
-                } catch(IOException ex) {
+                } catch(IOException | NullPointerException ex) {
                     Log.e(TAG, "Failed to close file streams: " + e.getMessage(),null);
                     return null;
                 }
