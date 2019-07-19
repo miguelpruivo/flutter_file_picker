@@ -56,40 +56,46 @@ public class FilePickerPlugin implements MethodCallHandler {
 
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
 
-          if(data.getClipData() != null) {
-            int count = data.getClipData().getItemCount();
-            int currentItem = 0;
-            ArrayList<String> paths = new ArrayList<>();
-            while(currentItem < count) {
-              final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
-              String path = FileUtils.getPath(currentUri, instance.context());
-              if(path == null) {
-                path =  FileUtils.getUriFromRemote(instance.activeContext(), currentUri, result);
+          if (data != null) {
+            if(data.getClipData() != null) {
+              int count = data.getClipData().getItemCount();
+              int currentItem = 0;
+              ArrayList<String> paths = new ArrayList<>();
+              while(currentItem < count) {
+                final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
+                String path = FileUtils.getPath(currentUri, instance.context());
+                if(path == null) {
+                  path =  FileUtils.getUriFromRemote(instance.activeContext(), currentUri, result);
+                }
+                paths.add(path);
+                Log.i(TAG, "[MultiFilePick] File #" + currentItem + " - URI: " +currentUri.getPath());
+                currentItem++;
               }
-              paths.add(path);
-              Log.i(TAG, "[MultiFilePick] File #" + currentItem + " - URI: " +currentUri.getPath());
-              currentItem++;
-            }
-            if(paths.size() > 1){
-              result.success(paths);
+              if(paths.size() > 1){
+                result.success(paths);
+              } else {
+                result.success(paths.get(0));
+              }
+            } else if (data.getData() != null) {
+              Uri uri = data.getData();
+              Log.i(TAG, "[SingleFilePick] File URI:" + uri.toString());
+              String fullPath = FileUtils.getPath(uri, instance.context());
+  
+              if(fullPath == null) {
+               fullPath =  FileUtils.getUriFromRemote(instance.activeContext(), uri, result);
+              }
+  
+              if(fullPath != null) {
+                Log.i(TAG, "Absolute file path:" + fullPath);
+                result.success(fullPath);
+              } else {
+                result.error(TAG, "Failed to retrieve path." ,null);
+              }
             } else {
-              result.success(paths.get(0));
+              result.error(TAG, "Unknown activity error, please fill an issue." ,null);
             }
-          } else if (data != null) {
-            Uri uri = data.getData();
-            Log.i(TAG, "[SingleFilePick] File URI:" +data.getData().toString());
-            String fullPath = FileUtils.getPath(uri, instance.context());
-
-            if(fullPath == null) {
-             fullPath =  FileUtils.getUriFromRemote(instance.activeContext(), uri, result);
-            }
-
-            if(fullPath != null) {
-              Log.i(TAG, "Absolute file path:" + fullPath);
-              result.success(fullPath);
-            } else {
-              result.error(TAG, "Failed to retrieve path." ,null);
-            }
+          } else {
+            result.error(TAG, "Unknown activity error, please fill an issue." ,null);
           }
           return true;
         } else if(requestCode == REQUEST_CODE && resultCode == Activity.RESULT_CANCELED) {
@@ -117,7 +123,7 @@ public class FilePickerPlugin implements MethodCallHandler {
 
   @Override
   public void onMethodCall(MethodCall call, Result result) {
-    this.result = result;
+    FilePickerPlugin.result = result;
     fileType = resolveType(call.method);
     isMultipleSelection = (boolean)call.arguments;
 
