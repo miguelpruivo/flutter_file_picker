@@ -23,7 +23,7 @@ func main() {
 		flutter.OptionVMArguments(strings.Split(vmArguments, ";")),
 		flutter.WindowIcon(iconProvider),
 
-		flutter.AddPlugin(&desktop.FilePickerPlugin{}),
+		flutter.AddPlugin(&file_picker.FilePickerPlugin{}),
 	}
 	err := flutter.Run(append(options, mainOptions...)...)
 	if err != nil {
