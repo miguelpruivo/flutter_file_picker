@@ -6,6 +6,8 @@ github.com/chunhunghan/plugins_flutter_file_picker/desktop v0.0.0-20190725013439
 github.com/chunhunghan/plugins_flutter_file_picker/desktop v0.0.0-20190725013439-46a83150d30d/go.mod h1:G9VHJWdF3lNH1J68k6bkEbGSNLnVWTfsFtHVr0uLD4s=
 github.com/chunhunghan/plugins_flutter_file_picker/desktop v0.0.0-20190725043008-3cb777e2c094 h1:9P9WPWaXRPDilSNMm135zstGANPpCcpyWxcwBMDmyvQ=
 github.com/chunhunghan/plugins_flutter_file_picker/desktop v0.0.0-20190725043008-3cb777e2c094/go.mod h1:G9VHJWdF3lNH1J68k6bkEbGSNLnVWTfsFtHVr0uLD4s=
+github.com/chunhunghan/plugins_flutter_file_picker/desktop v0.0.0-20190725080619-b44c9eaf8969 h1:AHSocvacGO3oEWnaIzCC86F/J+0eLsyN27/32VIoS1c=
+github.com/chunhunghan/plugins_flutter_file_picker/desktop v0.0.0-20190725080619-b44c9eaf8969/go.mod h1:G9VHJWdF3lNH1J68k6bkEbGSNLnVWTfsFtHVr0uLD4s=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
