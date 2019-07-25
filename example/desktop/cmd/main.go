@@ -10,8 +10,6 @@ import (
 
 	"github.com/go-flutter-desktop/go-flutter"
 	"github.com/pkg/errors"
-
-	"github.com/chunhunghan/plugins_flutter_file_picker/desktop"
 )
 
 // vmArguments may be set by hover at compile-time
@@ -22,8 +20,6 @@ func main() {
 	mainOptions := []flutter.Option{
 		flutter.OptionVMArguments(strings.Split(vmArguments, ";")),
 		flutter.WindowIcon(iconProvider),
-
-		flutter.AddPlugin(&file_picker.FilePickerPlugin{}),
 	}
 	err := flutter.Run(append(options, mainOptions...)...)
 	if err != nil {
