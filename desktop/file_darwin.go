@@ -12,7 +12,7 @@ func fileFilter(method string) (string, error) {
 
 	switch method {
 	case "ANY":
-		filter = `"*"`
+		filter = ``
 	case "IMAGE":
 		filter = `"PNG", "public.png", "JPEG", "jpg", "public.jpeg"`
 	case "AUDIO":
