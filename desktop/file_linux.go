@@ -1,7 +1,6 @@
 package file_picker
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
