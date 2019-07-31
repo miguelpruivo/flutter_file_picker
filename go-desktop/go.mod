@@ -1,4 +1,4 @@
-module github.com/chunhunghan/plugins_flutter_file_picker/desktop
+module github.com/chunhunghan/plugins_flutter_file_picker/go-desktop
 
 go 1.12
 
