@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/go-flutter-desktop/go-flutter"
-	"github.com/chunhunghan/plugins_flutter_file_picker/desktop"
+	"github.com/chunhunghan/plugins_flutter_file_picker/go-desktop"
 )
 
 var options = []flutter.Option{

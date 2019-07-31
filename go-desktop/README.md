@@ -18,4 +18,4 @@ flutter.AddPlugin(&file_picker.FilePickerPlugin{}),
 
 ## Issues
 
-Please report issues at the [go-flutter issue tracker](https://github.com/go-flutter-desktop/go-flutter/issues/).
+Please report issues at the [file_picker issue tracker](https://github.com/miguelpruivo/plugins_flutter_file_picker/issues).
