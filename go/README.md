@@ -4,18 +4,20 @@ This Go package implements the host-side of the Flutter [file_picker](https://gi
 
 ## Usage
 
-Import as:
+Modify your applications `options.go`:
 
-```go
-import "github.com/miguelpruivo/plugins_flutter_file_picker/go"
 ```
+package main
 
-Then add the following option to your go-flutter [application options](https://github.com/go-flutter-desktop/go-flutter/blob/68868301742b864b719b31ae51c7ec4b3b642d1a/example/simpleDemo/main.go#L53):
+import (
+	... other imports ....
+	
+	"github.com/miguelpruivo/plugins_flutter_file_picker/go"
+)
 
-```go
-flutter.AddPlugin(&file_picker.FilePickerPlugin{}),
+var options = []flutter.Option{
+	... other plugins and options ...
+
+	flutter.AddPlugin(&file_picker.FilePickerPlugin{}),
+}
 ```
-
-## Issues
-
-Please report issues at the [go-flutter issue tracker](https://github.com/go-flutter-desktop/go-flutter/issues/).
