@@ -1,5 +1,6 @@
 package com.mr.flutter.plugin.filepicker;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.Context;
@@ -12,11 +13,14 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.core.app.ActivityCompat;
+
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import io.flutter.app.FlutterActivity;
 import io.flutter.plugin.common.MethodChannel;
 
 public class FileUtils {
