@@ -6,22 +6,29 @@
 
 A package that allows you to use a native file explorer to pick single or multiple absolute file paths, with extensions filtering support.
 
+## Currently supported features
+* [X] Load paths from **cloud files** (GDrive, Dropbox, iCloud)
+* [X] Load path from a **custom format** by providing a file extension (pdf, svg, zip, etc.)
+* [X] Load path from **multiple files** optionally, supplying a file extension
+* [X] Load path from **gallery**
+* [X] Load path from **audio**
+* [X] Load path from **video**
+* [X] Load path from **any** 
+* [X] Create a `File` or `List<File>` objects from **any** selected file(s)
+* [X] Supports desktop throught **go-flutter** (MacOS, Windows, Linux) 
+
+If you have any feature that you want to see in this package, please add it [here](https://github.com/miguelpruivo/plugins_flutter_file_picker/issues/99). 🎉
+
+
 ## Installation
 
 First, add  *file_picker*  as a dependency in [your pubspec.yaml file](https://flutter.io/platform-plugins/).
 
 ```
-file_picker: ^1.3.8
+file_picker: ^1.4.0
 ```
 ### Android
-
-Add
-```
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-```
-before `<application>` to your app's `AndroidManifest.xml` file. This is required to access files from external storage.
-
-
+Nothing is required here. You are good to go. 
 ### iOS
 Based on the location of the files that you are willing to pick paths, you may need to add some keys to your iOS app's _Info.plist_ file, located in `<project root>/ios/Runner/Info.plist`:
 
@@ -74,24 +81,46 @@ Picking multiple paths from iOS gallery (image and video) aren't currently suppo
 #### Usages
 
 So, a few example usages can be as follow:
+
+##### Single file path
 ```
-// Single file path
 String filePath;
-filePath = await FilePicker.getFilePath(type: FileType.ANY); // will let you pick one file path, from all extensions
-filePath = await FilePicker.getFilePath(type: FileType.CUSTOM, fileExtension: 'svg'); // will filter and only let you pick files with svg extension
 
-// Pick a single file directly
-File file = await FilePicker.getFile(type: FileType.ANY); // will return a File object directly from the selected file
+// Will let you pick one file path, from all extensions
+filePath = await FilePicker.getFilePath(type: FileType.ANY);
 
-// Multi file path
+// Will filter and only let you pick files with svg extension
+filePath = await FilePicker.getFilePath(type: FileType.CUSTOM, fileExtension: 'svg'); 
+```
+
+##### Pick a single file directly
+```
+// Will return a File object directly from the selected file
+File file = await FilePicker.getFile(type: FileType.ANY);
+```
+
+##### Multi file path
+```
 Map<String,String> filesPaths;
-filePaths = await FilePicker.getMultiFilePath(); // will let you pick multiple files of any format at once
-filePaths = await FilePicker.getMultiFilePath(fileExtension: 'pdf'); // will let you pick multiple pdf files at once
-filePaths = await FilePicker.getMultiFilePath(type: FileType.IMAGE); // will let you pick multiple image files at once
+
+// Will let you pick multiple files of any format at once
+filePaths = await FilePicker.getMultiFilePath();
+
+// Will let you pick multiple pdf files at once
+filePaths = await FilePicker.getMultiFilePath(fileExtension: 'pdf');
+
+// Will let you pick multiple image files at once
+filePaths = await FilePicker.getMultiFilePath(type: FileType.IMAGE); 
 
 List<String> allNames = filePaths.keys; // List of all file names
 List<String> allPaths = filePaths.values; // List of all paths
 String someFilePath = filePaths['fileName']; // Access a file path directly by its name (matching a key)
+```
+
+##### Pick a list of files directly
+```
+// Will return a List<File> object directly from the selected files
+List<File> files = await FilePicker.getMultiFile(type: FileType.ANY);
 ```
 
 ##### A few side notes
@@ -99,18 +128,31 @@ String someFilePath = filePaths['fileName']; // Access a file path directly by i
 * When using `FileType.CUSTOM`, unsupported extensions will throw a `MissingPluginException` that is handled by the plugin.
 * On Android, when available, you should avoid using third-party file explorers as those may prevent file extension filtering (behaving as `FileType.ANY`). In this scenario, you will need to validate it on return.
 
-## Currently supported features
-* [X] Load paths from **cloud files** (GDrive, Dropbox, iCloud)
-* [X] Load path from a **custom format** by providing a file extension (pdf, svg, zip, etc.)
-* [X] Load path from **multiple files** optionally, supplying a file extension
-* [X] Load path from **gallery**
-* [X] Load path from **audio**
-* [X] Load path from **video**
-* [X] Load path from **any** 
-* [X] Create a `File` object from **any** selected file
+## How to setup go-flutter for desktop
+1. Because go-flutter uses GO, you will need to install go-tools by following [these steps](https://golang.org/doc/install#install).
+2. Then, follow [these instructions](https://github.com/go-flutter-desktop/hover) to install hover on your machine.
+3. Now, inside your app's folder, you should be able to do `hover init .` that will create all the desktop boilerplate for you. If for some reasone you can't do this step, be sure that you haven't missed anything from the setup.
+4. Go to your `project/desktop/cmd/options.go` and add the following lines
+```
+package main
 
-If you have any feature that you want to see in this package, please add it [here](https://github.com/miguelpruivo/plugins_flutter_file_picker/issues/99). 🎉
+import (
+	... other imports ....
+	
+	"github.com/miguelpruivo/plugins_flutter_file_picker/go"
+)
 
+var options = []flutter.Option{
+	... other plugins and options ...
+
+	flutter.AddPlugin(&file_picker.FilePickerPlugin{}),
+}
+```
+5. In your `main.dart` make sure you override the targetplatform to:
+```
+  debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+```
+6. All set, just do `hover run` and you should have your app running on Desktop with FilePicker plugin.
 ## Demo App
 
 ![Demo](https://github.com/miguelpruivo/plugins_flutter_file_picker/blob/master/example/example.gif)
