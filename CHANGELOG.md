@@ -1,3 +1,14 @@
+## 1.4.0
+
+**New features**
+ * Adds Desktop support throught **[go-flutter](https://github.com/go-flutter-desktop/go-flutter)**, you can see detailed instructions on how to get in runing [here](https://github.com/go-flutter-desktop/hover).
+ * Adds Desktop example, to run it just do `hover init` and then `hover run` within the plugin's example folder (you must have go and hover installed, check the previous point).
+ * Similar to `getFile`, now there is also a `getMultiFile` which behaves the same way, but returning a list of files instead.
+
+**Improvements:**
+ * Updates Android SDK deprecated code.
+ * Sometimes when a big file was being picked from a remote directory (GDrive for example), the UI could be blocked. Now this shouldn't happen anymore.
+
 ## 1.3.8
 
 **Bug fix:** Fixes an issue that could cause a crash when picking files with very long names.

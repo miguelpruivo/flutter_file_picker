@@ -47,6 +47,19 @@ class FilePicker {
     return filePath != null ? File(filePath) : null;
   }
 
+  /// Returns a `List<File>` object from the selected files paths.
+  ///
+  /// This is an utility method that does the same of `getMultiFilePath()` but saving some boilerplate if
+  /// you are planing to create a list of `File`s for the returned paths.
+  static Future<List<File>> getMultiFile(
+      {FileType type = FileType.ANY, String fileExtension}) async {
+    final Map<String, String> paths =
+        await _getPath(_handleType(type, fileExtension), true);
+    return paths != null && paths.isNotEmpty
+        ? paths.values.map((path) => File(path)).toList()
+        : null;
+  }
+
   static Future<dynamic> _getPath(String type, bool multipleSelection) async {
     try {
       dynamic result = await _channel.invokeMethod(type, multipleSelection);

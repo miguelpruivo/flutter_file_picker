@@ -38,6 +38,13 @@ public class FileUtils {
         return null;
     }
 
+    public static String getExternalPath(Context context) {
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            return context.getExternalFilesDir(null).getAbsolutePath();
+        }
+            return context.getFilesDir().getAbsolutePath();
+    }
+
     @TargetApi(19)
     private static String getForApi19(Context context, Uri uri) {
         Log.e(TAG, "Getting for API 19 or above" + uri);
@@ -50,11 +57,11 @@ public class FileUtils {
                 final String type = split[0];
                 if ("primary".equalsIgnoreCase(type)) {
                     Log.e(TAG, "Primary External Document URI");
-                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                    return getExternalPath(context) + "/" + split[1];
                 }
             } else if (isDownloadsDocument(uri)) {
                 Log.e(TAG, "Downloads External Document URI");
-                final String id = DocumentsContract.getDocumentId(uri);
+                String id = DocumentsContract.getDocumentId(uri);
 
                 if (!TextUtils.isEmpty(id)) {
                     if (id.startsWith("raw:")) {
@@ -65,6 +72,9 @@ public class FileUtils {
                                 "content://downloads/my_downloads",
                                 "content://downloads/all_downloads"
                         };
+                    if(id.contains(":")){
+                        id = id.split(":")[1];
+                    }
                         for (String contentUriPrefix : contentUriPrefixesToTry) {
                             Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.valueOf(id));
                             try {
@@ -132,6 +142,7 @@ public class FileUtils {
                 final int index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(index);
             }
+        } catch(Exception ex){
         } finally {
             if (cursor != null)
                 cursor.close();
