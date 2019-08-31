@@ -30,7 +30,7 @@ See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker
 3. [API](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/api)
    * [Filters](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/API#filters)
    * [Methods](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/API#methods)
-4. [Example App](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/lib/main.dart)
+4. [Example App](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/lib/src/file_picker_demo.dart)
 
 ## Example App
 ![Demo](https://github.com/miguelpruivo/plugins_flutter_file_picker/blob/master/example/example.gif)
