@@ -38,14 +38,8 @@ public class FileUtils {
         return null;
     }
 
-    public static String getExternalPath(Context context) {
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            return context.getExternalFilesDir(null).getAbsolutePath();
-        }
-            return context.getFilesDir().getAbsolutePath();
-    }
-
     @TargetApi(19)
+    @SuppressWarnings("deprecation")
     private static String getForApi19(Context context, Uri uri) {
         Log.e(TAG, "Getting for API 19 or above" + uri);
         if (DocumentsContract.isDocumentUri(context, uri)) {
@@ -57,7 +51,7 @@ public class FileUtils {
                 final String type = split[0];
                 if ("primary".equalsIgnoreCase(type)) {
                     Log.e(TAG, "Primary External Document URI");
-                    return getExternalPath(context) + "/" + split[1];
+                    return Environment.getExternalStorageDirectory() + "/" + split[1];
                 }
             } else if (isDownloadsDocument(uri)) {
                 Log.e(TAG, "Downloads External Document URI");
