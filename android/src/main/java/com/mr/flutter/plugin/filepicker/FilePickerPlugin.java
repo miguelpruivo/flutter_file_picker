@@ -199,14 +199,14 @@ public class FilePickerPlugin implements MethodCallHandler {
 
 
 
-
+  @SuppressWarnings("deprecation")
   private static void startFileExplorer(String type) {
     Intent intent;
 
     if (checkPermission()) {
 
         intent = new Intent(Intent.ACTION_GET_CONTENT);
-        Uri uri = Uri.parse(FileUtils.getExternalPath(instance.activeContext()) + File.separator);
+        Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
         intent.setDataAndType(uri, type);
         intent.setType(type);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection);
