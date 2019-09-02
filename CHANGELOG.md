@@ -1,3 +1,7 @@
+## 1.4.0+1
+
+**Bug fix:** Fixes an issue that could prevent internal storage files from being properly picked. 
+
 ## 1.4.0
 
 **New features**
@@ -5,7 +9,7 @@
  * Adds Desktop example, to run it just do `hover init` and then `hover run` within the plugin's example folder (you must have go and hover installed, check the previous point).
  * Similar to `getFile`, now there is also a `getMultiFile` which behaves the same way, but returning a list of files instead.
 
-**Improvements:**
+**Improvements**
  * Updates Android SDK deprecated code.
  * Sometimes when a big file was being picked from a remote directory (GDrive for example), the UI could be blocked. Now this shouldn't happen anymore.
 
