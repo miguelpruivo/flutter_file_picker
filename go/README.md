@@ -12,7 +12,7 @@ package main
 import (
 	... other imports ....
 	
-	"github.com/miguelpruivo/plugins_flutter_file_picker/go"
+	file_picker "github.com/miguelpruivo/plugins_flutter_file_picker/go"
 )
 
 var options = []flutter.Option{
