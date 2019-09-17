@@ -1,3 +1,7 @@
+## 1.4.1
+
+**Bug fix:** Fixes an issue that could result in some cached files, picked from Google Photos (remote file), to have the name set as `null`.
+
 ## 1.4.0+1
 
 **Bug fix:** Fixes an issue that could prevent internal storage files from being properly picked. 

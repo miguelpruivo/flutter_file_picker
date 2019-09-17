@@ -16,6 +16,7 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Random;
 
 import io.flutter.plugin.common.MethodChannel;
 
@@ -108,7 +109,7 @@ public class FileUtils {
                 return getDataColumn(context, contentUri, selection, selectionArgs);
             }
         } else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            Log.e(TAG, "NO DOCUMENT URI - CONTENT");
+            Log.e(TAG, "NO DOCUMENT URI - CONTENT: " + uri.getPath());
             if (isGooglePhotosUri(uri)) {
                 return uri.getLastPathSegment();
             } else if (isDropBoxUri(uri)) {
@@ -116,7 +117,7 @@ public class FileUtils {
             }
             return getDataColumn(context, uri, null, null);
         } else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            Log.e(TAG, "No DOCUMENT URI - FILE");
+            Log.e(TAG, "No DOCUMENT URI - FILE: " + uri.getPath());
             return uri.getPath();
         }
         return null;
@@ -182,7 +183,8 @@ public class FileUtils {
 
         Log.i(TAG, "Caching file from remote/external URI");
         FileOutputStream fos = null;
-        String externalFile = context.getCacheDir().getAbsolutePath() + "/" + FileUtils.getFileName(uri, context);
+        final String fileName = FileUtils.getFileName(uri, context);
+        String externalFile = context.getCacheDir().getAbsolutePath() + "/" + (fileName != null ? fileName : new Random().nextInt(100000));
 
             try {
                 fos = new FileOutputStream(externalFile);
