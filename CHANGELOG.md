@@ -1,3 +1,9 @@
+## 1.4.2
+
+**Bug fix**
+ * Fixes an issue that could cause a crash when picking video files in iOS 13 or above due to SDK changes.
+ * Updates Go-Flutter with go 1.13.
+
 ## 1.4.1
 
 **Bug fix:** Fixes an issue that could result in some cached files, picked from Google Photos (remote file), to have the name set as `null`.

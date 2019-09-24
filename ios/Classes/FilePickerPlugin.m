@@ -162,7 +162,22 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     NSURL *pickedVideoUrl = [info objectForKey:UIImagePickerControllerMediaURL];
     NSURL *pickedImageUrl;
     
-    if (@available(iOS 11.0, *)) {
+    if(@available(iOS 13.0, *)){
+        
+        if(pickedVideoUrl != nil) {
+            NSString * fileName = [pickedVideoUrl lastPathComponent];
+            NSURL * destination = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:fileName]];
+            
+            if([[NSFileManager defaultManager] isReadableFileAtPath: [pickedVideoUrl path]]) {
+                Log(@"Caching video file for iOS 13 or above...");
+                [[NSFileManager defaultManager] copyItemAtURL:pickedVideoUrl toURL:destination error:nil];
+                pickedVideoUrl = destination;
+            }
+        } else {
+            pickedImageUrl = [info objectForKey:UIImagePickerControllerImageURL];
+        }
+        
+    } else if (@available(iOS 11.0, *)) {
        pickedImageUrl = [info objectForKey:UIImagePickerControllerImageURL];
     } else {
        UIImage *pickedImage  = [info objectForKey:UIImagePickerControllerEditedImage];
