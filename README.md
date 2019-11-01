@@ -7,15 +7,15 @@
 A package that allows you to use a native file explorer to pick single or multiple absolute file paths, with extensions filtering support.
 
 ## Currently supported features
-* Load paths from **cloud files** (GDrive, Dropbox, iCloud)
-* Load path from a **custom format** by providing a file extension (pdf, svg, zip, etc.)
-* Load path from **multiple files** optionally, supplying a file extension
-* Load path from **gallery**
-* Load path from **audio**
-* Load path from **video**
-* Load path from **any** 
-* Create a `File` or `List<File>` objects from **any** selected file(s)
-* Supports desktop through **go-flutter** (MacOS, Windows, Linux) 
+* [X] Load paths from **cloud files** (GDrive, Dropbox, iCloud)
+* [X] Load path from a **custom format** by providing a file extension (pdf, svg, zip, etc.)
+* [X] Load path from **multiple files** optionally, supplying a file extension
+* [X] Load path from **gallery**
+* [X] Load path from **audio**
+* [X] Load path from **video**
+* [X] Load path from **any** 
+* [X] Create a `File` or `List<File>` objects from **any** selected file(s)
+* [X] Supports desktop through **go-flutter** (MacOS, Windows, Linux) 
 
 If you have any feature that you want to see in this package, please add it [here](https://github.com/miguelpruivo/plugins_flutter_file_picker/issues/99). 🎉
 
