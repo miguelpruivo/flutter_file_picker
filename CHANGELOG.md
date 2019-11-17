@@ -1,3 +1,7 @@
+## 1.4.2+1
+
+Updates go-flutter dependencies.
+
 ## 1.4.2
 
 **Bug fix**
