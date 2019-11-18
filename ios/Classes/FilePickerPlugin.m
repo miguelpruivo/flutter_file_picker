@@ -158,6 +158,9 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 
 // ImagePicker delegate
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    if(_result == nil) {
+        return;
+    }
     
     NSURL *pickedVideoUrl = [info objectForKey:UIImagePickerControllerMediaURL];
     NSURL *pickedImageUrl;
