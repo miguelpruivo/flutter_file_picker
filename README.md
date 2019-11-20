@@ -48,7 +48,7 @@ Quick simple usage example:
 
 #### Single file
 ```
-List<File> files = await FilePicker.getFile();
+File file = await FilePicker.getFile();
 ```
 #### Multiple files
 ```

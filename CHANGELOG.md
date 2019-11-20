@@ -1,3 +1,12 @@
+## 1.4.3+1
+
+Removes checked flutter_export_environment.sh from example app.
+
+## 1.4.3
+
+**Bug fix**
+ * Fixes an issue that could result in a crash when tapping multiple times in the same media file while picking, on some iOS devices (#171).
+
 ## 1.4.2+1
 
 Updates go-flutter dependencies.
