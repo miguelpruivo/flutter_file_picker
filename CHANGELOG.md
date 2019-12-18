@@ -1,3 +1,7 @@
+## 1.4.3+2
+
+Updates dependencies.
+
 ## 1.4.3+1
 
 Removes checked flutter_export_environment.sh from example app.
