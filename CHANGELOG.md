@@ -1,3 +1,8 @@
+## 1.5.0
+
+* **Breaking change:** Refactored `FileType` to match lower camelCase Dart guideline (eg. `FileType.ALL` now is `FileType.all`);
+* Added support for new [Android plugins APIs](https://flutter.dev/docs/development/packages-and-plugins/plugin-api-migration) (Android V2 embedding);
+
 ## 1.4.3+2
 
 Updates dependencies.
