@@ -18,13 +18,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
 
-import io.flutter.plugin.common.MethodChannel;
-
 public class FileUtils {
 
     private static final String TAG = "FilePickerUtils";
 
-    public static String getPath(final Uri uri, Context context) {
+    public static String getPath(final Uri uri, final Context context) {
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
         if (isKitKat) {
             return getForApi19(context, uri);
@@ -41,7 +39,7 @@ public class FileUtils {
 
     @TargetApi(19)
     @SuppressWarnings("deprecation")
-    private static String getForApi19(Context context, Uri uri) {
+    private static String getForApi19(final Context context, final Uri uri) {
         Log.e(TAG, "Getting for API 19 or above" + uri);
         if (DocumentsContract.isDocumentUri(context, uri)) {
             Log.e(TAG, "Document URI");
@@ -62,27 +60,27 @@ public class FileUtils {
                     if (id.startsWith("raw:")) {
                         return id.replaceFirst("raw:", "");
                     }
-                        String[] contentUriPrefixesToTry = new String[]{
-                                "content://downloads/public_downloads",
-                                "content://downloads/my_downloads",
-                                "content://downloads/all_downloads"
-                        };
-                    if(id.contains(":")){
+                    final String[] contentUriPrefixesToTry = new String[]{
+                            "content://downloads/public_downloads",
+                            "content://downloads/my_downloads",
+                            "content://downloads/all_downloads"
+                    };
+                    if (id.contains(":")) {
                         id = id.split(":")[1];
                     }
-                        for (String contentUriPrefix : contentUriPrefixesToTry) {
-                            Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.valueOf(id));
-                            try {
-                                String path = getDataColumn(context, contentUri, null, null);
-                                if (path != null) {
-                                    return path;
-                                }
-                            } catch (Exception e) {
-                                Log.e(TAG, "Something went wrong while retrieving document path: " + e.toString());
+                    for (final String contentUriPrefix : contentUriPrefixesToTry) {
+                        final Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.valueOf(id));
+                        try {
+                            final String path = getDataColumn(context, contentUri, null, null);
+                            if (path != null) {
+                                return path;
                             }
+                        } catch (final Exception e) {
+                            Log.e(TAG, "Something went wrong while retrieving document path: " + e.toString());
                         }
-
                     }
+
+                }
             } else if (isMediaDocument(uri)) {
                 Log.e(TAG, "Media Document URI");
                 final String docId = DocumentsContract.getDocumentId(uri);
@@ -123,8 +121,8 @@ public class FileUtils {
         return null;
     }
 
-    private static String getDataColumn(Context context, Uri uri, String selection,
-                                        String[] selectionArgs) {
+    private static String getDataColumn(final Context context, final Uri uri, final String selection,
+                                        final String[] selectionArgs) {
         Cursor cursor = null;
         final String column = "_data";
         final String[] projection = {
@@ -137,104 +135,109 @@ public class FileUtils {
                 final int index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(index);
             }
-        } catch(Exception ex){
+        } catch (final Exception ex) {
         } finally {
-            if (cursor != null)
+            if (cursor != null) {
                 cursor.close();
+            }
         }
         return null;
     }
 
-    public static String getFileName(Uri uri, Context context) {
+    public static String getFileName(Uri uri, final Context context) {
         String result = null;
 
         //if uri is content
         if (uri.getScheme() != null && uri.getScheme().equals("content")) {
-            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+            final Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
             try {
                 if (cursor != null && cursor.moveToFirst()) {
                     //local filesystem
                     int index = cursor.getColumnIndex("_data");
                     if (index == -1)
-                        //google drive
+                    //google drive
+                    {
                         index = cursor.getColumnIndex("_display_name");
+                    }
                     result = cursor.getString(index);
-                    if (result != null)
+                    if (result != null) {
                         uri = Uri.parse(result);
-                    else
+                    } else {
                         return null;
+                    }
                 }
             } finally {
                 cursor.close();
             }
         }
 
-        if(uri.getPath() != null) {
+        if (uri.getPath() != null) {
             result = uri.getPath();
-            int cut = result.lastIndexOf('/');
-            if (cut != -1)
+            final int cut = result.lastIndexOf('/');
+            if (cut != -1) {
                 result = result.substring(cut + 1);
+            }
         }
 
         return result;
     }
 
-    public static String getUriFromRemote(Context context, Uri uri, MethodChannel.Result result) {
+    public static String getUriFromRemote(final Context context, final Uri uri) {
 
         Log.i(TAG, "Caching file from remote/external URI");
         FileOutputStream fos = null;
         final String fileName = FileUtils.getFileName(uri, context);
-        String externalFile = context.getCacheDir().getAbsolutePath() + "/" + (fileName != null ? fileName : new Random().nextInt(100000));
+        final String externalFile = context.getCacheDir().getAbsolutePath() + "/" + (fileName != null ? fileName : new Random().nextInt(100000));
 
+        try {
+            fos = new FileOutputStream(externalFile);
             try {
-                fos = new FileOutputStream(externalFile);
-                try {
-                    BufferedOutputStream out = new BufferedOutputStream(fos);
-                    InputStream in = context.getContentResolver().openInputStream(uri);
+                final BufferedOutputStream out = new BufferedOutputStream(fos);
+                final InputStream in = context.getContentResolver().openInputStream(uri);
 
-                    byte[] buffer = new byte[8192];
-                    int len = 0;
+                final byte[] buffer = new byte[8192];
+                int len = 0;
 
-                    while ((len = in.read(buffer)) >= 0) {
-                        out.write(buffer, 0, len);
-                    }
-
-                    out.flush();
-                } finally {
-                    fos.getFD().sync();
+                while ((len = in.read(buffer)) >= 0) {
+                    out.write(buffer, 0, len);
                 }
-            } catch (Exception e) {
-                try {
-                    fos.close();
-                } catch(IOException | NullPointerException ex) {
-                    Log.e(TAG, "Failed to close file streams: " + e.getMessage(),null);
-                    return null;
-                }
-                Log.e(TAG, "Failed to retrieve path: " + e.getMessage(),null);
+
+                out.flush();
+            } finally {
+                fos.getFD().sync();
+            }
+        } catch (final Exception e) {
+            try {
+                fos.close();
+            } catch (final IOException | NullPointerException ex) {
+                Log.e(TAG, "Failed to close file streams: " + e.getMessage(), null);
                 return null;
             }
+            Log.e(TAG, "Failed to retrieve path: " + e.getMessage(), null);
+            return null;
+        }
 
-            Log.i(TAG, "File loaded and cached at:" + externalFile);
-            return externalFile;
+        Log.i(TAG, "File loaded and cached at:" + externalFile);
+        return externalFile;
     }
 
-    private static boolean isDropBoxUri(Uri uri) {
+    private static boolean isDropBoxUri(final Uri uri) {
         return "com.dropbox.android.FileCache".equals(uri.getAuthority());
     }
 
-    private static boolean isExternalStorageDocument(Uri uri) {
+    private static boolean isExternalStorageDocument(final Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());
     }
 
-    private static boolean isDownloadsDocument(Uri uri) {
+    private static boolean isDownloadsDocument(final Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
 
-    private static boolean isMediaDocument(Uri uri) {
+    private static boolean isMediaDocument(final Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
-    private static boolean isGooglePhotosUri(Uri uri) {
+    private static boolean isGooglePhotosUri(final Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 

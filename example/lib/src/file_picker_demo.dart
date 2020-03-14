@@ -26,17 +26,15 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   void _openFileExplorer() async {
-    if (_pickingType != FileType.CUSTOM || _hasValidMime) {
+    if (_pickingType != FileType.custom || _hasValidMime) {
       setState(() => _loadingPath = true);
       try {
         if (_multiPick) {
           _path = null;
-          _paths = await FilePicker.getMultiFilePath(
-              type: _pickingType, fileExtension: _extension);
+          _paths = await FilePicker.getMultiFilePath(type: _pickingType, fileExtension: _extension);
         } else {
           _paths = null;
-          _path = await FilePicker.getFilePath(
-              type: _pickingType, fileExtension: _extension);
+          _path = await FilePicker.getFilePath(type: _pickingType, fileExtension: _extension);
         }
       } on PlatformException catch (e) {
         print("Unsupported operation" + e.toString());
@@ -44,9 +42,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       if (!mounted) return;
       setState(() {
         _loadingPath = false;
-        _fileName = _path != null
-            ? _path.split('/').last
-            : _paths != null ? _paths.keys.toString() : '...';
+        _fileName = _path != null ? _path.split('/').last : _paths != null ? _paths.keys.toString() : '...';
       });
     }
   }
@@ -73,41 +69,40 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                       items: <DropdownMenuItem>[
                         new DropdownMenuItem(
                           child: new Text('FROM AUDIO'),
-                          value: FileType.AUDIO,
+                          value: FileType.audio,
                         ),
                         new DropdownMenuItem(
                           child: new Text('FROM IMAGE'),
-                          value: FileType.IMAGE,
+                          value: FileType.image,
                         ),
                         new DropdownMenuItem(
                           child: new Text('FROM VIDEO'),
-                          value: FileType.VIDEO,
+                          value: FileType.video,
                         ),
                         new DropdownMenuItem(
                           child: new Text('FROM ANY'),
-                          value: FileType.ANY,
+                          value: FileType.any,
                         ),
                         new DropdownMenuItem(
                           child: new Text('CUSTOM FORMAT'),
-                          value: FileType.CUSTOM,
+                          value: FileType.custom,
                         ),
                       ],
                       onChanged: (value) => setState(() {
                             _pickingType = value;
-                            if (_pickingType != FileType.CUSTOM) {
+                            if (_pickingType != FileType.custom) {
                               _controller.text = _extension = '';
                             }
                           })),
                 ),
                 new ConstrainedBox(
                   constraints: BoxConstraints.tightFor(width: 100.0),
-                  child: _pickingType == FileType.CUSTOM
+                  child: _pickingType == FileType.custom
                       ? new TextFormField(
                           maxLength: 15,
                           autovalidate: true,
                           controller: _controller,
-                          decoration:
-                              InputDecoration(labelText: 'File extension'),
+                          decoration: InputDecoration(labelText: 'File extension'),
                           keyboardType: TextInputType.text,
                           textCapitalization: TextCapitalization.none,
                           validator: (value) {
@@ -125,10 +120,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                 new ConstrainedBox(
                   constraints: BoxConstraints.tightFor(width: 200.0),
                   child: new SwitchListTile.adaptive(
-                    title: new Text('Pick multiple files',
-                        textAlign: TextAlign.right),
-                    onChanged: (bool value) =>
-                        setState(() => _multiPick = value),
+                    title: new Text('Pick multiple files', textAlign: TextAlign.right),
+                    onChanged: (bool value) => setState(() => _multiPick = value),
                     value: _multiPick,
                   ),
                 ),
@@ -141,28 +134,18 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                 ),
                 new Builder(
                   builder: (BuildContext context) => _loadingPath
-                      ? Padding(
-                          padding: const EdgeInsets.only(bottom: 10.0),
-                          child: const CircularProgressIndicator())
+                      ? Padding(padding: const EdgeInsets.only(bottom: 10.0), child: const CircularProgressIndicator())
                       : _path != null || _paths != null
                           ? new Container(
                               padding: const EdgeInsets.only(bottom: 30.0),
                               height: MediaQuery.of(context).size.height * 0.50,
                               child: new Scrollbar(
                                   child: new ListView.separated(
-                                itemCount: _paths != null && _paths.isNotEmpty
-                                    ? _paths.length
-                                    : 1,
+                                itemCount: _paths != null && _paths.isNotEmpty ? _paths.length : 1,
                                 itemBuilder: (BuildContext context, int index) {
-                                  final bool isMultiPath =
-                                      _paths != null && _paths.isNotEmpty;
-                                  final String name = 'File $index: ' +
-                                      (isMultiPath
-                                          ? _paths.keys.toList()[index]
-                                          : _fileName ?? '...');
-                                  final path = isMultiPath
-                                      ? _paths.values.toList()[index].toString()
-                                      : _path;
+                                  final bool isMultiPath = _paths != null && _paths.isNotEmpty;
+                                  final String name = 'File $index: ' + (isMultiPath ? _paths.keys.toList()[index] : _fileName ?? '...');
+                                  final path = isMultiPath ? _paths.values.toList()[index].toString() : _path;
 
                                   return new ListTile(
                                     title: new Text(
@@ -171,9 +154,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                                     subtitle: new Text(path),
                                   );
                                 },
-                                separatorBuilder:
-                                    (BuildContext context, int index) =>
-                                        new Divider(),
+                                separatorBuilder: (BuildContext context, int index) => new Divider(),
                               )),
                             )
                           : new Container(),
