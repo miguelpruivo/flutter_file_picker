@@ -60,7 +60,6 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     public boolean onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -80,9 +79,9 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 currentItem++;
                             }
                             if (paths.size() > 1) {
-                                FilePickerDelegate.this.finishWithSuccess(paths);
+                                finishWithSuccess(paths);
                             } else {
-                                FilePickerDelegate.this.finishWithSuccess(paths.get(0));
+                                finishWithSuccess(paths.get(0));
                             }
                         } else if (data.getData() != null) {
                             final Uri uri = data.getData();
@@ -95,26 +94,27 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
                             if (fullPath != null) {
                                 Log.i(FilePickerDelegate.TAG, "Absolute file path:" + fullPath);
-                                FilePickerDelegate.this.finishWithSuccess(fullPath);
+                                finishWithSuccess(fullPath);
                             } else {
-                                FilePickerDelegate.this.finishWithError("unknown_path", "Failed to retrieve path.");
+                                finishWithError("unknown_path", "Failed to retrieve path.");
                             }
                         } else {
-                            FilePickerDelegate.this.finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
+                            finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
                         }
                     } else {
-                        FilePickerDelegate.this.finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
+                        finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
                     }
                 }
             }).start();
+
             return true;
 
         } else if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_CANCELED) {
             Log.i(TAG, "User cancelled the picker request");
-            this.finishWithSuccess(null);
+            finishWithSuccess(null);
             return true;
         } else if (requestCode == REQUEST_CODE) {
-            this.finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
+            finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
         }
         return false;
     }
@@ -127,7 +127,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         if (permissionGranted) {
             this.startFileExplorer();
         } else {
-            this.finishWithError("read_external_storage_denied", "User did not allowed reading external storage");
+            finishWithError("read_external_storage_denied", "User did not allowed reading external storage");
         }
 
         return true;
@@ -159,7 +159,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             this.activity.startActivityForResult(intent, REQUEST_CODE);
         } else {
             Log.e(TAG, "Can't find a valid activity to handle the request. Make sure you've a file explorer installed.");
-            this.finishWithError("invalid_format_type", "Can't handle the provided file type.");
+            finishWithError("invalid_format_type", "Can't handle the provided file type.");
         }
     }
 
@@ -167,7 +167,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     public void startFileExplorer(final String type, final boolean isMultipleSelection, final MethodChannel.Result result) {
 
         if (!this.setPendingMethodCallAndResult(result)) {
-            FilePickerDelegate.finishWithAlreadyActiveError(result);
+            finishWithAlreadyActiveError(result);
             return;
         }
 
@@ -183,8 +183,11 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     private void finishWithSuccess(final Object data) {
-        this.pendingResult.success(data);
-        this.clearPendingResult();
+        // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
+        if (this.pendingResult != null) {
+            this.pendingResult.success(data);
+            this.clearPendingResult();
+        }
     }
 
     private void finishWithError(final String errorCode, final String errorMessage) {
