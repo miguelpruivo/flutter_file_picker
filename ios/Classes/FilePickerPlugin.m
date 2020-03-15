@@ -16,7 +16,7 @@
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
     
     FlutterMethodChannel* channel = [FlutterMethodChannel
-                                     methodChannelWithName:@"file_picker"
+                                     methodChannelWithName:@"miguelruivo.flutter.plugins.file_picker"
                                      binaryMessenger:[registrar messenger]];
     
     UIViewController *viewController = [UIApplication sharedApplication].delegate.window.rootViewController;
