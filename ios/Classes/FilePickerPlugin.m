@@ -143,6 +143,10 @@
 - (void)documentPicker:(UIDocumentPickerViewController *)controller
 didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
+    if(_result == nil) {
+        return;
+    }
+    
     [self.documentPickerController dismissViewControllerAnimated:YES completion:nil];
     NSArray * result = [FileUtils resolvePath:urls];
     

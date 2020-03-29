@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const channelName = "file_picker"
+const channelName = "miguelruivo.flutter.plugins.file_picker"
 
 type FilePickerPlugin struct{}
 
