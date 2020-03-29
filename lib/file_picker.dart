@@ -71,6 +71,9 @@ class FilePicker {
   }
 
   static String _handleType(FileType type, String fileExtension) {
+    if (type != FileType.custom && (fileExtension?.isNotEmpty ?? false)) {
+      throw Exception('If you are using a custom extension filter, please use the FileType.custom instead.');
+    }
     switch (type) {
       case FileType.image:
         return 'IMAGE';

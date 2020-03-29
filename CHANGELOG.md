@@ -1,3 +1,9 @@
+## 1.5.1
+
+* iOS: Fixes an issue that could result in a crash when selecting files (with repeated taps) from 3rd party remote providers (Google Drive, Dropbox etc.);
+* Go: Updates channel name;
+* Adds check that ensures that you one uses `FileType.custom` when providing a custom file extension filter;
+
 ## 1.5.0+2
 
 * Updates channel name on iOS.
