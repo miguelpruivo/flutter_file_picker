@@ -10,7 +10,7 @@
 
 ## 1.5.0+1
 
-* Adds temporary workaround for (#49365)(https://github.com/flutter/flutter/issues/49365) until 1.14.6 lands on stable channel.
+Added Flutter Web support. Check the Wiki for more details.
 
 ## 1.5.0
 
