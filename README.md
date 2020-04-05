@@ -19,8 +19,8 @@ A package that allows you to use a native file explorer to pick single or multip
 
 ## Currently supported features
 * Load paths from **cloud files** (GDrive, Dropbox, iCloud)
-* Load path from a **custom format** by providing a file extension (pdf, svg, zip, etc.)
-* Load path from **multiple files** optionally, supplying a file extension
+* Load path from a **custom format** by providing a list of file extensions (pdf, svg, zip, etc.)
+* Load path from **multiple files** optionally, supplying file extensions
 * Load path from **gallery**
 * Load path from **audio**
 * Load path from **video**
@@ -42,6 +42,7 @@ See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker
    * [Filters](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/API#filters)
    * [Methods](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/API#methods)
 4. [Example App](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/lib/src/file_picker_demo.dart)
+5. [Troubleshooting](https://github.com/miguelpruivo/flutter_file_picker/wiki/Troubleshooting)
 
 ## Usage
 Quick simple usage example:
@@ -54,10 +55,18 @@ File file = await FilePicker.getFile();
 ```
 List<File> files = await FilePicker.getMultiFile();
 ```
+#### Multiple files with extension filter
+```
+ List<File> files = await FilePicker.getMultiFile(
+          type: FileType.custom,
+          allowedExtensions: ['jpg', 'pdf', 'doc'],
+        );
+```
 For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** above.
 
 ## Example App
 ![Demo](https://github.com/miguelpruivo/plugins_flutter_file_picker/blob/master/example/example.gif)
+![DemoMultiFilters](https://github.com/miguelpruivo/plugins_flutter_file_picker/blob/master/example/example_ios.gif)
 
 ## Getting Started
 

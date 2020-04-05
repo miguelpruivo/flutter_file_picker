@@ -30,7 +30,7 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 public class FilePickerPlugin implements MethodChannel.MethodCallHandler, FlutterPlugin, ActivityAware {
 
     private static final String TAG = "FilePicker";
-    private static final String CHANNEL = "miguelruivo.flutter.plugins.file_picker";
+    private static final String CHANNEL = "miguelruivo.flutter.plugins.filepicker";
 
     private class LifeCycleObserver
             implements Application.ActivityLifecycleCallbacks, DefaultLifecycleObserver {

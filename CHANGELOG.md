@@ -1,3 +1,8 @@
+## 1.6.0
+
+* Adds multiple file extension filter support. From now on, you _must_ provide a `List` of extensions with type `FileType.custom` when restricting types while pikcing.
+* Other minor improvements;
+
 ## 1.5.1
 
 * iOS: Fixes an issue that could result in a crash when selecting files (with repeated taps) from 3rd party remote providers (Google Drive, Dropbox etc.);

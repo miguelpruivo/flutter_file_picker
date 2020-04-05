@@ -13,7 +13,8 @@ enum FileType {
 
 class FilePicker {
   FilePicker._();
-  static const MethodChannel _channel = const MethodChannel('miguelruivo.flutter.plugins.file_picker');
+  static const MethodChannel _channel =
+      const MethodChannel('miguelruivo.flutter.plugins.filepicker');
   static const String _tag = 'FilePicker';
 
   /// Returns an iterable `Map<String,String>` where the `key` is the name of the file
@@ -22,7 +23,9 @@ class FilePicker {
   /// A `List` with [allowedExtensions] can be provided to filter the allowed files to picked.
   /// If provided, make sure you select `FileType.custom` as type.
   /// Defaults to `FileType.any`, which allows any combination of files to be multi selected at once.
-  static Future<Map<String, String>> getMultiFilePath({FileType type = FileType.any, List<String> allowedExtensions}) async =>
+  static Future<Map<String, String>> getMultiFilePath(
+          {FileType type = FileType.any,
+          List<String> allowedExtensions}) async =>
       await _getPath(_handleType(type), true, allowedExtensions);
 
   /// Returns an absolute file path from the calling platform.
@@ -30,15 +33,19 @@ class FilePicker {
   /// Extension filters are allowed with `FileType.custom`, when used, make sure to provide a `List`
   /// of [allowedExtensions] (e.g. [`pdf`, `svg`, `jpg`].).
   /// Defaults to `FileType.any` which will display all file types.
-  static Future<String> getFilePath({FileType type = FileType.any, List<String> allowedExtensions}) async =>
+  static Future<String> getFilePath(
+          {FileType type = FileType.any,
+          List<String> allowedExtensions}) async =>
       await _getPath(_handleType(type), false, allowedExtensions);
 
   /// Returns a `File` object from the selected file path.
   ///
   /// This is an utility method that does the same of `getFilePath()` but saving some boilerplate if
   /// you are planing to create a `File` for the returned path.
-  static Future<File> getFile({FileType type = FileType.any, List<String> allowedExtensions}) async {
-    final String filePath = await _getPath(_handleType(type), false, allowedExtensions);
+  static Future<File> getFile(
+      {FileType type = FileType.any, List<String> allowedExtensions}) async {
+    final String filePath =
+        await _getPath(_handleType(type), false, allowedExtensions);
     return filePath != null ? File(filePath) : null;
   }
 
@@ -46,14 +53,20 @@ class FilePicker {
   ///
   /// This is an utility method that does the same of `getMultiFilePath()` but saving some boilerplate if
   /// you are planing to create a list of `File`s for the returned paths.
-  static Future<List<File>> getMultiFile({FileType type = FileType.any, List<String> allowedExtensions}) async {
-    final Map<String, String> paths = await _getPath(_handleType(type), true, allowedExtensions);
-    return paths != null && paths.isNotEmpty ? paths.values.map((path) => File(path)).toList() : null;
+  static Future<List<File>> getMultiFile(
+      {FileType type = FileType.any, List<String> allowedExtensions}) async {
+    final Map<String, String> paths =
+        await _getPath(_handleType(type), true, allowedExtensions);
+    return paths != null && paths.isNotEmpty
+        ? paths.values.map((path) => File(path)).toList()
+        : null;
   }
 
-  static Future<dynamic> _getPath(String type, bool allowMultipleSelection, List<String> allowedExtensions) async {
+  static Future<dynamic> _getPath(String type, bool allowMultipleSelection,
+      List<String> allowedExtensions) async {
     if (type != 'CUSTOM' && (allowedExtensions?.isNotEmpty ?? false)) {
-      throw Exception('If you are using a custom extension filter, please use the FileType.custom instead.');
+      throw Exception(
+          'If you are using a custom extension filter, please use the FileType.custom instead.');
     }
     try {
       dynamic result = await _channel.invokeMethod(type, {
@@ -64,14 +77,16 @@ class FilePicker {
         if (result is String) {
           result = [result];
         }
-        return Map<String, String>.fromIterable(result, key: (path) => path.split('/').last, value: (path) => path);
+        return Map<String, String>.fromIterable(result,
+            key: (path) => path.split('/').last, value: (path) => path);
       }
       return result;
     } on PlatformException catch (e) {
       print('[$_tag] Platform exception: $e');
       rethrow;
     } catch (e) {
-      print('[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
+      print(
+          '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
       rethrow;
     }
   }
