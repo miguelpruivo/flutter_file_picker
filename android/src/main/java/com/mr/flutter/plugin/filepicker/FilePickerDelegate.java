@@ -27,6 +27,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private MethodChannel.Result pendingResult;
     private boolean isMultipleSelection = false;
     private String type;
+    private String[] allowedExtensions;
 
     public FilePickerDelegate(final Activity activity) {
         this(
@@ -150,10 +151,15 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
         intent = new Intent(Intent.ACTION_GET_CONTENT);
         final Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
+
         intent.setDataAndType(uri, this.type);
         intent.setType(this.type);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        if (allowedExtensions != null) {
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions);
+        }
 
         if (intent.resolveActivity(this.activity.getPackageManager()) != null) {
             this.activity.startActivityForResult(intent, REQUEST_CODE);
@@ -164,7 +170,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     @SuppressWarnings("deprecation")
-    public void startFileExplorer(final String type, final boolean isMultipleSelection, final MethodChannel.Result result) {
+    public void startFileExplorer(final String type, final boolean isMultipleSelection, final String[] allowedExtensions, final MethodChannel.Result result) {
 
         if (!this.setPendingMethodCallAndResult(result)) {
             finishWithAlreadyActiveError(result);
@@ -173,6 +179,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
         this.type = type;
         this.isMultipleSelection = isMultipleSelection;
+        this.allowedExtensions = allowedExtensions;
 
         if (!this.permissionManager.isPermissionGranted(Manifest.permission.READ_EXTERNAL_STORAGE)) {
             this.permissionManager.askForPermission(Manifest.permission.READ_EXTERNAL_STORAGE, REQUEST_CODE);

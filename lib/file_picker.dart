@@ -19,26 +19,26 @@ class FilePicker {
   /// Returns an iterable `Map<String,String>` where the `key` is the name of the file
   /// and the `value` the path.
   ///
-  /// A [fileExtension] can be provided to filter the picking results.
-  /// If provided, it will be use the `FileType.CUSTOM` for that [fileExtension].
-  /// If not, `FileType.ANY` will be used and any combination of files can be multi picked at once.
-  static Future<Map<String, String>> getMultiFilePath({FileType type = FileType.any, String fileExtension}) async =>
-      await _getPath(_handleType(type, fileExtension), true);
+  /// A `List` with [allowedExtensions] can be provided to filter the allowed files to picked.
+  /// If provided, make sure you select `FileType.custom` as type.
+  /// Defaults to `FileType.any`, which allows any combination of files to be multi selected at once.
+  static Future<Map<String, String>> getMultiFilePath({FileType type = FileType.any, List<String> allowedExtensions}) async =>
+      await _getPath(_handleType(type), true, allowedExtensions);
 
   /// Returns an absolute file path from the calling platform.
   ///
-  /// A [type] must be provided to filter the picking results.
-  /// Can be used a custom file type with `FileType.CUSTOM`. A [fileExtension] must be provided (e.g. PDF, SVG, etc.)
-  /// Defaults to `FileType.ANY` which will display all file types.
-  static Future<String> getFilePath({FileType type = FileType.any, String fileExtension}) async =>
-      await _getPath(_handleType(type, fileExtension), false);
+  /// Extension filters are allowed with `FileType.custom`, when used, make sure to provide a `List`
+  /// of [allowedExtensions] (e.g. [`pdf`, `svg`, `jpg`].).
+  /// Defaults to `FileType.any` which will display all file types.
+  static Future<String> getFilePath({FileType type = FileType.any, List<String> allowedExtensions}) async =>
+      await _getPath(_handleType(type), false, allowedExtensions);
 
   /// Returns a `File` object from the selected file path.
   ///
   /// This is an utility method that does the same of `getFilePath()` but saving some boilerplate if
   /// you are planing to create a `File` for the returned path.
-  static Future<File> getFile({FileType type = FileType.any, String fileExtension}) async {
-    final String filePath = await _getPath(_handleType(type, fileExtension), false);
+  static Future<File> getFile({FileType type = FileType.any, List<String> allowedExtensions}) async {
+    final String filePath = await _getPath(_handleType(type), false, allowedExtensions);
     return filePath != null ? File(filePath) : null;
   }
 
@@ -46,15 +46,21 @@ class FilePicker {
   ///
   /// This is an utility method that does the same of `getMultiFilePath()` but saving some boilerplate if
   /// you are planing to create a list of `File`s for the returned paths.
-  static Future<List<File>> getMultiFile({FileType type = FileType.any, String fileExtension}) async {
-    final Map<String, String> paths = await _getPath(_handleType(type, fileExtension), true);
+  static Future<List<File>> getMultiFile({FileType type = FileType.any, List<String> allowedExtensions}) async {
+    final Map<String, String> paths = await _getPath(_handleType(type), true, allowedExtensions);
     return paths != null && paths.isNotEmpty ? paths.values.map((path) => File(path)).toList() : null;
   }
 
-  static Future<dynamic> _getPath(String type, bool multipleSelection) async {
+  static Future<dynamic> _getPath(String type, bool allowMultipleSelection, List<String> allowedExtensions) async {
+    if (type != 'CUSTOM' && (allowedExtensions?.isNotEmpty ?? false)) {
+      throw Exception('If you are using a custom extension filter, please use the FileType.custom instead.');
+    }
     try {
-      dynamic result = await _channel.invokeMethod(type, multipleSelection);
-      if (result != null && multipleSelection) {
+      dynamic result = await _channel.invokeMethod(type, {
+        'allowMultipleSelection': allowMultipleSelection,
+        'allowedExtensions': allowedExtensions,
+      });
+      if (result != null && allowMultipleSelection) {
         if (result is String) {
           result = [result];
         }
@@ -70,10 +76,7 @@ class FilePicker {
     }
   }
 
-  static String _handleType(FileType type, String fileExtension) {
-    if (type != FileType.custom && (fileExtension?.isNotEmpty ?? false)) {
-      throw Exception('If you are using a custom extension filter, please use the FileType.custom instead.');
-    }
+  static String _handleType(FileType type) {
     switch (type) {
       case FileType.image:
         return 'IMAGE';
@@ -84,7 +87,7 @@ class FilePicker {
       case FileType.any:
         return 'ANY';
       case FileType.custom:
-        return '__CUSTOM_' + (fileExtension ?? '');
+        return 'CUSTOM';
       default:
         return 'ANY';
     }

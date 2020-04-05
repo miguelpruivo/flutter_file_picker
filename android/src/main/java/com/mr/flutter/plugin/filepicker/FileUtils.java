@@ -11,11 +11,13 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class FileUtils {
@@ -121,6 +123,27 @@ public class FileUtils {
         return null;
     }
 
+    public static String[] getMimeTypes(final ArrayList<String> allowedExtensions) {
+
+        if (allowedExtensions == null || allowedExtensions.isEmpty()) {
+            return null;
+        }
+
+        final ArrayList<String> mimes = new ArrayList<>();
+
+        for (int i = 0; i < allowedExtensions.size(); i++) {
+            final String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(allowedExtensions.get(i));
+            if (mime == null) {
+                Log.w(TAG, "Custom file type " + allowedExtensions.get(i) + " is unsupported and will be ignored.");
+                continue;
+            }
+
+            mimes.add(mime);
+        }
+        Log.d(TAG, "Allowed file extensions mimes: " + mimes);
+        return mimes.toArray(new String[0]);
+    }
+
     private static String getDataColumn(final Context context, final Uri uri, final String selection,
                                         final String[] selectionArgs) {
         Cursor cursor = null;
@@ -167,7 +190,9 @@ public class FileUtils {
                     }
                 }
             } finally {
-                cursor.close();
+                if (cursor != null) {
+                    cursor.close();
+                }
             }
         }
 

@@ -15,7 +15,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   String _extension;
   bool _loadingPath = false;
   bool _multiPick = false;
-  bool _hasValidMime = false;
   FileType _pickingType;
   TextEditingController _controller = new TextEditingController();
 
@@ -26,25 +25,23 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   void _openFileExplorer() async {
-    if (_pickingType != FileType.custom || _hasValidMime) {
-      setState(() => _loadingPath = true);
-      try {
-        if (_multiPick) {
-          _path = null;
-          _paths = await FilePicker.getMultiFilePath(type: _pickingType, fileExtension: _extension);
-        } else {
-          _paths = null;
-          _path = await FilePicker.getFilePath(type: _pickingType, fileExtension: _extension);
-        }
-      } on PlatformException catch (e) {
-        print("Unsupported operation" + e.toString());
+    setState(() => _loadingPath = true);
+    try {
+      if (_multiPick) {
+        _path = null;
+        _paths = await FilePicker.getMultiFilePath(type: _pickingType, allowedExtensions: _extension?.replaceAll(' ', '')?.split(','));
+      } else {
+        _paths = null;
+        _path = await FilePicker.getFilePath(type: _pickingType, allowedExtensions: _extension?.replaceAll(' ', '')?.split(','));
       }
-      if (!mounted) return;
-      setState(() {
-        _loadingPath = false;
-        _fileName = _path != null ? _path.split('/').last : _paths != null ? _paths.keys.toString() : '...';
-      });
+    } on PlatformException catch (e) {
+      print("Unsupported operation" + e.toString());
     }
+    if (!mounted) return;
+    setState(() {
+      _loadingPath = false;
+      _fileName = _path != null ? _path.split('/').last : _paths != null ? _paths.keys.toString() : '...';
+    });
   }
 
   @override
@@ -91,7 +88,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                       onChanged: (value) => setState(() {
                             _pickingType = value;
                             if (_pickingType != FileType.custom) {
-                              _controller.text = _extension = '';
+                              _controller.text = _extension = null;
                             }
                           })),
                 ),
@@ -105,15 +102,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                           decoration: InputDecoration(labelText: 'File extension'),
                           keyboardType: TextInputType.text,
                           textCapitalization: TextCapitalization.none,
-                          validator: (value) {
-                            RegExp reg = new RegExp(r'[^a-zA-Z0-9]');
-                            if (reg.hasMatch(value)) {
-                              _hasValidMime = false;
-                              return 'Invalid format';
-                            }
-                            _hasValidMime = true;
-                            return null;
-                          },
                         )
                       : new Container(),
                 ),

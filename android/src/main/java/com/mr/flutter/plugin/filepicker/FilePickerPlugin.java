@@ -5,13 +5,14 @@ import android.app.Application;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
-import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
@@ -133,6 +134,7 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
     }
 
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onMethodCall(final MethodCall call, final MethodChannel.Result rawResult) {
 
@@ -142,30 +144,25 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
         }
 
         final MethodChannel.Result result = new MethodResultWrapper(rawResult);
+        final HashMap arguments = (HashMap) call.arguments;
+
         fileType = FilePickerPlugin.resolveType(call.method);
-        isMultipleSelection = (boolean) call.arguments;
+        isMultipleSelection = (boolean) arguments.get("allowMultipleSelection");
+
+        final String[] allowedExtensions = FileUtils.getMimeTypes((ArrayList<String>) arguments.get("allowedExtensions"));
 
         if (fileType == null) {
             result.notImplemented();
-        } else if (fileType.equals("unsupported")) {
-            result.error(TAG, "Unsupported filter. Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.ALL instead.", null);
+        } else if (fileType == "CUSTOM" && (allowedExtensions == null || allowedExtensions.length == 0)) {
+            result.error(TAG, "Unsupported filter. Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.all instead.", null);
         } else {
-            this.delegate.startFileExplorer(fileType, isMultipleSelection, result);
+            this.delegate.startFileExplorer(fileType, isMultipleSelection, allowedExtensions, result);
         }
 
     }
 
     private static String resolveType(final String type) {
 
-        final boolean isCustom = type.contains("__CUSTOM_");
-
-        if (isCustom) {
-            final String extension = type.split("__CUSTOM_")[1].toLowerCase();
-            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-            mime = mime == null ? "unsupported" : mime;
-            Log.i(TAG, "Custom file type: " + mime);
-            return mime;
-        }
 
         switch (type) {
             case "AUDIO":
@@ -175,6 +172,7 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
             case "VIDEO":
                 return "video/*";
             case "ANY":
+            case "CUSTOM":
                 return "*/*";
             default:
                 return null;
