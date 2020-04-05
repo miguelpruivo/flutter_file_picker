@@ -9,28 +9,37 @@
 
 @implementation FileUtils
 
-+ (NSString*) resolveType:(NSString*)type {
-    
-    BOOL isCustom = [type containsString:@"__CUSTOM_"];
-    
-    if(isCustom) {
-        type = [type stringByReplacingOccurrencesOfString:@"__CUSTOM_" withString:@""];
-        NSString * format = [NSString stringWithFormat:@"dummy.%@", type];
-        CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[format pathExtension], NULL);
-        NSString * UTIString = (__bridge NSString *)(UTI);
-        CFRelease(UTI);
-        Log(@"Custom file type: %@", UTIString);
-        return [UTIString containsString:@"dyn."] ? nil : UTIString;
-    }
++ (NSArray<NSString*> *) resolveType:(NSString*)type withAllowedExtensions:(NSArray<NSString*>*) allowedExtensions {
     
     if ([type isEqualToString:@"ANY"]) {
-        return @"public.item";
+        return @[@"public.item"];
     } else if ([type isEqualToString:@"IMAGE"]) {
-        return @"public.image";
+        return @[@"public.image"];
     } else if ([type isEqualToString:@"VIDEO"]) {
-        return @"public.movie";
+        return @[@"public.movie"];
     } else if ([type isEqualToString:@"AUDIO"]) {
-        return @"public.audio";
+        return @[@"public.audio"];
+    } else if ([type isEqualToString:@"CUSTOM"]) {
+        if(allowedExtensions == (id)[NSNull null] || allowedExtensions.count == 0) {
+            return nil;
+        }
+        
+        NSMutableArray<NSString*>* utis = [[NSMutableArray<NSString*> alloc] init];
+        
+        for(int i = 0 ; i<allowedExtensions.count ; i++){
+            NSString * format = [NSString stringWithFormat:@"dummy.%@", allowedExtensions[i]];
+            CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[format pathExtension], NULL);
+            NSString * UTIString = (__bridge NSString *)(UTI);
+            CFRelease(UTI);
+            if([UTIString containsString:@"dyn."]){
+                Log(@"[Skipping type] Unsupported file type: %@", UTIString);
+                continue;
+            } else{
+                Log(@"Custom file type supported: %@", UTIString);
+                [utis addObject: UTIString];
+            }
+        }
+        return utis;
     } else {
         return nil;
     }

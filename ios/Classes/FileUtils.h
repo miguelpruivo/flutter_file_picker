@@ -13,7 +13,7 @@
 #endif
 
 @interface FileUtils : NSObject 
-+ (NSString*) resolveType:(NSString*)type;
++ (NSArray<NSString*>*) resolveType:(NSString*)type withAllowedExtensions:(NSArray<NSString*>*)allowedExtensions;
 + (NSArray*) resolvePath:(NSArray<NSURL *> *)urls;
 @end
 

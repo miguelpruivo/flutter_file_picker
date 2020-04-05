@@ -9,14 +9,14 @@
 @property (nonatomic) UIDocumentPickerViewController *documentPickerController;
 @property (nonatomic) UIDocumentInteractionController *interactionController;
 @property (nonatomic) MPMediaPickerController *audioPickerController;
-@property (nonatomic) NSString * fileType;
+@property (nonatomic) NSArray<NSString *> * allowedExtensions;
 @end
 
 @implementation FilePickerPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
     
     FlutterMethodChannel* channel = [FlutterMethodChannel
-                                     methodChannelWithName:@"miguelruivo.flutter.plugins.file_picker"
+                                     methodChannelWithName:@"miguelruivo.flutter.plugins.filepicker"
                                      binaryMessenger:[registrar messenger]];
     
     UIViewController *viewController = [UIApplication sharedApplication].delegate.window.rootViewController;
@@ -45,15 +45,16 @@
     }
     
     _result = result;
-    BOOL isMultiplePick = [call.arguments boolValue];
-    if(isMultiplePick || [call.method isEqualToString:@"ANY"] || [call.method containsString:@"__CUSTOM"]) {
-        self.fileType = [FileUtils resolveType:call.method];
-        if(self.fileType == nil) {
+    NSDictionary * arguments = call.arguments;
+    BOOL isMultiplePick = ((NSNumber*)[arguments valueForKey:@"allowMultipleSelection"]).boolValue;
+    if(isMultiplePick || [call.method isEqualToString:@"ANY"] || [call.method containsString:@"CUSTOM"]) {
+        self.allowedExtensions = [FileUtils resolveType:call.method withAllowedExtensions: [arguments valueForKey:@"allowedExtensions"]];
+        if(self.allowedExtensions == nil) {
             _result([FlutterError errorWithCode:@"Unsupported file extension"
-                                        message:@"Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.ALL instead."
+                                        message:@"If you are providing extension filters make sure that you are only using FileType.custom and the extension are provided without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension. If the problem persists, you may want to consider using FileType.all instead."
                                         details:nil]);
             _result = nil;
-        } else if(self.fileType != nil) {
+        } else if(self.allowedExtensions != nil) {
             [self resolvePickDocumentWithMultipleSelection:isMultiplePick];
         }
     } else if([call.method isEqualToString:@"VIDEO"]) {
@@ -75,7 +76,7 @@
     
     @try{
         self.documentPickerController = [[UIDocumentPickerViewController alloc]
-                             initWithDocumentTypes:@[self.fileType]
+                             initWithDocumentTypes: self.allowedExtensions
                              inMode:UIDocumentPickerModeImport];
     } @catch (NSException * e) {
        Log(@"Couldn't launch documents file picker. Probably due to iOS version being below 11.0 and not having the iCloud entitlement. If so, just make sure to enable it for your app in Xcode. Exception was: %@", e);
