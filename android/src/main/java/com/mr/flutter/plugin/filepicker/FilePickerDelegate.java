@@ -122,6 +122,11 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
     @Override
     public boolean onRequestPermissionsResult(final int requestCode, final String[] permissions, final int[] grantResults) {
+
+        if(REQUEST_CODE != requestCode) {
+            return false;
+        }
+        
         final boolean permissionGranted =
                 grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
 

@@ -1,6 +1,10 @@
+## 1.6.1
+
+* Addresses an issue that could result in permission handler resolving requests from other activities.
+
 ## 1.6.0
 
-* Adds multiple file extension filter support. From now on, you _must_ provide a `List` of extensions with type `FileType.custom` when restricting types while pikcing.
+* Adds multiple file extension filter support. From now on, you _must_ provide a `List` of extensions with type `FileType.custom` when restricting types while picking.
 * Other minor improvements;
 
 ## 1.5.1
