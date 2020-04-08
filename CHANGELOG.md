@@ -1,3 +1,7 @@
+## 1.6.2
+
+* Updates GO (Desktop) to support multiple extension filters.
+
 ## 1.6.1
 
 * Addresses an issue that could result in permission handler resolving requests from other activities.

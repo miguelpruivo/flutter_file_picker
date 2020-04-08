@@ -7,21 +7,24 @@ import (
 	"github.com/pkg/errors"
 )
 
-func fileFilter(method string) (string, error) {
+func fileFilter(method string, extensions []string, size int) (string, error) {
 	switch method {
-	case "ANY":
+	case "any":
 		return `*.*`, nil
-	case "IMAGE":
+	case "image":
 		return `*.png *.jpg *.jpeg`, nil
-	case "AUDIO":
+	case "audio":
 		return `*.mp3`, nil
-	case "VIDEO":
+	case "video":
 		return `*.webm *.mpeg *.mkv *.mp4 *.avi *.mov *.flv`, nil
-	default:
-		if strings.HasPrefix(method, "__CUSTOM_") {
-			resolveType := strings.Split(method, "__CUSTOM_")
-			return `*.` + resolveType[1], nil
+	case "custom":
+		var i int
+		var filters = ""
+		for i = 0 ; i<size ; i++ {
+	  		filters += `*.` + extensions[i] + ` `
 		}
+		return filters, nil
+	default:
 		return "", errors.New("unknown method")
 	}
 

@@ -9,21 +9,27 @@ import (
 	"github.com/pkg/errors"
 )
 
-func fileFilter(method string) (string, error) {
+func fileFilter(method string, extensions []string, size int) (string, error) {
 	switch method {
-	case "ANY":
+	case "any":
 		return `"public.item"`, nil
-	case "IMAGE":
+	case "image":
 		return `"public.image"`, nil
-	case "AUDIO":
+	case "audio":
 		return `"public.audio"`, nil
-	case "VIDEO":
+	case "video":
 		return `"public.movie"`, nil
-	default:
-		if strings.HasPrefix(method, "__CUSTOM_") {
-			resolveType := strings.Split(method, "__CUSTOM_")
-			return `"` + resolveType[1] + `"`, nil
+	case "custom":
+		var i int
+		var filters = ""
+		for i = 0 ; i<size ; i++ {
+			  filters += `"` + extensions[i] + `"`
+			  if i < size - 1 {
+				  filters += `,`
+			  }
 		}
+		return filters, nil
+	default:
 		return "", errors.New("unknown method")
 	}
 

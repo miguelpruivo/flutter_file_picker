@@ -9,19 +9,23 @@ import (
 
 func fileFilter(method string) (string, error) {
 	switch method {
-	case "ANY":
+	case "any":
 		return "*", nil
-	case "IMAGE":
+	case "image":
 		return "Images (*.jpeg,*.png,*.gif)\x00*.jpg;*.jpeg;*.png;*.gif\x00All Files (*.*)\x00*.*\x00\x00", nil
-	case "AUDIO":
+	case "audio":
 		return "Audios (*.mp3)\x00*.mp3\x00All Files (*.*)\x00*.*\x00\x00", nil
-	case "VIDEO":
+	case "video":
 		return "Videos (*.webm,*.wmv,*.mpeg,*.mkv,*.mp4,*.avi,*.mov,*.flv)\x00*.webm;*.wmv;*.mpeg;*.mkv;*mp4;*.avi;*.mov;*.flv\x00All Files (*.*)\x00*.*\x00\x00", nil
-	default:
-		if strings.HasPrefix(method, "__CUSTOM_") {
-			resolveType := strings.Split(method, "__CUSTOM_")
-			return "Files (*." + resolveType[1] + ")\x00*." + resolveType[1] + "\x00All Files (*.*)\x00*.*\x00\x00", nil
+	case "custom":
+		var i int
+		var filters = "Files ("
+		for i = 0 ; i<size ; i++ {
+			  filters += `*.` extensions[i] + `,`
 		}
+		filters += ")\x00*." + resolveType[1] + "\x00All Files (*.*)\x00*.*\x00\x00"
+		return filters, nil
+	default:
 		return "", errors.New("unknown method")
 	}
 }
