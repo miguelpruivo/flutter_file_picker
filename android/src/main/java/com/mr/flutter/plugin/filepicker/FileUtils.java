@@ -172,8 +172,9 @@ public class FileUtils {
 
         //if uri is content
         if (uri.getScheme() != null && uri.getScheme().equals("content")) {
-            final Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+            Cursor cursor = null;
             try {
+                cursor = context.getContentResolver().query(uri, null, null, null, null);
                 if (cursor != null && cursor.moveToFirst()) {
                     //local filesystem
                     int index = cursor.getColumnIndex("_data");
@@ -189,6 +190,8 @@ public class FileUtils {
                         return null;
                     }
                 }
+            } catch (final Exception ex) {
+                Log.e(TAG, "Failed to decode file name: " + ex.toString());
             } finally {
                 if (cursor != null) {
                     cursor.close();
