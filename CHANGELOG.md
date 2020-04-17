@@ -1,10 +1,14 @@
-## 1.6.2
+## 1.6.3+1
+Addresses an issue with plugin calls on Go (Desktop) - Linux & Windows
 
-* Updates GO (Desktop) to support multiple extension filters.
+## 1.6.3
+Addresses an issue with plugin calls on Go (Desktop) - MacOS
+
+## 1.6.2
+Updates Go (Desktop) to support multiple extension filters.
 
 ## 1.6.1
-
-* Addresses an issue that could result in permission handler resolving requests from other activities.
+Addresses an issue that could result in permission handler resolving requests from other activities.
 
 ## 1.6.0
 
@@ -18,12 +22,10 @@
 * Adds check that ensures that you one uses `FileType.custom` when providing a custom file extension filter;
 
 ## 1.5.0+2
-
-* Updates channel name on iOS.
+Updates channel name on iOS.
 
 ## 1.5.0+1
-
-* Adds temporary workaround for (#49365)(https://github.com/flutter/flutter/issues/49365) until 1.14.6 lands on stable channel.
+Adds temporary workaround for (#49365)(https://github.com/flutter/flutter/issues/49365) until 1.14.6 lands on stable channel.
 
 ## 1.5.0
 
@@ -31,11 +33,9 @@
 * Added support for new [Android plugins APIs](https://flutter.dev/docs/development/packages-and-plugins/plugin-api-migration) (Android V2 embedding);
 
 ## 1.4.3+2
-
 Updates dependencies.
 
 ## 1.4.3+1
-
 Removes checked flutter_export_environment.sh from example app.
 
 ## 1.4.3
@@ -44,7 +44,6 @@ Removes checked flutter_export_environment.sh from example app.
  * Fixes an issue that could result in a crash when tapping multiple times in the same media file while picking, on some iOS devices (#171).
 
 ## 1.4.2+1
-
 Updates go-flutter dependencies.
 
 ## 1.4.2

@@ -9,24 +9,36 @@ import (
 	"github.com/pkg/errors"
 )
 
-func fileFilter(method string, extensions []string, size int) (string, error) {
+func fileFilter(method string, extensions []string, size int, multi bool) (string, error) {
 	switch method {
-	case "any":
+	case "ANY":
+		if multi {
+			return "*", nil
+		}
 		return `"public.item"`, nil
-	case "image":
+	case "IMAGE":
+		if multi {
+			return "jpg, jpeg, bmp, gif, png", nil
+		}
 		return `"public.image"`, nil
-	case "audio":
+	case "AUDIO":
+		if multi {
+			return "mp3, wav, midi, ogg, aac", nil
+		}
 		return `"public.audio"`, nil
-	case "video":
+	case "VIDEO":
+		if multi {
+			return "webm, mpeg, mkv, mp4, avi, mov, flv", nil
+		}
 		return `"public.movie"`, nil
-	case "custom":
+	case "CUSTOM":
 		var i int
 		var filters = ""
-		for i = 0 ; i<size ; i++ {
-			  filters += `"` + extensions[i] + `"`
-			  if i < size - 1 {
-				  filters += `,`
-			  }
+		for i = 0; i < size; i++ {
+			filters += extensions[i]
+			if i < size-1 {
+				filters += ", "
+			}
 		}
 		return filters, nil
 	default:

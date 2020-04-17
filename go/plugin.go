@@ -20,16 +20,26 @@ func (p *FilePickerPlugin) InitPlugin(messenger plugin.BinaryMessenger) error {
 }
 
 func (p *FilePickerPlugin) handleFilePicker(methodCall interface{}) (reply interface{}, err error) {
-	method := methodCall.(plugin.MethodCall)
+	method := methodCall.(plugin.MethodCall).Method
+	arguments := methodCall.(plugin.MethodCall).Arguments.(map[interface{}]interface{})
+	var allowedExtensions []string
 
-	filter, err := fileFilter(method.Method)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get filter")
+	// Parse extensions
+	if arguments != nil && arguments["allowedExtensions"] != nil {
+		allowedExtensions = make([]string, len(arguments["allowedExtensions"].([]interface{})))
+		for i := range arguments["allowedExtensions"].([]interface{}) {
+			allowedExtensions[i] = arguments["allowedExtensions"].([]interface{})[i].(string)
+		}
 	}
 
-	selectMultiple, ok := method.Arguments.(bool)
+	selectMultiple, ok := arguments["allowMultipleSelection"].(bool) //method.Arguments.(bool)
 	if !ok {
 		return nil, errors.Wrap(err, "invalid format for argument, not a bool")
+	}
+
+	filter, err := fileFilter(method, allowedExtensions, len(allowedExtensions), selectMultiple)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get filter")
 	}
 
 	if selectMultiple {

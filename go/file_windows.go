@@ -7,17 +7,17 @@ import (
 	"github.com/pkg/errors"
 )
 
-func fileFilter(method string) (string, error) {
+func fileFilter(method string, extensions []string, size int, isMulti bool) (string, error) {
 	switch method {
-	case "any":
+	case "ANY":
 		return "*", nil
-	case "image":
+	case "IMAGE":
 		return "Images (*.jpeg,*.png,*.gif)\x00*.jpg;*.jpeg;*.png;*.gif\x00All Files (*.*)\x00*.*\x00\x00", nil
-	case "audio":
+	case "AUDIO":
 		return "Audios (*.mp3)\x00*.mp3\x00All Files (*.*)\x00*.*\x00\x00", nil
-	case "video":
+	case "VIDEO":
 		return "Videos (*.webm,*.wmv,*.mpeg,*.mkv,*.mp4,*.avi,*.mov,*.flv)\x00*.webm;*.wmv;*.mpeg;*.mkv;*mp4;*.avi;*.mov;*.flv\x00All Files (*.*)\x00*.*\x00\x00", nil
-	case "custom":
+	case "CUSTOM":
 		var i int
 		var filters = "Files ("
 		for i = 0 ; i<size ; i++ {

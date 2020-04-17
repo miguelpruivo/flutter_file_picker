@@ -1,27 +1,25 @@
 package file_picker
 
 import (
-	"strings"
-
 	"github.com/gen2brain/dlgs"
 	"github.com/pkg/errors"
 )
 
-func fileFilter(method string, extensions []string, size int) (string, error) {
+func fileFilter(method string, extensions []string, size int, isMulti bool) (string, error) {
 	switch method {
-	case "any":
+	case "ANY":
 		return `*.*`, nil
-	case "image":
+	case "IMAGE":
 		return `*.png *.jpg *.jpeg`, nil
-	case "audio":
-		return `*.mp3`, nil
-	case "video":
+	case "AUDIO":
+		return `*.mp3 *.wav *.midi *.ogg *.aac`, nil
+	case "VIDEO":
 		return `*.webm *.mpeg *.mkv *.mp4 *.avi *.mov *.flv`, nil
-	case "custom":
+	case "CUSTOM":
 		var i int
 		var filters = ""
-		for i = 0 ; i<size ; i++ {
-	  		filters += `*.` + extensions[i] + ` `
+		for i = 0; i < size; i++ {
+			filters += `*.` + extensions[i] + ` `
 		}
 		return filters, nil
 	default:
