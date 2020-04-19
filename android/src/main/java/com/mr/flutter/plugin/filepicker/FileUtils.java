@@ -71,14 +71,15 @@ public class FileUtils {
                         id = id.split(":")[1];
                     }
                     for (final String contentUriPrefix : contentUriPrefixesToTry) {
-                        final Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.valueOf(id));
                         try {
+                            final Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.valueOf(id));
                             final String path = getDataColumn(context, contentUri, null, null);
                             if (path != null) {
                                 return path;
                             }
                         } catch (final Exception e) {
                             Log.e(TAG, "Something went wrong while retrieving document path: " + e.toString());
+                            return null;
                         }
                     }
 

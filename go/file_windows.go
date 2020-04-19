@@ -1,8 +1,6 @@
 package file_picker
 
 import (
-	"strings"
-
 	"github.com/gen2brain/dlgs"
 	"github.com/pkg/errors"
 )
@@ -21,9 +19,9 @@ func fileFilter(method string, extensions []string, size int, isMulti bool) (str
 		var i int
 		var filters = "Files ("
 		for i = 0 ; i<size ; i++ {
-			  filters += `*.` extensions[i] + `,`
+			  filters += `*.` + extensions[i] + `,`
 		}
-		filters += ")\x00*." + resolveType[1] + "\x00All Files (*.*)\x00*.*\x00\x00"
+		filters += ")"
 		return filters, nil
 	default:
 		return "", errors.New("unknown method")

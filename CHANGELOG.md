@@ -1,3 +1,7 @@
+## 1.6.3+2
+* Fixes a crash on Android when a file has an id that can't be resolved and uses a name instead (#221);
+* Minor fix on Go (Desktop) - Windows (thanks @marchellodev);
+
 ## 1.6.3+1
 Addresses an issue with plugin calls on Go (Desktop) - Linux & Windows
 

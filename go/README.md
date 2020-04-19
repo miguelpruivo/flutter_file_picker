@@ -1,6 +1,6 @@
 # file_picker
 
-This Go package implements the host-side of the Flutter [file_picker](https://github.com/miguelpruivo/plugins_flutter_file_picker) plugin.
+This Go package implements the host-side of the Flutter [file_picker](https://github.com/miguelpruivo/flutter_file_picker) plugin.
 
 ## Usage
 
@@ -11,8 +11,7 @@ package main
 
 import (
 	... other imports ....
-	
-	file_picker "github.com/miguelpruivo/plugins_flutter_file_picker/go"
+	file_picker "github.com/miguelpruivo/flutter_file_picker/go"
 )
 
 var options = []flutter.Option{
