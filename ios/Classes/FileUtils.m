@@ -57,4 +57,20 @@
     return paths;
 }
 
++ (int)countRemoteAssets:(NSArray<PHAsset*> *)assets {
+    int total = 0;
+    for(PHAsset * asset in assets) {
+        NSArray *resourceArray = [PHAssetResource assetResourcesForAsset:asset];
+        if(![[resourceArray.firstObject valueForKey:@"locallyAvailable"] boolValue]) {
+            total++;
+        }
+    }
+    return total;
+}
+
++ (BOOL)isLocalAsset:(PHAsset *) asset {
+    NSArray *resourceArray = [PHAssetResource assetResourcesForAsset:asset];
+    return [[resourceArray.firstObject valueForKey:@"locallyAvailable"] boolValue];
+}
+
 @end

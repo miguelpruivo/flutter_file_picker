@@ -99,6 +99,7 @@
     [_viewController presentViewController:self.documentPickerController animated:YES completion:nil];
 }
 
+
 - (void) resolvePickImage:(BOOL)withMultiPick {
     
     if(!withMultiPick) {
@@ -112,42 +113,69 @@
     } else {
         ImagePickerController * multiImagePickerController = [[ImagePickerController alloc] initWithSelectedAssets:@[]];
         
+        UIProgressView * progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(0.0, 0.0, multiImagePickerController.view.bounds.size.width, 10.0)];
+        CGAffineTransform transform = CGAffineTransformMakeScale(1.0f, 4.0f);
+        progressView.transform = transform;
+            
         [_viewController presentImagePicker:multiImagePickerController
                                    animated:YES
-                                   select:^(PHAsset * _Nonnull selectedAsset) {}
+                                     select:^(PHAsset * _Nonnull selectedAsset) {}
                                    deselect:^(PHAsset * _Nonnull deselectedAsset) {}
-                                   cancel:^(NSArray<PHAsset *> * _Nonnull canceledAsset) {}
-                                   finish:^(NSArray<PHAsset *> * _Nonnull assets) {
-                                    NSMutableArray<NSString*> *paths = [[NSMutableArray<NSString*> alloc] init];
-                                    
-                                    if(assets.count > 0) {
-                                        dispatch_semaphore_t completer = dispatch_semaphore_create(0);
-                                        __block int processedAssets = 0;
-                                        
-                                        for(PHAsset* asset in assets){
-                                            [asset requestContentEditingInputWithOptions:[PHContentEditingInputRequestOptions new] completionHandler:^(PHContentEditingInput *contentEditingInput, NSDictionary *info) {
-                                                NSURL *imageURL = contentEditingInput.fullSizeImageURL;
-                                                [paths addObject:imageURL.path];
-                                                
-                                                if(++processedAssets == assets.count) {
-                                                   dispatch_semaphore_signal(completer);
-                                                }
-                                            }];
-                                        }
-                                        
-                                        if (![NSThread isMainThread]) {
-                                            dispatch_semaphore_wait(completer, DISPATCH_TIME_FOREVER);
-                                        } else {
-                                            while (dispatch_semaphore_wait(completer, DISPATCH_TIME_NOW)) {
-                                                [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0]];
-                                            }
-                                        }
-                                    }
+                                     cancel:^(NSArray<PHAsset *> * _Nonnull canceledAsset) {
+            self->_result(nil);
+            self->_result = nil;
+        }
+                                     finish:^(NSArray<PHAsset *> * _Nonnull assets) {
+            int totalRemoteAssets = [FileUtils countRemoteAssets:assets];
+            NSMutableArray<NSString*> *paths = [[NSMutableArray<NSString*> alloc] init];
+            NSMutableDictionary<NSString*, NSNumber*> * progresses = [[NSMutableDictionary<NSString*, NSNumber*> alloc] initWithCapacity: totalRemoteAssets];
             
-                                   self->_result(paths);
-                                   self->_result = nil;
-
-                                }  completion:^{}];
+            if(totalRemoteAssets > 0) {
+                [multiImagePickerController.view addSubview:progressView];
+            }
+            
+            if(assets.count > 0) {
+                dispatch_semaphore_t completer = dispatch_semaphore_create(0);
+                __block int processedAssets = 0;
+                
+                for(PHAsset* asset in assets){
+                    PHContentEditingInputRequestOptions * options = [[PHContentEditingInputRequestOptions alloc] init];
+                    options.networkAccessAllowed = YES;
+                    
+                    if(![FileUtils isLocalAsset:asset]){
+                        options.progressHandler = ^(double progress, BOOL * _Nonnull stop) {
+                            progresses[asset.localIdentifier] = [NSNumber numberWithFloat:progress];
+                            @synchronized(progresses){
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    progressView.progress = [[[progresses allValues] valueForKeyPath:@"@sum.self"] floatValue] / totalRemoteAssets;
+                                });
+                            };
+                        };
+                    }
+                    
+                    [asset requestContentEditingInputWithOptions:options completionHandler:^(PHContentEditingInput *contentEditingInput, NSDictionary *info) {
+                        NSURL *imageURL = contentEditingInput.fullSizeImageURL;
+                        [paths addObject:imageURL.path];
+                        
+                        if(++processedAssets == assets.count) {
+                            dispatch_semaphore_signal(completer);
+                        }
+                    }];
+                }
+                
+                if (![NSThread isMainThread]) {
+                    dispatch_semaphore_wait(completer, DISPATCH_TIME_FOREVER);
+                } else {
+                    while (dispatch_semaphore_wait(completer, DISPATCH_TIME_NOW)) {
+                        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0]];
+                    }
+                }
+            }
+            
+            self->_result(paths);
+            self->_result = nil;
+            
+        }  completion:^{}];
     }
 }
 
