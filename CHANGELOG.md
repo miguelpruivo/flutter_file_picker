@@ -1,3 +1,7 @@
+## 1.7.0
+**Breaking change**
+Added support for multi-picks from Photos app on iOS through [BSImagePicker](https://github.com/mikaoj/BSImagePicker) — use any of the `getMulti` methods with `FileType.image`. From now on, you'll need to set your iOS minimum version to 10.0 and add `use_frameworks!` in your ios/Podfile.
+
 ## 1.6.3+2
 * Fixes a crash on Android when a file has an id that can't be resolved and uses a name instead (#221);
 * Minor fix on Go (Desktop) - Windows (thanks @marchellodev);
