@@ -16,8 +16,6 @@
 @interface FileUtils : NSObject 
 + (NSArray<NSString*>*) resolveType:(NSString*)type withAllowedExtensions:(NSArray<NSString*>*)allowedExtensions;
 + (NSArray*) resolvePath:(NSArray<NSURL *> *)urls;
-+ (int) countRemoteAssets:(NSArray<PHAsset*> *)assets;
-+ (BOOL) isLocalAsset:(PHAsset *) asset;
 @end
 
 

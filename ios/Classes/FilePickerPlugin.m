@@ -2,9 +2,9 @@
 #import "FileUtils.h"
 #import "ImageUtils.h"
 
-@import BSImagePicker;
+@import DKImagePickerController;
 
-@interface FilePickerPlugin() <UIImagePickerControllerDelegate, MPMediaPickerControllerDelegate>
+@interface FilePickerPlugin() <UIImagePickerControllerDelegate, MPMediaPickerControllerDelegate, DKImageAssetExporterObserver>
 @property (nonatomic) FlutterResult result;
 @property (nonatomic) UIViewController *viewController;
 @property (nonatomic) UIImagePickerController *galleryPickerController;
@@ -49,7 +49,7 @@
     _result = result;
     NSDictionary * arguments = call.arguments;
     BOOL isMultiplePick = ((NSNumber*)[arguments valueForKey:@"allowMultipleSelection"]).boolValue;
-    if((isMultiplePick && ![call.method isEqualToString:@"IMAGE"]) || [call.method isEqualToString:@"ANY"] || [call.method containsString:@"CUSTOM"]) {
+    if([call.method isEqualToString:@"ANY"] || [call.method containsString:@"CUSTOM"]) {
         self.allowedExtensions = [FileUtils resolveType:call.method withAllowedExtensions: [arguments valueForKey:@"allowedExtensions"]];
         if(self.allowedExtensions == nil) {
             _result([FlutterError errorWithCode:@"Unsupported file extension"
@@ -60,7 +60,7 @@
             [self resolvePickDocumentWithMultipleSelection:isMultiplePick];
         }
     } else if([call.method isEqualToString:@"VIDEO"]) {
-        [self resolvePickVideo];
+        [self resolvePickVideo:isMultiplePick];
     } else if([call.method isEqualToString:@"AUDIO"]) {
         [self resolvePickAudio];
     } else if([call.method isEqualToString:@"IMAGE"]) {
@@ -102,81 +102,88 @@
 
 - (void) resolvePickImage:(BOOL)withMultiPick {
     
-    if(!withMultiPick) {
-        self.galleryPickerController = [[UIImagePickerController alloc] init];
-        self.galleryPickerController.delegate = self;
-        self.galleryPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
-        self.galleryPickerController.mediaTypes = @[(NSString *)kUTTypeImage];
-        self.galleryPickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-        
-        [_viewController presentViewController:self.galleryPickerController animated:YES completion:nil];
-    } else {
-        ImagePickerController * multiImagePickerController = [[ImagePickerController alloc] initWithSelectedAssets:@[]];
-        
-        UIProgressView * progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(0.0, 0.0, multiImagePickerController.view.bounds.size.width, 10.0)];
-        CGAffineTransform transform = CGAffineTransformMakeScale(1.0f, 4.0f);
-        progressView.transform = transform;
-            
-        [_viewController presentImagePicker:multiImagePickerController
-                                   animated:YES
-                                     select:^(PHAsset * _Nonnull selectedAsset) {}
-                                   deselect:^(PHAsset * _Nonnull deselectedAsset) {}
-                                     cancel:^(NSArray<PHAsset *> * _Nonnull canceledAsset) {
-            self->_result(nil);
-            self->_result = nil;
-        }
-                                     finish:^(NSArray<PHAsset *> * _Nonnull assets) {
-            int totalRemoteAssets = [FileUtils countRemoteAssets:assets];
-            NSMutableArray<NSString*> *paths = [[NSMutableArray<NSString*> alloc] init];
-            NSMutableDictionary<NSString*, NSNumber*> * progresses = [[NSMutableDictionary<NSString*, NSNumber*> alloc] initWithCapacity: totalRemoteAssets];
-            
-            if(totalRemoteAssets > 0) {
-                [multiImagePickerController.view addSubview:progressView];
-            }
-            
-            if(assets.count > 0) {
-                dispatch_semaphore_t completer = dispatch_semaphore_create(0);
-                __block int processedAssets = 0;
-                
-                for(PHAsset* asset in assets){
-                    PHContentEditingInputRequestOptions * options = [[PHContentEditingInputRequestOptions alloc] init];
-                    options.networkAccessAllowed = YES;
-                    
-                    if(![FileUtils isLocalAsset:asset]){
-                        options.progressHandler = ^(double progress, BOOL * _Nonnull stop) {
-                            progresses[asset.localIdentifier] = [NSNumber numberWithFloat:progress];
-                            @synchronized(progresses){
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    progressView.progress = [[[progresses allValues] valueForKeyPath:@"@sum.self"] floatValue] / totalRemoteAssets;
-                                });
-                            };
-                        };
-                    }
-                    
-                    [asset requestContentEditingInputWithOptions:options completionHandler:^(PHContentEditingInput *contentEditingInput, NSDictionary *info) {
-                        NSURL *imageURL = contentEditingInput.fullSizeImageURL;
-                        [paths addObject:imageURL.path];
-                        
-                        if(++processedAssets == assets.count) {
-                            dispatch_semaphore_signal(completer);
-                        }
-                    }];
-                }
-                
-                if (![NSThread isMainThread]) {
-                    dispatch_semaphore_wait(completer, DISPATCH_TIME_FOREVER);
-                } else {
-                    while (dispatch_semaphore_wait(completer, DISPATCH_TIME_NOW)) {
-                        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0]];
-                    }
-                }
-            }
-            
-            self->_result(paths);
-            self->_result = nil;
-            
-        }  completion:^{}];
+    if(withMultiPick){
+        [self resolveMultiPickFromGallery:NO];
+        return;
     }
+    
+    self.galleryPickerController = [[UIImagePickerController alloc] init];
+    self.galleryPickerController.delegate = self;
+    self.galleryPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
+    self.galleryPickerController.mediaTypes = @[(NSString *)kUTTypeImage];
+    self.galleryPickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    
+    [_viewController presentViewController:self.galleryPickerController animated:YES completion:nil];
+    
+}
+
+- (void) resolvePickVideo:(BOOL)withMultiPick {
+    
+    if(withMultiPick) {
+        [self resolveMultiPickFromGallery:YES];
+        return;
+    }
+    
+    self.galleryPickerController = [[UIImagePickerController alloc] init];
+    self.galleryPickerController.delegate = self;
+    self.galleryPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
+    self.galleryPickerController.mediaTypes = @[(NSString*)kUTTypeMovie, (NSString*)kUTTypeAVIMovie, (NSString*)kUTTypeVideo, (NSString*)kUTTypeMPEG4];
+    self.galleryPickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
+    
+    [self.viewController presentViewController:self.galleryPickerController animated:YES completion:nil];
+}
+
+- (void) resolveMultiPickFromGallery:(BOOL)withVideo {
+    DKImagePickerController * dkImagePickerController = [[DKImagePickerController alloc] init];
+    
+    // Create alert dialog for asset caching
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"" message:@"" preferredStyle:UIAlertControllerStyleAlert];
+    [alert.view setCenter: _viewController.view.center];
+    [alert.view addConstraint: [NSLayoutConstraint constraintWithItem:alert.view attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:100]];
+    
+    UIActivityIndicatorView* indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    indicator.hidesWhenStopped = YES;
+    [indicator setCenter: alert.view.center];
+    indicator.autoresizingMask = (UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleTopMargin);
+    [alert.view addSubview: indicator];
+    
+    dkImagePickerController.exportsWhenCompleted = YES;
+    dkImagePickerController.showsCancelButton = YES;
+    dkImagePickerController.sourceType = DKImagePickerControllerSourceTypePhoto;
+    dkImagePickerController.assetType = withVideo ? DKImagePickerControllerAssetTypeAllVideos : DKImagePickerControllerAssetTypeAllPhotos;
+    
+    // Export status changed
+    [dkImagePickerController setExportStatusChanged:^(enum DKImagePickerControllerExportStatus status) {
+        
+        if(status == DKImagePickerControllerExportStatusExporting && dkImagePickerController.selectedAssets.count > 0){
+            Log("Exporting assets, this operation may take a while if remote (iCloud) assets are being cached.");
+            [indicator startAnimating];
+            [self->_viewController showViewController:alert sender:nil];
+        } else {
+            [indicator stopAnimating];
+            [alert dismissViewControllerAnimated:YES completion:nil];
+        }
+    }];
+    
+    // Did cancel
+    [dkImagePickerController setDidCancel:^(){
+        self->_result(nil);
+        self->_result = nil;
+    }];
+    
+    // Did select
+    [dkImagePickerController setDidSelectAssets:^(NSArray<DKAsset*> * __nonnull DKAssets) {
+        NSMutableArray<NSString*>* paths = [[NSMutableArray<NSString*> alloc] init];
+        
+        for(DKAsset * asset in DKAssets){
+            [paths addObject:asset.localTemporaryPath.path];
+        }
+        
+        self->_result([paths count] > 0 ? paths : nil);
+        self->_result = nil;
+    }];
+    
+    [_viewController presentViewController:dkImagePickerController animated:YES completion:nil];
 }
 
 - (void) resolvePickAudio {
@@ -188,17 +195,6 @@
     self.audioPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
     
     [self.viewController presentViewController:self.audioPickerController animated:YES completion:nil];
-}
-
-- (void) resolvePickVideo {
-    
-    self.galleryPickerController = [[UIImagePickerController alloc] init];
-    self.galleryPickerController.delegate = self;
-    self.galleryPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
-    self.galleryPickerController.mediaTypes = @[(NSString*)kUTTypeMovie, (NSString*)kUTTypeAVIMovie, (NSString*)kUTTypeVideo, (NSString*)kUTTypeMPEG4];
-    self.galleryPickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
-    
-    [self.viewController presentViewController:self.galleryPickerController animated:YES completion:nil];
 }
 
 #pragma mark - Delegates
@@ -316,5 +312,8 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     _result = nil;
     [picker dismissViewControllerAnimated:YES completion:NULL];
 }
+
+#pragma mark - Alert dialog
+
 
 @end

@@ -1,11 +1,67 @@
 PODS:
-  - BSImagePicker (3.1.3)
+  - CropViewController (2.5.2)
+  - DKCamera (1.6.7)
+  - DKImagePickerController (4.2.2):
+    - DKImagePickerController/Camera (= 4.2.2)
+    - DKImagePickerController/Core (= 4.2.2)
+    - DKImagePickerController/ImageDataManager (= 4.2.2)
+    - DKImagePickerController/InlineCamera (= 4.2.2)
+    - DKImagePickerController/PhotoEditor (= 4.2.2)
+    - DKImagePickerController/PhotoGallery (= 4.2.2)
+    - DKImagePickerController/Resource (= 4.2.2)
+  - DKImagePickerController/Camera (4.2.2):
+    - DKCamera
+    - DKImagePickerController/Core
+  - DKImagePickerController/Core (4.2.2):
+    - DKImagePickerController/ImageDataManager
+    - DKImagePickerController/Resource
+  - DKImagePickerController/ImageDataManager (4.2.2)
+  - DKImagePickerController/InlineCamera (4.2.2):
+    - DKCamera
+    - DKImagePickerController/Core
+  - DKImagePickerController/PhotoEditor (4.2.2):
+    - CropViewController (~> 2.5)
+    - DKImagePickerController/Core
+  - DKImagePickerController/PhotoGallery (4.2.2):
+    - DKImagePickerController/Core
+    - DKPhotoGallery
+  - DKImagePickerController/Resource (4.2.2)
+  - DKPhotoGallery (0.0.14):
+    - DKPhotoGallery/Core (= 0.0.14)
+    - DKPhotoGallery/Model (= 0.0.14)
+    - DKPhotoGallery/Preview (= 0.0.14)
+    - DKPhotoGallery/Resource (= 0.0.14)
+    - SDWebImage
+    - SDWebImageFLPlugin
+  - DKPhotoGallery/Core (0.0.14):
+    - DKPhotoGallery/Model
+    - DKPhotoGallery/Preview
+    - SDWebImage
+    - SDWebImageFLPlugin
+  - DKPhotoGallery/Model (0.0.14):
+    - SDWebImage
+    - SDWebImageFLPlugin
+  - DKPhotoGallery/Preview (0.0.14):
+    - DKPhotoGallery/Model
+    - DKPhotoGallery/Resource
+    - SDWebImage
+    - SDWebImageFLPlugin
+  - DKPhotoGallery/Resource (0.0.14):
+    - SDWebImage
+    - SDWebImageFLPlugin
   - file_picker (0.0.1):
-    - BSImagePicker (~> 3.1.3)
+    - DKImagePickerController
     - Flutter
+  - FLAnimatedImage (1.0.12)
   - Flutter (1.0.0)
   - flutter_plugin_android_lifecycle (0.0.1):
     - Flutter
+  - SDWebImage (5.7.3):
+    - SDWebImage/Core (= 5.7.3)
+  - SDWebImage/Core (5.7.3)
+  - SDWebImageFLPlugin (0.4.0):
+    - FLAnimatedImage (>= 1.0.11)
+    - SDWebImage/Core (~> 5.6)
 
 DEPENDENCIES:
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
@@ -14,7 +70,13 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - BSImagePicker
+    - CropViewController
+    - DKCamera
+    - DKImagePickerController
+    - DKPhotoGallery
+    - FLAnimatedImage
+    - SDWebImage
+    - SDWebImageFLPlugin
 
 EXTERNAL SOURCES:
   file_picker:
@@ -25,10 +87,16 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_plugin_android_lifecycle/ios"
 
 SPEC CHECKSUMS:
-  BSImagePicker: 5798cfaadb386866b10d60bd1133065dc52cf273
-  file_picker: 696824dae531ce6ed877fd8c1d145f006387c9fb
+  CropViewController: 1aac40093c5739e60d992b04724a55d12a689a4c
+  DKCamera: a902b66921fca14b7a75266feb8c7568aa7caa71
+  DKImagePickerController: 4a3e7948a848c4348e600b3fe5ce41478835fa10
+  DKPhotoGallery: 0290d32343574f06eaa4c26f8f2f8a1035e916be
+  file_picker: f9134d4ef376b10e950694e6b96e81dafea9ceda
+  FLAnimatedImage: 4a0b56255d9b05f18b6dd7ee06871be5d3b89e31
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_plugin_android_lifecycle: 47de533a02850f070f5696a623995e93eddcdb9b
+  SDWebImage: 97351f6582ceca541ea294ba66a1fcb342a331c2
+  SDWebImageFLPlugin: 6c2295fb1242d44467c6c87dc5db6b0a13228fd8
 
 PODFILE CHECKSUM: 27341c1ab2a92ab24c1e60a397ab924b94c94ff5
 
