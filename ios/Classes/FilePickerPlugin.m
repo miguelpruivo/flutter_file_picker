@@ -49,7 +49,7 @@
     _result = result;
     NSDictionary * arguments = call.arguments;
     BOOL isMultiplePick = ((NSNumber*)[arguments valueForKey:@"allowMultipleSelection"]).boolValue;
-    if([call.method isEqualToString:@"ANY"] || [call.method containsString:@"CUSTOM"]) {
+    if([call.method isEqualToString:@"any"] || [call.method containsString:@"custom"]) {
         self.allowedExtensions = [FileUtils resolveType:call.method withAllowedExtensions: [arguments valueForKey:@"allowedExtensions"]];
         if(self.allowedExtensions == nil) {
             _result([FlutterError errorWithCode:@"Unsupported file extension"
@@ -59,12 +59,10 @@
         } else if(self.allowedExtensions != nil) {
             [self resolvePickDocumentWithMultipleSelection:isMultiplePick];
         }
-    } else if([call.method isEqualToString:@"VIDEO"]) {
-        [self resolvePickVideo:isMultiplePick];
-    } else if([call.method isEqualToString:@"AUDIO"]) {
+    } else if([call.method isEqualToString:@"video"] || [call.method isEqualToString:@"image"] || [call.method isEqualToString:@"media"]) {
+        [self resolvePickMedia:[FileUtils resolveMediaType:call.method] withMultiPick:isMultiplePick];
+    } else if([call.method isEqualToString:@"audio"]) {
         [self resolvePickAudio];
-    } else if([call.method isEqualToString:@"IMAGE"]) {
-        [self resolvePickImage:isMultiplePick];
     } else {
         result(FlutterMethodNotImplemented);
         _result = nil;
@@ -99,41 +97,39 @@
     [_viewController presentViewController:self.documentPickerController animated:YES completion:nil];
 }
 
-
-- (void) resolvePickImage:(BOOL)withMultiPick {
+- (void) resolvePickMedia:(MediaType)type withMultiPick:(BOOL)multiPick  {
     
-    if(withMultiPick){
-        [self resolveMultiPickFromGallery:NO];
+    if(multiPick) {
+        [self resolveMultiPickFromGallery:type];
         return;
     }
+    
+    NSArray<NSString*> * videoTypes = @[(NSString*)kUTTypeMovie, (NSString*)kUTTypeAVIMovie, (NSString*)kUTTypeVideo, (NSString*)kUTTypeMPEG4];
+    NSArray<NSString*> * imageTypes = @[(NSString *)kUTTypeImage];
     
     self.galleryPickerController = [[UIImagePickerController alloc] init];
     self.galleryPickerController.delegate = self;
     self.galleryPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
-    self.galleryPickerController.mediaTypes = @[(NSString *)kUTTypeImage];
-    self.galleryPickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-    
-    [_viewController presentViewController:self.galleryPickerController animated:YES completion:nil];
-    
-}
-
-- (void) resolvePickVideo:(BOOL)withMultiPick {
-    
-    if(withMultiPick) {
-        [self resolveMultiPickFromGallery:YES];
-        return;
-    }
-    
-    self.galleryPickerController = [[UIImagePickerController alloc] init];
-    self.galleryPickerController.delegate = self;
-    self.galleryPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
-    self.galleryPickerController.mediaTypes = @[(NSString*)kUTTypeMovie, (NSString*)kUTTypeAVIMovie, (NSString*)kUTTypeVideo, (NSString*)kUTTypeMPEG4];
     self.galleryPickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
+    
+    switch (type) {
+        case IMAGE:
+            self.galleryPickerController.mediaTypes = imageTypes;
+            break;
+        
+        case VIDEO:
+            self.galleryPickerController.mediaTypes = videoTypes;
+            break;
+            
+        default:
+            self.galleryPickerController.mediaTypes = [videoTypes arrayByAddingObjectsFromArray:imageTypes];
+            break;
+    }
     
     [self.viewController presentViewController:self.galleryPickerController animated:YES completion:nil];
 }
 
-- (void) resolveMultiPickFromGallery:(BOOL)withVideo {
+- (void) resolveMultiPickFromGallery:(MediaType)type {
     DKImagePickerController * dkImagePickerController = [[DKImagePickerController alloc] init];
     
     // Create alert dialog for asset caching
@@ -150,7 +146,7 @@
     dkImagePickerController.exportsWhenCompleted = YES;
     dkImagePickerController.showsCancelButton = YES;
     dkImagePickerController.sourceType = DKImagePickerControllerSourceTypePhoto;
-    dkImagePickerController.assetType = withVideo ? DKImagePickerControllerAssetTypeAllVideos : DKImagePickerControllerAssetTypeAllPhotos;
+    dkImagePickerController.assetType = type == VIDEO ? DKImagePickerControllerAssetTypeAllVideos : type == IMAGE ? DKImagePickerControllerAssetTypeAllPhotos : DKImagePickerControllerAssetTypeAllAssets;
     
     // Export status changed
     [dkImagePickerController setExportStatusChanged:^(enum DKImagePickerControllerExportStatus status) {

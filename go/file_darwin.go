@@ -11,27 +11,32 @@ import (
 
 func fileFilter(method string, extensions []string, size int, multi bool) (string, error) {
 	switch method {
-	case "ANY":
+	case "any":
 		if multi {
 			return "*", nil
 		}
 		return `"public.item"`, nil
-	case "IMAGE":
+	case "image":
 		if multi {
 			return "jpg, jpeg, bmp, gif, png", nil
 		}
 		return `"public.image"`, nil
-	case "AUDIO":
+	case "audio":
 		if multi {
 			return "mp3, wav, midi, ogg, aac", nil
 		}
 		return `"public.audio"`, nil
-	case "VIDEO":
+	case "video":
 		if multi {
 			return "webm, mpeg, mkv, mp4, avi, mov, flv", nil
 		}
 		return `"public.movie"`, nil
-	case "CUSTOM":
+	case "media":
+		if multi {
+			return "webm, mpeg, mkv, mp4, avi, mov, flv, jpg, jpeg, bmp, gif, png", nil
+		}
+		return `"public.audiovisual-content"`, nil
+	case "custom":
 		var i int
 		var filters = ""
 		for i = 0; i < size; i++ {

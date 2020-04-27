@@ -13,8 +13,15 @@
 #define Log(fmt, ...)
 #endif
 
+typedef NS_ENUM(NSInteger, MediaType) {
+  VIDEO,
+  IMAGE,
+  MEDIA
+};
+
 @interface FileUtils : NSObject 
 + (NSArray<NSString*>*) resolveType:(NSString*)type withAllowedExtensions:(NSArray<NSString*>*)allowedExtensions;
++ (MediaType) resolveMediaType:(NSString*)type;
 + (NSArray*) resolvePath:(NSArray<NSURL *> *)urls;
 @end
 

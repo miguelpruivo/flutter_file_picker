@@ -11,15 +11,17 @@
 
 + (NSArray<NSString*> *) resolveType:(NSString*)type withAllowedExtensions:(NSArray<NSString*>*) allowedExtensions {
     
-    if ([type isEqualToString:@"ANY"]) {
+    if ([type isEqualToString:@"any"]) {
         return @[@"public.item"];
-    } else if ([type isEqualToString:@"IMAGE"]) {
+    } else if ([type isEqualToString:@"image"]) {
         return @[@"public.image"];
-    } else if ([type isEqualToString:@"VIDEO"]) {
+    } else if ([type isEqualToString:@"video"]) {
         return @[@"public.movie"];
-    } else if ([type isEqualToString:@"AUDIO"]) {
+    } else if ([type isEqualToString:@"audio"]) {
         return @[@"public.audio"];
-    } else if ([type isEqualToString:@"CUSTOM"]) {
+    } else if ([type isEqualToString:@"media"]) {
+        return @[@"public.image", @"public.video"];
+    } else if ([type isEqualToString:@"custom"]) {
         if(allowedExtensions == (id)[NSNull null] || allowedExtensions.count == 0) {
             return nil;
         }
@@ -42,6 +44,16 @@
         return utis;
     } else {
         return nil;
+    }
+}
+
++ (MediaType) resolveMediaType:(NSString *)type {
+    if([type isEqualToString:@"video"]) {
+        return VIDEO;
+    } else if([type isEqualToString:@"image"]) {
+        return IMAGE;
+    } else {
+        return MEDIA;
     }
 }
 

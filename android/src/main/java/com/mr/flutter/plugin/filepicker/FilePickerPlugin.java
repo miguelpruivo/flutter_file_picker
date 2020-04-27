@@ -153,7 +153,7 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
 
         if (fileType == null) {
             result.notImplemented();
-        } else if (fileType == "CUSTOM" && (allowedExtensions == null || allowedExtensions.length == 0)) {
+        } else if (fileType == "custom" && (allowedExtensions == null || allowedExtensions.length == 0)) {
             result.error(TAG, "Unsupported filter. Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.all instead.", null);
         } else {
             this.delegate.startFileExplorer(fileType, isMultipleSelection, allowedExtensions, result);
@@ -165,14 +165,16 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
 
 
         switch (type) {
-            case "AUDIO":
+            case "audio":
                 return "audio/*";
-            case "IMAGE":
+            case "image":
                 return "image/*";
-            case "VIDEO":
+            case "video":
                 return "video/*";
-            case "ANY":
-            case "CUSTOM":
+            case "media":
+                return "image/*,video/*";
+            case "any":
+            case "custom":
                 return "*/*";
             default:
                 return null;

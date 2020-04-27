@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 enum FileType {
   any,
+  media,
   image,
   video,
   audio,
@@ -26,7 +28,7 @@ class FilePicker {
   static Future<Map<String, String>> getMultiFilePath(
           {FileType type = FileType.any,
           List<String> allowedExtensions}) async =>
-      await _getPath(_handleType(type), true, allowedExtensions);
+      await _getPath(describeEnum(type), true, allowedExtensions);
 
   /// Returns an absolute file path from the calling platform.
   ///
@@ -36,7 +38,7 @@ class FilePicker {
   static Future<String> getFilePath(
           {FileType type = FileType.any,
           List<String> allowedExtensions}) async =>
-      await _getPath(_handleType(type), false, allowedExtensions);
+      await _getPath(describeEnum(type), false, allowedExtensions);
 
   /// Returns a `File` object from the selected file path.
   ///
@@ -45,7 +47,7 @@ class FilePicker {
   static Future<File> getFile(
       {FileType type = FileType.any, List<String> allowedExtensions}) async {
     final String filePath =
-        await _getPath(_handleType(type), false, allowedExtensions);
+        await _getPath(describeEnum(type), false, allowedExtensions);
     return filePath != null ? File(filePath) : null;
   }
 
@@ -56,7 +58,7 @@ class FilePicker {
   static Future<List<File>> getMultiFile(
       {FileType type = FileType.any, List<String> allowedExtensions}) async {
     final Map<String, String> paths =
-        await _getPath(_handleType(type), true, allowedExtensions);
+        await _getPath(describeEnum(type), true, allowedExtensions);
     return paths != null && paths.isNotEmpty
         ? paths.values.map((path) => File(path)).toList()
         : null;
@@ -88,23 +90,6 @@ class FilePicker {
       print(
           '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
       rethrow;
-    }
-  }
-
-  static String _handleType(FileType type) {
-    switch (type) {
-      case FileType.image:
-        return 'IMAGE';
-      case FileType.audio:
-        return 'AUDIO';
-      case FileType.video:
-        return 'VIDEO';
-      case FileType.any:
-        return 'ANY';
-      case FileType.custom:
-        return 'CUSTOM';
-      default:
-        return 'ANY';
     }
   }
 }

@@ -21,9 +21,10 @@ A package that allows you to use a native file explorer to pick single or multip
 * Load paths from **cloud files** (GDrive, Dropbox, iCloud)
 * Load path from a **custom format** by providing a list of file extensions (pdf, svg, zip, etc.)
 * Load path from **multiple files** optionally, supplying file extensions
-* Load path from **gallery**
-* Load path from **audio**
-* Load path from **video**
+* Load path from **media** (video & image only)
+* Load path from **audio** only
+* Load path from **image** only
+* Load path from **video** only
 * Load path from **any** 
 * Create a `File` or `List<File>` objects from **any** selected file(s)
 * Supports desktop through **go-flutter** (MacOS, Windows, Linux) 

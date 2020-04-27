@@ -123,10 +123,10 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     @Override
     public boolean onRequestPermissionsResult(final int requestCode, final String[] permissions, final int[] grantResults) {
 
-        if(REQUEST_CODE != requestCode) {
+        if (REQUEST_CODE != requestCode) {
             return false;
         }
-        
+
         final boolean permissionGranted =
                 grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
 
@@ -151,16 +151,21 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         result.error("already_active", "File picker is already active", null);
     }
 
+    @SuppressWarnings("deprecation")
     private void startFileExplorer() {
         final Intent intent;
 
         intent = new Intent(Intent.ACTION_GET_CONTENT);
         final Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
-
+        Log.d(TAG, "Type" + type);
         intent.setDataAndType(uri, this.type);
         intent.setType(this.type);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        if (type.contains(",")) {
+            allowedExtensions = type.split(",");
+        }
 
         if (allowedExtensions != null) {
             intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions);

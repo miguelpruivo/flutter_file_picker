@@ -7,15 +7,17 @@ import (
 
 func fileFilter(method string, extensions []string, size int, isMulti bool) (string, error) {
 	switch method {
-	case "ANY":
+	case "any":
 		return `*.*`, nil
-	case "IMAGE":
+	case "image":
 		return `*.png *.jpg *.jpeg`, nil
-	case "AUDIO":
+	case "audio":
 		return `*.mp3 *.wav *.midi *.ogg *.aac`, nil
-	case "VIDEO":
+	case "video":
 		return `*.webm *.mpeg *.mkv *.mp4 *.avi *.mov *.flv`, nil
-	case "CUSTOM":
+	case "media":
+		return `*.png *.jpg *.jpeg *.webm *.mpeg *.mkv *.mp4 *.avi *.mov *.flv`, nil
+	case "custom":
 		var i int
 		var filters = ""
 		for i = 0; i < size; i++ {

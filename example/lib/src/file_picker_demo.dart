@@ -87,6 +87,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                           value: FileType.video,
                         ),
                         new DropdownMenuItem(
+                          child: new Text('FROM MEDIA'),
+                          value: FileType.media,
+                        ),
+                        new DropdownMenuItem(
                           child: new Text('FROM ANY'),
                           value: FileType.any,
                         ),
