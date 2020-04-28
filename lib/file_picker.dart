@@ -66,7 +66,7 @@ class FilePicker {
 
   static Future<dynamic> _getPath(String type, bool allowMultipleSelection,
       List<String> allowedExtensions) async {
-    if (type != 'CUSTOM' && (allowedExtensions?.isNotEmpty ?? false)) {
+    if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
           'If you are using a custom extension filter, please use the FileType.custom instead.');
     }

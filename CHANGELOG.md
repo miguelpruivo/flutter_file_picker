@@ -1,3 +1,6 @@
+## 1.8.0+1
+Minor fix on `getFile()` method — should affect only those on 1.8.0.
+
 ## 1.8.0
 Adds `FileType.media` that will allow you to pick video and images at the same time. On iOS, this will let you pick directly from Photos app (gallery), if you want to use Files app, you _must_ use `FileType.custom` with desired extensions.
 
