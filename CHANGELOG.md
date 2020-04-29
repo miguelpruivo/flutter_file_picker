@@ -1,3 +1,6 @@
+## 1.8.0+2
+Updates podspec to use only PhotoGallery from DKImagePickerController (thanks @jamesdixon!)
+
 ## 1.8.0+1
 Minor fix on `getFile()` method — should affect only those on 1.8.0.
 
