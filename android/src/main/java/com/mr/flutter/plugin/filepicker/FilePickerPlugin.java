@@ -146,6 +146,11 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
         final MethodChannel.Result result = new MethodResultWrapper(rawResult);
         final HashMap arguments = (HashMap) call.arguments;
 
+        if (call.method != null && call.method.equals("clear")) {
+            result.success(FileUtils.clearCache(activity.getApplicationContext()));
+            return;
+        }
+
         fileType = FilePickerPlugin.resolveType(call.method);
         isMultipleSelection = (boolean) arguments.get("allowMultipleSelection");
 

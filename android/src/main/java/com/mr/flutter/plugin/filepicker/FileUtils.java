@@ -14,6 +14,7 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -211,12 +212,31 @@ public class FileUtils {
         return result;
     }
 
+    public static boolean clearCache(final Context context) {
+        try {
+            final File cacheDir = new File(context.getCacheDir() + "/file_picker/");
+            final File[] files = cacheDir.listFiles();
+
+            if (files != null) {
+                for (final File file : files) {
+                    file.delete();
+                }
+            }
+        } catch (final Exception ex) {
+            Log.e(TAG, "There was an error while clearing cached files: " + ex.toString());
+            return false;
+        }
+        return true;
+    }
+
     public static String getUriFromRemote(final Context context, final Uri uri) {
 
         Log.i(TAG, "Caching file from remote/external URI");
         FileOutputStream fos = null;
         final String fileName = FileUtils.getFileName(uri, context);
-        final String externalFile = context.getCacheDir().getAbsolutePath() + "/" + (fileName != null ? fileName : new Random().nextInt(100000));
+        final String externalFile = context.getCacheDir().getAbsolutePath() + "/file_picker/" + (fileName != null ? fileName : new Random().nextInt(100000));
+
+        new File(externalFile).getParentFile().mkdirs();
 
         try {
             fos = new FileOutputStream(externalFile);

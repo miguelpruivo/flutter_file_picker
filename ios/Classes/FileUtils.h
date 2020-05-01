@@ -19,7 +19,8 @@ typedef NS_ENUM(NSInteger, MediaType) {
   MEDIA
 };
 
-@interface FileUtils : NSObject 
+@interface FileUtils : NSObject
++ (BOOL) clearTemporaryFiles;
 + (NSArray<NSString*>*) resolveType:(NSString*)type withAllowedExtensions:(NSArray<NSString*>*)allowedExtensions;
 + (MediaType) resolveMediaType:(NSString*)type;
 + (NSArray*) resolvePath:(NSArray<NSURL *> *)urls;

@@ -9,6 +9,24 @@
 
 @implementation FileUtils
 
++ (BOOL) clearTemporaryFiles {
+   NSString *tmpDirectory = NSTemporaryDirectory();
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error;
+    NSArray *cacheFiles = [fileManager contentsOfDirectoryAtPath:tmpDirectory error:&error];
+    
+    for (NSString *file in cacheFiles) {
+        error = nil;
+        [fileManager removeItemAtPath:[tmpDirectory stringByAppendingPathComponent:file] error:&error];
+        if(error != nil) {
+            Log(@"Failed to remove temporary file %@, aborting. Error: %@", file, error);
+            return false;
+        }
+    }
+    Log(@"All temporary files clear");
+    return true;
+}
+
 + (NSArray<NSString*> *) resolveType:(NSString*)type withAllowedExtensions:(NSArray<NSString*>*) allowedExtensions {
     
     if ([type isEqualToString:@"any"]) {
