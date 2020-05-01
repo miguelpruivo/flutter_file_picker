@@ -9,13 +9,14 @@ class FilePickerDemo extends StatefulWidget {
 }
 
 class _FilePickerDemoState extends State<FilePickerDemo> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String _fileName;
   String _path;
   Map<String, String> _paths;
   String _extension;
   bool _loadingPath = false;
   bool _multiPick = false;
-  FileType _pickingType;
+  FileType _pickingType = FileType.any;
   TextEditingController _controller = new TextEditingController();
 
   @override
@@ -54,10 +55,24 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     });
   }
 
+  void _clearCachedFiles() {
+    FilePicker.clearTemporaryFiles().then((result) {
+      _scaffoldKey.currentState.showSnackBar(
+        SnackBar(
+          backgroundColor: result ? Colors.green : Colors.red,
+          content: Text((result
+              ? 'Temporary files removed with success.'
+              : 'Failed to clean temporary files')),
+        ),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
       home: new Scaffold(
+        key: _scaffoldKey,
         appBar: new AppBar(
           title: const Text('File Picker example app'),
         ),
@@ -132,9 +147,17 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                 ),
                 new Padding(
                   padding: const EdgeInsets.only(top: 50.0, bottom: 20.0),
-                  child: new RaisedButton(
-                    onPressed: () => _openFileExplorer(),
-                    child: new Text("Open file picker"),
+                  child: Column(
+                    children: <Widget>[
+                      new RaisedButton(
+                        onPressed: () => _openFileExplorer(),
+                        child: new Text("Open file picker"),
+                      ),
+                      new RaisedButton(
+                        onPressed: () => _clearCachedFiles(),
+                        child: new Text("Clear temporary files"),
+                      ),
+                    ],
                   ),
                 ),
                 new Builder(

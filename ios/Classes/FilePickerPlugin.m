@@ -47,6 +47,13 @@
     }
     
     _result = result;
+    
+    if([call.method isEqualToString:@"clear"]) {
+        _result([NSNumber numberWithBool: [FileUtils clearTemporaryFiles]]);
+        _result = nil;
+        return;
+    }
+    
     NSDictionary * arguments = call.arguments;
     BOOL isMultiplePick = ((NSNumber*)[arguments valueForKey:@"allowMultipleSelection"]).boolValue;
     if([call.method isEqualToString:@"any"] || [call.method containsString:@"custom"]) {

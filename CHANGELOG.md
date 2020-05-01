@@ -1,3 +1,6 @@
+## 1.9.0
+Adds `clearTemporaryFiles()` that allows you to explicitly remove cached files — on Android applies typically to those picked from remote providers, on iOS _all_ picked files are cached.
+
 ## 1.8.0+2
 Updates podspec to use only PhotoGallery from DKImagePickerController (thanks @jamesdixon!)
 

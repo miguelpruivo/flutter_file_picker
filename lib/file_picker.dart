@@ -51,6 +51,17 @@ class FilePicker {
     return filePath != null ? File(filePath) : null;
   }
 
+  /// Asks the underlying platform to remove any temporary files created by this plugin.
+  ///
+  /// This typically relates to cached files that are stored in the cache directory of
+  /// each platform and it isn't required to invoke this as the system should take care
+  /// of it whenever needed. However, this will force the cleanup if you want to manage those on your own.
+  ///
+  /// Returns `true` if the files were removed with success, `false` otherwise.
+  static Future<bool> clearTemporaryFiles() async {
+    return _channel.invokeMethod('clear');
+  }
+
   /// Returns a `List<File>` object from the selected files paths.
   ///
   /// This is an utility method that does the same of `getMultiFilePath()` but saving some boilerplate if
