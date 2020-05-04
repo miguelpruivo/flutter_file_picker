@@ -1,3 +1,6 @@
+## 1.9.0+1
+Adds a temporary workaround on Android where it can trigger `onRequestPermissionsResult` twice, related to Flutter issue [49365](https://github.com/flutter/flutter/issues/49365) for anyone affected in Flutter versions below 1.14.6.
+
 ## 1.9.0
 Adds `clearTemporaryFiles()` that allows you to explicitly remove cached files — on Android applies typically to those picked from remote providers, on iOS _all_ picked files are cached.
 

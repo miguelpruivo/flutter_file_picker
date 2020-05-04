@@ -155,9 +155,14 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private void startFileExplorer() {
         final Intent intent;
 
+        // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
+        if (type == null) {
+            return;
+        }
+
         intent = new Intent(Intent.ACTION_GET_CONTENT);
         final Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
-        Log.d(TAG, "Type" + type);
+        Log.d(TAG, "Selected type " + type);
         intent.setDataAndType(uri, this.type);
         intent.setType(this.type);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection);
