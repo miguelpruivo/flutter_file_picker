@@ -29,7 +29,7 @@ A package that allows you to use a native file explorer to pick single or multip
 * Create a `File` or `List<File>` objects from **any** selected file(s)
 * Supports desktop through **go-flutter** (MacOS, Windows, Linux) 
 
-If you have any feature that you want to see in this package, please add it [here](https://github.com/miguelpruivo/plugins_flutter_file_picker/issues/99). 🎉
+If you have any feature that you want to see in this package, please feel free to issue a suggestion. 🎉
 
 ## Documentation
 See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** for every detail on about how to install, setup and use it.
