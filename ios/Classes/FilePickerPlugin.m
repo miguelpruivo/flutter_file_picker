@@ -54,6 +54,11 @@
         return;
     }
     
+    if([call.method isEqualToString:@"dir"]) {
+        [self resolvePickDocumentWithMultiPick:NO pickDirectory:YES];
+        return;
+    }
+    
     NSDictionary * arguments = call.arguments;
     BOOL isMultiplePick = ((NSNumber*)[arguments valueForKey:@"allowMultipleSelection"]).boolValue;
     if([call.method isEqualToString:@"any"] || [call.method containsString:@"custom"]) {
@@ -64,7 +69,7 @@
                                         details:nil]);
             _result = nil;
         } else if(self.allowedExtensions != nil) {
-            [self resolvePickDocumentWithMultipleSelection:isMultiplePick];
+            [self resolvePickDocumentWithMultiPick:isMultiplePick pickDirectory:NO];
         }
     } else if([call.method isEqualToString:@"video"] || [call.method isEqualToString:@"image"] || [call.method isEqualToString:@"media"]) {
         [self resolvePickMedia:[FileUtils resolveMediaType:call.method] withMultiPick:isMultiplePick];
@@ -78,13 +83,12 @@
 }
 
 #pragma mark - Resolvers
-
-- (void)resolvePickDocumentWithMultipleSelection:(BOOL)allowsMultipleSelection {
+- (void)resolvePickDocumentWithMultiPick:(BOOL)allowsMultipleSelection pickDirectory:(BOOL)isDirectory {
     
     @try{
         self.documentPickerController = [[UIDocumentPickerViewController alloc]
-                             initWithDocumentTypes: self.allowedExtensions
-                             inMode:UIDocumentPickerModeImport];
+                                         initWithDocumentTypes: isDirectory ? @[@"public.folder"] : self.allowedExtensions
+                                         inMode: isDirectory ? UIDocumentPickerModeOpen : UIDocumentPickerModeImport];
     } @catch (NSException * e) {
        Log(@"Couldn't launch documents file picker. Probably due to iOS version being below 11.0 and not having the iCloud entitlement. If so, just make sure to enable it for your app in Xcode. Exception was: %@", e);
         _result = nil;

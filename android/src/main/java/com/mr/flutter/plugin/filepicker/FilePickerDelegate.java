@@ -5,7 +5,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
@@ -85,12 +87,17 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 finishWithSuccess(paths.get(0));
                             }
                         } else if (data.getData() != null) {
-                            final Uri uri = data.getData();
+                            Uri uri = data.getData();
+                            String fullPath;
+                            if (type.equals("dir") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
+                            }
+
                             Log.i(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
-                            String fullPath = FileUtils.getPath(uri, FilePickerDelegate.this.activity);
+                            fullPath = FileUtils.getPath(uri, FilePickerDelegate.this.activity);
 
                             if (fullPath == null) {
-                                fullPath = FileUtils.getUriFromRemote(FilePickerDelegate.this.activity, uri);
+                                fullPath = type.equals("dir") ? FileUtils.getFullPathFromTreeUri(uri, activity) : FileUtils.getUriFromRemote(FilePickerDelegate.this.activity, uri);
                             }
 
                             if (fullPath != null) {
@@ -99,6 +106,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             } else {
                                 finishWithError("unknown_path", "Failed to retrieve path.");
                             }
+
                         } else {
                             finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
                         }
@@ -160,20 +168,24 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             return;
         }
 
-        intent = new Intent(Intent.ACTION_GET_CONTENT);
-        final Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
-        Log.d(TAG, "Selected type " + type);
-        intent.setDataAndType(uri, this.type);
-        intent.setType(this.type);
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        if (type.equals("dir")) {
+            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        } else {
+            intent = new Intent(Intent.ACTION_GET_CONTENT);
+            final Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
+            Log.d(TAG, "Selected type " + type);
+            intent.setDataAndType(uri, this.type);
+            intent.setType(this.type);
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
 
-        if (type.contains(",")) {
-            allowedExtensions = type.split(",");
-        }
+            if (type.contains(",")) {
+                allowedExtensions = type.split(",");
+            }
 
-        if (allowedExtensions != null) {
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions);
+            if (allowedExtensions != null) {
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions);
+            }
         }
 
         if (intent.resolveActivity(this.activity.getPackageManager()) != null) {
