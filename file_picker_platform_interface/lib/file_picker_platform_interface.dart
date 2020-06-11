@@ -11,6 +11,11 @@ enum FileType {
   custom,
 }
 
+enum FilePickerStatus {
+  picking,
+  done,
+}
+
 /// The interface that implementations of file_picker must implement.
 ///
 /// Platform implementations should extend this class rather than implement it as `file_picker`
@@ -38,6 +43,10 @@ abstract class FilePickerPlatform extends PlatformInterface {
   /// Default [type] set to `FileType.any` with [allowMultiple] set to `false`
   /// Optionally, [allowedExtensions] might be provided (e.g. [`pdf`, `svg`, `jpg`].).
   ///
+  /// If you want to track picking status, for example, because some files may take some time to be
+  /// cached (particularly those picked from cloud providers), you may want to set [onFileLoading] handler
+  /// that will give you the current status of picking.
+  ///
   /// Allows `dynamic` return as files may be resolved to different types, based
   /// on each platform implementation. For example, when using _dart:html_ with Flutter Web
   /// or _dart:io_ with Flutter, different `File` instances could be used.
@@ -45,6 +54,7 @@ abstract class FilePickerPlatform extends PlatformInterface {
     FileType type = FileType.any,
     List<String> allowedExtensions,
     bool allowMultiple = false,
+    Function(FilePickerStatus) onFileLoading,
   }) async =>
       throw UnimplementedError('getFiles() has not been implemented.');
 
@@ -55,11 +65,13 @@ abstract class FilePickerPlatform extends PlatformInterface {
   /// of it whenever needed. However, this will force the cleanup if you want to manage those on your own.
   ///
   /// Returns `true` if the files were removed with success, `false` otherwise.
-  Future<bool> clearTemporaryFiles() async => throw UnimplementedError('clearTemporaryFiles() has not been implemented.');
+  Future<bool> clearTemporaryFiles() async => throw UnimplementedError(
+      'clearTemporaryFiles() has not been implemented.');
 
   /// Selects a directory and returns its absolute path.
   ///
   /// On Android, this requires to be running on SDK 21 or above, else won't work.
   /// Returns `null` if folder path couldn't be resolved.
-  Future<String> getDirectoryPath() async => throw UnimplementedError('getDirectoryPath() has not been implemented.');
+  Future<String> getDirectoryPath() async =>
+      throw UnimplementedError('getDirectoryPath() has not been implemented.');
 }

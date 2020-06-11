@@ -1,7 +1,7 @@
 name: file_picker_platform_interface
 description: A common platform interface for the file_picker plugin
 homepage: https://github.com/miguelpruivo/plugins_flutter_file_picker/file_picker_platform_interface
-version: 1.1.0
+version: 1.2.0
 
 environment:
   sdk: ">=2.1.0 <3.0.0"

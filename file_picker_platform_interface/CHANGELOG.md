@@ -1,3 +1,7 @@
+## [1.2.0] - Adds FilePickerStatus
+
+Adds `onFiledLoading` that will provide an event handler with `FilePickerStatus` when picking files.
+
 ## [1.1.0] - Adds directory pick 
 
 Implements `getDirectoryPath()`

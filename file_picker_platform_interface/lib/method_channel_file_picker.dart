@@ -1,24 +1,32 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'file_picker_platform_interface.dart';
 
-const MethodChannel _channel = MethodChannel('miguelruivo.flutter.plugins.filepicker');
+const MethodChannel _channel =
+    MethodChannel('miguelruivo.flutter.plugins.filepicker');
+const EventChannel _eventChannel =
+    EventChannel('miguelruivo.flutter.plugins.filepickerevent');
 
 /// An implementation of [FilePickerPlatform] that uses method channels.
 class MethodChannelFilePicker extends FilePickerPlatform {
   static const String _tag = 'MethodChannelFilePicker';
+  static StreamSubscription _eventSubscription;
 
   @override
   Future getFiles({
     FileType type = FileType.any,
     List<String> allowedExtensions,
     bool allowMultiple = false,
+    Function(FilePickerStatus) onFileLoading,
   }) =>
-      _getPath(type, allowMultiple, allowedExtensions);
+      _getPath(type, allowMultiple, allowedExtensions, onFileLoading);
 
   @override
-  Future<bool> clearTemporaryFiles() async => _channel.invokeMethod<bool>('clear');
+  Future<bool> clearTemporaryFiles() async =>
+      _channel.invokeMethod<bool>('clear');
 
   @override
   Future<String> getDirectoryPath() async {
@@ -37,12 +45,24 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     FileType fileType,
     bool allowMultipleSelection,
     List<String> allowedExtensions,
+    Function(FilePickerStatus) onFileLoading,
   ) async {
     final String type = describeEnum(fileType);
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
-      throw Exception('If you are using a custom extension filter, please use the FileType.custom instead.');
+      throw Exception(
+          'If you are using a custom extension filter, please use the FileType.custom instead.');
     }
     try {
+      _eventSubscription?.cancel();
+      if (onFileLoading != null) {
+        _eventSubscription = _eventChannel.receiveBroadcastStream().listen(
+              (data) => onFileLoading((data as bool)
+                  ? FilePickerStatus.picking
+                  : FilePickerStatus.done),
+              onError: (error) => throw Exception(error),
+            );
+      }
+
       dynamic result = await _channel.invokeMethod(type, {
         'allowMultipleSelection': allowMultipleSelection,
         'allowedExtensions': allowedExtensions,
@@ -51,14 +71,16 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         if (result is String) {
           result = [result];
         }
-        return Map<String, String>.fromIterable(result, key: (path) => path.split('/').last, value: (path) => path);
+        return Map<String, String>.fromIterable(result,
+            key: (path) => path.split('/').last, value: (path) => path);
       }
       return result;
     } on PlatformException catch (e) {
       print('[$_tag] Platform exception: $e');
       rethrow;
     } catch (e) {
-      print('[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
+      print(
+          '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
       rethrow;
     }
   }
