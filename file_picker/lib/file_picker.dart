@@ -1,0 +1,81 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
+
+export 'package:file_picker_platform_interface/file_picker_platform_interface.dart' show FileType;
+
+final FilePickerPlatform _filePickerPlatform = FilePickerPlatform.instance;
+
+class FilePicker {
+  FilePicker._();
+
+  /// Returns an absolute file path from the calling platform.
+  ///
+  /// Extension filters are allowed with `FileType.custom`, when used, make sure to provide a `List`
+  /// of [allowedExtensions] (e.g. [`pdf`, `svg`, `jpg`].).
+  /// Defaults to `FileType.any` which will display all file types.
+  static Future<String> getFilePath({FileType type = FileType.any, List<String> allowedExtensions}) async =>
+      await _filePickerPlatform.getFiles(
+        type: type,
+        allowedExtensions: allowedExtensions,
+      );
+
+  /// Returns an iterable `Map<String,String>` where the `key` is the name of the file
+  /// and the `value` the path.
+  ///
+  /// A `List` with [allowedExtensions] can be provided to filter the allowed files to picked.
+  /// If provided, make sure you select `FileType.custom` as type.
+  /// Defaults to `FileType.any`, which allows any combination of files to be multi selected at once.
+  static Future<Map<String, String>> getMultiFilePath({FileType type = FileType.any, List<String> allowedExtensions}) async =>
+      await _filePickerPlatform.getFiles(
+        type: type,
+        allowMultiple: true,
+        allowedExtensions: allowedExtensions,
+      );
+
+  /// Returns a `File` object from the selected file path.
+  ///
+  /// This is an utility method that does the same of `getFilePath()` but saving some boilerplate if
+  /// you are planing to create a `File` for the returned path.
+  static Future<File> getFile({FileType type = FileType.any, List<String> allowedExtensions}) async {
+    final String filePath = await _filePickerPlatform.getFiles(
+      type: type,
+      allowedExtensions: allowedExtensions,
+    );
+    return filePath != null ? File(filePath) : null;
+  }
+
+  /// Returns a `List<File>` object from the selected files paths.
+  ///
+  /// This is an utility method that does the same of `getMultiFilePath()` but saving some boilerplate if
+  /// you are planing to create a list of `File`s for the returned paths.
+  static Future<List<File>> getMultiFile({FileType type = FileType.any, List<String> allowedExtensions}) async {
+    final Map<String, String> paths = await _filePickerPlatform.getFiles(
+      type: type,
+      allowMultiple: true,
+      allowedExtensions: allowedExtensions,
+    );
+
+    return paths != null && paths.isNotEmpty ? paths.values.map((path) => File(path)).toList() : null;
+  }
+
+  /// Selects a directory and returns its absolute path.
+  ///
+  /// On Android, this requires to be running on SDK 21 or above, else won't work.
+  /// Returns `null` if folder path couldn't be resolved.
+  static Future<String> getDirectoryPath() async {
+    return _filePickerPlatform.getDirectoryPath();
+  }
+
+  /// Asks the underlying platform to remove any temporary files created by this plugin.
+  ///
+  /// This typically relates to cached files that are stored in the cache directory of
+  /// each platform and it isn't required to invoke this as the system should take care
+  /// of it whenever needed. However, this will force the cleanup if you want to manage those on your own.
+  ///
+  /// Returns `true` if the files were removed with success, `false` otherwise.
+  static Future<bool> clearTemporaryFiles() async {
+    return _filePickerPlatform.clearTemporaryFiles();
+  }
+}
