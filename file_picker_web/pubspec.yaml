@@ -1,0 +1,27 @@
+name: file_picker_web
+description: Web platform implementation of file_picker
+homepage: https://github.com/miguelpruivo/plugins_flutter_file_picker/file_picker_web
+version: 1.0.0
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+  flutter: ">=1.10.0"
+
+dependencies:
+  file_picker_platform_interface: ^1.0.0
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+flutter:
+  plugin:
+    platforms:
+       web:
+        pluginClass: FilePicker
+        fileName: file_picker_web.dart
