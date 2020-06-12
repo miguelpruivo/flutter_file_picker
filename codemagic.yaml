@@ -1,0 +1,28 @@
+
+workflows:
+  my-workflow:
+    name: Build example app
+    environment:
+      flutter: stable
+      xcode: latest
+    cache:
+      cache_paths:
+        - ~/.pub-cache
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: '*'
+          include: true
+          source: true
+    scripts:
+      - |
+        # Build iOS & Android
+
+        cd file_picker/example
+        flutter packages pub get
+        flutter analyze
+        flutter test
+        find . -name "Podfile" -execdir pod install \;
+        flutter build apk --debug
+        flutter build ios --debug --no-codesign
