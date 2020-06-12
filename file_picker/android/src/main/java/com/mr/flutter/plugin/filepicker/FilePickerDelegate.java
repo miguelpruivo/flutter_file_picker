@@ -7,6 +7,9 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.provider.DocumentsContract;
 import android.util.Log;
 
@@ -16,6 +19,7 @@ import androidx.core.app.ActivityCompat;
 import java.io.File;
 import java.util.ArrayList;
 
+import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 
@@ -30,6 +34,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private boolean isMultipleSelection = false;
     private String type;
     private String[] allowedExtensions;
+    private EventChannel.EventSink eventSink;
 
     public FilePickerDelegate(final Activity activity) {
         this(
@@ -51,6 +56,10 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         );
     }
 
+    public void setEventHandler(final EventChannel.EventSink eventSink) {
+        this.eventSink = eventSink;
+    }
+
     @VisibleForTesting
     FilePickerDelegate(final Activity activity, final MethodChannel.Result result, final PermissionManager permissionManager) {
         this.activity = activity;
@@ -63,6 +72,11 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     public boolean onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+
+            if (eventSink != null) {
+                eventSink.success(true);
+            }
+
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -217,6 +231,10 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     private void finishWithSuccess(final Object data) {
+        if (eventSink != null) {
+            this.dispatchEventStatus(false);
+        }
+
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (this.pendingResult != null) {
             this.pendingResult.success(data);
@@ -228,8 +246,21 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         if (this.pendingResult == null) {
             return;
         }
+
+        if (eventSink != null) {
+            this.dispatchEventStatus(false);
+        }
         this.pendingResult.error(errorCode, errorMessage, null);
         this.clearPendingResult();
+    }
+
+    private void dispatchEventStatus(final boolean status) {
+        new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(final Message message) {
+                eventSink.success(status);
+            }
+        }.obtainMessage().sendToTarget();
     }
 
 

@@ -1,5 +1,8 @@
+## 1.11.0
+Adds `onFileLoading` handler for every picking method that will provide picking status: `FilePickerStatus.loading` and `FilePickerStatus.done` so you can, for example, display a custom loader.
+
 ## 1.10.0
-**Android & iOS:** Adds `getDirectoryPath()` method that allows you to select and pick directory paths. Android, requires SDK 21 or above for this to work, and iOS requires iOS 11 or above. 
+Adds `getDirectoryPath()` method that allows you to select and pick directory paths. Android, requires SDK 21 or above for this to work, and iOS requires iOS 11 or above. 
 
 ## 1.9.0+1
 Adds a temporary workaround on Android where it can trigger `onRequestPermissionsResult` twice, related to Flutter issue [49365](https://github.com/flutter/flutter/issues/49365) for anyone affected in Flutter versions below 1.14.6.

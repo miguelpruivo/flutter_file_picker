@@ -3,7 +3,8 @@ import 'dart:io';
 
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 
-export 'package:file_picker_platform_interface/file_picker_platform_interface.dart' show FileType;
+export 'package:file_picker_platform_interface/file_picker_platform_interface.dart'
+    show FileType;
 
 final FilePickerPlatform _filePickerPlatform = FilePickerPlatform.instance;
 
@@ -14,11 +15,21 @@ class FilePicker {
   ///
   /// Extension filters are allowed with `FileType.custom`, when used, make sure to provide a `List`
   /// of [allowedExtensions] (e.g. [`pdf`, `svg`, `jpg`].).
+  ///
+  /// If you want to track picking status, for example, because some files may take some time to be
+  /// cached (particularly those picked from cloud providers), you may want to set [onFileLoading] handler
+  /// that will give you the current status of picking.
+  ///
   /// Defaults to `FileType.any` which will display all file types.
-  static Future<String> getFilePath({FileType type = FileType.any, List<String> allowedExtensions}) async =>
+  static Future<String> getFilePath({
+    FileType type = FileType.any,
+    List<String> allowedExtensions,
+    Function(FilePickerStatus) onFileLoading,
+  }) async =>
       await _filePickerPlatform.getFiles(
         type: type,
         allowedExtensions: allowedExtensions,
+        onFileLoading: onFileLoading,
       );
 
   /// Returns an iterable `Map<String,String>` where the `key` is the name of the file
@@ -26,22 +37,37 @@ class FilePicker {
   ///
   /// A `List` with [allowedExtensions] can be provided to filter the allowed files to picked.
   /// If provided, make sure you select `FileType.custom` as type.
+  ///
+  /// If you want to track picking status, for example, because some files may take some time to be
+  /// cached (particularly those picked from cloud providers), you may want to set [onFileLoading] handler
+  /// that will give you the current status of picking.
+  ///
   /// Defaults to `FileType.any`, which allows any combination of files to be multi selected at once.
-  static Future<Map<String, String>> getMultiFilePath({FileType type = FileType.any, List<String> allowedExtensions}) async =>
+  static Future<Map<String, String>> getMultiFilePath({
+    FileType type = FileType.any,
+    List<String> allowedExtensions,
+    Function(FilePickerStatus) onFileLoading,
+  }) async =>
       await _filePickerPlatform.getFiles(
         type: type,
         allowMultiple: true,
         allowedExtensions: allowedExtensions,
+        onFileLoading: onFileLoading,
       );
 
   /// Returns a `File` object from the selected file path.
   ///
   /// This is an utility method that does the same of `getFilePath()` but saving some boilerplate if
   /// you are planing to create a `File` for the returned path.
-  static Future<File> getFile({FileType type = FileType.any, List<String> allowedExtensions}) async {
+  static Future<File> getFile({
+    FileType type = FileType.any,
+    List<String> allowedExtensions,
+    Function(FilePickerStatus) onFileLoading,
+  }) async {
     final String filePath = await _filePickerPlatform.getFiles(
       type: type,
       allowedExtensions: allowedExtensions,
+      onFileLoading: onFileLoading,
     );
     return filePath != null ? File(filePath) : null;
   }
@@ -50,14 +76,21 @@ class FilePicker {
   ///
   /// This is an utility method that does the same of `getMultiFilePath()` but saving some boilerplate if
   /// you are planing to create a list of `File`s for the returned paths.
-  static Future<List<File>> getMultiFile({FileType type = FileType.any, List<String> allowedExtensions}) async {
+  static Future<List<File>> getMultiFile({
+    FileType type = FileType.any,
+    List<String> allowedExtensions,
+    Function(FilePickerStatus) onFileLoading,
+  }) async {
     final Map<String, String> paths = await _filePickerPlatform.getFiles(
       type: type,
       allowMultiple: true,
       allowedExtensions: allowedExtensions,
+      onFileLoading: onFileLoading,
     );
 
-    return paths != null && paths.isNotEmpty ? paths.values.map((path) => File(path)).toList() : null;
+    return paths != null && paths.isNotEmpty
+        ? paths.values.map((path) => File(path)).toList()
+        : null;
   }
 
   /// Selects a directory and returns its absolute path.

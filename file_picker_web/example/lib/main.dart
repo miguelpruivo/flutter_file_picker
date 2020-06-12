@@ -16,7 +16,7 @@ class _MyAppState extends State<MyApp> {
   List<File> _files = [];
 
   void _pickFiles() async {
-    _files = await FilePicker.getFile() ?? [];
+    _files = await FilePicker.getMultiFile() ?? [];
     setState(() {});
   }
 

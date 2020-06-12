@@ -19,6 +19,7 @@ import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.embedding.engine.plugins.lifecycle.FlutterLifecycleAdapter;
 import io.flutter.plugin.common.BinaryMessenger;
+import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
@@ -31,6 +32,7 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
 
     private static final String TAG = "FilePicker";
     private static final String CHANNEL = "miguelruivo.flutter.plugins.filepicker";
+    private static final String EVENT_CHANNEL = "miguelruivo.flutter.plugins.filepickerevent";
 
     private class LifeCycleObserver
             implements Application.ActivityLifecycleCallbacks, DefaultLifecycleObserver {
@@ -249,6 +251,17 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
         this.delegate = new FilePickerDelegate(activity);
         this.channel = new MethodChannel(messenger, CHANNEL);
         this.channel.setMethodCallHandler(this);
+        new EventChannel(messenger, EVENT_CHANNEL).setStreamHandler(new EventChannel.StreamHandler() {
+            @Override
+            public void onListen(final Object arguments, final EventChannel.EventSink events) {
+                delegate.setEventHandler(events);
+            }
+
+            @Override
+            public void onCancel(final Object arguments) {
+                delegate.setEventHandler(null);
+            }
+        });
         this.observer = new LifeCycleObserver(activity);
         if (registrar != null) {
             // V1 embedding setup for activity listeners.
@@ -273,6 +286,7 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
         this.delegate = null;
         this.channel.setMethodCallHandler(null);
         this.channel = null;
+        this.delegate.setEventHandler(null);
         this.application.unregisterActivityLifecycleCallbacks(this.observer);
         this.application = null;
     }

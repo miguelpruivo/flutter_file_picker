@@ -6,6 +6,7 @@
 
 @interface FilePickerPlugin() <UIImagePickerControllerDelegate, MPMediaPickerControllerDelegate, DKImageAssetExporterObserver>
 @property (nonatomic) FlutterResult result;
+@property (nonatomic) FlutterEventSink eventSink;
 @property (nonatomic) UIViewController *viewController;
 @property (nonatomic) UIImagePickerController *galleryPickerController;
 @property (nonatomic) UIDocumentPickerViewController *documentPickerController;
@@ -21,12 +22,16 @@
                                      methodChannelWithName:@"miguelruivo.flutter.plugins.filepicker"
                                      binaryMessenger:[registrar messenger]];
     
+    FlutterEventChannel* eventChannel = [FlutterEventChannel
+                                         eventChannelWithName:@"miguelruivo.flutter.plugins.filepickerevent"
+                                         binaryMessenger:[registrar messenger]];
+    
     UIViewController *viewController = [UIApplication sharedApplication].delegate.window.rootViewController;
     FilePickerPlugin* instance = [[FilePickerPlugin alloc] initWithViewController:viewController];
     
     [registrar addMethodCallDelegate:instance channel:channel];
+    [eventChannel setStreamHandler:instance];
 }
-
 
 - (instancetype)initWithViewController:(UIViewController *)viewController {
     self = [super init];
@@ -35,6 +40,16 @@
     }
     
     return self;
+}
+
+- (FlutterError *)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)events {
+    _eventSink = events;
+    return nil;
+}
+
+- (FlutterError *)onCancelWithArguments:(id)arguments {
+    _eventSink = nil;
+    return nil;
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
@@ -143,16 +158,20 @@
 - (void) resolveMultiPickFromGallery:(MediaType)type {
     DKImagePickerController * dkImagePickerController = [[DKImagePickerController alloc] init];
     
-    // Create alert dialog for asset caching
     UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"" message:@"" preferredStyle:UIAlertControllerStyleAlert];
-    [alert.view setCenter: _viewController.view.center];
-    [alert.view addConstraint: [NSLayoutConstraint constraintWithItem:alert.view attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:100]];
-    
     UIActivityIndicatorView* indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
-    indicator.hidesWhenStopped = YES;
-    [indicator setCenter: alert.view.center];
-    indicator.autoresizingMask = (UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleTopMargin);
-    [alert.view addSubview: indicator];
+    
+    if(_eventSink == nil) {
+        // Create alert dialog for asset caching
+        [alert.view setCenter: _viewController.view.center];
+        [alert.view addConstraint: [NSLayoutConstraint constraintWithItem:alert.view attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:100]];
+        
+        // Create a default loader if user don't provide a status handler
+        indicator.hidesWhenStopped = YES;
+        [indicator setCenter: alert.view.center];
+        indicator.autoresizingMask = (UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleTopMargin);
+        [alert.view addSubview: indicator];
+    }
     
     dkImagePickerController.exportsWhenCompleted = YES;
     dkImagePickerController.showsCancelButton = YES;
@@ -164,11 +183,22 @@
         
         if(status == DKImagePickerControllerExportStatusExporting && dkImagePickerController.selectedAssets.count > 0){
             Log("Exporting assets, this operation may take a while if remote (iCloud) assets are being cached.");
-            [indicator startAnimating];
-            [self->_viewController showViewController:alert sender:nil];
+            
+            if(self->_eventSink != nil){
+                self->_eventSink([NSNumber numberWithBool:YES]);
+            } else {
+                [indicator startAnimating];
+                [self->_viewController showViewController:alert sender:nil];
+            }
+            
         } else {
-            [indicator stopAnimating];
-            [alert dismissViewControllerAnimated:YES completion:nil];
+            if(self->_eventSink != nil) {
+                self->_eventSink([NSNumber numberWithBool:NO]);
+            } else {
+                [indicator stopAnimating];
+                [alert dismissViewControllerAnimated:YES completion:nil];
+            }
+            
         }
     }];
     

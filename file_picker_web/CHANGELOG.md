@@ -1,3 +1,11 @@
+## 1.0.1+1
+
+Updates homepage & description.
+
+## 1.0.1
+
+Updates API to support `onFileLoading` from FilePickerInterface.
+
 ## 1.0.0
 
 Adds public API documentation and updates file_picker_platform_interface dependency.

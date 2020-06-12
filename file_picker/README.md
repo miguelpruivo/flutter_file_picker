@@ -7,7 +7,7 @@
     <img alt="Awesome Flutter" src="https://img.shields.io/badge/Awesome-Flutter-blue.svg?longCache=true&style=flat-square">
   </a>
  <a href="https://codemagic.io/apps/5ce89f4a9b46f5000ca89638/5ce89f4a9b46f5000ca89637/latest_build">
-    <img alt="Build Status" src="https://api.codemagic.io/apps/5ce89f4a9b46f5000ca89638/5ce89f4a9b46f5000ca89637/status_badge.svg">
+    <img alt="Build Status" src="https://api.codemagic.io/apps/5ee2d379c2d4737a756cbd00/5ee2d3b829657a000c4c4317/status_badge.svg">
   </a>
  <a href="https://www.buymeacoffee.com/gQyz2MR">
     <img alt="Buy me a coffee" src="https://img.shields.io/badge/Donate-Buy%20Me%20A%20Coffee-yellow.svg">
@@ -35,15 +35,18 @@ If you have any feature that you want to see in this package, please feel free t
 ## Documentation
 See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** for every detail on about how to install, setup and use it.
 
+### File Picker Wiki
+
 1. [Installation](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Installation)
 2. [Setup](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup)
    * [Android](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup#android)
    * [iOS](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup#ios)
+   * [Web](https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#--web)
    * [Desktop (go-flutter)](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup/_edit#desktop-go-flutter)
 3. [API](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/api)
    * [Filters](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/API#filters)
+   * [Parameters](https://github.com/miguelpruivo/flutter_file_picker/wiki/API#parameters)
    * [Methods](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/API#methods)
-4. [Example App](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/lib/src/file_picker_demo.dart)
 5. [Troubleshooting](https://github.com/miguelpruivo/flutter_file_picker/wiki/Troubleshooting)
 
 ## Usage

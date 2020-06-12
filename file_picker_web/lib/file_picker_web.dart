@@ -40,6 +40,7 @@ class FilePicker extends FilePickerPlatform {
     FileType type = FileType.any,
     List<String> allowedExtensions,
     bool allowMultiple = false,
+    Function(FilePickerStatus) onFileLoading,
   }) async {
     final Completer<List<html.File>> pickedFiles = Completer<List<html.File>>();
     html.InputElement uploadInput = html.FileUploadInputElement();
