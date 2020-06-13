@@ -7,7 +7,7 @@
     <img alt="Awesome Flutter" src="https://img.shields.io/badge/Awesome-Flutter-blue.svg?longCache=true&style=flat-square">
   </a>
  <a href="https://codemagic.io/apps/5ce89f4a9b46f5000ca89638/5ce89f4a9b46f5000ca89637/latest_build">
-    <img alt="Build Status" src="https://api.codemagic.io/apps/5ee2d379c2d4737a756cbd00/5ee2d3b829657a000c4c4317/status_badge.svg">
+    <img alt="Build Status" src="https://api.codemagic.io/apps/5ee2d379c2d4737a756cbd00/5ee2d379c2d4737a756cbcff/status_badge.svg">
   </a>
  <a href="https://www.buymeacoffee.com/gQyz2MR">
     <img alt="Buy me a coffee" src="https://img.shields.io/badge/Donate-Buy%20Me%20A%20Coffee-yellow.svg">
@@ -70,8 +70,8 @@ List<File> files = await FilePicker.getMultiFile();
 For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** above.
 
 ## Example App
-![Demo](https://github.com/miguelpruivo/plugins_flutter_file_picker/blob/master/example/example.gif)
-![DemoMultiFilters](https://github.com/miguelpruivo/plugins_flutter_file_picker/blob/master/example/example_ios.gif)
+![Demo](https://github.com/miguelpruivo/flutter_file_picker/blob/master/file_picker/example/example.gif)
+![DemoMultiFilters](https://github.com/miguelpruivo/flutter_file_picker/blob/master/file_picker/example/example_ios.gif)
 
 ## Getting Started
 

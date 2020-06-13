@@ -1,3 +1,9 @@
+## 1.11.0+2
+Updates README file (iOS preview).
+
+## 1.11.0+1
+Updates README file.
+
 ## 1.11.0
 Adds `onFileLoading` handler for every picking method that will provide picking status: `FilePickerStatus.loading` and `FilePickerStatus.done` so you can, for example, display a custom loader.
 
