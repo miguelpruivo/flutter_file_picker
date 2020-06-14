@@ -1,3 +1,6 @@
+## 1.11.0+3
+Updates tearDown() call order on Android's implementation.
+
 ## 1.11.0+2
 Updates README file (iOS preview).
 
