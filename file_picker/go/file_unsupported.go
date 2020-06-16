@@ -13,3 +13,7 @@ func fileFilter(method string) (string, error) {
 func fileDialog(title string, filter string) (string, error) {
 	return "", errors.New("platform unsupported")
 }
+
+func dirDialog(title string, filter string) (string, error) {
+	return "", errors.New("platform unsupported")
+}

@@ -21,7 +21,17 @@ func (p *FilePickerPlugin) InitPlugin(messenger plugin.BinaryMessenger) error {
 
 func (p *FilePickerPlugin) handleFilePicker(methodCall interface{}) (reply interface{}, err error) {
 	method := methodCall.(plugin.MethodCall).Method
+
+	if "dir" == method {
+		dirPath, err := dirDialog("Select a directory")
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to open dialog picker")
+		}
+		return dirPath, nil
+	}
+
 	arguments := methodCall.(plugin.MethodCall).Arguments.(map[interface{}]interface{})
+
 	var allowedExtensions []string
 
 	// Parse extensions

@@ -73,3 +73,11 @@ func fileDialog(title string, filter string) (string, error) {
 	path := string(filepath.Separator) + filepath.Join(pathParts[1:]...)
 	return path, nil
 }
+
+func dirDialog(title string) (string, error) {
+	dirPath, _, err := dlgs.File(title, `*.*`, true)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to open dialog picker")
+	}
+	return dirPath, nil
+}
