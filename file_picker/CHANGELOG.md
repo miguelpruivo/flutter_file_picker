@@ -1,3 +1,6 @@
+## 1.12.0
+Adds `getDirectoryPath()` desktop (go) implementation.
+
 ## 1.11.0+3
 Updates tearDown() call order on Android's implementation.
 
