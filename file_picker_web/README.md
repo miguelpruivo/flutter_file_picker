@@ -26,4 +26,4 @@ dependencies:
 Once you have the `file_picker_web` dependency in your pubspec, you should
 be able to use `package:file_picker` as normal.
 
-[1]: ../file_picker/file_picker
+[1]: ../file_picker
