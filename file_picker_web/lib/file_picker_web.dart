@@ -46,9 +46,9 @@ class FilePicker extends FilePickerPlatform {
     html.InputElement uploadInput = html.FileUploadInputElement();
     uploadInput.multiple = allowMultiple;
     uploadInput.accept = _fileType(type, allowedExtensions);
-    uploadInput.click();
     uploadInput.onChange
         .listen((event) => pickedFiles.complete(uploadInput.files));
+    uploadInput.click();
     return await pickedFiles.future;
   }
 
