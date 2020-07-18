@@ -1,5 +1,3 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html';
 import 'package:file_picker_web/file_picker_web.dart';
 import 'package:flutter/material.dart';
 
@@ -34,20 +32,41 @@ class _MyAppState extends State<MyApp> {
             children: <Widget>[
               Expanded(
                 child: _files.isNotEmpty
-                    ? ListView.separated(
-                        itemBuilder: (BuildContext context, int index) =>
-                            Text(_files[index].name),
-                        itemCount: _files.length,
-                        separatorBuilder: (_, __) => const Divider(
-                          thickness: 5.0,
-                        ),
-                      )
-                    : Center(
-                        child: Text(
-                          'Pick some files',
-                          textAlign: TextAlign.center,
-                        ),
+                  ? ListView.separated(
+                      itemBuilder: (BuildContext context, int index) {
+                        return Row(
+                            children: [
+                              Text(_files[index].name),
+                              Container(
+                                constraints: BoxConstraints(
+                                  maxWidth: 150,
+                                  maxHeight: 150,
+                                ),
+                                padding: EdgeInsets.all(8.0),
+                                child: _files[index].type.contains('image') 
+                                  ?  FutureBuilder<List<int>>(
+                                      future: _files[index].fileAsBytes(),
+                                      builder: (context, snapshot) => snapshot.hasData 
+                                        ?  Image.memory(snapshot.data) 
+                                        : CircularProgressIndicator()
+                                    )
+                                  : Icon(Icons.insert_drive_file, size: 100,),
+                              )
+                            ],
+                          );
+                      },  
+                      itemCount: _files.length,
+                      separatorBuilder: (_, __) => const Divider(
+                        thickness: 2.0,
                       ),
+                    )
+                  // ? Image.memory(image)
+                  : Center(
+                      child: Text(
+                        'Pick some files',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
               ),
               Padding(
                 padding: const EdgeInsets.all(15.0),
