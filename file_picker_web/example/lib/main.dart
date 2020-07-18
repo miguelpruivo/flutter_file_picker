@@ -57,10 +57,9 @@ class _MyAppState extends State<MyApp> {
                       },  
                       itemCount: _files.length,
                       separatorBuilder: (_, __) => const Divider(
-                        thickness: 2.0,
+                        thickness: 3.0,
                       ),
                     )
-                  // ? Image.memory(image)
                   : Center(
                       child: Text(
                         'Pick some files',
