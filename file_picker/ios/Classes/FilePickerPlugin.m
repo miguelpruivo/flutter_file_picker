@@ -87,7 +87,7 @@
             [self resolvePickDocumentWithMultiPick:isMultiplePick pickDirectory:NO];
         }
     } else if([call.method isEqualToString:@"video"] || [call.method isEqualToString:@"image"] || [call.method isEqualToString:@"media"]) {
-        [self resolvePickMedia:[FileUtils resolveMediaType:call.method] withMultiPick:isMultiplePick];
+        [self resolvePickMedia:[FileUtils resolveMediaType:call.method] withMultiPick:isMultiplePick withCompressionAllowed:[arguments valueForKey:@"allowCompression"]];
     } else if([call.method isEqualToString:@"audio"]) {
         [self resolvePickAudio];
     } else {
@@ -123,10 +123,10 @@
     [_viewController presentViewController:self.documentPickerController animated:YES completion:nil];
 }
 
-- (void) resolvePickMedia:(MediaType)type withMultiPick:(BOOL)multiPick  {
+- (void) resolvePickMedia:(MediaType)type withMultiPick:(BOOL)multiPick withCompressionAllowed:(BOOL)allowCompression  {
     
     if(multiPick) {
-        [self resolveMultiPickFromGallery:type];
+        [self resolveMultiPickFromGallery:type withCompressionAllowed:allowCompression];
         return;
     }
     
@@ -141,10 +141,16 @@
     switch (type) {
         case IMAGE:
             self.galleryPickerController.mediaTypes = imageTypes;
+            if (@available(iOS 11.0, *)) {
+                self.galleryPickerController.imageExportPreset = allowCompression ? UIImagePickerControllerImageURLExportPresetCompatible : UIImagePickerControllerImageURLExportPresetCurrent;
+            }
             break;
-        
+            
         case VIDEO:
             self.galleryPickerController.mediaTypes = videoTypes;
+            if (@available(iOS 11.0, *)) {
+                self.galleryPickerController.videoExportPreset = allowCompression ? AVAssetExportPresetHighestQuality : AVAssetExportPresetPassthrough;
+            }
             break;
             
         default:
@@ -155,7 +161,7 @@
     [self.viewController presentViewController:self.galleryPickerController animated:YES completion:nil];
 }
 
-- (void) resolveMultiPickFromGallery:(MediaType)type {
+- (void) resolveMultiPickFromGallery:(MediaType)type withCompressionAllowed:(BOOL)allowCompression {
     DKImagePickerController * dkImagePickerController = [[DKImagePickerController alloc] init];
     
     UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"" message:@"" preferredStyle:UIAlertControllerStyleAlert];
@@ -171,6 +177,13 @@
         [indicator setCenter: alert.view.center];
         indicator.autoresizingMask = (UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleTopMargin);
         [alert.view addSubview: indicator];
+    }
+    
+    if (@available(iOS 11.0, *)) {
+        DKImageAssetExporterConfiguration * exportConfiguration = [[DKImageAssetExporterConfiguration alloc] init];
+        exportConfiguration.imageExportPreset = allowCompression ? UIImagePickerControllerImageURLExportPresetCompatible : UIImagePickerControllerImageURLExportPresetCurrent;
+        exportConfiguration.videoExportPreset = allowCompression ? AVAssetExportPresetHighestQuality : AVAssetExportPresetPassthrough;
+        dkImagePickerController.exporter = [dkImagePickerController.exporter initWithConfiguration:exportConfiguration];
     }
     
     dkImagePickerController.exportsWhenCompleted = YES;

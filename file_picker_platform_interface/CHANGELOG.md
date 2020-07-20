@@ -1,3 +1,7 @@
+## [1.3.0] - Adds FilePickerStatus
+
+Adds `allowCompression` that will allow developers to set whether the picked media files (image/video) can be automatically compressed by OS or not. Defaults to `true`.
+
 ## [1.2.0] - Adds FilePickerStatus
 
 Adds `onFiledLoading` that will provide an event handler with `FilePickerStatus` when picking files.

@@ -47,6 +47,9 @@ abstract class FilePickerPlatform extends PlatformInterface {
   /// cached (particularly those picked from cloud providers), you may want to set [onFileLoading] handler
   /// that will give you the current status of picking.
   ///
+  /// If you plan on picking images/videos and don't want them to be compressed automatically by OS,
+  /// you should set [allowCompression] to `false`.
+  ///
   /// Allows `dynamic` return as files may be resolved to different types, based
   /// on each platform implementation. For example, when using _dart:html_ with Flutter Web
   /// or _dart:io_ with Flutter, different `File` instances could be used.
@@ -54,6 +57,7 @@ abstract class FilePickerPlatform extends PlatformInterface {
     FileType type = FileType.any,
     List<String> allowedExtensions,
     bool allowMultiple = false,
+    bool allowCompression = true,
     Function(FilePickerStatus) onFileLoading,
   }) async =>
       throw UnimplementedError('getFiles() has not been implemented.');

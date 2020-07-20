@@ -20,9 +20,11 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     FileType type = FileType.any,
     List<String> allowedExtensions,
     bool allowMultiple = false,
+    bool allowCompression = true,
     Function(FilePickerStatus) onFileLoading,
   }) =>
-      _getPath(type, allowMultiple, allowedExtensions, onFileLoading);
+      _getPath(type, allowMultiple, allowCompression, allowedExtensions,
+          onFileLoading);
 
   @override
   Future<bool> clearTemporaryFiles() async =>
@@ -44,6 +46,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
   Future<dynamic> _getPath(
     FileType fileType,
     bool allowMultipleSelection,
+    bool allowCompression,
     List<String> allowedExtensions,
     Function(FilePickerStatus) onFileLoading,
   ) async {
@@ -66,6 +69,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
       dynamic result = await _channel.invokeMethod(type, {
         'allowMultipleSelection': allowMultipleSelection,
         'allowedExtensions': allowedExtensions,
+        'allowCompression': allowCompression,
       });
       if (result != null && allowMultipleSelection) {
         if (result is String) {

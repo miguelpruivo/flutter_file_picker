@@ -31,17 +31,19 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       if (_multiPick) {
         _path = null;
         _paths = await FilePicker.getMultiFilePath(
-            type: _pickingType,
-            allowedExtensions: (_extension?.isNotEmpty ?? false)
-                ? _extension?.replaceAll(' ', '')?.split(',')
-                : null);
+          type: _pickingType,
+          allowedExtensions: (_extension?.isNotEmpty ?? false)
+              ? _extension?.replaceAll(' ', '')?.split(',')
+              : null,
+        );
       } else {
         _paths = null;
         _path = await FilePicker.getFilePath(
-            type: _pickingType,
-            allowedExtensions: (_extension?.isNotEmpty ?? false)
-                ? _extension?.replaceAll(' ', '')?.split(',')
-                : null);
+          type: _pickingType,
+          allowedExtensions: (_extension?.isNotEmpty ?? false)
+              ? _extension?.replaceAll(' ', '')?.split(',')
+              : null,
+        );
       }
     } on PlatformException catch (e) {
       print("Unsupported operation" + e.toString());

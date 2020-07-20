@@ -1,3 +1,6 @@
+## 1.13.0
+Adds `allowCompression` property that will define if media (video & image) files are allowed to be compressed by OS when picked. On Android this has no effect as it already returns the original file or an integral copy.
+
 ## 1.12.0
 Adds `getDirectoryPath()` desktop (go) implementation.
 
