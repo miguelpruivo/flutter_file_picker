@@ -1,3 +1,6 @@
+## 1.13.0+1
+Fixes an issue that could prevent `1.13.0` from being built due to missing `allowCompression` property.
+
 ## 1.13.0
 Adds `allowCompression` property that will define if media (video & image) files are allowed to be compressed by OS when picked. On Android this has no effect as it already returns the original file or an integral copy.
 

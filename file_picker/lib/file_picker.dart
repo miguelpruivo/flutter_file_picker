@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
+import 'package:file_picker_platform_interface/method_channel_file_picker.dart';
 
 export 'package:file_picker_platform_interface/file_picker_platform_interface.dart'
     show FileType;
 
-final FilePickerPlatform _filePickerPlatform = FilePickerPlatform.instance;
+final MethodChannelFilePicker _filePickerPlatform = FilePickerPlatform.instance;
 
 class FilePicker {
   FilePicker._();
