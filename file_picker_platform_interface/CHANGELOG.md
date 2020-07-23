@@ -1,4 +1,8 @@
-## [1.3.0] - Adds FilePickerStatus
+## [1.3.1] - Rollback `allowCompression`
+
+Removes `allowCompression` from interface as it should only be used from `file_picker` (Android & iOS).
+
+## [1.3.0] - Adds `allowCompression` parameter
 
 Adds `allowCompression` that will allow developers to set whether the picked media files (image/video) can be automatically compressed by OS or not. Defaults to `true`.
 
