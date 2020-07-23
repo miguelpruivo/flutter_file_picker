@@ -1,3 +1,7 @@
+## 1.0.1+2
+
+Bumps file_picker_interface dependency version.
+
 ## 1.0.1+1
 
 Updates homepage & description.
