@@ -110,7 +110,7 @@ public class FileUtils {
                     contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
                 }
 
-                final String selection = "_id=?";
+                final String selection = MediaStore.Images.Media._ID + "=?";
                 final String[] selectionArgs = new String[]{
                         split[1]
                 };
@@ -156,7 +156,7 @@ public class FileUtils {
     private static String getDataColumn(final Context context, final Uri uri, final String selection,
                                         final String[] selectionArgs) {
         Cursor cursor = null;
-        final String column = "_data";
+        final String column = MediaStore.Images.Media.DATA;
         final String[] projection = {
                 column
         };
