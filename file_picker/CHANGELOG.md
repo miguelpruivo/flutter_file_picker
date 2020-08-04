@@ -1,3 +1,6 @@
+## 1.13.1
+Android: adds support to non-legacy picking on Android Q or above (thank you @lakshyab1995).
+
 ## 1.13.0+1
 Fixes an issue that could prevent `1.13.0` from being built due to missing `allowCompression` property.
 

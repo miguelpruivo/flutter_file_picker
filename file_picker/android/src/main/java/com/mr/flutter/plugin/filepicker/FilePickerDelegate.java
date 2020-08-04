@@ -87,9 +87,11 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             final ArrayList<String> paths = new ArrayList<>();
                             while (currentItem < count) {
                                 final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
-                                String path = FileUtils.getPath(currentUri, FilePickerDelegate.this.activity);
-                                if (path == null) {
+                                String path;
+                                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                                     path = FileUtils.getUriFromRemote(FilePickerDelegate.this.activity, currentUri);
+                                } else {
+                                    path = FileUtils.getPath(currentUri, FilePickerDelegate.this.activity);
                                 }
                                 paths.add(path);
                                 Log.i(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
@@ -108,10 +110,11 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             }
 
                             Log.i(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
-                            fullPath = FileUtils.getPath(uri, FilePickerDelegate.this.activity);
 
-                            if (fullPath == null) {
+                            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                                 fullPath = type.equals("dir") ? FileUtils.getFullPathFromTreeUri(uri, activity) : FileUtils.getUriFromRemote(FilePickerDelegate.this.activity, uri);
+                            } else {
+                                fullPath = FileUtils.getPath(uri, FilePickerDelegate.this.activity);
                             }
 
                             if (fullPath != null) {
