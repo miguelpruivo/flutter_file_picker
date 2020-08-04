@@ -1,3 +1,7 @@
+## 1.0.2
+
+Addresses an issue that would cause dot being required on filters for web (#343)
+
 ## 1.0.1+2
 
 Bumps file_picker_interface dependency version.

@@ -1,7 +1,7 @@
 name: file_picker_web
 description: Web platform implementation of file_picker. Provides a way to pick files with filter support for Web.
 homepage: https://github.com/miguelpruivo/flutter_file_picker/tree/master/file_picker_web
-version: 1.0.1+2
+version: 1.0.2
 
 environment:
   sdk: ">=2.7.0 <3.0.0"

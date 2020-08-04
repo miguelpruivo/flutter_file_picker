@@ -70,7 +70,8 @@ class FilePicker extends FilePickerPlatform {
         return 'video/*|image/*';
 
       case FileType.custom:
-        return allowedExtensions.reduce((value, element) => '$value,$element');
+        return allowedExtensions
+            .reduce((value, element) => '.$value,.$element');
         break;
     }
     return '';
