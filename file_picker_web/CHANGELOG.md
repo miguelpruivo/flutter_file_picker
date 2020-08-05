@@ -1,3 +1,7 @@
+## 1.0.2+1
+
+Fix custom filter String creation.
+
 ## 1.0.2
 
 Addresses an issue that would cause dot being required on filters for web (#343)

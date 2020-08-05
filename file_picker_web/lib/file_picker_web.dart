@@ -17,10 +17,8 @@ class FilePicker extends FilePickerPlatform {
   /// [allowedExtensions] can be used (eg. `[.jpg, .pdf]`) to restrict picking types
   ///
   /// Returns a `List<html.File>`
-  static Future<List<html.File>> getMultiFile(
-      {FileType type = FileType.any, List<String> allowedExtensions}) async {
-    return await _instance.getFiles(
-        type: type, allowMultiple: true, allowedExtensions: allowedExtensions);
+  static Future<List<html.File>> getMultiFile({FileType type = FileType.any, List<String> allowedExtensions}) async {
+    return await _instance.getFiles(type: type, allowMultiple: true, allowedExtensions: allowedExtensions);
   }
 
   /// Opens browser file picker window to select a single file.
@@ -28,11 +26,8 @@ class FilePicker extends FilePickerPlatform {
   /// [allowedExtensions] can be used (eg. `[.jpg, .pdf]`) to restrict picking types
   ///
   /// Returns a `html.File`
-  static Future<html.File> getFile(
-      {FileType type = FileType.any, List<String> allowedExtensions}) async {
-    return (await _instance.getFiles(
-            type: type, allowedExtensions: allowedExtensions))
-        .first;
+  static Future<html.File> getFile({FileType type = FileType.any, List<String> allowedExtensions}) async {
+    return (await _instance.getFiles(type: type, allowedExtensions: allowedExtensions)).first;
   }
 
   @override
@@ -46,8 +41,7 @@ class FilePicker extends FilePickerPlatform {
     html.InputElement uploadInput = html.FileUploadInputElement();
     uploadInput.multiple = allowMultiple;
     uploadInput.accept = _fileType(type, allowedExtensions);
-    uploadInput.onChange
-        .listen((event) => pickedFiles.complete(uploadInput.files));
+    uploadInput.onChange.listen((event) => pickedFiles.complete(uploadInput.files));
     uploadInput.click();
     return await pickedFiles.future;
   }
@@ -70,8 +64,7 @@ class FilePicker extends FilePickerPlatform {
         return 'video/*|image/*';
 
       case FileType.custom:
-        return allowedExtensions
-            .reduce((value, element) => '.$value,.$element');
+        return allowedExtensions.fold('', (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next');
         break;
     }
     return '';
