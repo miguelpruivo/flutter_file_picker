@@ -1,3 +1,6 @@
+## 1.13.2
+Android: fixes picking paths from Downloads directory on versions below Android Q.
+
 ## 1.13.1
 Android: adds support to non-legacy picking on Android Q or above (thank you @lakshyab1995).
 
