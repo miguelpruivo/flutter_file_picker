@@ -92,6 +92,9 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                     path = FileUtils.getUriFromRemote(FilePickerDelegate.this.activity, currentUri);
                                 } else {
                                     path = FileUtils.getPath(currentUri, FilePickerDelegate.this.activity);
+                                    if (path == null) {
+                                        path = FileUtils.getUriFromRemote(FilePickerDelegate.this.activity, currentUri);
+                                    }
                                 }
                                 paths.add(path);
                                 Log.i(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
@@ -115,6 +118,9 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 fullPath = type.equals("dir") ? FileUtils.getFullPathFromTreeUri(uri, activity) : FileUtils.getUriFromRemote(FilePickerDelegate.this.activity, uri);
                             } else {
                                 fullPath = FileUtils.getPath(uri, FilePickerDelegate.this.activity);
+                                if (fullPath == null) {
+                                    fullPath = type.equals("dir") ? FileUtils.getFullPathFromTreeUri(uri, activity) : FileUtils.getUriFromRemote(FilePickerDelegate.this.activity, uri);
+                                }
                             }
 
                             if (fullPath != null) {
