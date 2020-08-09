@@ -75,9 +75,23 @@ func fileDialog(title string, filter string) (string, error) {
 }
 
 func dirDialog(title string) (string, error) {
-	dirPath, _, err := dlgs.File(title, `*.*`, true)
+	osascript, err := exec.LookPath("osascript")
 	if err != nil {
-		return "", errors.Wrap(err, "failed to open dialog picker")
+		return "", err
 	}
-	return dirPath, nil
+
+	output, err := exec.Command(osascript, "-e", `choose folder with prompt "`+title+`"`).Output()
+	if err != nil {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			fmt.Printf("miguelpruivo/plugins_flutter_file_picker/go: folder dialog exited with code %d and output `%s`\n", exitError.ExitCode(), string(output))
+			return "", nil // user probably canceled or closed the selection window
+		}
+		return "", errors.Wrap(err, "failed to open folder dialog")
+	}
+
+	trimmedOutput := strings.TrimSpace(string(output))
+
+	pathParts := strings.Split(trimmedOutput, ":")
+	path := string(filepath.Separator) + filepath.Join(pathParts[1:]...)
+	return path, nil
 }
