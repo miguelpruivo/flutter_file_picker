@@ -33,7 +33,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
   @override
   Future<String> getDirectoryPath() async {
     try {
-      return await _channel.invokeMethod('dir');
+      return await _channel.invokeMethod('dir', {});
     } on PlatformException catch (ex) {
       if (ex.code == "unknown_path") {
         print(
