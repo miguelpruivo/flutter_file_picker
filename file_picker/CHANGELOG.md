@@ -1,3 +1,6 @@
+## 1.13.3
+Go: Updates MacOS directory picker to applescript (thank you @trister1997).
+
 ## 1.13.2
 Android: fixes picking paths from Downloads directory on versions below Android Q.
 
