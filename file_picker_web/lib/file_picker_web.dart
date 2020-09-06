@@ -5,11 +5,30 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'dart:html' as html;
 
 class FilePicker extends FilePickerPlatform {
-  FilePicker._();
   static final FilePicker _instance = FilePicker._();
+
+  html.Element _target;
+  final String _kImagePickerInputsDomId = '__file_picker_web-file-input';
+
+  FilePicker._() {
+    _target = _ensureInitialized(_kImagePickerInputsDomId);
+  }
 
   static void registerWith(Registrar registrar) {
     FilePickerPlatform.instance = _instance;
+  }
+
+  /// Initializes a DOM container where we can host input elements.
+  html.Element _ensureInitialized(String id) {
+    var target = html.querySelector('#${id}');
+    if (target == null) {
+      final html.Element targetElement =
+      html.Element.tag('flt-file-picker-inputs')..id = id;
+
+      html.querySelector('body').children.add(targetElement);
+      target = targetElement;
+    }
+    return target;
   }
 
   /// Opens browser file picker window to select multiple files.
@@ -46,8 +65,21 @@ class FilePicker extends FilePickerPlatform {
     html.InputElement uploadInput = html.FileUploadInputElement();
     uploadInput.multiple = allowMultiple;
     uploadInput.accept = _fileType(type, allowedExtensions);
-    uploadInput.onChange
-        .listen((event) => pickedFiles.complete(uploadInput.files));
+    uploadInput.onChange.listen((event) {
+      if (pickedFiles.isCompleted) {
+        return;
+      }
+      pickedFiles.complete(uploadInput.files);
+    });
+    uploadInput.addEventListener('change', (event) {
+      if (pickedFiles.isCompleted) {
+        return;
+      }
+      pickedFiles.complete(uploadInput.files);
+    });
+
+    _target.children.clear();
+    _target.children.add(uploadInput);
     uploadInput.click();
     return await pickedFiles.future;
   }
