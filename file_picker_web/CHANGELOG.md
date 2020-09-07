@@ -1,3 +1,7 @@
+## 2.0.0
+
+Deprecates plugin in favor of standalone [file_picker](https://pub.dev/packages/file_picker) for all platforms.
+
 ## 1.0.2+1
 
 Fix custom filter String creation.

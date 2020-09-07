@@ -1,3 +1,7 @@
+# MUST READ!
+
+The web standalone plugin is deprectated in favor of standalone [file_picker](https://pub.dev/packages/file_picker) for all platforms. This should be the one used as this package is not longer mantained.
+
 # file_picker_web
 
 The web implementation of [`file_picker`][1].

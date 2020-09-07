@@ -253,7 +253,7 @@
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url{
     [self.documentPickerController dismissViewControllerAnimated:YES completion:nil];
     NSString * path = (NSString *)[url path];
-    _result(path);
+    _result(@[path]);
     _result = nil;
 }
 
@@ -267,12 +267,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
     [self.documentPickerController dismissViewControllerAnimated:YES completion:nil];
     NSArray * result = [FileUtils resolvePath:urls];
-    
-    if([result count] > 1) {
-        _result(result);
-    } else {
-       _result([result objectAtIndex:0]);
-    }
+    _result(result);
     _result = nil;
     
 }
@@ -323,7 +318,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         return;
     }
     
-    _result([pickedVideoUrl != nil ? pickedVideoUrl : pickedImageUrl path]);
+    _result(@[[pickedVideoUrl != nil ? pickedVideoUrl : pickedImageUrl path]]);
     _result = nil;
 }
 

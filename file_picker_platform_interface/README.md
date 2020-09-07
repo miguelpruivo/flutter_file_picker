@@ -1,3 +1,7 @@
+# MUST READ!
+
+The interface is deprectated in favor of standalone [file_picker](https://pub.dev/packages/file_picker) for all platforms where an interface is integrated. This should be the one used as this package is not longer mantained.
+
 # file_picker_platform_interface
 
 A common platform interface for the [`file_picker`][1] plugin.
@@ -5,6 +9,7 @@ A common platform interface for the [`file_picker`][1] plugin.
 This interface allows platform-specific implementations of the `file_picker`
 plugin, as well as the plugin itself, to ensure they are supporting the
 same interface.
+
 
 # Usage
 

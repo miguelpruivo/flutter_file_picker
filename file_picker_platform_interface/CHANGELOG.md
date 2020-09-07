@@ -1,3 +1,7 @@
+## [2.0.0] - Deprecates interface
+
+Deprecates interface in favor of standalone [file_picker](https://pub.dev/packages/file_picker) for all platforms.
+
 ## [1.3.1] - Rollback `allowCompression`
 
 Removes `allowCompression` from interface as it should only be used from `file_picker` (Android & iOS).

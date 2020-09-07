@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
@@ -100,11 +101,9 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 Log.i(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
                                 currentItem++;
                             }
-                            if (paths.size() > 1) {
-                                finishWithSuccess(paths);
-                            } else {
-                                finishWithSuccess(paths.get(0));
-                            }
+
+                            finishWithSuccess(paths);
+
                         } else if (data.getData() != null) {
                             Uri uri = data.getData();
                             String fullPath;
@@ -125,7 +124,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
                             if (fullPath != null) {
                                 Log.i(FilePickerDelegate.TAG, "Absolute file path:" + fullPath);
-                                finishWithSuccess(fullPath);
+                                finishWithSuccess(Arrays.asList(fullPath));
                             } else {
                                 finishWithError("unknown_path", "Failed to retrieve path.");
                             }
