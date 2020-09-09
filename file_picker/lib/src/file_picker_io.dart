@@ -64,7 +64,7 @@ class FilePickerIO extends FilePicker {
             );
       }
 
-      final List<String> result = await _channel.invokeListMethod(type, {
+      final List<Map> result = await _channel.invokeListMethod(type, {
         'allowMultipleSelection': allowMultipleSelection,
         'allowedExtensions': allowedExtensions,
         'allowCompression': allowCompression,
@@ -74,7 +74,7 @@ class FilePickerIO extends FilePicker {
         return null;
       }
 
-      return FilePickerResult(result.map((file) => PlatformFile(name: file.split('/').last, path: file)).toList());
+      return FilePickerResult(result.map((file) => PlatformFile.fromMap(file)).toList());
     } on PlatformException catch (e) {
       print('[$_tag] Platform exception: $e');
       rethrow;

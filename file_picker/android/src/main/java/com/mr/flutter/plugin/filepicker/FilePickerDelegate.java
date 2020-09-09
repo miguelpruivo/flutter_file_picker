@@ -17,8 +17,11 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.app.ActivityCompat;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
@@ -82,49 +85,42 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                 @Override
                 public void run() {
                     if (data != null) {
+                        final ArrayList<FileInfo> files = new ArrayList<>();
+
                         if (data.getClipData() != null) {
                             final int count = data.getClipData().getItemCount();
                             int currentItem = 0;
-                            final ArrayList<String> paths = new ArrayList<>();
                             while (currentItem < count) {
                                 final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
-                                String path;
-                                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                    path = FileUtils.getUriFromRemote(FilePickerDelegate.this.activity, currentUri);
-                                } else {
-                                    path = FileUtils.getPath(currentUri, FilePickerDelegate.this.activity);
-                                    if (path == null) {
-                                        path = FileUtils.getUriFromRemote(FilePickerDelegate.this.activity, currentUri);
-                                    }
+                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri);
+
+                                if(file != null) {
+                                    files.add(file);
+                                    Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
                                 }
-                                paths.add(path);
-                                Log.i(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
                                 currentItem++;
                             }
 
-                            finishWithSuccess(paths);
-
+                            finishWithSuccess(files);
                         } else if (data.getData() != null) {
                             Uri uri = data.getData();
-                            String fullPath;
+
                             if (type.equals("dir") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                 uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
                             }
 
-                            Log.i(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
+                            Log.d(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
 
                             if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                fullPath = type.equals("dir") ? FileUtils.getFullPathFromTreeUri(uri, activity) : FileUtils.getUriFromRemote(FilePickerDelegate.this.activity, uri);
-                            } else {
-                                fullPath = FileUtils.getPath(uri, FilePickerDelegate.this.activity);
-                                if (fullPath == null) {
-                                    fullPath = type.equals("dir") ? FileUtils.getFullPathFromTreeUri(uri, activity) : FileUtils.getUriFromRemote(FilePickerDelegate.this.activity, uri);
+                                final FileInfo file = type.equals("dir") ? FileUtils.getFullPathFromTreeUri(uri, activity) : FileUtils.openFileStream(FilePickerDelegate.this.activity, uri);
+                                if(file != null) {
+                                    files.add(file);
                                 }
                             }
 
-                            if (fullPath != null) {
-                                Log.i(FilePickerDelegate.TAG, "Absolute file path:" + fullPath);
-                                finishWithSuccess(Arrays.asList(fullPath));
+                            if (!files.isEmpty()) {
+                                Log.d(FilePickerDelegate.TAG, "File path:" + files.toString());
+                                finishWithSuccess(files);
                             } else {
                                 finishWithError("unknown_path", "Failed to retrieve path.");
                             }
@@ -137,7 +133,6 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                     }
                 }
             }).start();
-
             return true;
 
         } else if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_CANCELED) {
@@ -238,13 +233,20 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         this.startFileExplorer();
     }
 
-    private void finishWithSuccess(final Object data) {
+    private void finishWithSuccess(final ArrayList<FileInfo> files) {
         if (eventSink != null) {
             this.dispatchEventStatus(false);
         }
 
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (this.pendingResult != null) {
+
+            final ArrayList<HashMap<String, Object>> data = new ArrayList<>();
+
+            for(FileInfo file : files) {
+                data.add(file.toMap());
+            }
+
             this.pendingResult.success(data);
             this.clearPendingResult();
         }

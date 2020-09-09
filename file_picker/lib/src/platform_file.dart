@@ -6,31 +6,41 @@ class PlatformFile {
     this.uri,
     this.name,
     this.bytes,
+    this.size,
     this.isDirectory = false,
   });
 
-  /// The absolute path for this file instance.
-  ///
-  /// Typically whis will reflect a copy cached file and not the original source,
-  /// also, it's not guaranteed that this path is always available as some files
-  /// can be protected by OS.
-  ///
-  /// Available on IO only. On Web is always `null`.
+  PlatformFile.fromMap(Map data)
+      : this.path = data['path'],
+        this.uri = data['uri'],
+        this.name = data['name'],
+        this.bytes = data['bytes'],
+        this.size = data['size'],
+        this.isDirectory = data['isDirectory'];
+
+  /// The absolute path for a cached copy of this file.
+  /// If you want to access the original file identifier use [uri] property instead.
   final String path;
 
   /// The URI (Universal Resource Identifier) for this file.
   ///
-  /// This is the original file resource identifier and can be used to
+  /// This is the identifier of original resource and can be used to
   /// manipulate the original file (read, write, delete).
   ///
-  /// Available on IO only. On Web is always `null`.
+  /// Android: it can be either content:// or file:// url.
+  /// iOS: a file:// URL below a document provider (like iCloud).
+  /// Web: Not supported, will be always `null`.
   final String uri;
 
   /// File name including its extension.
   final String name;
 
-  /// Byte data for this file.
+  /// Byte data for this file. Particurlarly useful if you want to manipulate its data
+  /// or easily upload to somewhere else.
   final Uint8List bytes;
+
+  /// The file size in KB.
+  final int size;
 
   /// Whether this file references a directory or not.
   final bool isDirectory;

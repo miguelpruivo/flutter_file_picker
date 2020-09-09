@@ -17,7 +17,7 @@ import android.webkit.MimeTypeMap;
 
 import androidx.annotation.Nullable;
 
-import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -236,19 +236,21 @@ public class FileUtils {
         return true;
     }
 
-    public static String getUriFromRemote(final Context context, final Uri uri) {
+    public static FileInfo openFileStream(final Context context, final Uri uri) {
 
-        Log.i(TAG, "Caching file from remote/external URI");
+        Log.i(TAG, "Caching from URI: " + uri.toString());
         FileOutputStream fos = null;
+        final FileInfo.Builder fileInfo = new FileInfo.Builder();
         final String fileName = FileUtils.getFileName(uri, context);
-        final String externalFile = context.getCacheDir().getAbsolutePath() + "/file_picker/" + (fileName != null ? fileName : new Random().nextInt(100000));
+        final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/" + (fileName != null ? fileName : new Random().nextInt(100000));
 
-        new File(externalFile).getParentFile().mkdirs();
+        final File file = new File(path);
+        file.getParentFile().mkdirs();
 
         try {
-            fos = new FileOutputStream(externalFile);
+            fos = new FileOutputStream(path);
             try {
-                final BufferedOutputStream out = new BufferedOutputStream(fos);
+                final ByteArrayOutputStream out = new ByteArrayOutputStream();
                 final InputStream in = context.getContentResolver().openInputStream(uri);
 
                 final byte[] buffer = new byte[8192];
@@ -258,6 +260,8 @@ public class FileUtils {
                     out.write(buffer, 0, len);
                 }
 
+                fileInfo.withData(out.toByteArray());
+                out.writeTo(fos);
                 out.flush();
             } finally {
                 fos.getFD().sync();
@@ -273,28 +277,50 @@ public class FileUtils {
             return null;
         }
 
-        Log.i(TAG, "File loaded and cached at:" + externalFile);
-        return externalFile;
+        Log.d(TAG, "File loaded and cached at:" + path);
+
+        fileInfo
+                .withPath(path)
+                .withName(fileName)
+                .withSize(Integer.parseInt(String.valueOf(file.length()/1024)))
+                .withUri(uri);
+
+        return fileInfo.build();
     }
 
     @Nullable
-    public static String getFullPathFromTreeUri(@Nullable final Uri treeUri, Context con) {
-        if (treeUri == null) return null;
+    public static FileInfo getFullPathFromTreeUri(@Nullable final Uri treeUri, Context con) {
+        if (treeUri == null) {
+            return null;
+        }
+
         String volumePath = getVolumePath(getVolumeIdFromTreeUri(treeUri), con);
-        if (volumePath == null) return File.separator;
+        FileInfo.Builder fileInfo = new FileInfo.Builder();
+
+        fileInfo.withUri(treeUri);
+
+        if (volumePath == null) {
+            return fileInfo.withDirectory(File.separator).build();
+        }
+
         if (volumePath.endsWith(File.separator))
             volumePath = volumePath.substring(0, volumePath.length() - 1);
 
         String documentPath = getDocumentPathFromTreeUri(treeUri);
+
         if (documentPath.endsWith(File.separator))
             documentPath = documentPath.substring(0, documentPath.length() - 1);
 
         if (documentPath.length() > 0) {
-            if (documentPath.startsWith(File.separator))
-                return volumePath + documentPath;
-            else
-                return volumePath + File.separator + documentPath;
-        } else return volumePath;
+            if (documentPath.startsWith(File.separator)) {
+                return fileInfo.withDirectory(volumePath + documentPath).build();
+            }
+            else {
+                return fileInfo.withDirectory(volumePath + File.separator + documentPath).build();
+            }
+        } else {
+            return fileInfo.withDirectory(volumePath).build();
+        }
     }
 
 
