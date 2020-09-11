@@ -34,9 +34,9 @@ abstract class FilePicker extends PlatformInterface {
 
   static FilePicker _instance = FilePickerIO();
 
-  static FilePicker get instance => _instance;
+  static FilePicker get platform => _instance;
 
-  static set instance(FilePicker instance) {
+  static set platform(FilePicker instance) {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
   }
@@ -71,5 +71,5 @@ abstract class FilePicker extends PlatformInterface {
   ///
   /// On Android, this requires to be running on SDK 21 or above, else won't work.
   /// Returns `null` if folder path couldn't be resolved.
-  Future<PlatformFile> getDirectoryPath() async => throw UnimplementedError('getDirectoryPath() has not been implemented.');
+  Future<String> getDirectoryPath() async => throw UnimplementedError('getDirectoryPath() has not been implemented.');
 }

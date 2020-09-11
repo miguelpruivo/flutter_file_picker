@@ -12,6 +12,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String _fileName;
   List<PlatformFile> _paths;
+  String _directoryPath;
   String _extension;
   bool _loadingPath = false;
   bool _multiPick = false;
@@ -27,7 +28,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   void _openFileExplorer() async {
     setState(() => _loadingPath = true);
     try {
-      _paths = (await FilePicker.instance.pickFiles(
+      _directoryPath = null;
+      _paths = (await FilePicker.platform.pickFiles(
         type: _pickingType,
         allowMultiple: _multiPick,
         allowedExtensions: (_extension?.isNotEmpty ?? false) ? _extension?.replaceAll(' ', '')?.split(',') : null,
@@ -46,7 +48,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   void _clearCachedFiles() {
-    FilePicker.instance.clearTemporaryFiles().then((result) {
+    FilePicker.platform.clearTemporaryFiles().then((result) {
       _scaffoldKey.currentState.showSnackBar(
         SnackBar(
           backgroundColor: result ? Colors.green : Colors.red,
@@ -57,8 +59,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   void _selectFolder() {
-    FilePicker.instance.getDirectoryPath().then((value) {
-      setState(() => _paths = [value]);
+    FilePicker.platform.getDirectoryPath().then((value) {
+      setState(() => _directoryPath = value);
     });
   }
 
@@ -161,30 +163,35 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                           padding: const EdgeInsets.only(bottom: 10.0),
                           child: const CircularProgressIndicator(),
                         )
-                      : _paths != null
-                          ? Container(
-                              padding: const EdgeInsets.only(bottom: 30.0),
-                              height: MediaQuery.of(context).size.height * 0.50,
-                              child: Scrollbar(
-                                  child: ListView.separated(
-                                itemCount: _paths != null && _paths.isNotEmpty ? _paths.length : 1,
-                                itemBuilder: (BuildContext context, int index) {
-                                  final bool isMultiPath = _paths != null && _paths.isNotEmpty;
-                                  final String name =
-                                      'File $index: ' + (isMultiPath ? _paths.map((e) => e.name).toList()[index] : _fileName ?? '...');
-                                  final path = _paths.map((e) => e.path).toList()[index].toString();
-
-                                  return ListTile(
-                                    title: Text(
-                                      name,
-                                    ),
-                                    subtitle: Text(path),
-                                  );
-                                },
-                                separatorBuilder: (BuildContext context, int index) => const Divider(),
-                              )),
+                      : _directoryPath != null
+                          ? ListTile(
+                              title: Text('Directory path'),
+                              subtitle: Text(_directoryPath),
                             )
-                          : const SizedBox(),
+                          : _paths != null
+                              ? Container(
+                                  padding: const EdgeInsets.only(bottom: 30.0),
+                                  height: MediaQuery.of(context).size.height * 0.50,
+                                  child: Scrollbar(
+                                      child: ListView.separated(
+                                    itemCount: _paths != null && _paths.isNotEmpty ? _paths.length : 1,
+                                    itemBuilder: (BuildContext context, int index) {
+                                      final bool isMultiPath = _paths != null && _paths.isNotEmpty;
+                                      final String name =
+                                          'File $index: ' + (isMultiPath ? _paths.map((e) => e.name).toList()[index] : _fileName ?? '...');
+                                      final path = _paths.map((e) => e.path).toList()[index].toString();
+
+                                      return ListTile(
+                                        title: Text(
+                                          name,
+                                        ),
+                                        subtitle: Text(path),
+                                      );
+                                    },
+                                    separatorBuilder: (BuildContext context, int index) => const Divider(),
+                                  )),
+                                )
+                              : const SizedBox(),
                 ),
               ],
             ),

@@ -29,12 +29,9 @@ class FilePickerIO extends FilePicker {
   Future<bool> clearTemporaryFiles() async => _channel.invokeMethod<bool>('clear');
 
   @override
-  Future<PlatformFile> getDirectoryPath() async {
+  Future<String> getDirectoryPath() async {
     try {
-      String result = await _channel.invokeMethod('dir', {});
-      if (result != null) {
-        return PlatformFile(path: result, isDirectory: true);
-      }
+      return await _channel.invokeMethod('dir', {});
     } on PlatformException catch (ex) {
       if (ex.code == "unknown_path") {
         print(

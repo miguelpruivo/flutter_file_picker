@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
@@ -13,7 +14,7 @@ class FilePickerWeb extends FilePicker {
   static final FilePickerWeb platform = FilePickerWeb._();
 
   static void registerWith(Registrar registrar) {
-    FilePicker.instance = platform;
+    FilePicker.platform = platform;
   }
 
   @override
@@ -40,10 +41,14 @@ class FilePickerWeb extends FilePicker {
       List<PlatformFile> pickedFiles = [];
 
       reader.onLoadEnd.listen((e) {
+        final Uint8List bytes = Base64Decoder().convert(reader.result.toString().split(",").last);
+
         pickedFiles.add(
           PlatformFile(
             name: uploadInput.value.replaceAll('\\', '/'),
-            bytes: Base64Decoder().convert(reader.result.toString().split(",").last),
+            path: uploadInput.value,
+            size: bytes.length ~/ 1024,
+            bytes: bytes,
           ),
         );
 

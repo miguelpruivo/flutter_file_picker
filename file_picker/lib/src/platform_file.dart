@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 class PlatformFile {
-  PlatformFile({
+  const PlatformFile({
     this.path,
     this.uri,
     this.name,
@@ -28,7 +28,9 @@ class PlatformFile {
   /// manipulate the original file (read, write, delete).
   ///
   /// Android: it can be either content:// or file:// url.
+  ///
   /// iOS: a file:// URL below a document provider (like iCloud).
+  ///
   /// Web: Not supported, will be always `null`.
   final String uri;
 
@@ -46,5 +48,5 @@ class PlatformFile {
   final bool isDirectory;
 
   /// File extension for this file.
-  String get extension => name.split('/').last;
+  String get extension => name?.split('/')?.last;
 }

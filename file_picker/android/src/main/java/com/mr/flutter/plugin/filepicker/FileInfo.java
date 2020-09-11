@@ -2,9 +2,7 @@ package com.mr.flutter.plugin.filepicker;
 
 import android.net.Uri;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 
 public class FileInfo {
 
@@ -13,14 +11,16 @@ public class FileInfo {
     final String name;
     final int size;
     final byte[] bytes;
+    final long lastModified;
     final boolean isDirectory;
 
-    public FileInfo(Uri uri, String path, String name, int size, byte[] bytes, boolean isDirectory) {
+    public FileInfo(Uri uri, String path, String name, int size, byte[] bytes, boolean isDirectory, long lastModified) {
         this.uri = uri;
         this.path = path;
         this.name = name;
         this.size = size;
         this.bytes = bytes;
+        this.lastModified = lastModified;
         this.isDirectory = isDirectory;
     }
 
@@ -30,6 +30,7 @@ public class FileInfo {
         private String path;
         private String name;
         private int size;
+        private long lastModified;
         private byte[] bytes;
         private boolean isDirectory;
 
@@ -58,14 +59,19 @@ public class FileInfo {
             return this;
         }
 
-        public Builder withDirectory(String directory){
-            this.path = directory;
-            this.isDirectory = directory != null;
+        public Builder withDirectory(String path){
+            this.path = path;
+            this.isDirectory = path != null;
+            return this;
+        }
+
+        public Builder lastModifiedAt(long timeStamp){
+            this.lastModified = timeStamp;
             return this;
         }
 
         public FileInfo build() {
-            return new FileInfo(this.uri, this.path, this.name, this.size, this.bytes, this.isDirectory);
+            return new FileInfo(this.uri, this.path, this.name, this.size, this.bytes, this.isDirectory, this.lastModified);
         }
     }
 
@@ -78,6 +84,7 @@ public class FileInfo {
         data.put("size", size);
         data.put("bytes", bytes);
         data.put("isDirectory", isDirectory);
+        data.put("lastModified", lastModified);
         return data;
     }
 }

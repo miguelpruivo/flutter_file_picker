@@ -111,11 +111,20 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
                             Log.d(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
 
-                            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                final FileInfo file = type.equals("dir") ? FileUtils.getFullPathFromTreeUri(uri, activity) : FileUtils.openFileStream(FilePickerDelegate.this.activity, uri);
-                                if(file != null) {
-                                    files.add(file);
+                            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && type.equals("dir")) {
+                                final String dirPath = FileUtils.getFullPathFromTreeUri(uri, activity);
+                                if(dirPath != null) {
+                                    finishWithSuccess(dirPath);
+                                } else {
+                                    finishWithError("unknown_path", "Failed to retrieve directory path.");
                                 }
+                                return;
+                            }
+
+                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri);
+
+                            if(file != null) {
+                                files.add(file);
                             }
 
                             if (!files.isEmpty()) {
@@ -233,7 +242,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         this.startFileExplorer();
     }
 
-    private void finishWithSuccess(final ArrayList<FileInfo> files) {
+    private void finishWithSuccess(Object data) {
         if (eventSink != null) {
             this.dispatchEventStatus(false);
         }
@@ -241,10 +250,13 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (this.pendingResult != null) {
 
-            final ArrayList<HashMap<String, Object>> data = new ArrayList<>();
+            if(data != null && !(data instanceof String)) {
+                final ArrayList<HashMap<String, Object>> files = new ArrayList<>();
 
-            for(FileInfo file : files) {
-                data.add(file.toMap());
+                for (FileInfo file : (ArrayList<FileInfo>)data) {
+                    files.add(file.toMap());
+                }
+                data = files;
             }
 
             this.pendingResult.success(data);
