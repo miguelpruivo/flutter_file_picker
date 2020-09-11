@@ -26,7 +26,8 @@ class FilePickerWeb extends FilePicker {
     bool allowCompression,
     bool withData = true,
   }) async {
-    final Completer<List<PlatformFile>> filesCompleter = Completer<List<PlatformFile>>();
+    final Completer<List<PlatformFile>> filesCompleter =
+        Completer<List<PlatformFile>>();
 
     String accept = _fileType(type, allowedExtensions);
     html.InputElement uploadInput = html.FileUploadInputElement();
@@ -42,7 +43,8 @@ class FilePickerWeb extends FilePicker {
       List<PlatformFile> pickedFiles = [];
 
       reader.onLoadEnd.listen((e) {
-        final Uint8List bytes = Base64Decoder().convert(reader.result.toString().split(",").last);
+        final Uint8List bytes =
+            Base64Decoder().convert(reader.result.toString().split(",").last);
 
         pickedFiles.add(
           PlatformFile(
@@ -83,7 +85,8 @@ class FilePickerWeb extends FilePicker {
         return 'video/*|image/*';
 
       case FileType.custom:
-        return allowedExtensions.fold('', (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next');
+        return allowedExtensions.fold(
+            '', (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next');
         break;
     }
     return '';

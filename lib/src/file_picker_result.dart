@@ -19,7 +19,10 @@ class FilePickerResult {
   /// original files (which can be accessed through its URI property).
   ///
   /// Only available on IO. Throws `UnsupportedError` on Web.
-  List<String> get paths => files.map((file) => kIsWeb ? throw UnsupportedError('Unsupported on Web') : file.path).toList();
+  List<String> get paths => files
+      .map((file) =>
+          kIsWeb ? throw UnsupportedError('Unsupported on Web') : file.path)
+      .toList();
 
   /// A `List<String>` containing all names from picked files with its extensions.
   List<String> get names => files.map((file) => file.name).toList();

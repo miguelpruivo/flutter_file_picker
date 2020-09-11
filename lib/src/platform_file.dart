@@ -6,15 +6,13 @@ class PlatformFile {
     this.name,
     this.bytes,
     this.size,
-    this.isDirectory = false,
   });
 
   PlatformFile.fromMap(Map data)
       : this.path = data['path'],
         this.name = data['name'],
         this.bytes = data['bytes'],
-        this.size = data['size'],
-        this.isDirectory = data['isDirectory'];
+        this.size = data['size'];
 
   /// The absolute path for a cached copy of this file. It can be used to create a
   /// a file instance with a descriptor for the given path.
@@ -32,9 +30,6 @@ class PlatformFile {
 
   /// The file size in KB.
   final int size;
-
-  /// Whether this file references a directory or not.
-  final bool isDirectory;
 
   /// File extension for this file.
   String get extension => path?.split('.')?.last;

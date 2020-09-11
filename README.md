@@ -18,16 +18,17 @@
 A package that allows you to use a native file explorer to pick single or multiple absolute file paths, with extensions filtering support.
 
 ## Currently supported features
-* Load paths from **cloud files** (GDrive, Dropbox, iCloud)
-* Load path from a **custom format** by providing a list of file extensions (pdf, svg, zip, etc.)
-* Load path from **multiple files** optionally, supplying file extensions
-* Load path from **media** (video & image only)
-* Load path from **audio** only
-* Load path from **image** only
-* Load path from **video** only
-* Load path from **directory**
-* Load path from **any** 
-* Create a `File` or `List<File>` objects from **any** selected file(s)
+* Load files from **cloud files** (GDrive, Dropbox, iCloud)
+* Load files from a **custom format** by providing a list of file extensions (pdf, svg, zip, etc.)
+* Load files from **multiple files** optionally, supplying file extensions
+* Load files from **media** (video & image only)
+* Load files from **audio** only
+* Load files from **image** only
+* Load files from **video** only
+* Load files from **directory**
+* Load files from **any** 
+* Load files data immediately to memory (`Uint8List`);
+* Supports web;
 * Supports desktop through **go-flutter** (MacOS, Windows, Linux) 
 
 If you have any feature that you want to see in this package, please feel free to issue a suggestion. 🎉
@@ -54,19 +55,42 @@ Quick simple usage example:
 
 #### Single file
 ```
-File file = await FilePicker.getFile();
+FilePickerResult result = await FilePicker.platform.pickFiles();
+
+if(result != null) {
+   File file = File(result.files.single.path);
+}
 ```
 #### Multiple files
 ```
-List<File> files = await FilePicker.getMultiFile();
+FilePickerResult result = await FilePicker.platform.pickFiles(allowMultiple: true);
+
+if(result != null) {
+   List<File> files = result.paths.map((path) => File(path));
+}
 ```
 #### Multiple files with extension filter
 ```
- List<File> files = await FilePicker.getMultiFile(
+FilePickerResult result = await FilePicker.platform.pickFiles(
           type: FileType.custom,
           allowedExtensions: ['jpg', 'pdf', 'doc'],
         );
 ```
+### Load result and file details
+```
+FilePickerResult result = await FilePicker.platform.pickFiles();
+
+if(result != null) {
+   PlatformFile file = result.files.first;
+   
+   print(file.name);
+   print(file.bytes);
+   print(file.size);
+   print(file.extension);
+   print(file.path);
+}
+```
+
 For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** above.
 
 ## Example App

@@ -32,7 +32,9 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _paths = (await FilePicker.platform.pickFiles(
         type: _pickingType,
         allowMultiple: _multiPick,
-        allowedExtensions: (_extension?.isNotEmpty ?? false) ? _extension?.replaceAll(' ', '')?.split(',') : null,
+        allowedExtensions: (_extension?.isNotEmpty ?? false)
+            ? _extension?.replaceAll(' ', '')?.split(',')
+            : null,
       ))
           ?.files;
     } on PlatformException catch (e) {
@@ -52,7 +54,9 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _scaffoldKey.currentState.showSnackBar(
         SnackBar(
           backgroundColor: result ? Colors.green : Colors.red,
-          content: Text((result ? 'Temporary files removed with success.' : 'Failed to clean temporary files')),
+          content: Text((result
+              ? 'Temporary files removed with success.'
+              : 'Failed to clean temporary files')),
         ),
       );
     });
@@ -124,7 +128,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                           maxLength: 15,
                           autovalidate: true,
                           controller: _controller,
-                          decoration: InputDecoration(labelText: 'File extension'),
+                          decoration:
+                              InputDecoration(labelText: 'File extension'),
                           keyboardType: TextInputType.text,
                           textCapitalization: TextCapitalization.none,
                         )
@@ -133,8 +138,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                 ConstrainedBox(
                   constraints: const BoxConstraints.tightFor(width: 200.0),
                   child: SwitchListTile.adaptive(
-                    title: Text('Pick multiple files', textAlign: TextAlign.right),
-                    onChanged: (bool value) => setState(() => _multiPick = value),
+                    title:
+                        Text('Pick multiple files', textAlign: TextAlign.right),
+                    onChanged: (bool value) =>
+                        setState(() => _multiPick = value),
                     value: _multiPick,
                   ),
                 ),
@@ -171,15 +178,28 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                           : _paths != null
                               ? Container(
                                   padding: const EdgeInsets.only(bottom: 30.0),
-                                  height: MediaQuery.of(context).size.height * 0.50,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.50,
                                   child: Scrollbar(
                                       child: ListView.separated(
-                                    itemCount: _paths != null && _paths.isNotEmpty ? _paths.length : 1,
-                                    itemBuilder: (BuildContext context, int index) {
-                                      final bool isMultiPath = _paths != null && _paths.isNotEmpty;
-                                      final String name =
-                                          'File $index: ' + (isMultiPath ? _paths.map((e) => e.name).toList()[index] : _fileName ?? '...');
-                                      final path = _paths.map((e) => e.path).toList()[index].toString();
+                                    itemCount:
+                                        _paths != null && _paths.isNotEmpty
+                                            ? _paths.length
+                                            : 1,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      final bool isMultiPath =
+                                          _paths != null && _paths.isNotEmpty;
+                                      final String name = 'File $index: ' +
+                                          (isMultiPath
+                                              ? _paths
+                                                  .map((e) => e.name)
+                                                  .toList()[index]
+                                              : _fileName ?? '...');
+                                      final path = _paths
+                                          .map((e) => e.path)
+                                          .toList()[index]
+                                          .toString();
 
                                       return ListTile(
                                         title: Text(
@@ -188,7 +208,9 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                                         subtitle: Text(path),
                                       );
                                     },
-                                    separatorBuilder: (BuildContext context, int index) => const Divider(),
+                                    separatorBuilder:
+                                        (BuildContext context, int index) =>
+                                            const Divider(),
                                   )),
                                 )
                               : const SizedBox(),

@@ -7,8 +7,10 @@ import 'package:flutter/services.dart';
 
 import 'file_picker_result.dart';
 
-const MethodChannel _channel = MethodChannel('miguelruivo.flutter.plugins.filepicker');
-const EventChannel _eventChannel = EventChannel('miguelruivo.flutter.plugins.filepickerevent');
+const MethodChannel _channel =
+    MethodChannel('miguelruivo.flutter.plugins.filepicker');
+const EventChannel _eventChannel =
+    EventChannel('miguelruivo.flutter.plugins.filepickerevent');
 
 /// An implementation of [FilePicker] that uses method channels.
 class FilePickerIO extends FilePicker {
@@ -34,7 +36,8 @@ class FilePickerIO extends FilePicker {
       );
 
   @override
-  Future<bool> clearTemporaryFiles() async => _channel.invokeMethod<bool>('clear');
+  Future<bool> clearTemporaryFiles() async =>
+      _channel.invokeMethod<bool>('clear');
 
   @override
   Future<String> getDirectoryPath() async {
@@ -59,13 +62,16 @@ class FilePickerIO extends FilePicker {
   ) async {
     final String type = describeEnum(fileType);
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
-      throw Exception('If you are using a custom extension filter, please use the FileType.custom instead.');
+      throw Exception(
+          'If you are using a custom extension filter, please use the FileType.custom instead.');
     }
     try {
       _eventSubscription?.cancel();
       if (onFileLoading != null) {
         _eventSubscription = _eventChannel.receiveBroadcastStream().listen(
-              (data) => onFileLoading((data as bool) ? FilePickerStatus.picking : FilePickerStatus.done),
+              (data) => onFileLoading((data as bool)
+                  ? FilePickerStatus.picking
+                  : FilePickerStatus.done),
               onError: (error) => throw Exception(error),
             );
       }
@@ -81,12 +87,14 @@ class FilePickerIO extends FilePicker {
         return null;
       }
 
-      return FilePickerResult(result.map((file) => PlatformFile.fromMap(file)).toList());
+      return FilePickerResult(
+          result.map((file) => PlatformFile.fromMap(file)).toList());
     } on PlatformException catch (e) {
       print('[$_tag] Platform exception: $e');
       rethrow;
     } catch (e) {
-      print('[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
+      print(
+          '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
       rethrow;
     }
   }

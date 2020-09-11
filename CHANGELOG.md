@@ -1,3 +1,20 @@
+## 2.0.0
+**Breaking Changes**
+- Unifies all platforms (IO, Web and Desktop) in a single plugin (file_picker) that can be used seamlessly across all. Both [file_picker_interface](https://pub.dev/packages/file_picker_platform_interface) and [file_picker_web](https://pub.dev/packages/file_picker_web) are no longer mantained from now on.
+- You'll now have to use `FilePicker.platform.pickFiles()` and extract the files from `FilePickerResult`;
+- Because platforms are unified and mixing `File` instances from dart:io and dart:html required stubbing and bloated code, it's no longer available as helper method so you'll have to instanciate a `File` with the picked paths;
+
+**New features**
+- Simplified usage, now you only need to use `FilePicker.platform.pickFiles()` with desired parameters which will return a `FilePickerResult` with a `List<PlatformFile>` containing the picked data;
+- Added classes `FilePickerResult` and `PlatformFile` classes with helper getters;
+- On Android all picked files are scoped cached which should result in most of files being available. Caching process is only made once, so once done, the picked instance should be the same;
+- On iOS picking audio now supports multiple and cloud picks;
+- Added parameter `withData` that allows file data to be immediately available on memory as `Uint8List` (part of `PlatformFile` instance). This is particularly helpful on web or if you are going to upload to somehwere else;
+- Major refactor with some clean-up and improvements;
+
+**Removed**
+- Single methods such as `getFilePath()`, `getMultiFilePath()`, `getFile()` and `getMultiFile()` are no longer availble in favor o `pickFiles()`;
+
 ## 1.13.3
 Go: Updates MacOS directory picker to applescript (thank you @trister1997).
 
