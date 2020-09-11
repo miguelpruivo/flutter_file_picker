@@ -20,10 +20,18 @@ class FilePickerIO extends FilePicker {
     FileType type = FileType.any,
     List<String> allowedExtensions,
     Function(FilePickerStatus) onFileLoading,
-    bool allowCompression,
+    bool allowCompression = true,
     bool allowMultiple = false,
+    bool withData = false,
   }) =>
-      _getPath(type, allowMultiple, allowCompression, allowedExtensions, onFileLoading);
+      _getPath(
+        type,
+        allowMultiple,
+        allowCompression,
+        allowedExtensions,
+        onFileLoading,
+        withData,
+      );
 
   @override
   Future<bool> clearTemporaryFiles() async => _channel.invokeMethod<bool>('clear');
@@ -47,6 +55,7 @@ class FilePickerIO extends FilePicker {
     bool allowCompression,
     List<String> allowedExtensions,
     Function(FilePickerStatus) onFileLoading,
+    bool withData,
   ) async {
     final String type = describeEnum(fileType);
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -65,6 +74,7 @@ class FilePickerIO extends FilePicker {
         'allowMultipleSelection': allowMultipleSelection,
         'allowedExtensions': allowedExtensions,
         'allowCompression': allowCompression,
+        'withData': withData,
       });
 
       if (result == null) {

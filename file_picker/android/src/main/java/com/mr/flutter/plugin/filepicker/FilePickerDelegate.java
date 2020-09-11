@@ -17,10 +17,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.app.ActivityCompat;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 
 import io.flutter.plugin.common.EventChannel;
@@ -36,6 +33,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private final PermissionManager permissionManager;
     private MethodChannel.Result pendingResult;
     private boolean isMultipleSelection = false;
+    private boolean loadDataToMemory = false;
     private String type;
     private String[] allowedExtensions;
     private EventChannel.EventSink eventSink;
@@ -92,7 +90,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             int currentItem = 0;
                             while (currentItem < count) {
                                 final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
-                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri);
+                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
 
                                 if(file != null) {
                                     files.add(file);
@@ -121,7 +119,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 return;
                             }
 
-                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri);
+                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri, loadDataToMemory);
 
                             if(file != null) {
                                 files.add(file);
@@ -223,7 +221,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     @SuppressWarnings("deprecation")
-    public void startFileExplorer(final String type, final boolean isMultipleSelection, final String[] allowedExtensions, final MethodChannel.Result result) {
+    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final MethodChannel.Result result) {
 
         if (!this.setPendingMethodCallAndResult(result)) {
             finishWithAlreadyActiveError(result);
@@ -232,6 +230,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
         this.type = type;
         this.isMultipleSelection = isMultipleSelection;
+        this.loadDataToMemory = withData;
         this.allowedExtensions = allowedExtensions;
 
         if (!this.permissionManager.isPermissionGranted(Manifest.permission.READ_EXTERNAL_STORAGE)) {
@@ -242,6 +241,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         this.startFileExplorer();
     }
 
+    @SuppressWarnings("unchecked")
     private void finishWithSuccess(Object data) {
         if (eventSink != null) {
             this.dispatchEventStatus(false);

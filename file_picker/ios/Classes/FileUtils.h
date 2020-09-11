@@ -23,7 +23,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 + (BOOL) clearTemporaryFiles;
 + (NSArray<NSString*>*) resolveType:(NSString*)type withAllowedExtensions:(NSArray<NSString*>*)allowedExtensions;
 + (MediaType) resolveMediaType:(NSString*)type;
-+ (NSArray*) resolvePath:(NSArray<NSURL *> *)urls;
++ (NSArray<NSDictionary*>*) resolveFileInfo:(NSArray<NSURL *> *)urls withData:(BOOL)loadData;
 @end
 
 

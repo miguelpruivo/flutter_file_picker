@@ -116,7 +116,7 @@ public class FileUtils {
         return true;
     }
 
-    public static FileInfo openFileStream(final Context context, final Uri uri) {
+    public static FileInfo openFileStream(final Context context, final Uri uri, boolean withData) {
 
         Log.i(TAG, "Caching from URI: " + uri.toString());
         FileOutputStream fos = null;
@@ -126,7 +126,7 @@ public class FileUtils {
 
         final File file = new File(path);
 
-        if(file.exists()) {
+        if(file.exists() && withData) {
             int size = (int) file.length();
             byte[] bytes = new byte[size];
 
@@ -156,7 +156,9 @@ public class FileUtils {
                         out.write(buffer, 0, len);
                     }
 
-                    fileInfo.withData(out.toByteArray());
+                    if(withData) {
+                        fileInfo.withData(out.toByteArray());
+                    }
                     out.writeTo(fos);
                     out.flush();
                 } finally {
@@ -177,11 +179,9 @@ public class FileUtils {
         Log.d(TAG, "File loaded and cached at:" + path);
 
         fileInfo
-                .lastModifiedAt(file.lastModified())
                 .withPath(path)
                 .withName(fileName)
-                .withSize(Integer.parseInt(String.valueOf(file.length()/1024)))
-                .withUri(uri);
+                .withSize(Integer.parseInt(String.valueOf(file.length()/1024)));
 
         return fileInfo.build();
     }
@@ -194,8 +194,6 @@ public class FileUtils {
 
         String volumePath = getVolumePath(getVolumeIdFromTreeUri(treeUri), con);
         FileInfo.Builder fileInfo = new FileInfo.Builder();
-
-        fileInfo.withUri(treeUri);
 
         if (volumePath == null) {
             return File.separator;

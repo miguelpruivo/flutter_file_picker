@@ -6,38 +6,24 @@ import java.util.HashMap;
 
 public class FileInfo {
 
-    final Uri uri;
     final String path;
     final String name;
     final int size;
     final byte[] bytes;
-    final long lastModified;
-    final boolean isDirectory;
 
-    public FileInfo(Uri uri, String path, String name, int size, byte[] bytes, boolean isDirectory, long lastModified) {
-        this.uri = uri;
+    public FileInfo(String path, String name, int size, byte[] bytes) {
         this.path = path;
         this.name = name;
         this.size = size;
         this.bytes = bytes;
-        this.lastModified = lastModified;
-        this.isDirectory = isDirectory;
     }
 
     public static class Builder {
 
-        private Uri uri;
         private String path;
         private String name;
         private int size;
-        private long lastModified;
         private byte[] bytes;
-        private boolean isDirectory;
-
-        public Builder withUri(Uri uri){
-            this.uri = uri;
-            return this;
-        }
 
         public Builder withPath(String path){
             this.path = path;
@@ -59,32 +45,18 @@ public class FileInfo {
             return this;
         }
 
-        public Builder withDirectory(String path){
-            this.path = path;
-            this.isDirectory = path != null;
-            return this;
-        }
-
-        public Builder lastModifiedAt(long timeStamp){
-            this.lastModified = timeStamp;
-            return this;
-        }
-
         public FileInfo build() {
-            return new FileInfo(this.uri, this.path, this.name, this.size, this.bytes, this.isDirectory, this.lastModified);
+            return new FileInfo(this.path, this.name, this.size, this.bytes);
         }
     }
 
 
     public HashMap<String, Object> toMap() {
         final HashMap<String, Object> data = new HashMap<>();
-        data.put("uri", uri.toString());
         data.put("path", path);
         data.put("name", name);
         data.put("size", size);
         data.put("bytes", bytes);
-        data.put("isDirectory", isDirectory);
-        data.put("lastModified", lastModified);
         return data;
     }
 }

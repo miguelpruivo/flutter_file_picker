@@ -13,6 +13,7 @@
 @property (nonatomic) UIDocumentInteractionController *interactionController;
 @property (nonatomic) MPMediaPickerController *audioPickerController;
 @property (nonatomic) NSArray<NSString *> * allowedExtensions;
+@property (nonatomic) BOOL loadDataToMemory;
 @end
 
 @implementation FilePickerPlugin
@@ -76,6 +77,8 @@
     
     NSDictionary * arguments = call.arguments;
     BOOL isMultiplePick = ((NSNumber*)[arguments valueForKey:@"allowMultipleSelection"]).boolValue;
+    self.loadDataToMemory = ((NSNumber*)[arguments valueForKey:@"withData"]).boolValue;
+    
     if([call.method isEqualToString:@"any"] || [call.method containsString:@"custom"]) {
         self.allowedExtensions = [FileUtils resolveType:call.method withAllowedExtensions: [arguments valueForKey:@"allowedExtensions"]];
         if(self.allowedExtensions == nil) {
@@ -89,7 +92,7 @@
     } else if([call.method isEqualToString:@"video"] || [call.method isEqualToString:@"image"] || [call.method isEqualToString:@"media"]) {
         [self resolvePickMedia:[FileUtils resolveMediaType:call.method] withMultiPick:isMultiplePick withCompressionAllowed:[arguments valueForKey:@"allowCompression"]];
     } else if([call.method isEqualToString:@"audio"]) {
-        [self resolvePickAudio];
+        [self resolvePickAudioWithMultiPick: isMultiplePick];
     } else {
         result(FlutterMethodNotImplemented);
         _result = nil;
@@ -223,28 +226,32 @@
     
     // Did select
     [dkImagePickerController setDidSelectAssets:^(NSArray<DKAsset*> * __nonnull DKAssets) {
-        NSMutableArray<NSString*>* paths = [[NSMutableArray<NSString*> alloc] init];
+        NSMutableArray<NSURL*>* paths = [[NSMutableArray<NSURL*> alloc] init];
         
         for(DKAsset * asset in DKAssets){
-            [paths addObject:asset.localTemporaryPath.path];
+            [paths addObject:asset.localTemporaryPath.absoluteURL];
         }
         
-        self->_result([paths count] > 0 ? paths : nil);
-        self->_result = nil;
+        [self handleResult: paths];
     }];
     
     [_viewController presentViewController:dkImagePickerController animated:YES completion:nil];
 }
 
-- (void) resolvePickAudio {
+- (void) resolvePickAudioWithMultiPick:(BOOL)isMultiPick {
     
     self.audioPickerController = [[MPMediaPickerController alloc] initWithMediaTypes:MPMediaTypeAnyAudio];
     self.audioPickerController.delegate = self;
-    self.audioPickerController.showsCloudItems = NO;
-    self.audioPickerController.allowsPickingMultipleItems = NO;
+    self.audioPickerController.showsCloudItems = YES;
+    self.audioPickerController.allowsPickingMultipleItems = isMultiPick;
     self.audioPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
     
     [self.viewController presentViewController:self.audioPickerController animated:YES completion:nil];
+}
+
+- (void) handleResult:(id) files {
+    _result([FileUtils resolveFileInfo: [files isKindOfClass: [NSArray class]] ? files : @[files] withData:self.loadDataToMemory]);
+    _result = nil;
 }
 
 #pragma mark - Delegates
@@ -252,9 +259,7 @@
 // DocumentPicker delegate - iOS 10 only
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url{
     [self.documentPickerController dismissViewControllerAnimated:YES completion:nil];
-    NSString * path = (NSString *)[url path];
-    _result(@[path]);
-    _result = nil;
+    [self handleResult:url];
 }
 
 // DocumentPicker delegate
@@ -266,10 +271,14 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     }
     
     [self.documentPickerController dismissViewControllerAnimated:YES completion:nil];
-    NSArray * result = [FileUtils resolvePath:urls];
-    _result(result);
-    _result = nil;
     
+    if(controller.documentPickerMode == UIDocumentPickerModeOpen) {
+        _result([urls objectAtIndex:0].path);
+        _result = nil;
+        return;
+    }
+    
+    [self handleResult: urls];
 }
 
 
@@ -318,8 +327,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         return;
     }
     
-    _result(@[[pickedVideoUrl != nil ? pickedVideoUrl : pickedImageUrl path]]);
-    _result = nil;
+    [self handleResult: pickedVideoUrl != nil ? pickedVideoUrl : pickedImageUrl];
 }
 
 
@@ -327,12 +335,16 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 - (void)mediaPicker: (MPMediaPickerController *)mediaPicker didPickMediaItems:(MPMediaItemCollection *)mediaItemCollection
 {
     [mediaPicker dismissViewControllerAnimated:YES completion:NULL];
-    NSURL *url = [[[mediaItemCollection items] objectAtIndex:0] valueForKey:MPMediaItemPropertyAssetURL];
-    if(url == nil) {
+    NSMutableArray<NSURL *> * urls = [[NSMutableArray alloc] initWithCapacity:[mediaItemCollection items].count];
+    
+    for(MPMediaItemCollection * item in [mediaItemCollection items]) {
+        [urls addObject: [item valueForKey:MPMediaItemPropertyAssetURL]];
+    }
+
+    if(urls.count == 0) {
         Log(@"Couldn't retrieve the audio file path, either is not locally downloaded or the file is DRM protected.");
     }
-     _result([url absoluteString]);
-     _result = nil;
+    [self handleResult:urls];
 }
 
 #pragma mark - Actions canceled

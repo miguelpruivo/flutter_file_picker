@@ -24,6 +24,7 @@ class FilePickerWeb extends FilePicker {
     bool allowMultiple = false,
     Function(FilePickerStatus) onFileLoading,
     bool allowCompression,
+    bool withData = true,
   }) async {
     final Completer<List<PlatformFile>> filesCompleter = Completer<List<PlatformFile>>();
 
@@ -48,7 +49,7 @@ class FilePickerWeb extends FilePicker {
             name: uploadInput.value.replaceAll('\\', '/'),
             path: uploadInput.value,
             size: bytes.length ~/ 1024,
-            bytes: bytes,
+            bytes: withData ? bytes : null,
           ),
         );
 

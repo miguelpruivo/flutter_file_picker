@@ -6,11 +6,12 @@
 //
 
 #import "FileUtils.h"
+#import "FileInfo.h"
 
 @implementation FileUtils
 
 + (BOOL) clearTemporaryFiles {
-   NSString *tmpDirectory = NSTemporaryDirectory();
+    NSString *tmpDirectory = NSTemporaryDirectory();
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error;
     NSArray *cacheFiles = [fileManager contentsOfDirectoryAtPath:tmpDirectory error:&error];
@@ -75,16 +76,25 @@
     }
 }
 
-+ (NSMutableArray*) resolvePath:(NSArray<NSURL *> *)urls{
-    NSString * uri;
-    NSMutableArray * paths = [[NSMutableArray alloc] init];
++ (NSArray<NSDictionary *> *)resolveFileInfo:(NSArray<NSURL *> *)urls withData: (BOOL)loadData {
     
-    for (NSURL *url in urls) {
-        uri = (NSString *)[url path];
-        [paths addObject:uri];
+    if(urls == nil) {
+        return nil;
     }
     
-    return paths;
+    NSMutableArray * files = [[NSMutableArray alloc] initWithCapacity:urls.count];
+    
+    for(NSURL * url in urls) {
+        NSString * path = (NSString *)[url path];
+        NSDictionary<NSFileAttributeKey, id> * fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil];
+        
+        [files addObject: [[[FileInfo alloc] initWithPath: path
+                                            andName: [[path lastPathComponent] stringByDeletingPathExtension]
+                                            andSize: [NSNumber numberWithLongLong: [@(fileAttributes.fileSize) longLongValue] / 1024]
+                                            andData: loadData ? [NSData dataWithContentsOfFile:path options: 0 error:nil] : nil] toData]];
+    }
+    
+    return files;
 }
 
 @end

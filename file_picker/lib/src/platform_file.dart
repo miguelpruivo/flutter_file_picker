@@ -3,7 +3,6 @@ import 'dart:typed_data';
 class PlatformFile {
   const PlatformFile({
     this.path,
-    this.uri,
     this.name,
     this.bytes,
     this.size,
@@ -12,27 +11,17 @@ class PlatformFile {
 
   PlatformFile.fromMap(Map data)
       : this.path = data['path'],
-        this.uri = data['uri'],
         this.name = data['name'],
         this.bytes = data['bytes'],
         this.size = data['size'],
         this.isDirectory = data['isDirectory'];
 
-  /// The absolute path for a cached copy of this file.
-  /// If you want to access the original file identifier use [uri] property instead.
+  /// The absolute path for a cached copy of this file. It can be used to create a
+  /// a file instance with a descriptor for the given path.
+  /// ```
+  /// final File myFile = File(platformFile.path);
+  /// ```
   final String path;
-
-  /// The URI (Universal Resource Identifier) for this file.
-  ///
-  /// This is the identifier of original resource and can be used to
-  /// manipulate the original file (read, write, delete).
-  ///
-  /// Android: it can be either content:// or file:// url.
-  ///
-  /// iOS: a file:// URL below a document provider (like iCloud).
-  ///
-  /// Web: Not supported, will be always `null`.
-  final String uri;
 
   /// File name including its extension.
   final String name;
@@ -48,5 +37,5 @@ class PlatformFile {
   final bool isDirectory;
 
   /// File extension for this file.
-  String get extension => name?.split('/')?.last;
+  String get extension => path?.split('.')?.last;
 }

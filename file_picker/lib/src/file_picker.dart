@@ -55,6 +55,7 @@ abstract class FilePicker extends PlatformInterface {
     Function(FilePickerStatus) onFileLoading,
     bool allowCompression,
     bool allowMultiple = false,
+    bool withData,
   }) async =>
       throw UnimplementedError('pickFiles() has not been implemented.');
 
