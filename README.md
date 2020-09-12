@@ -64,17 +64,22 @@ if(result != null) {
 #### Multiple files
 ```
 FilePickerResult result = await FilePicker.platform.pickFiles(allowMultiple: true);
-
-if(result != null) {
-   List<File> files = result.paths.map((path) => File(path));
+if (result == null) {
+   return;
 }
+
+result.files.forEach((PlatformFile file) {
+  Uint8List bytes = file.bytes;
+  print('file: ' + file.name + ' - ' + file.size.toString());
+});
+
 ```
 #### Multiple files with extension filter
 ```
 FilePickerResult result = await FilePicker.platform.pickFiles(
-          type: FileType.custom,
-          allowedExtensions: ['jpg', 'pdf', 'doc'],
-        );
+  type: FileType.custom,
+  allowedExtensions: ['jpg', 'pdf', 'doc'],
+);
 ```
 ### Load result and file details
 ```
