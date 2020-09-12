@@ -39,7 +39,7 @@ func fileDialog(title string, filter string) (string, error) {
 }
 
 func dirDialog(title string) (string, error) {
-	dirPath, _, err := dlgs.File(title, `*.*`, true)
+	dirPath, _, err := dlgs.File(title, "", true)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to open dialog picker")
 	}
