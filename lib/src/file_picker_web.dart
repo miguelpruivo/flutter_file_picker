@@ -61,17 +61,17 @@ class FilePickerWeb extends FilePicker {
       }
       changeEventTriggered = true;
 
-      final files = uploadInput.files;
+      List<html.File> files = uploadInput.files;
       List<PlatformFile> pickedFiles = [];
 
-      void addPickedFile (Uint8List bytes) {
+      void addPickedFile (html.File file, Uint8List bytes, String path) {
         pickedFiles.add(
           PlatformFile(
-            name: uploadInput.value.split('\\').last,
-            path: uploadInput.value,
+            name: file.name,
+            path: path,
             size: bytes != null ? bytes.length : -1,
             bytes: withData ? bytes : null,
-          ),
+          )
         );
 
         if (pickedFiles.length >= files.length) {
@@ -79,17 +79,21 @@ class FilePickerWeb extends FilePicker {
         }
       }
 
-      files.forEach((element) {
+      files.forEach((html.File file) {
         if (!withData) {
-          addPickedFile (null);
+          final reader = html.FileReader();
+          reader.onLoadEnd.listen((e) {
+            addPickedFile (file, null, reader.result);
+          });
+          reader.readAsDataUrl(file);
           return;
         }
 
         final reader = html.FileReader();
         reader.onLoadEnd.listen((e) {
-          addPickedFile (reader.result);
+          addPickedFile (file, reader.result, null);
         });
-        reader.readAsArrayBuffer(element);
+        reader.readAsArrayBuffer(file);
       });
     }
 
