@@ -38,29 +38,29 @@ class FilePickerWeb extends FilePicker {
 
     uploadInput.onChange.listen((e) {
       final files = uploadInput.files;
-      final reader = html.FileReader();
-
       List<PlatformFile> pickedFiles = [];
 
-      reader.onLoadEnd.listen((e) {
-        final Uint8List bytes =
-            Base64Decoder().convert(reader.result.toString().split(",").last);
-
-        pickedFiles.add(
-          PlatformFile(
-            name: uploadInput.value.replaceAll('\\', '/'),
-            path: uploadInput.value,
-            size: bytes.length ~/ 1024,
-            bytes: withData ? bytes : null,
-          ),
-        );
-
-        if (pickedFiles.length >= files.length) {
-          filesCompleter.complete(pickedFiles);
-        }
-      });
-
       files.forEach((element) {
+        final reader = html.FileReader();
+
+        reader.onLoadEnd.listen((e) {
+          final Uint8List bytes =
+              Base64Decoder().convert(reader.result.toString().split(",").last);
+
+          pickedFiles.add(
+            PlatformFile(
+              name: uploadInput.value.replaceAll('\\', '/'),
+              path: uploadInput.value,
+              size: bytes.length ~/ 1024,
+              bytes: withData ? bytes : null,
+            ),
+          );
+
+          if (pickedFiles.length >= files.length) {
+            filesCompleter.complete(pickedFiles);
+          }
+        });
+
         reader.readAsDataUrl(element);
       });
     });
