@@ -78,7 +78,7 @@ result.files.forEach((PlatformFile file) {
   }
   print('file: ' + file.name + ' - ' + file.size.toString());
 
-  //Next, you can use bytes to continue working with the file:
+  //Next, you can use **bytes** variable to continue working with the file:
   //sendFile (file.name, bytes);
 });
 
