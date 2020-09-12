@@ -56,21 +56,30 @@ Quick simple usage example:
 #### Single file
 ```
 FilePickerResult result = await FilePicker.platform.pickFiles();
-
-if(result != null) {
-   File file = File(result.files.single.path);
+if (result == null) {
+  return;
 }
+
+Uint8List bytes = result.files.single.bytes;
+
 ```
 #### Multiple files
 ```
 FilePickerResult result = await FilePicker.platform.pickFiles(allowMultiple: true);
 if (result == null) {
-   return;
+  return;
 }
 
 result.files.forEach((PlatformFile file) {
   Uint8List bytes = file.bytes;
+  if (file.bytes == null) {
+    print('wrong file');
+    return;
+  }
   print('file: ' + file.name + ' - ' + file.size.toString());
+
+  //Next, you can use bytes to continue working with the file:
+  //sendFile (file.name, bytes);
 });
 
 ```
@@ -86,13 +95,13 @@ FilePickerResult result = await FilePicker.platform.pickFiles(
 FilePickerResult result = await FilePicker.platform.pickFiles();
 
 if(result != null) {
-   PlatformFile file = result.files.first;
-   
-   print(file.name);
-   print(file.bytes);
-   print(file.size);
-   print(file.extension);
-   print(file.path);
+  PlatformFile file = result.files.first;
+
+  print(file.name);
+  print(file.bytes);
+  print(file.size);
+  print(file.extension);
+  print(file.path);
 }
 ```
 
