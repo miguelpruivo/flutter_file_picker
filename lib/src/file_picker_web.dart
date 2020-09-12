@@ -62,32 +62,33 @@ class FilePickerWeb extends FilePicker {
       changeEventTriggered = true;
 
       final files = uploadInput.files;
-
       List<PlatformFile> pickedFiles = [];
 
+      void addPickedFile (Uint8List bytes) {
+        pickedFiles.add(
+          PlatformFile(
+            name: uploadInput.value.split('\\').last,
+            path: uploadInput.value,
+            size: bytes != null ? bytes.length : -1,
+            bytes: withData ? bytes : null,
+          ),
+        );
+
+        if (pickedFiles.length >= files.length) {
+          filesCompleter.complete(pickedFiles);
+        }
+      }
+
       files.forEach((element) {
+        if (!withData) {
+          addPickedFile (null);
+          return;
+        }
+
         final reader = html.FileReader();
-
         reader.onLoadEnd.listen((e) {
-          Uint8List bytes;
-          if (withData) {
-            bytes = reader.result;
-          }
-
-          pickedFiles.add(
-            PlatformFile(
-              name: uploadInput.value.split('\\').last,
-              path: uploadInput.value,
-              size: bytes.length,
-              bytes: withData ? bytes : null,
-            ),
-          );
-
-          if (pickedFiles.length >= files.length) {
-            filesCompleter.complete(pickedFiles);
-          }
+          addPickedFile (reader.result);
         });
-
         reader.readAsArrayBuffer(element);
       });
     }
