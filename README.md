@@ -26,9 +26,9 @@ A package that allows you to use a native file explorer to pick single or multip
 * Load files from **image** only
 * Load files from **video** only
 * Load files from **directory**
-* Load files from **any** 
-* Load files data immediately to memory (`Uint8List`);
-* Supports web;
+* Load files from **any**
+* Load files data immediately to memory (`Uint8List`)
+* Supports web
 * Supports desktop through **go-flutter** (MacOS, Windows, Linux) 
 
 If you have any feature that you want to see in this package, please feel free to issue a suggestion. 🎉
@@ -78,7 +78,7 @@ result.files.forEach((PlatformFile file) {
   }
   print('file: ' + file.name + ' - ' + file.size.toString());
 
-  //Next, you can use **bytes** variable to continue working with the file:
+  //Next, you can use bytes variable to continue working with the file:
   //sendFile (file.name, bytes);
 });
 
@@ -110,13 +110,3 @@ For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flu
 ## Example App
 ![Demo](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/example.gif?raw=true)
 ![DemoMultiFilters](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/example_ios.gif?raw=true)
-
-## Getting Started
-
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
-
-For help on editing plugin code, view the [documentation](https://flutter.io/platform-plugins/#edit-code).
-
-
-
