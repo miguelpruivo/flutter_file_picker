@@ -81,7 +81,7 @@ FilePickerResult result = await FilePicker.platform.pickFiles(
   allowedExtensions: ['jpg', 'pdf', 'doc'],
 );
 ```
-### Load result and file details
+#### Load result and file details
 ```
 FilePickerResult result = await FilePicker.platform.pickFiles();
 
