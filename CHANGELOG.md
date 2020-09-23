@@ -1,3 +1,6 @@
+## 2.0.1+1
+Fixes README screenshots.
+
 ## 2.0.1
 iOS: Updates picker to use new PHPickerController for both single and multi media (image/video) picks (iOS 14 and above only).
 

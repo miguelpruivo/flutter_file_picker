@@ -94,8 +94,8 @@ if(result != null) {
 For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** above.
 
 ## Example App
-![Demo](https://github.com/miguelpruivo/flutter_file_picker/blob/master/file_picker/example/example.gif)
-![DemoMultiFilters](https://github.com/miguelpruivo/flutter_file_picker/blob/master/file_picker/example/example_ios.gif)
+![Demo](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/example.gif)
+![DemoMultiFilters](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/example_ios.gif)
 
 ## Getting Started
 
