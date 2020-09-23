@@ -1,3 +1,6 @@
+## 2.0.1+2
+iOS: Addresses an issue that could prevent users from viewing picked media elements (pictures/videos) from gallery on iOS 14.
+
 ## 2.0.1+1
 Fixes README screenshots.
 

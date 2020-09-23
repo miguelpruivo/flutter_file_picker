@@ -365,8 +365,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
     for (PHPickerResult *result in results) {
         dispatch_group_enter(group);
-        [result.itemProvider loadFileRepresentationForTypeIdentifier: @"public.item"
-                                                   completionHandler:^(NSURL * url, NSError * error) {
+        [result.itemProvider loadInPlaceFileRepresentationForTypeIdentifier:@"public.item" completionHandler:^(NSURL * _Nullable url, BOOL isInPlace, NSError * _Nullable error) {
             [urls addObject:url];
             dispatch_group_leave(group);
         }];
