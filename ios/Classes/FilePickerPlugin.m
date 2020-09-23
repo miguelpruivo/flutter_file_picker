@@ -4,7 +4,7 @@
 
 @import DKImagePickerController;
 
-@interface FilePickerPlugin() <UIImagePickerControllerDelegate, MPMediaPickerControllerDelegate, DKImageAssetExporterObserver>
+@interface FilePickerPlugin() <UIImagePickerControllerDelegate, MPMediaPickerControllerDelegate, DKImageAssetExporterObserver, PHPickerViewControllerDelegate>
 @property (nonatomic) FlutterResult result;
 @property (nonatomic) FlutterEventSink eventSink;
 @property (nonatomic) UIViewController *viewController;
@@ -56,8 +56,8 @@
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
     if (_result) {
         result([FlutterError errorWithCode:@"multiple_request"
-                                    message:@"Cancelled by a second request"
-                                    details:nil]);
+                                   message:@"Cancelled by a second request"
+                                   details:nil]);
         _result = nil;
         return;
     }
@@ -108,7 +108,7 @@
                                          initWithDocumentTypes: isDirectory ? @[@"public.folder"] : self.allowedExtensions
                                          inMode: isDirectory ? UIDocumentPickerModeOpen : UIDocumentPickerModeImport];
     } @catch (NSException * e) {
-       Log(@"Couldn't launch documents file picker. Probably due to iOS version being below 11.0 and not having the iCloud entitlement. If so, just make sure to enable it for your app in Xcode. Exception was: %@", e);
+        Log(@"Couldn't launch documents file picker. Probably due to iOS version being below 11.0 and not having the iCloud entitlement. If so, just make sure to enable it for your app in Xcode. Exception was: %@", e);
         _result = nil;
         return;
     }
@@ -116,7 +116,7 @@
     if (@available(iOS 11.0, *)) {
         self.documentPickerController.allowsMultipleSelection = allowsMultipleSelection;
     } else if(allowsMultipleSelection) {
-       Log(@"Multiple file selection is only supported on iOS 11 and above. Single selection will be used.");
+        Log(@"Multiple file selection is only supported on iOS 11 and above. Single selection will be used.");
     }
     
     self.documentPickerController.delegate = self;
@@ -127,6 +127,20 @@
 }
 
 - (void) resolvePickMedia:(MediaType)type withMultiPick:(BOOL)multiPick withCompressionAllowed:(BOOL)allowCompression  {
+ 
+    if (@available(iOS 14, *)) {
+        PHPickerConfiguration *config = [[PHPickerConfiguration alloc] init];
+        config.filter = type == IMAGE ? [PHPickerFilter imagesFilter] : type == VIDEO ? [PHPickerFilter videosFilter] : [PHPickerFilter anyFilterMatchingSubfilters:@[[PHPickerFilter videosFilter], [PHPickerFilter imagesFilter]]];
+        
+        if(multiPick) {
+            config.selectionLimit = 0;
+        }
+        
+        PHPickerViewController *pickerViewController = [[PHPickerViewController alloc] initWithConfiguration:config];
+        pickerViewController.delegate = self;
+        [self.viewController presentViewController:pickerViewController animated:YES completion:nil];
+        return;
+    }
     
     if(multiPick) {
         [self resolveMultiPickFromGallery:type withCompressionAllowed:allowCompression];
@@ -162,6 +176,8 @@
     }
     
     [self.viewController presentViewController:self.galleryPickerController animated:YES completion:nil];
+    
+    
 }
 
 - (void) resolveMultiPickFromGallery:(MediaType)type withCompressionAllowed:(BOOL)allowCompression {
@@ -291,7 +307,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     NSURL *pickedVideoUrl = [info objectForKey:UIImagePickerControllerMediaURL];
     NSURL *pickedImageUrl;
     
-    if(@available(iOS 13.0, *)){
+    if(@available(iOS 13.0, *)) {
         
         if(pickedVideoUrl != nil) {
             NSString * fileName = [pickedVideoUrl lastPathComponent];
@@ -307,10 +323,10 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         }
         
     } else if (@available(iOS 11.0, *)) {
-       pickedImageUrl = [info objectForKey:UIImagePickerControllerImageURL];
+        pickedImageUrl = [info objectForKey:UIImagePickerControllerImageURL];
     } else {
-       UIImage *pickedImage  = [info objectForKey:UIImagePickerControllerEditedImage];
-    
+        UIImage *pickedImage  = [info objectForKey:UIImagePickerControllerEditedImage];
+        
         if(pickedImage == nil) {
             pickedImage = [info objectForKey:UIImagePickerControllerOriginalImage];
         }
@@ -318,7 +334,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     }
     
     [picker dismissViewControllerAnimated:YES completion:NULL];
-
+    
     if(pickedImageUrl == nil && pickedVideoUrl == nil) {
         _result([FlutterError errorWithCode:@"file_picker_error"
                                     message:@"Temporary file could not be created"
@@ -328,6 +344,37 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     }
     
     [self handleResult: pickedVideoUrl != nil ? pickedVideoUrl : pickedImageUrl];
+}
+
+-(void)picker:(PHPickerViewController *)picker didFinishPicking:(NSArray<PHPickerResult *> *)results API_AVAILABLE(ios(14)){
+    
+    Log(@"Picker:%@ didFinishPicking:%@", picker, results);
+    
+    [picker dismissViewControllerAnimated:YES completion:nil];
+    
+    if(results.count == 0) {
+        Log(@"FilePicker canceled");
+        _result(nil);
+        _result = nil;
+        return;
+    }
+    
+    NSMutableArray<NSURL *> * urls = [[NSMutableArray alloc] initWithCapacity:results.count];
+    
+    dispatch_group_t group = dispatch_group_create();
+    
+    for (PHPickerResult *result in results) {
+        dispatch_group_enter(group);
+        [result.itemProvider loadFileRepresentationForTypeIdentifier: @"public.item"
+                                                   completionHandler:^(NSURL * url, NSError * error) {
+            [urls addObject:url];
+            dispatch_group_leave(group);
+        }];
+    }
+    
+    dispatch_group_notify(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),^{
+        [self handleResult:urls];
+    });
 }
 
 
@@ -340,7 +387,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     for(MPMediaItemCollection * item in [mediaItemCollection items]) {
         [urls addObject: [item valueForKey:MPMediaItemPropertyAssetURL]];
     }
-
+    
     if(urls.count == 0) {
         Log(@"Couldn't retrieve the audio file path, either is not locally downloaded or the file is DRM protected.");
     }

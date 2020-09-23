@@ -1,3 +1,6 @@
+## 2.0.1
+iOS: Updates picker to use new PHPickerController for both single and multi media (image/video) picks (iOS 14 and above only).
+
 ## 2.0.0
 **Breaking Changes**
 - Unifies all platforms (IO, Web and Desktop) in a single plugin (file_picker) that can be used seamlessly across all. Both [file_picker_interface](https://pub.dev/packages/file_picker_platform_interface) and [file_picker_web](https://pub.dev/packages/file_picker_web) are no longer mantained from now on.
