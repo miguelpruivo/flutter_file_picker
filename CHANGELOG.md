@@ -1,3 +1,7 @@
+## 2.0.2
+Web: Adds mobile Safari support and other minor improvements.
+iOS: Adds conditional import for backwards compatibility with Xcode 11.
+
 ## 2.0.1+2
 iOS: Addresses an issue that could prevent users from viewing picked media elements (pictures/videos) from gallery on iOS 14.
 

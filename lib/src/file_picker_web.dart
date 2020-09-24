@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:html' as html;
+import 'dart:html';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -10,11 +9,30 @@ import 'file_picker_result.dart';
 import 'platform_file.dart';
 
 class FilePickerWeb extends FilePicker {
-  FilePickerWeb._();
+  Element _target;
+  final String _kFilePickerInputsDomId = '__file_picker_web-file-input';
+
   static final FilePickerWeb platform = FilePickerWeb._();
+
+  FilePickerWeb._() {
+    _target = _ensureInitialized(_kFilePickerInputsDomId);
+  }
 
   static void registerWith(Registrar registrar) {
     FilePicker.platform = platform;
+  }
+
+  /// Initializes a DOM container where we can host input elements.
+  Element _ensureInitialized(String id) {
+    Element target = querySelector('#$id');
+    if (target == null) {
+      final Element targetElement = Element.tag('flt-file-picker-inputs')
+        ..id = id;
+
+      querySelector('body').children.add(targetElement);
+      target = targetElement;
+    }
+    return target;
   }
 
   @override
@@ -30,40 +48,60 @@ class FilePickerWeb extends FilePicker {
         Completer<List<PlatformFile>>();
 
     String accept = _fileType(type, allowedExtensions);
-    html.InputElement uploadInput = html.FileUploadInputElement();
+    InputElement uploadInput = FileUploadInputElement();
     uploadInput.draggable = true;
     uploadInput.multiple = allowMultiple;
     uploadInput.accept = accept;
-    uploadInput.click();
 
-    uploadInput.onChange.listen((e) {
-      final files = uploadInput.files;
-      final reader = html.FileReader();
+    bool changeEventTriggered = false;
+    void changeEventListener(e) {
+      if (changeEventTriggered) {
+        return;
+      }
+      changeEventTriggered = true;
 
-      List<PlatformFile> pickedFiles = [];
+      final List<File> files = uploadInput.files;
+      final List<PlatformFile> pickedFiles = [];
 
-      reader.onLoadEnd.listen((e) {
-        final Uint8List bytes =
-            Base64Decoder().convert(reader.result.toString().split(",").last);
-
-        pickedFiles.add(
-          PlatformFile(
-            name: uploadInput.value.replaceAll('\\', '/'),
-            path: uploadInput.value,
-            size: bytes.length ~/ 1024,
-            bytes: withData ? bytes : null,
-          ),
-        );
+      void addPickedFile(File file, Uint8List bytes, String path) {
+        pickedFiles.add(PlatformFile(
+          name: file.name,
+          path: path,
+          size: bytes != null ? bytes.length ~/ 1024 : -1,
+          bytes: bytes,
+        ));
 
         if (pickedFiles.length >= files.length) {
           filesCompleter.complete(pickedFiles);
         }
-      });
+      }
 
-      files.forEach((element) {
-        reader.readAsDataUrl(element);
+      files.forEach((File file) {
+        if (!withData) {
+          final FileReader reader = FileReader();
+          reader.onLoadEnd.listen((e) {
+            addPickedFile(file, null, reader.result);
+          });
+          reader.readAsDataUrl(file);
+          return;
+        }
+
+        final FileReader reader = FileReader();
+        reader.onLoadEnd.listen((e) {
+          addPickedFile(file, reader.result, null);
+        });
+        reader.readAsArrayBuffer(file);
       });
-    });
+    }
+
+    uploadInput.onChange.listen(changeEventListener);
+    uploadInput.addEventListener('change', changeEventListener);
+
+    //Add input element to the page body
+    _target.children.clear();
+    _target.children.add(uploadInput);
+    uploadInput.click();
+
     return FilePickerResult(await filesCompleter.future);
   }
 
