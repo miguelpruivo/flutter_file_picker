@@ -4,7 +4,7 @@
 
 @import DKImagePickerController;
 
-@interface FilePickerPlugin() <UIImagePickerControllerDelegate, MPMediaPickerControllerDelegate, DKImageAssetExporterObserver, PHPickerViewControllerDelegate>
+@interface FilePickerPlugin() <DKImageAssetExporterObserver>
 @property (nonatomic) FlutterResult result;
 @property (nonatomic) FlutterEventSink eventSink;
 @property (nonatomic) UIViewController *viewController;
@@ -127,7 +127,8 @@
 }
 
 - (void) resolvePickMedia:(MediaType)type withMultiPick:(BOOL)multiPick withCompressionAllowed:(BOOL)allowCompression  {
- 
+
+    #ifdef PHPicker
     if (@available(iOS 14, *)) {
         PHPickerConfiguration *config = [[PHPickerConfiguration alloc] init];
         config.filter = type == IMAGE ? [PHPickerFilter imagesFilter] : type == VIDEO ? [PHPickerFilter videosFilter] : [PHPickerFilter anyFilterMatchingSubfilters:@[[PHPickerFilter videosFilter], [PHPickerFilter imagesFilter]]];
@@ -141,6 +142,7 @@
         [self.viewController presentViewController:pickerViewController animated:YES completion:nil];
         return;
     }
+    #endif
     
     if(multiPick) {
         [self resolveMultiPickFromGallery:type withCompressionAllowed:allowCompression];
@@ -346,6 +348,8 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     [self handleResult: pickedVideoUrl != nil ? pickedVideoUrl : pickedImageUrl];
 }
 
+#ifdef PHPicker
+
 -(void)picker:(PHPickerViewController *)picker didFinishPicking:(NSArray<PHPickerResult *> *)results API_AVAILABLE(ios(14)){
     
     Log(@"Picker:%@ didFinishPicking:%@", picker, results);
@@ -375,6 +379,8 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         [self handleResult:urls];
     });
 }
+
+#endif
 
 
 // AudioPicker delegate
