@@ -2,23 +2,19 @@ package com.mr.flutter.plugin.filepicker;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.os.storage.StorageManager;
 import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.Nullable;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -146,7 +142,7 @@ public class FileUtils {
             try {
                 fos = new FileOutputStream(path);
                 try {
-                    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    final BufferedOutputStream out = new BufferedOutputStream(fos);
                     final InputStream in = context.getContentResolver().openInputStream(uri);
 
                     final byte[] buffer = new byte[8192];
@@ -157,9 +153,18 @@ public class FileUtils {
                     }
 
                     if(withData) {
-                        fileInfo.withData(out.toByteArray());
+                        try {
+                            FileInputStream fis = null;
+                            byte[] bytes = new byte[(int) file.length()];
+                            fis = new FileInputStream(file);
+                            fis.read(bytes);
+                            fis.close();
+                            fileInfo.withData(bytes);
+                        }  catch (Exception e) {
+                            Log.e(TAG, "Failed to load bytes into memory with error " + e.toString() + ". Probably the file is too big to fit device memory. Bytes won't be added to the file this time.");
+                        }
                     }
-                    out.writeTo(fos);
+
                     out.flush();
                 } finally {
                     fos.getFD().sync();

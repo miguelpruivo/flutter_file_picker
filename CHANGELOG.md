@@ -1,3 +1,6 @@
+## 2.0.3
+Android: Fixes out of memory issue on some devices when picking big files.
+
 ## 2.0.2+2
 Fixes multi-pick example on README.
 
