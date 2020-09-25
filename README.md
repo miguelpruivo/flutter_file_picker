@@ -66,7 +66,7 @@ if(result != null) {
 FilePickerResult result = await FilePicker.platform.pickFiles(allowMultiple: true);
 
 if(result != null) {
-   List<File> files = result.paths.map((path) => File(path));
+   List<File> files = result.paths.map((path) => File(path)).toList();
 }
 ```
 #### Multiple files with extension filter

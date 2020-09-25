@@ -1,3 +1,6 @@
+## 2.0.2+2
+Fixes multi-pick example on README.
+
 ## 2.0.2+1
 iOS: Fixes conditional import for backwards compatibility with Xcode 11.
 
