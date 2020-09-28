@@ -1,3 +1,6 @@
+## 2.0.5
+Android: Fixes [#402](https://github.com/miguelpruivo/flutter_file_picker/issues/402).
+
 ## 2.0.4
 Desktop (Go): Fixes directory pick on Linux.
 

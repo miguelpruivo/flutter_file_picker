@@ -73,6 +73,10 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     @Override
     public boolean onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 
+        if(type == null) {
+            return false;
+        }
+
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
 
             if (eventSink != null) {
