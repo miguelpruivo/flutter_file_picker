@@ -1,3 +1,6 @@
+## 2.0.4
+Desktop (Go): Fixes directory pick on Linux.
+
 ## 2.0.3
 Android: Fixes out of memory issue on some devices when picking big files.
 
