@@ -1,3 +1,6 @@
+## 2.0.6
+iOS: Fixes iOS 14 media picker (image & video) (#405, #407).
+
 ## 2.0.5
 Android: Fixes [#402](https://github.com/miguelpruivo/flutter_file_picker/issues/402).
 

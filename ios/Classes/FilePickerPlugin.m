@@ -369,8 +369,35 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
     for (PHPickerResult *result in results) {
         dispatch_group_enter(group);
-        [result.itemProvider loadInPlaceFileRepresentationForTypeIdentifier:@"public.item" completionHandler:^(NSURL * _Nullable url, BOOL isInPlace, NSError * _Nullable error) {
-            [urls addObject:url];
+        [result.itemProvider loadFileRepresentationForTypeIdentifier:@"public.item" completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
+            
+            if(url == nil) {
+                Log("Could not load the picked given file: %@", error);
+                dispatch_group_leave(group);
+                return;
+            }
+            
+            NSString * filename = url.lastPathComponent;
+            NSString * cachedFile = [NSTemporaryDirectory() stringByAppendingPathComponent:filename];
+            
+            NSFileManager * fileManager = NSFileManager.defaultManager;
+            
+            if([fileManager fileExistsAtPath:cachedFile]) {
+                [fileManager removeItemAtPath:cachedFile error:NULL];
+            }
+            
+            NSURL * cachedUrl = [NSURL fileURLWithPath: cachedFile];
+            NSError *copyError;
+            [NSFileManager.defaultManager copyItemAtURL: url
+                                                  toURL: cachedUrl
+                                                  error: &copyError];
+
+            if (copyError) {
+                Log("%@ Error while caching picked file: %@", self, copyError);
+                return;
+            }
+            
+            [urls addObject:cachedUrl];
             dispatch_group_leave(group);
         }];
     }
