@@ -109,12 +109,10 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
                             if (type.equals("dir") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                 uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
-                            }
 
-                            Log.d(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
-
-                            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && type.equals("dir")) {
+                                Log.d(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
                                 final String dirPath = FileUtils.getFullPathFromTreeUri(uri, activity);
+
                                 if(dirPath != null) {
                                     finishWithSuccess(dirPath);
                                 } else {

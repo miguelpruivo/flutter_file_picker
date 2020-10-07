@@ -1,3 +1,6 @@
+## 2.0.7
+Fixes [#425](https://github.com/miguelpruivo/flutter_file_picker/issues/425) and updates iOS to use NSDocumentDirectory on iOS 12 or lower. Thanks @allanwolski. 
+
 ## 2.0.6
 iOS: Fixes iOS 14 media picker (image & video) (#405, #407).
 

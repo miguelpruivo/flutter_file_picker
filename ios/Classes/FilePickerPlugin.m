@@ -71,7 +71,12 @@
     }
     
     if([call.method isEqualToString:@"dir"]) {
-        [self resolvePickDocumentWithMultiPick:NO pickDirectory:YES];
+        if (@available(iOS 13, *)) {
+            [self resolvePickDocumentWithMultiPick:NO pickDirectory:YES];
+        } else {
+            _result([self getDocumentDirectory]);
+            _result = nil;
+        }
         return;
     }
     
@@ -97,7 +102,11 @@
         result(FlutterMethodNotImplemented);
         _result = nil;
     }
-    
+}
+
+- (NSString*)getDocumentDirectory {
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    return paths.firstObject;
 }
 
 #pragma mark - Resolvers
