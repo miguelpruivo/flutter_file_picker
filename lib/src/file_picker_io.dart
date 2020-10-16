@@ -90,8 +90,11 @@ class FilePickerIO extends FilePicker {
       if (result is String) {
         return FilePickerResult([PlatformFile(path: result)]);
       }
-      return FilePickerResult(
-          result.map((file) => PlatformFile.fromMap(file)).toList());
+      if (result is List) {
+        return FilePickerResult(
+            result.map((file) => PlatformFile.fromMap(file)).toList());
+      }
+      return null;
     } on PlatformException catch (e) {
       print('[$_tag] Platform exception: $e');
       rethrow;
