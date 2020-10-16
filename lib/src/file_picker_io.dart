@@ -76,7 +76,7 @@ class FilePickerIO extends FilePicker {
             );
       }
 
-      final result = await _channel.invokeListMethod(type, {
+      final result = await _channel.invokeMethod(type, {
         'allowMultipleSelection': allowMultipleSelection,
         'allowedExtensions': allowedExtensions,
         'allowCompression': allowCompression,
@@ -87,8 +87,9 @@ class FilePickerIO extends FilePicker {
         return null;
       }
 
-      print('result类型:${result.runtimeType},result:$result');
-      
+      if (result is String) {
+        return FilePickerResult([PlatformFile(path: result)]);
+      }
       return FilePickerResult(
           result.map((file) => PlatformFile.fromMap(file)).toList());
     } on PlatformException catch (e) {
