@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:file_picker/src/platform_event.dart';
 import 'package:file_picker/src/platform_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -22,6 +23,7 @@ class FilePickerIO extends FilePicker {
     FileType type = FileType.any,
     List<String> allowedExtensions,
     Function(FilePickerStatus) onFileLoading,
+    Function(List<String>) onOriginalUrls,
     bool allowCompression = true,
     bool allowMultiple = false,
     bool withData = false,
@@ -32,6 +34,7 @@ class FilePickerIO extends FilePicker {
         allowCompression,
         allowedExtensions,
         onFileLoading,
+        onOriginalUrls,
         withData,
       );
 
@@ -52,12 +55,27 @@ class FilePickerIO extends FilePicker {
     return null;
   }
 
+  dynamic eventHandler({onFileLoading, onOriginalUrls}) => (dynamic value) {
+        PlatformEvent pEvent = PlatformEvent.fromMap(value);
+        if (pEvent.type == PlatformEventType.STATUS && onFileLoading != null) {
+          return onFileLoading((pEvent.value as bool)
+              ? FilePickerStatus.picking
+              : FilePickerStatus.done);
+        } else if (pEvent.type == PlatformEventType.ORIGINAL_CONTENT_URL &&
+            onOriginalUrls != null) {
+          return onOriginalUrls((pEvent.value as List<dynamic>)
+              .map<String>((v) => v as String)
+              .toList());
+        }
+      };
+
   Future<FilePickerResult> _getPath(
     FileType fileType,
     bool allowMultipleSelection,
     bool allowCompression,
     List<String> allowedExtensions,
     Function(FilePickerStatus) onFileLoading,
+    Function(List<String>) onOriginalUrls,
     bool withData,
   ) async {
     final String type = describeEnum(fileType);
@@ -67,14 +85,13 @@ class FilePickerIO extends FilePicker {
     }
     try {
       _eventSubscription?.cancel();
-      if (onFileLoading != null) {
-        _eventSubscription = _eventChannel.receiveBroadcastStream().listen(
-              (data) => onFileLoading((data as bool)
-                  ? FilePickerStatus.picking
-                  : FilePickerStatus.done),
-              onError: (error) => throw Exception(error),
-            );
-      }
+      _eventSubscription = _eventChannel.receiveBroadcastStream().listen(
+            eventHandler(
+              onFileLoading: onFileLoading,
+              onOriginalUrls: onOriginalUrls,
+            ),
+            onError: (error) => throw Exception(error),
+          );
 
       final List<Map> result = await _channel.invokeListMethod(type, {
         'allowMultipleSelection': allowMultipleSelection,

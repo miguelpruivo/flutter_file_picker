@@ -61,6 +61,7 @@ abstract class FilePicker extends PlatformInterface {
     FileType type = FileType.any,
     List<String> allowedExtensions,
     Function(FilePickerStatus) onFileLoading,
+    Function(List<String>) onOriginalUrls,
     bool allowCompression,
     bool allowMultiple = false,
     bool withData,

@@ -1,5 +1,6 @@
 #import "FilePickerPlugin.h"
 #import "FileUtils.h"
+#import "FileEvent.h"
 #import "ImageUtils.h"
 
 @import DKImagePickerController;
@@ -228,7 +229,8 @@
             Log("Exporting assets, this operation may take a while if remote (iCloud) assets are being cached.");
             
             if(self->_eventSink != nil){
-                self->_eventSink([NSNumber numberWithBool:YES]);
+                self->_eventSink([[[FileEvent alloc] init: @"STATUS"
+                                                    andValue: [NSNumber numberWithBool:YES]] toData]);
             } else {
                 [indicator startAnimating];
                 [self->_viewController showViewController:alert sender:nil];
@@ -236,7 +238,8 @@
             
         } else {
             if(self->_eventSink != nil) {
-                self->_eventSink([NSNumber numberWithBool:NO]);
+                self->_eventSink([[[FileEvent alloc] init: @"STATUS"
+                                                    andValue: [NSNumber numberWithBool:NO]] toData]);
             } else {
                 [indicator stopAnimating];
                 [alert dismissViewControllerAnimated:YES completion:nil];
@@ -277,6 +280,19 @@
 }
 
 - (void) handleResult:(id) files {
+    if (self->_eventSink != nil) {
+        NSArray * _files = [files isKindOfClass: [NSArray class]] ? files : @[files];
+        NSMutableArray * paths = [[NSMutableArray alloc] initWithCapacity:_files.count];
+        for(NSURL * url in _files) {
+            NSString * path = (NSString *)[url path];
+            [paths addObject: path];
+        }
+
+        self->_eventSink([[[FileEvent alloc] init: @"ORIGINAL_CONTENT_URL"
+                                            andValue: paths] toData]);
+    }
+
+
     _result([FileUtils resolveFileInfo: [files isKindOfClass: [NSArray class]] ? files : @[files] withData:self.loadDataToMemory]);
     _result = nil;
 }
