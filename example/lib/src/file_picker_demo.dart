@@ -126,7 +126,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                   child: _pickingType == FileType.custom
                       ? TextFormField(
                           maxLength: 15,
-                          autovalidate: true,
+                          autovalidateMode: AutovalidateMode.always,
                           controller: _controller,
                           decoration:
                               InputDecoration(labelText: 'File extension'),

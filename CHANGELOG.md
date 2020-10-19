@@ -1,3 +1,6 @@
+## 2.0.8
+Fixes an issue on iOS 14, where canceling with swipe gestures, could result in cancel event not being dispatched. ([#431](https://github.com/miguelpruivo/flutter_file_picker/issues/431)).
+
 ## 2.0.7
 Fixes [#425](https://github.com/miguelpruivo/flutter_file_picker/issues/425) and updates iOS to use NSDocumentDirectory on iOS 12 or lower. Thanks @allanwolski. 
 
