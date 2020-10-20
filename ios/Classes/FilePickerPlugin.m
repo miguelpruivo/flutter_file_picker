@@ -148,11 +148,8 @@
         
         PHPickerViewController *pickerViewController = [[PHPickerViewController alloc] initWithConfiguration:config];
         pickerViewController.delegate = self;
-        [self.viewController presentViewController:pickerViewController animated:YES completion:^{
-            Log(@"Media picker canceled");
-            self->_result(nil);
-            self->_result = nil;
-        }];
+        pickerViewController.modalPresentationStyle = UIModalPresentationCurrentContext;
+        [self.viewController presentViewController:pickerViewController animated:YES completion:nil];
         return;
     }
     #endif

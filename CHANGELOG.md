@@ -1,3 +1,7 @@
+## 2.0.8+1
+- iOS: Updates media picker to launch in app context (instead of modal).
+- Minor update to README file.
+
 ## 2.0.8
 Fixes an issue on iOS 14, where canceling with swipe gestures, could result in cancel event not being dispatched. ([#431](https://github.com/miguelpruivo/flutter_file_picker/issues/431)).
 

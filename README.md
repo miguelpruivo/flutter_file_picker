@@ -15,21 +15,18 @@
 </p>
 
 # File Picker
-A package that allows you to use a native file explorer to pick single or multiple absolute file paths, with extensions filtering support.
+A package that allows you to use the native file explorer to pick single or multiple files, with extensions filtering support.
 
 ## Currently supported features
-* Load files from **cloud files** (GDrive, Dropbox, iCloud)
-* Load files from a **custom format** by providing a list of file extensions (pdf, svg, zip, etc.)
-* Load files from **multiple files** optionally, supplying file extensions
-* Load files from **media** (video & image only)
-* Load files from **audio** only
-* Load files from **image** only
-* Load files from **video** only
-* Load files from **directory**
-* Load files from **any** 
-* Load files data immediately to memory (`Uint8List`);
-* Supports web;
-* Supports desktop through **go-flutter** (MacOS, Windows, Linux) 
+* Uses OS default native pickers
+* Pick files using  **custom format** filtering — you can provide a list of file extensions (pdf, svg, zip, etc.)
+* Pick files from **cloud files** (GDrive, Dropbox, iCloud)
+* Single or multiple file picks
+* Different default type filtering (media, image, video, audio or any)
+* Picking directories 
+* Flutter Web
+* Desktop (MacOS, Linux and Windows through Flutter Go)
+* Load file data immediately into memory (`Uint8List`) if needed; 
 
 If you have any feature that you want to see in this package, please feel free to issue a suggestion. 🎉
 
@@ -59,6 +56,8 @@ FilePickerResult result = await FilePicker.platform.pickFiles();
 
 if(result != null) {
    File file = File(result.files.single.path);
+} else {
+   // User canceled the picker
 }
 ```
 #### Multiple files
@@ -67,6 +66,8 @@ FilePickerResult result = await FilePicker.platform.pickFiles(allowMultiple: tru
 
 if(result != null) {
    List<File> files = result.paths.map((path) => File(path)).toList();
+} else {
+   // User canceled the picker
 }
 ```
 #### Multiple files with extension filter
@@ -88,6 +89,8 @@ if(result != null) {
    print(file.size);
    print(file.extension);
    print(file.path);
+} else {
+   // User canceled the picker
 }
 ```
 
