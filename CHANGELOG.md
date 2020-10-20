@@ -1,3 +1,11 @@
+## 2.0.9+1
+Minor fix on CHANGELOG regarding version `2.0.9`.
+
+## 2.0.9
+Android: Updates package visibility to fully support Android 11 (SDK 30 and later). ([#440](https://github.com/miguelpruivo/flutter_file_picker/issues/440))
+
+*Note: If you have build issues from now on because `<queries>` aren't recognized, you'll need to update your build.gradle to use one of the [following patched versions](https://github.com/miguelpruivo/flutter_file_picker/wiki/Troubleshooting#android).* 
+
 ## 2.0.8+1
 - iOS: Updates media picker to launch in app context (instead of modal).
 - Minor update to README file.
