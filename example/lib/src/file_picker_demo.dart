@@ -31,7 +31,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _directoryPath = null;
       _paths = (await FilePicker.platform.pickFiles(
         type: _pickingType,
-        allowMultiple: _multiPick,
+        allowMultiple: _multiPick, // by defalut flase (if we not initialized allowMultiple : true , it's allow only single file)
         allowedExtensions: (_extension?.isNotEmpty ?? false)
             ? _extension?.replaceAll(' ', '')?.split(',')
             : null,
