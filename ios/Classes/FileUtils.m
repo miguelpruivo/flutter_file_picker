@@ -89,7 +89,7 @@
         NSDictionary<NSFileAttributeKey, id> * fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil];
         
         [files addObject: [[[FileInfo alloc] initWithPath: path
-                                            andName: [[path lastPathComponent] stringByDeletingPathExtension]
+                                            andName: [path lastPathComponent]
                                             andSize: [NSNumber numberWithLongLong: [@(fileAttributes.fileSize) longLongValue] / 1024]
                                             andData: loadData ? [NSData dataWithContentsOfFile:path options: 0 error:nil] : nil] toData]];
     }

@@ -1,3 +1,6 @@
+## 2.0.10
+Adds missing extension to `name` property of `PlatformFile`. ([#444](https://github.com/miguelpruivo/flutter_file_picker/issues/444))
+
 ## 2.0.9+1
 Minor fix on CHANGELOG regarding version `2.0.9`.
 
