@@ -45,6 +45,7 @@ See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker
    * [Filters](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/API#filters)
    * [Parameters](https://github.com/miguelpruivo/flutter_file_picker/wiki/API#parameters)
    * [Methods](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/API#methods)
+4. [FAQ](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
 5. [Troubleshooting](https://github.com/miguelpruivo/flutter_file_picker/wiki/Troubleshooting)
 
 ## Usage

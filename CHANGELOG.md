@@ -1,3 +1,6 @@
+## 2.0.11
+iOS: Fixes `FileType.audio` exports to support ipod-library content (non DRM protected). From now on, a cached asset (m4a) will be exported from the selected music file in the Music app, so it can later be used. Fixes ([#441](https://github.com/miguelpruivo/flutter_file_picker/issues/441)).
+
 ## 2.0.10
 Adds missing extension to `name` property of `PlatformFile`. ([#444](https://github.com/miguelpruivo/flutter_file_picker/issues/444))
 

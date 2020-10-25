@@ -136,8 +136,8 @@
 }
 
 - (void) resolvePickMedia:(MediaType)type withMultiPick:(BOOL)multiPick withCompressionAllowed:(BOOL)allowCompression  {
-
-    #ifdef PHPicker
+    
+#ifdef PHPicker
     if (@available(iOS 14, *)) {
         PHPickerConfiguration *config = [[PHPickerConfiguration alloc] init];
         config.filter = type == IMAGE ? [PHPickerFilter imagesFilter] : type == VIDEO ? [PHPickerFilter videosFilter] : [PHPickerFilter anyFilterMatchingSubfilters:@[[PHPickerFilter videosFilter], [PHPickerFilter imagesFilter]]];
@@ -152,7 +152,7 @@
         [self.viewController presentViewController:pickerViewController animated:YES completion:nil];
         return;
     }
-    #endif
+#endif
     
     if(multiPick) {
         [self resolveMultiPickFromGallery:type withCompressionAllowed:allowCompression];
@@ -401,7 +401,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
             [NSFileManager.defaultManager copyItemAtURL: url
                                                   toURL: cachedUrl
                                                   error: &copyError];
-
+            
             if (copyError) {
                 Log("%@ Error while caching picked file: %@", self, copyError);
                 return;
@@ -424,10 +424,25 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 - (void)mediaPicker: (MPMediaPickerController *)mediaPicker didPickMediaItems:(MPMediaItemCollection *)mediaItemCollection
 {
     [mediaPicker dismissViewControllerAnimated:YES completion:NULL];
-    NSMutableArray<NSURL *> * urls = [[NSMutableArray alloc] initWithCapacity:[mediaItemCollection items].count];
+    int numberOfItems = (int)[mediaItemCollection items].count;
+    
+    if(numberOfItems == 0) {
+        return;
+    }
+    
+    if(_eventSink != nil) {
+        _eventSink([NSNumber numberWithBool:YES]);
+    }
+    
+    NSMutableArray<NSURL *> * urls = [[NSMutableArray alloc] initWithCapacity:numberOfItems];
     
     for(MPMediaItemCollection * item in [mediaItemCollection items]) {
-        [urls addObject: [item valueForKey:MPMediaItemPropertyAssetURL]];
+        NSURL * cachedAsset = [FileUtils exportMusicAsset: [item valueForKey:MPMediaItemPropertyAssetURL] withName: [item valueForKey:MPMediaItemPropertyTitle]];
+        [urls addObject: cachedAsset];
+    }
+    
+    if(_eventSink != nil) {
+        _eventSink([NSNumber numberWithBool:NO]);
     }
     
     if(urls.count == 0) {
