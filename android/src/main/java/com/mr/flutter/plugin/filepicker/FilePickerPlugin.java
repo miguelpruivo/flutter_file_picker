@@ -283,13 +283,15 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
         this.activityBinding.removeActivityResultListener(this.delegate);
         this.activityBinding.removeRequestPermissionsResultListener(this.delegate);
         this.activityBinding = null;
-        this.lifecycle.removeObserver(this.observer);
+        if(this.observer != null) {
+            this.lifecycle.removeObserver(this.observer);
+            this.application.unregisterActivityLifecycleCallbacks(this.observer);
+        }
         this.lifecycle = null;
         this.delegate.setEventHandler(null);
         this.delegate = null;
         this.channel.setMethodCallHandler(null);
         this.channel = null;
-        this.application.unregisterActivityLifecycleCallbacks(this.observer);
         this.application = null;
     }
 

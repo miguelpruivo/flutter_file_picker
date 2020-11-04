@@ -84,15 +84,7 @@ public class FileUtils {
             }
         }
 
-        if (uri.getPath() != null) {
-            result = uri.getPath();
-            final int cut = result.lastIndexOf('/');
-            if (cut != -1) {
-                result = result.substring(cut + 1);
-            }
-        }
-
-        return result;
+        return uri.toString();
     }
 
     public static boolean clearCache(final Context context) {
