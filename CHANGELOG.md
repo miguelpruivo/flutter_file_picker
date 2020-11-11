@@ -1,3 +1,6 @@
+## 2.0.13
+Updates `extension` helper getter to use the `name` property instead of `path`, since the latest isn't available on the Web, hence, the extension wouldn't be as well. Thank you @markgrancapal.
+
 ## 2.0.12
 Android:
 
