@@ -32,5 +32,5 @@ class PlatformFile {
   final int size;
 
   /// File extension for this file.
-  String get extension => path?.split('.')?.last;
+  String get extension => name?.split('.')?.last;
 }
