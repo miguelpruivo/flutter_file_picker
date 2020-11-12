@@ -1,3 +1,6 @@
+## 2.1.0
+Adds `withReadStream` that allows bigger files to be streamed read into a `Stream<List<int>>`. Thanks @redsolver.
+
 ## 2.0.13
 Updates `extension` helper getter to use the `name` property instead of `path`, since the latest isn't available on the Web, hence, the extension wouldn't be as well. Thank you @markgrancapal.
 
