@@ -91,17 +91,17 @@ class FilePickerIO extends FilePicker {
         return null;
       }
 
-      final platformFiles = <PlatformFile>[];
+      final List<PlatformFile> platformFiles = <PlatformFile>[];
 
       for (final platformFileMap in result) {
-        if (withReadStream) {
-          platformFiles.add(PlatformFile.fromMap(
+        platformFiles.add(
+          PlatformFile.fromMap(
             platformFileMap,
-            readStream: File(platformFileMap['path']).openRead(),
-          ));
-        } else {
-          platformFiles.add(PlatformFile.fromMap(platformFileMap));
-        }
+            readStream: withReadStream
+                ? File(platformFileMap['path']).openRead()
+                : null,
+          ),
+        );
       }
 
       return FilePickerResult(platformFiles);

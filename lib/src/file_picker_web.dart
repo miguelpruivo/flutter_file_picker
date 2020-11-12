@@ -12,7 +12,7 @@ class FilePickerWeb extends FilePicker {
   Element _target;
   final String _kFilePickerInputsDomId = '__file_picker_web-file-input';
 
-  final int readStreamChunkSize = 1000 * 1000; // 1 MB
+  final int _readStreamChunkSize = 1000 * 1000; // 1 MB
 
   static final FilePickerWeb platform = FilePickerWeb._();
 
@@ -149,14 +149,14 @@ class FilePickerWeb extends FilePicker {
 
     int start = 0;
     while (start < file.size) {
-      final end = start + readStreamChunkSize > file.size
+      final end = start + _readStreamChunkSize > file.size
           ? file.size
-          : start + readStreamChunkSize;
+          : start + _readStreamChunkSize;
       final blob = file.slice(start, end);
       reader.readAsArrayBuffer(blob);
       await reader.onLoad.first;
       yield reader.result;
-      start += readStreamChunkSize;
+      start += _readStreamChunkSize;
     }
   }
 }
