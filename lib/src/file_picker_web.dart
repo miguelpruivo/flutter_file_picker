@@ -12,6 +12,8 @@ class FilePickerWeb extends FilePicker {
   Element _target;
   final String _kFilePickerInputsDomId = '__file_picker_web-file-input';
 
+  final int readStreamChunkSize = 1000 * 1000; // 1 MB
+
   static final FilePickerWeb platform = FilePickerWeb._();
 
   FilePickerWeb._() {
@@ -43,6 +45,7 @@ class FilePickerWeb extends FilePicker {
     Function(FilePickerStatus) onFileLoading,
     bool allowCompression,
     bool withData = true,
+    bool withReadStream = false,
   }) async {
     final Completer<List<PlatformFile>> filesCompleter =
         Completer<List<PlatformFile>>();
@@ -63,12 +66,18 @@ class FilePickerWeb extends FilePicker {
       final List<File> files = uploadInput.files;
       final List<PlatformFile> pickedFiles = [];
 
-      void addPickedFile(File file, Uint8List bytes, String path) {
+      void addPickedFile(
+        File file,
+        Uint8List bytes,
+        String path,
+        Stream<List<int>> readStream,
+      ) {
         pickedFiles.add(PlatformFile(
           name: file.name,
           path: path,
-          size: bytes != null ? bytes.length ~/ 1024 : -1,
+          size: bytes != null ? bytes.length ~/ 1024 : file.size,
           bytes: bytes,
+          readStream: readStream,
         ));
 
         if (pickedFiles.length >= files.length) {
@@ -77,10 +86,15 @@ class FilePickerWeb extends FilePicker {
       }
 
       files.forEach((File file) {
+        if (withReadStream) {
+          addPickedFile(file, null, null, _openFileReadStream(file));
+          return;
+        }
+
         if (!withData) {
           final FileReader reader = FileReader();
           reader.onLoadEnd.listen((e) {
-            addPickedFile(file, null, reader.result);
+            addPickedFile(file, null, reader.result, null);
           });
           reader.readAsDataUrl(file);
           return;
@@ -88,7 +102,7 @@ class FilePickerWeb extends FilePicker {
 
         final FileReader reader = FileReader();
         reader.onLoadEnd.listen((e) {
-          addPickedFile(file, reader.result, null);
+          addPickedFile(file, reader.result, null, null);
         });
         reader.readAsArrayBuffer(file);
       });
@@ -128,5 +142,21 @@ class FilePickerWeb extends FilePicker {
         break;
     }
     return '';
+  }
+
+  Stream<List<int>> _openFileReadStream(File file) async* {
+    final reader = FileReader();
+
+    int start = 0;
+    while (start < file.size) {
+      final end = start + readStreamChunkSize > file.size
+          ? file.size
+          : start + readStreamChunkSize;
+      final blob = file.slice(start, end);
+      reader.readAsArrayBuffer(blob);
+      await reader.onLoad.first;
+      yield reader.result;
+      start += readStreamChunkSize;
+    }
   }
 }

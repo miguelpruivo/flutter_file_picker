@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/platform_file.dart';
@@ -25,6 +26,7 @@ class FilePickerIO extends FilePicker {
     bool allowCompression = true,
     bool allowMultiple = false,
     bool withData = false,
+    bool withReadStream = false,
   }) =>
       _getPath(
         type,
@@ -33,6 +35,7 @@ class FilePickerIO extends FilePicker {
         allowedExtensions,
         onFileLoading,
         withData,
+        withReadStream,
       );
 
   @override
@@ -59,6 +62,7 @@ class FilePickerIO extends FilePicker {
     List<String> allowedExtensions,
     Function(FilePickerStatus) onFileLoading,
     bool withData,
+    bool withReadStream,
   ) async {
     final String type = describeEnum(fileType);
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -87,8 +91,20 @@ class FilePickerIO extends FilePicker {
         return null;
       }
 
-      return FilePickerResult(
-          result.map((file) => PlatformFile.fromMap(file)).toList());
+      final platformFiles = <PlatformFile>[];
+
+      for (final platformFileMap in result) {
+        if (withReadStream) {
+          platformFiles.add(PlatformFile.fromMap(
+            platformFileMap,
+            readStream: File(platformFileMap['path']).openRead(),
+          ));
+        } else {
+          platformFiles.add(PlatformFile.fromMap(platformFileMap));
+        }
+      }
+
+      return FilePickerResult(platformFiles);
     } on PlatformException catch (e) {
       print('[$_tag] Platform exception: $e');
       rethrow;

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 class PlatformFile {
@@ -5,10 +6,11 @@ class PlatformFile {
     this.path,
     this.name,
     this.bytes,
+    this.readStream,
     this.size,
   });
 
-  PlatformFile.fromMap(Map data)
+  PlatformFile.fromMap(Map data, {this.readStream})
       : this.path = data['path'],
         this.name = data['name'],
         this.bytes = data['bytes'],
@@ -27,6 +29,9 @@ class PlatformFile {
   /// Byte data for this file. Particurlarly useful if you want to manipulate its data
   /// or easily upload to somewhere else.
   final Uint8List bytes;
+
+  /// File content as stream
+  final Stream<List<int>> readStream;
 
   /// The file size in KB.
   final int size;

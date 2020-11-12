@@ -49,6 +49,9 @@ abstract class FilePicker extends PlatformInterface {
   /// If [withData] is set, picked files will have its byte data immediately available on memory as [Uint8List]
   /// which can be useful if you are picking it for server upload or similar.
   ///
+  /// If [withReadStream] is set, picked files will have its byte data available as a [Stream<List<int>>]
+  /// which can be useful for uploading and processing large files.
+  ///
   /// If you want to track picking status, for example, because some files may take some time to be
   /// cached (particularly those picked from cloud providers), you may want to set [onFileLoading] handler
   /// that will give you the current status of picking.
@@ -64,6 +67,7 @@ abstract class FilePicker extends PlatformInterface {
     bool allowCompression,
     bool allowMultiple = false,
     bool withData,
+    bool withReadStream,
   }) async =>
       throw UnimplementedError('pickFiles() has not been implemented.');
 
