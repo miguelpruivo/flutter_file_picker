@@ -51,7 +51,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
 
   void _clearCachedFiles() {
     FilePicker.platform.clearTemporaryFiles().then((result) {
-      _scaffoldKey.currentState.showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: result ? Colors.green : Colors.red,
           content: Text((result

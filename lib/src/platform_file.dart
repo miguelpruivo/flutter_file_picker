@@ -21,21 +21,21 @@ class PlatformFile {
   /// ```
   /// final File myFile = File(platformFile.path);
   /// ```
-  final String path;
+  final String? path;
 
   /// File name including its extension.
-  final String name;
+  final String? name;
 
   /// Byte data for this file. Particurlarly useful if you want to manipulate its data
   /// or easily upload to somewhere else.
-  final Uint8List bytes;
+  final Uint8List? bytes;
 
   /// File content as stream
-  final Stream<List<int>> readStream;
+  final Stream<List<int>>? readStream;
 
   /// The file size in KB.
-  final int size;
+  final int? size;
 
   /// File extension for this file.
-  String get extension => name?.split('.')?.last;
+  String? get extension => name?.split('.').last;
 }
