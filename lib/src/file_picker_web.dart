@@ -9,7 +9,7 @@ import 'file_picker_result.dart';
 import 'platform_file.dart';
 
 class FilePickerWeb extends FilePicker {
-  Element _target;
+  late Element _target;
   final String _kFilePickerInputsDomId = '__file_picker_web-file-input';
 
   final int _readStreamChunkSize = 1000 * 1000; // 1 MB
@@ -26,12 +26,12 @@ class FilePickerWeb extends FilePicker {
 
   /// Initializes a DOM container where we can host input elements.
   Element _ensureInitialized(String id) {
-    Element target = querySelector('#$id');
+    Element? target = querySelector('#$id');
     if (target == null) {
       final Element targetElement = Element.tag('flt-file-picker-inputs')
         ..id = id;
 
-      querySelector('body').children.add(targetElement);
+      querySelector('body')!.children.add(targetElement);
       target = targetElement;
     }
     return target;
@@ -40,18 +40,18 @@ class FilePickerWeb extends FilePicker {
   @override
   Future<FilePickerResult> pickFiles({
     FileType type = FileType.any,
-    List<String> allowedExtensions,
+    List<String>? allowedExtensions,
     bool allowMultiple = false,
-    Function(FilePickerStatus) onFileLoading,
-    bool allowCompression,
-    bool withData = true,
-    bool withReadStream = false,
+    Function(FilePickerStatus)? onFileLoading,
+    bool? allowCompression,
+    bool? withData = true,
+    bool? withReadStream = false,
   }) async {
     final Completer<List<PlatformFile>> filesCompleter =
         Completer<List<PlatformFile>>();
 
     String accept = _fileType(type, allowedExtensions);
-    InputElement uploadInput = FileUploadInputElement();
+    InputElement uploadInput = FileUploadInputElement() as InputElement;
     uploadInput.draggable = true;
     uploadInput.multiple = allowMultiple;
     uploadInput.accept = accept;
@@ -63,14 +63,14 @@ class FilePickerWeb extends FilePicker {
       }
       changeEventTriggered = true;
 
-      final List<File> files = uploadInput.files;
+      final List<File> files = uploadInput.files!;
       final List<PlatformFile> pickedFiles = [];
 
       void addPickedFile(
         File file,
-        Uint8List bytes,
-        String path,
-        Stream<List<int>> readStream,
+        Uint8List? bytes,
+        String? path,
+        Stream<List<int>>? readStream,
       ) {
         pickedFiles.add(PlatformFile(
           name: file.name,
@@ -86,15 +86,15 @@ class FilePickerWeb extends FilePicker {
       }
 
       files.forEach((File file) {
-        if (withReadStream) {
+        if (withReadStream!) {
           addPickedFile(file, null, null, _openFileReadStream(file));
           return;
         }
 
-        if (!withData) {
+        if (!withData!) {
           final FileReader reader = FileReader();
           reader.onLoadEnd.listen((e) {
-            addPickedFile(file, null, reader.result, null);
+            addPickedFile(file, null, reader.result as String?, null);
           });
           reader.readAsDataUrl(file);
           return;
@@ -102,7 +102,7 @@ class FilePickerWeb extends FilePicker {
 
         final FileReader reader = FileReader();
         reader.onLoadEnd.listen((e) {
-          addPickedFile(file, reader.result, null, null);
+          addPickedFile(file, reader.result as Uint8List?, null, null);
         });
         reader.readAsArrayBuffer(file);
       });
@@ -119,7 +119,7 @@ class FilePickerWeb extends FilePicker {
     return FilePickerResult(await filesCompleter.future);
   }
 
-  static String _fileType(FileType type, List<String> allowedExtensions) {
+  static String _fileType(FileType type, List<String>? allowedExtensions) {
     switch (type) {
       case FileType.any:
         return '';
@@ -137,11 +137,9 @@ class FilePickerWeb extends FilePicker {
         return 'video/*|image/*';
 
       case FileType.custom:
-        return allowedExtensions.fold(
-            '', (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next');
-        break;
+        return allowedExtensions!
+            .fold('', (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next');
     }
-    return '';
   }
 
   Stream<List<int>> _openFileReadStream(File file) async* {
@@ -155,7 +153,7 @@ class FilePickerWeb extends FilePicker {
       final blob = file.slice(start, end);
       reader.readAsArrayBuffer(blob);
       await reader.onLoad.first;
-      yield reader.result;
+      yield reader.result as List<int>;
       start += _readStreamChunkSize;
     }
   }

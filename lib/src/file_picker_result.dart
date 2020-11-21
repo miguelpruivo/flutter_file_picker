@@ -27,5 +27,5 @@ class FilePickerResult {
       .toList();
 
   /// A `List<String>` containing all names from picked files with its extensions.
-  List<String> get names => files.map((file) => file.name).toList();
+  List<String?> get names => files.map((file) => file.name).toList();
 }
