@@ -202,9 +202,10 @@
     UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"" message:@"" preferredStyle:UIAlertControllerStyleAlert];
     UIActivityIndicatorView* indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
     
+    UIViewController *currentViewController = self.viewController;
     if(_eventSink == nil) {
         // Create alert dialog for asset caching
-        [alert.view setCenter: self.viewController.view.center];
+        [alert.view setCenter: currentViewController.view.center];
         [alert.view addConstraint: [NSLayoutConstraint constraintWithItem:alert.view attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:100]];
         
         // Create a default loader if user don't provide a status handler
@@ -236,7 +237,7 @@
                 self->_eventSink([NSNumber numberWithBool:YES]);
             } else {
                 [indicator startAnimating];
-                [self.viewController showViewController:alert sender:nil];
+                [currentViewController showViewController:alert sender:nil];
             }
             
         } else {
