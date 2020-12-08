@@ -7,7 +7,7 @@
 @interface FilePickerPlugin() <DKImageAssetExporterObserver>
 @property (nonatomic) FlutterResult result;
 @property (nonatomic) FlutterEventSink eventSink;
-@property (nonatomic) UIViewController *viewController;
+@property (nonatomic, readonly) UIViewController *viewController;
 @property (nonatomic) UIImagePickerController *galleryPickerController;
 @property (nonatomic) UIDocumentPickerViewController *documentPickerController;
 @property (nonatomic) UIDocumentInteractionController *interactionController;
@@ -27,20 +27,24 @@
                                          eventChannelWithName:@"miguelruivo.flutter.plugins.filepickerevent"
                                          binaryMessenger:[registrar messenger]];
     
-    UIViewController *viewController = [UIApplication sharedApplication].delegate.window.rootViewController;
-    FilePickerPlugin* instance = [[FilePickerPlugin alloc] initWithViewController:viewController];
+    FilePickerPlugin* instance = [[FilePickerPlugin alloc] init];
     
     [registrar addMethodCallDelegate:instance channel:channel];
     [eventChannel setStreamHandler:instance];
 }
 
-- (instancetype)initWithViewController:(UIViewController *)viewController {
+- (instancetype)init {
     self = [super init];
-    if(self) {
-        self.viewController = viewController;
-    }
     
     return self;
+}
+
+- (UIViewController *)viewController {
+    UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
+    while (rootViewController.presentedViewController) {
+        rootViewController = rootViewController.presentedViewController;
+    }
+    return rootViewController;
 }
 
 - (FlutterError *)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)events {
@@ -132,7 +136,7 @@
     self.documentPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
     self.galleryPickerController.allowsEditing = NO;
     
-    [_viewController presentViewController:self.documentPickerController animated:YES completion:nil];
+    [self.viewController presentViewController:self.documentPickerController animated:YES completion:nil];
 }
 
 - (void) resolvePickMedia:(MediaType)type withMultiPick:(BOOL)multiPick withCompressionAllowed:(BOOL)allowCompression  {
@@ -200,7 +204,7 @@
     
     if(_eventSink == nil) {
         // Create alert dialog for asset caching
-        [alert.view setCenter: _viewController.view.center];
+        [alert.view setCenter: self.viewController.view.center];
         [alert.view addConstraint: [NSLayoutConstraint constraintWithItem:alert.view attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:100]];
         
         // Create a default loader if user don't provide a status handler
@@ -232,7 +236,7 @@
                 self->_eventSink([NSNumber numberWithBool:YES]);
             } else {
                 [indicator startAnimating];
-                [self->_viewController showViewController:alert sender:nil];
+                [self.viewController showViewController:alert sender:nil];
             }
             
         } else {
@@ -263,7 +267,7 @@
         [self handleResult: paths];
     }];
     
-    [_viewController presentViewController:dkImagePickerController animated:YES completion:nil];
+    [self.viewController presentViewController:dkImagePickerController animated:YES completion:nil];
 }
 
 - (void) resolvePickAudioWithMultiPick:(BOOL)isMultiPick {
