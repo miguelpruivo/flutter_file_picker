@@ -1,3 +1,6 @@
+## 2.1.2
+Fixed desktop plugin implementation
+
 ## 2.1.1
 iOS: Fixes an issue that could result in a crash when selecting a media item twice. ([#518](https://github.com/miguelpruivo/flutter_file_picker/issues/518)).
 
