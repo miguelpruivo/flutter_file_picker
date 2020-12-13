@@ -1,6 +1,11 @@
+## 2.1.4
+iOS: Fixes iOS ViewController which is nil when UIWindow.rootViewController have changed. ([#525](https://github.com/miguelpruivo/flutter_file_picker/issues/525)). Thank you @devcxm. 
+
 ## 2.1.3
 Android: Updates file name handling method. ([#487](https://github.com/miguelpruivo/flutter_file_picker/issues/487)).
-Desktop (Go): Fixed desktop plugin implementation (thank you @DenchikBY).
+
+## 2.1.2
+Desktop (Go): Fixed desktop plugin implementation. Thank you @DenchikBY.
 
 ## 2.1.1
 iOS: Fixes an issue that could result in a crash when selecting a media item twice. ([#518](https://github.com/miguelpruivo/flutter_file_picker/issues/518)).
