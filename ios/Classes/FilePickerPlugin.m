@@ -14,6 +14,7 @@
 @property (nonatomic) MPMediaPickerController *audioPickerController;
 @property (nonatomic) NSArray<NSString *> * allowedExtensions;
 @property (nonatomic) BOOL loadDataToMemory;
+@property (nonatomic) dispatch_group_t group;
 @end
 
 @implementation FilePickerPlugin
@@ -367,6 +368,10 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 
 -(void)picker:(PHPickerViewController *)picker didFinishPicking:(NSArray<PHPickerResult *> *)results API_AVAILABLE(ios(14)){
     
+    if(self.group != nil) {
+        return;
+    }
+    
     Log(@"Picker:%@ didFinishPicking:%@", picker, results);
     
     [picker dismissViewControllerAnimated:YES completion:nil];
@@ -380,15 +385,15 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
     NSMutableArray<NSURL *> * urls = [[NSMutableArray alloc] initWithCapacity:results.count];
     
-    dispatch_group_t group = dispatch_group_create();
+    self.group = dispatch_group_create();
     
     for (PHPickerResult *result in results) {
-        dispatch_group_enter(group);
+        dispatch_group_enter(_group);
         [result.itemProvider loadFileRepresentationForTypeIdentifier:@"public.item" completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
             
             if(url == nil) {
                 Log("Could not load the picked given file: %@", error);
-                dispatch_group_leave(group);
+                dispatch_group_leave(self->_group);
                 return;
             }
             
@@ -413,11 +418,12 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
             }
             
             [urls addObject:cachedUrl];
-            dispatch_group_leave(group);
+            dispatch_group_leave(self->_group);
         }];
     }
     
-    dispatch_group_notify(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),^{
+    dispatch_group_notify(_group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),^{
+        self->_group = nil;
         [self handleResult:urls];
     });
 }

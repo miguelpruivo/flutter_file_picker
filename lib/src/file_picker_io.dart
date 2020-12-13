@@ -8,8 +8,13 @@ import 'package:flutter/services.dart';
 
 import 'file_picker_result.dart';
 
-const MethodChannel _channel =
-    MethodChannel('miguelruivo.flutter.plugins.filepicker');
+final MethodChannel _channel = MethodChannel(
+  'miguelruivo.flutter.plugins.filepicker',
+  Platform.isLinux || Platform.isWindows || Platform.isMacOS
+      ? const JSONMethodCodec()
+      : const StandardMethodCodec(),
+);
+
 const EventChannel _eventChannel =
     EventChannel('miguelruivo.flutter.plugins.filepickerevent');
 

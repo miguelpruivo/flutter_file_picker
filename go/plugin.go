@@ -1,10 +1,13 @@
 package file_picker
 
 import (
+	"encoding/json"
 	"github.com/gen2brain/dlgs"
 	"github.com/go-flutter-desktop/go-flutter"
 	"github.com/go-flutter-desktop/go-flutter/plugin"
 	"github.com/pkg/errors"
+	"os"
+	"path/filepath"
 )
 
 const channelName = "miguelruivo.flutter.plugins.filepicker"
@@ -14,7 +17,7 @@ type FilePickerPlugin struct{}
 var _ flutter.Plugin = &FilePickerPlugin{} // compile-time type check
 
 func (p *FilePickerPlugin) InitPlugin(messenger plugin.BinaryMessenger) error {
-	channel := plugin.NewMethodChannel(messenger, channelName, plugin.StandardMethodCodec{})
+	channel := plugin.NewMethodChannel(messenger, channelName, plugin.JSONMethodCodec{})
 	channel.CatchAllHandleFunc(p.handleFilePicker)
 	return nil
 }
@@ -30,7 +33,12 @@ func (p *FilePickerPlugin) handleFilePicker(methodCall interface{}) (reply inter
 		return dirPath, nil
 	}
 
-	arguments := methodCall.(plugin.MethodCall).Arguments.(map[interface{}]interface{})
+	var arguments map[string]interface{}
+
+	err = json.Unmarshal(methodCall.(plugin.MethodCall).Arguments.(json.RawMessage), &arguments)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode arguments")
+	}
 
 	var allowedExtensions []string
 
@@ -52,24 +60,66 @@ func (p *FilePickerPlugin) handleFilePicker(methodCall interface{}) (reply inter
 		return nil, errors.Wrap(err, "failed to get filter")
 	}
 
+	withData, ok := arguments["withData"].(bool)
+
+	var selectedFilePaths []string
+
 	if selectMultiple {
 		filePaths, _, err := dlgs.FileMulti("Select one or more files", filter)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to open dialog picker")
 		}
 
-		// type []string is not supported by StandardMessageCodec
-		sliceFilePaths := make([]interface{}, len(filePaths))
-		for i, file := range filePaths {
-			sliceFilePaths[i] = file
+		selectedFilePaths = make([]string, len(filePaths))
+
+		for i, filePath := range filePaths {
+			selectedFilePaths[i] = filePath
+		}
+	} else {
+		selectedFilePaths = make([]string, 1)
+
+		filePath, err := fileDialog("Select a file", filter)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to open dialog picker")
 		}
 
-		return sliceFilePaths, nil
+		selectedFilePaths[0] = filePath
 	}
 
-	filePath, err := fileDialog("Select a file", filter)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to open dialog picker")
+	result := make([]map[string]interface{}, len(selectedFilePaths))
+
+	for i, filePath := range selectedFilePaths {
+		file, err := os.Open(filePath)
+		if err != nil {
+			return nil, errors.Wrap(err, "Can't open selected file")
+		}
+
+		fi, err := file.Stat()
+		if err != nil {
+			return nil, errors.Wrap(err, "Can't open selected file")
+		}
+
+		var bytes []byte
+
+		if withData {
+			_, err := file.Read(bytes)
+			if err != nil {
+				return nil, errors.Wrap(err, "Can't read selected file")
+			}
+		}
+
+		result[i] = map[string]interface{}{
+			"path":  filePath,
+			"name":  filepath.Base(filePath),
+			"bytes": bytes,
+			"size":  fi.Size(),
+		}
+
+		err = file.Close()
+		if err != nil {
+			return nil, errors.Wrap(err, "Can't close selected file after reading")
+		}
 	}
-	return filePath, nil
+
+	return result, nil
 }
