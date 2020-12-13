@@ -16,7 +16,7 @@ class PlatformFile {
         this.bytes = data['bytes'],
         this.size = data['size'];
 
-  /// The absolute path for a cached copy of this file. It can be used to create a 
+  /// The absolute path for a cached copy of this file. It can be used to create a
   /// file instance with a descriptor for the given path.
   /// ```
   /// final File myFile = File(platformFile.path);

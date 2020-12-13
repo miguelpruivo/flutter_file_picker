@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.storage.StorageManager;
 import android.provider.DocumentsContract;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -55,36 +56,30 @@ public class FileUtils {
     public static String getFileName(Uri uri, final Context context) {
         String result = null;
 
-        //if uri is content
-        if (uri.getScheme() != null && uri.getScheme().equals("content")) {
-            Cursor cursor = null;
-            try {
-                cursor = context.getContentResolver().query(uri, null, null, null, null);
-                if (cursor != null && cursor.moveToFirst()) {
-                    //local filesystem
-                    int index = cursor.getColumnIndex("_data");
-                    if (index == -1)
-                    //google drive
-                    {
-                        index = cursor.getColumnIndex("_display_name");
+        try {
+
+            if (uri.getScheme().equals("content")) {
+                Cursor cursor = context.getContentResolver().query(uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null);
+                try {
+                    if (cursor != null && cursor.moveToFirst()) {
+                        result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                     }
-                    result = cursor.getString(index);
-                    if (result != null) {
-                        uri = Uri.parse(result);
-                    } else {
-                        return null;
-                    }
-                }
-            } catch (final Exception ex) {
-                Log.e(TAG, "Failed to decode file name: " + ex.toString());
-            } finally {
-                if (cursor != null) {
+                } finally {
                     cursor.close();
                 }
             }
+            if (result == null) {
+                result = uri.getPath();
+                int cut = result.lastIndexOf('/');
+                if (cut != -1) {
+                    result = result.substring(cut + 1);
+                }
+            }
+        } catch (Exception ex){
+            Log.e(TAG, "Failed to handle file name: " + ex.toString());
         }
 
-        return uri.toString();
+        return result;
     }
 
     public static boolean clearCache(final Context context) {
