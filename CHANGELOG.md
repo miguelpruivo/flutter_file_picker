@@ -1,14 +1,17 @@
+## 3.0.0-nullsafety.0
+Adds null safety support (pre-release) ([#510](https://github.com/miguelpruivo/flutter_file_picker/issues/510)).
+
 ## 2.1.4
 iOS: Fixes iOS ViewController which is nil when UIWindow.rootViewController have changed. ([#525](https://github.com/miguelpruivo/flutter_file_picker/issues/525)). Thank you @devcxm. 
 
 ## 2.1.3
-Android: Updates file name handling method. ([#487](https://github.com/miguelpruivo/flutter_file_picker/issues/487)).
+Android: Updates file name handling method. ([#487](https://github.com/miguelpruivo/flutter_file_picker/issues/487))
 
 ## 2.1.2
-Desktop (Go): Fixed desktop plugin implementation. Thank you @DenchikBY.
+Desktop (Go): Fixed desktop plugin implementation. Thank you @DenchikBY. ([#382](https://github.com/miguelpruivo/flutter_file_picker/issues/382#issuecomment-744055654))
 
 ## 2.1.1
-iOS: Fixes an issue that could result in a crash when selecting a media item twice. ([#518](https://github.com/miguelpruivo/flutter_file_picker/issues/518)).
+iOS: Fixes an issue that could result in a crash when selecting a media item twice. ([#518](https://github.com/miguelpruivo/flutter_file_picker/issues/518))
 
 ## 2.1.0
 Adds `withReadStream` that allows bigger files to be streamed read into a `Stream<List<int>>`. Thanks @redsolver.
@@ -19,8 +22,8 @@ Updates `extension` helper getter to use the `name` property instead of `path`, 
 ## 2.0.12
 Android:
 
-- Fixes an issue that could result in some files not being properly retrieved due to special characters on their names. ([#472](https://github.com/miguelpruivo/flutter_file_picker/issues/472)).
-- Fixes a NPE that could happen with some devices. ([#482](https://github.com/miguelpruivo/flutter_file_picker/issues/482)).
+- Fixes an issue that could result in some files not being properly retrieved due to special characters on their names. ([#472](https://github.com/miguelpruivo/flutter_file_picker/issues/472))
+- Fixes a NPE that could happen with some devices. ([#482](https://github.com/miguelpruivo/flutter_file_picker/issues/482))
 
 
 ## 2.0.11
