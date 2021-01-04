@@ -90,7 +90,7 @@
         
         [files addObject: [[[FileInfo alloc] initWithPath: path
                                                   andName: [path lastPathComponent]
-                                                  andSize: [NSNumber numberWithLongLong: [@(fileAttributes.fileSize) longLongValue] / 1024]
+                                                  andSize: [NSNumber numberWithLongLong: [@(fileAttributes.fileSize) longLongValue]]
                                                   andData: loadData ? [NSData dataWithContentsOfFile:path options: 0 error:nil] : nil] toData]];
     }
     

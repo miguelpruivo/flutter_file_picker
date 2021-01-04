@@ -33,7 +33,7 @@ class PlatformFile {
   /// File content as stream
   final Stream<List<int>> readStream;
 
-  /// The file size in KB.
+  /// The file size in bytes.
   final int size;
 
   /// File extension for this file.
