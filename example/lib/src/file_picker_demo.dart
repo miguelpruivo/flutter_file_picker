@@ -86,31 +86,31 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                   child: DropdownButton(
-                      hint: Text('LOAD PATH FROM'),
+                      hint: const Text('LOAD PATH FROM'),
                       value: _pickingType,
                       items: <DropdownMenuItem>[
                         DropdownMenuItem(
-                          child: Text('FROM AUDIO'),
+                          child: const Text('FROM AUDIO'),
                           value: FileType.audio,
                         ),
                         DropdownMenuItem(
-                          child: Text('FROM IMAGE'),
+                          child: const Text('FROM IMAGE'),
                           value: FileType.image,
                         ),
                         DropdownMenuItem(
-                          child: Text('FROM VIDEO'),
+                          child: const Text('FROM VIDEO'),
                           value: FileType.video,
                         ),
                         DropdownMenuItem(
-                          child: Text('FROM MEDIA'),
+                          child: const Text('FROM MEDIA'),
                           value: FileType.media,
                         ),
                         DropdownMenuItem(
-                          child: Text('FROM ANY'),
+                          child: const Text('FROM ANY'),
                           value: FileType.any,
                         ),
                         DropdownMenuItem(
-                          child: Text('CUSTOM FORMAT'),
+                          child: const Text('CUSTOM FORMAT'),
                           value: FileType.custom,
                         ),
                       ],
@@ -149,17 +149,17 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                   padding: const EdgeInsets.only(top: 50.0, bottom: 20.0),
                   child: Column(
                     children: <Widget>[
-                      RaisedButton(
+                      ElevatedButton(
                         onPressed: () => _openFileExplorer(),
-                        child: Text("Open file picker"),
+                        child: const Text("Open file picker"),
                       ),
-                      RaisedButton(
+                      ElevatedButton(
                         onPressed: () => _selectFolder(),
-                        child: Text("Pick folder"),
+                        child: const Text("Pick folder"),
                       ),
-                      RaisedButton(
+                      ElevatedButton(
                         onPressed: () => _clearCachedFiles(),
-                        child: Text("Clear temporary files"),
+                        child: const Text("Clear temporary files"),
                       ),
                     ],
                   ),
@@ -172,7 +172,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                         )
                       : _directoryPath != null
                           ? ListTile(
-                              title: Text('Directory path'),
+                              title: const Text('Directory path'),
                               subtitle: Text(_directoryPath),
                             )
                           : _paths != null

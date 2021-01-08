@@ -75,7 +75,7 @@ class FilePickerWeb extends FilePicker {
         pickedFiles.add(PlatformFile(
           name: file.name,
           path: path,
-          size: bytes != null ? bytes.length ~/ 1024 : file.size,
+          size: bytes != null ? bytes.length : file.size,
           bytes: bytes,
           readStream: readStream,
         ));

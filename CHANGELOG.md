@@ -1,5 +1,9 @@
+## 2.1.5+1
+- Web: Updates `size` property from `PlatformFile` to be in bytes instead of kb;
+- Applies minor refactor to example app. Thank you @Abhishek01039;
+
 ## 2.1.5
-Updates `size` property from `PlatformFile` to be in bytes instead of kb.
+iOS & Android: Updates `size` property from `PlatformFile` to be in bytes instead of kb.
 
 ## 2.1.4
 iOS: Fixes iOS ViewController which is nil when UIWindow.rootViewController have changed. ([#525](https://github.com/miguelpruivo/flutter_file_picker/issues/525)). Thank you @devcxm. 
