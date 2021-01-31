@@ -1,3 +1,6 @@
+## 2.1.6
+- Addresses an issue on iOS 14 and later where events `onFileLoading` events weren't being provided ([#577](https://github.com/miguelpruivo/flutter_file_picker/issues/577)). 
+
 ## 2.1.5+1
 - Web: Updates `size` property from `PlatformFile` to be in bytes instead of kb;
 - Applies minor refactor to example app. Thank you @Abhishek01039;
