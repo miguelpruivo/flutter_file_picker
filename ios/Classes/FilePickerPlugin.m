@@ -146,6 +146,10 @@
     if (@available(iOS 14, *)) {
         PHPickerConfiguration *config = [[PHPickerConfiguration alloc] init];
         config.filter = type == IMAGE ? [PHPickerFilter imagesFilter] : type == VIDEO ? [PHPickerFilter videosFilter] : [PHPickerFilter anyFilterMatchingSubfilters:@[[PHPickerFilter videosFilter], [PHPickerFilter imagesFilter]]];
+
+        if(type == VIDEO) {
+            config.preferredAssetRepresentationMode = PHPickerConfigurationAssetRepresentationModeCurrent;
+        }
         
         if(multiPick) {
             config.selectionLimit = 0;
