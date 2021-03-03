@@ -1,4 +1,4 @@
-## 3.0.0-nullsafety.2
+## 3.0.0-nullsafety.3
 Adds null safety support (pre-release) ([#510](https://github.com/miguelpruivo/flutter_file_picker/issues/510)).
 ## 2.1.7
 ### iOS
