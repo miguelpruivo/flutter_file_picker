@@ -1,3 +1,8 @@
+## 2.1.7
+### iOS
+- Fixes an issue where a crash could happen when picking a lot of media files in low memory devices ([#606](https://github.com/miguelpruivo/flutter_file_picker/issues/606)).
+- Updates `preferredAssetRepresentationMode`. Thank you @nrikiji.
+
 ## 2.1.6
 - Addresses an issue on iOS 14 and later where events `onFileLoading` events weren't being provided ([#577](https://github.com/miguelpruivo/flutter_file_picker/issues/577)). 
 

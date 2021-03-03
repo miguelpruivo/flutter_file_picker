@@ -266,8 +266,10 @@
     [dkImagePickerController setDidSelectAssets:^(NSArray<DKAsset*> * __nonnull DKAssets) {
         NSMutableArray<NSURL*>* paths = [[NSMutableArray<NSURL*> alloc] init];
         
-        for(DKAsset * asset in DKAssets){
-            [paths addObject:asset.localTemporaryPath.absoluteURL];
+        for(DKAsset * asset in DKAssets) {
+            if(asset.localTemporaryPath.absoluteURL != nil) {
+                [paths addObject:asset.localTemporaryPath.absoluteURL];
+            }
         }
         
         [self handleResult: paths];
