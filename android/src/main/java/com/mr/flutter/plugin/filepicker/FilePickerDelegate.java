@@ -69,6 +69,9 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         this.permissionManager = permissionManager;
     }
 
+    void runOnUiThread(Runnable runner) {
+        new Handler(Looper.getMainLooper()).post(runner);
+    }
 
     @Override
     public boolean onActivityResult(final int requestCode, final int resultCode, final Intent data) {
@@ -80,7 +83,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
 
             if (eventSink != null) {
-                eventSink.success(true);
+                eventSink.success(new FileEvent(FileEventTypes.STATUS, true).toMap());
             }
 
             new Thread(new Runnable() {
@@ -88,10 +91,26 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                 public void run() {
                     if (data != null) {
                         final ArrayList<FileInfo> files = new ArrayList<>();
+                        final ArrayList<String> filePaths = new ArrayList<>();
 
                         if (data.getClipData() != null) {
                             final int count = data.getClipData().getItemCount();
                             int currentItem = 0;
+
+                            while (currentItem < count) {
+                                final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
+                                filePaths.add(currentUri.toString());
+                                currentItem++;
+                            }
+                            if (eventSink != null) {
+                                runOnUiThread(
+                                    () -> {
+                                        eventSink.success(
+                                            new FileEvent(FileEventTypes.ORIGINAL_CONTENT_URL, filePaths).toMap());
+                                    });
+                            }
+
+                            currentItem = 0;
                             while (currentItem < count) {
                                 final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
                                 final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
@@ -121,6 +140,16 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 return;
                             }
 
+                            if (eventSink != null) {
+                                filePaths.add(uri.toString());
+
+                                Log.d(FilePickerDelegate.TAG, "FILE PATHS" + filePaths);
+                                runOnUiThread(
+                                    () -> {
+                                        eventSink.success(
+                                            new FileEvent(FileEventTypes.ORIGINAL_CONTENT_URL, filePaths).toMap());
+                                    });
+                            }
                             final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri, loadDataToMemory);
 
                             if(file != null) {
@@ -282,7 +311,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(final Message message) {
-                eventSink.success(status);
+                eventSink.success(new FileEvent(FileEventTypes.STATUS, status).toMap());
             }
         }.obtainMessage().sendToTarget();
     }

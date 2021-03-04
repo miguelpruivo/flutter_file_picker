@@ -28,12 +28,19 @@ android {
         minSdkVersion 16
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
     lintOptions {
         disable 'InvalidPackage'
     }
-      dependencies {
+
+    dependencies {
         implementation 'androidx.core:core:1.0.2'
         implementation 'androidx.annotation:annotation:1.0.0'
         implementation "androidx.lifecycle:lifecycle-runtime:2.1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
     }
 }
