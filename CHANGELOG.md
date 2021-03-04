@@ -1,5 +1,5 @@
-## 3.0.0-nullsafety.4
-Adds null safety support (pre-release) ([#510](https://github.com/miguelpruivo/flutter_file_picker/issues/510)).
+## 3.0.0
+Adds null safety support ([#510](https://github.com/miguelpruivo/flutter_file_picker/issues/510)).
 ## 2.1.7
 ### iOS
 - Fixes an issue where a crash could happen when picking a lot of media files in low memory devices ([#606](https://github.com/miguelpruivo/flutter_file_picker/issues/606)).
