@@ -8,10 +8,10 @@ public class FileInfo {
 
     final String path;
     final String name;
-    final int size;
+    final long size;
     final byte[] bytes;
 
-    public FileInfo(String path, String name, int size, byte[] bytes) {
+    public FileInfo(String path, String name, long size, byte[] bytes) {
         this.path = path;
         this.name = name;
         this.size = size;
@@ -22,7 +22,7 @@ public class FileInfo {
 
         private String path;
         private String name;
-        private int size;
+        private long size;
         private byte[] bytes;
 
         public Builder withPath(String path){
@@ -35,7 +35,7 @@ public class FileInfo {
             return this;
         }
 
-        public Builder withSize(int size){
+        public Builder withSize(long size){
             this.size = size;
             return this;
         }

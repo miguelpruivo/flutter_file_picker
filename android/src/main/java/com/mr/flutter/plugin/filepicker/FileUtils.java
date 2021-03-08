@@ -173,7 +173,7 @@ public class FileUtils {
         fileInfo
                 .withPath(path)
                 .withName(fileName)
-                .withSize(Integer.parseInt(String.valueOf(file.length())));
+                .withSize(Long.parseLong(String.valueOf(file.length())));
 
         return fileInfo.build();
     }
