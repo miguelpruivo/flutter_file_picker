@@ -1,3 +1,7 @@
+## 3.0.1
+#### Android
+- Use MediaStore Opener (which goes through the gallery) instead of default explorer. (Thank you @tmthecoder).
+
 ## 3.0.0
 Adds null safety support ([#510](https://github.com/miguelpruivo/flutter_file_picker/issues/510)).
 ## 2.1.7
