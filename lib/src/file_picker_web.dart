@@ -38,7 +38,7 @@ class FilePickerWeb extends FilePicker {
   }
 
   @override
-  Future<FilePickerResult> pickFiles({
+  Future<FilePickerResult?> pickFiles({
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     bool allowMultiple = false,
@@ -47,8 +47,8 @@ class FilePickerWeb extends FilePicker {
     bool? withData = true,
     bool? withReadStream = false,
   }) async {
-    final Completer<List<PlatformFile>> filesCompleter =
-        Completer<List<PlatformFile>>();
+    final Completer<List<PlatformFile>?> filesCompleter =
+        Completer<List<PlatformFile>?>();
 
     String accept = _fileType(type, allowedExtensions);
     InputElement uploadInput = FileUploadInputElement() as InputElement;
@@ -108,15 +108,34 @@ class FilePickerWeb extends FilePicker {
       });
     }
 
+    void cancelledEventListener(_) {
+      window.removeEventListener('focus', cancelledEventListener);
+
+      // This listener is called before the input changed event,
+      // and the `uploadInput.files` value is still null
+      // Wait for results from js to dart
+      Future.delayed(Duration(milliseconds: 500)).then((value) {
+        if (!changeEventTriggered) {
+          changeEventTriggered = true;
+          filesCompleter.complete(null);
+        }
+      });
+    }
+
     uploadInput.onChange.listen(changeEventListener);
     uploadInput.addEventListener('change', changeEventListener);
+
+    // Listen focus event for cancelled
+    window.addEventListener('focus', cancelledEventListener);
 
     //Add input element to the page body
     _target.children.clear();
     _target.children.add(uploadInput);
     uploadInput.click();
 
-    return FilePickerResult(await filesCompleter.future);
+    final files = await filesCompleter.future;
+
+    return files == null ? null : FilePickerResult(files);
   }
 
   static String _fileType(FileType type, List<String>? allowedExtensions) {
