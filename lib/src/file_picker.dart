@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/src/file_picker_io.dart';
 import 'package:file_picker/src/file_picker_linux.dart';
 import 'package:file_picker/src/file_picker_macos.dart';
+import 'package:file_picker/src/lost_data.dart';
 import 'package:file_picker/src/windows/stub.dart'
     if (dart.library.io) 'package:file_picker/src/windows/file_picker_windows.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -92,6 +93,8 @@ abstract class FilePicker extends PlatformInterface {
   /// For more information, check the [API documentation](https://github.com/miguelpruivo/flutter_file_picker/wiki/api).
   ///
   /// Returns `null` if aborted.
+  /// In Android, the MainActivity can be destroyed for various reasons. If that happens, the result will be lost
+  /// in this call. You can then call [retrieveLostData] when your app relaunches to retrieve the lost data.
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
     FileType type = FileType.any,
@@ -126,4 +129,21 @@ abstract class FilePicker extends PlatformInterface {
   /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
   Future<String?> getDirectoryPath({String? dialogTitle}) async =>
       throw UnimplementedError('getDirectoryPath() has not been implemented.');
+
+  /// Retrieve the lost files when [pickFiles] failed because the  MainActivity is destroyed. (Android only)
+  ///
+  /// Files can be lost if the MainActivity is destroyed. And there is no guarantee that the MainActivity is always alive.
+  /// Call this method to retrieve the lost data and process the data according to your APP's business logic.
+  ///
+  /// Returns a [LostData] if successfully retrieved the lost data. The [LostData] can represent either a
+  /// successful file selection, or a failure.
+  ///
+  /// Calling this on a non-Android platform will throw [UnimplementedError] exception.
+  ///
+  /// See also:
+  /// * [LostData], for what's included in the response.
+  /// * [Android Activity Lifecycle](https://developer.android.com/reference/android/app/Activity.html), for more information on MainActivity destruction.
+  Future<LostData> retrieveLostData() {
+    throw UnimplementedError('retrieveLostData() has not been implemented.');
+  }
 }

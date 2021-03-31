@@ -118,4 +118,49 @@ class FilePickerIO extends FilePicker {
       rethrow;
     }
   }
+
+  @override
+  Future<LostData> retrieveLostData() async {
+    try {
+      final Map<String, dynamic>? result =
+          await _channel.invokeMapMethod<String, dynamic>('retrieve');
+
+      if (result == null) {
+        return LostData.empty();
+      }
+
+      assert(result.containsKey('filePickerResult') ^
+          result.containsKey('errorCode'));
+
+      PlatformException? exception;
+      if (result.containsKey('errorCode')) {
+        exception = PlatformException(
+          code: result['errorCode'],
+          message: result['errorMessage'],
+        );
+      }
+
+      FilePickerResult? filePickerResult;
+      if (result.containsKey('filePickerResult')) {
+        final list = result['filePickerResult'];
+        filePickerResult = FilePickerResult(
+          list
+              ?.map(
+                  (file) => PlatformFile.fromMap(file.cast<String, dynamic>()))
+              ?.toList()
+              ?.cast<PlatformFile>(),
+        );
+      }
+      return LostData(
+        result: filePickerResult,
+        exception: exception,
+      );
+    } on PlatformException catch (e) {
+      print('[$_tag] Platform exception: $e');
+      rethrow;
+    } catch (e) {
+      print('[$_tag] Unsupported operation. The exception thrown was: $e');
+      rethrow;
+    }
+  }
 }

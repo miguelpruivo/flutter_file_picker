@@ -97,6 +97,9 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
 
         @Override
         public void onActivityStopped(final Activity activity) {
+            if (thisActivity == activity) {
+                delegate.saveStateBeforeResult();
+            }
         }
     }
 
@@ -151,6 +154,11 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
 
         if (call.method != null && call.method.equals("clear")) {
             result.success(FileUtils.clearCache(activity.getApplicationContext()));
+            return;
+        }
+
+        if (call.method != null && call.method.equals("retrieve")) {
+            this.delegate.retrieveLostFiles(result);
             return;
         }
 
