@@ -9,10 +9,10 @@ class FilePickerDemo extends StatefulWidget {
 
 class _FilePickerDemoState extends State<FilePickerDemo> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String _fileName;
-  List<PlatformFile> _paths;
-  String _directoryPath;
-  String _extension;
+  String? _fileName;
+  List<PlatformFile>? _paths;
+  String? _directoryPath;
+  String? _extension;
   bool _loadingPath = false;
   bool _multiPick = false;
   FileType _pickingType = FileType.any;
@@ -32,7 +32,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         type: _pickingType,
         allowMultiple: _multiPick,
         allowedExtensions: (_extension?.isNotEmpty ?? false)
-            ? _extension?.replaceAll(' ', '')?.split(',')
+            ? _extension?.replaceAll(' ', '').split(',')
             : null,
       ))
           ?.files;
@@ -44,7 +44,9 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     if (!mounted) return;
     setState(() {
       _loadingPath = false;
-      _fileName = _paths != null ? _paths.map((e) => e.name).toString() : '...';
+      print(_paths!.first.extension);
+      _fileName =
+          _paths != null ? _paths!.map((e) => e.name).toString() : '...';
     });
   }
 
@@ -52,7 +54,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     FilePicker.platform.clearTemporaryFiles().then((result) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: result ? Colors.green : Colors.red,
+          backgroundColor: result! ? Colors.green : Colors.red,
           content: Text((result
               ? 'Temporary files removed with success.'
               : 'Failed to clean temporary files')),
@@ -84,10 +86,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0),
-                  child: DropdownButton(
+                  child: DropdownButton<FileType>(
                       hint: const Text('LOAD PATH FROM'),
                       value: _pickingType,
-                      items: <DropdownMenuItem>[
+                      items: <DropdownMenuItem<FileType>>[
                         DropdownMenuItem(
                           child: const Text('FROM AUDIO'),
                           value: FileType.audio,
@@ -114,7 +116,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                         ),
                       ],
                       onChanged: (value) => setState(() {
-                            _pickingType = value;
+                            _pickingType = value!;
                             if (_pickingType != FileType.custom) {
                               _controller.text = _extension = '';
                             }
@@ -172,7 +174,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                       : _directoryPath != null
                           ? ListTile(
                               title: const Text('Directory path'),
-                              subtitle: Text(_directoryPath),
+                              subtitle: Text(_directoryPath!),
                             )
                           : _paths != null
                               ? Container(
@@ -182,20 +184,20 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                                   child: Scrollbar(
                                       child: ListView.separated(
                                     itemCount:
-                                        _paths != null && _paths.isNotEmpty
-                                            ? _paths.length
+                                        _paths != null && _paths!.isNotEmpty
+                                            ? _paths!.length
                                             : 1,
                                     itemBuilder:
                                         (BuildContext context, int index) {
                                       final bool isMultiPath =
-                                          _paths != null && _paths.isNotEmpty;
+                                          _paths != null && _paths!.isNotEmpty;
                                       final String name = 'File $index: ' +
                                           (isMultiPath
-                                              ? _paths
+                                              ? _paths!
                                                   .map((e) => e.name)
                                                   .toList()[index]
-                                              : _fileName ?? '...');
-                                      final path = _paths
+                                              : _fileName ?? '...')!;
+                                      final path = _paths!
                                           .map((e) => e.path)
                                           .toList()[index]
                                           .toString();

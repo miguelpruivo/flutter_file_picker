@@ -5,6 +5,9 @@
 #### Web
 - Add event when canceling the picker. (Thank you @letranloc).
 
+#### Other
+- Updates example app to null safety.
+
 ## 3.0.0
 Adds null safety support ([#510](https://github.com/miguelpruivo/flutter_file_picker/issues/510)).
 ## 2.1.7
