@@ -47,6 +47,11 @@ class FilePickerWeb extends FilePicker {
     bool? withData = true,
     bool? withReadStream = false,
   }) async {
+    if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
+      throw Exception(
+          'You are setting a type [$type]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.');
+    }
+
     final Completer<List<PlatformFile>?> filesCompleter =
         Completer<List<PlatformFile>?>();
 

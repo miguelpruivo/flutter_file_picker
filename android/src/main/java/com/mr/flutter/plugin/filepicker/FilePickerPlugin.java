@@ -23,11 +23,11 @@ import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /**
  * FilePickerPlugin
  */
+@SuppressWarnings("deprecation")
 public class FilePickerPlugin implements MethodChannel.MethodCallHandler, FlutterPlugin, ActivityAware {
 
     private static final String TAG = "FilePicker";
@@ -117,7 +117,7 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
     /**
      * Plugin registration.
      */
-    public static void registerWith(final Registrar registrar) {
+    public static void registerWith(final io.flutter.plugin.common.PluginRegistry.Registrar registrar) {
 
         if (registrar.activity() == null) {
             // If a background flutter view tries to register the plugin, there will be no activity from the registrar,

@@ -70,9 +70,9 @@ class FilePickerIO extends FilePicker {
     bool? withReadStream,
   ) async {
     final String type = describeEnum(fileType);
-    if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
+    if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
-          'If you are using a custom extension filter, please use the FileType.custom instead.');
+          'You are setting a type [$fileType]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.');
     }
     try {
       _eventSubscription?.cancel();
@@ -98,7 +98,7 @@ class FilePickerIO extends FilePicker {
 
       final List<PlatformFile> platformFiles = <PlatformFile>[];
 
-      for (final platformFileMap in result) {
+      for (final Map platformFileMap in result) {
         platformFiles.add(
           PlatformFile.fromMap(
             platformFileMap,

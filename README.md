@@ -53,7 +53,7 @@ Quick simple usage example:
 
 #### Single file
 ```
-FilePickerResult result = await FilePicker.platform.pickFiles();
+FilePickerResult? result = await FilePicker.platform.pickFiles();
 
 if(result != null) {
    File file = File(result.files.single.path);
@@ -63,7 +63,7 @@ if(result != null) {
 ```
 #### Multiple files
 ```
-FilePickerResult result = await FilePicker.platform.pickFiles(allowMultiple: true);
+FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
 
 if(result != null) {
    List<File> files = result.paths.map((path) => File(path)).toList();
@@ -73,14 +73,14 @@ if(result != null) {
 ```
 #### Multiple files with extension filter
 ```
-FilePickerResult result = await FilePicker.platform.pickFiles(
+FilePickerResult? result = await FilePicker.platform.pickFiles(
           type: FileType.custom,
           allowedExtensions: ['jpg', 'pdf', 'doc'],
         );
 ```
 ### Load result and file details
 ```
-FilePickerResult result = await FilePicker.platform.pickFiles();
+FilePickerResult? result = await FilePicker.platform.pickFiles();
 
 if(result != null) {
    PlatformFile file = result.files.first;
@@ -92,6 +92,18 @@ if(result != null) {
    print(file.path);
 } else {
    // User canceled the picker
+}
+```
+#### Pick and upload a file to Firebase Storage with Flutter Web
+```
+FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+if (result != null) {
+  Uint8List fileBytes = result.files.first.bytes;
+  String fileName = result.files.first.name;
+  
+  // Upload file
+  await FirebaseStorage.instance.ref('uploads/$fileName').putData(fileBytes);
 }
 ```
 

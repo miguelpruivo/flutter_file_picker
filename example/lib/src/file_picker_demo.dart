@@ -196,7 +196,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                                               ? _paths!
                                                   .map((e) => e.name)
                                                   .toList()[index]
-                                              : _fileName ?? '...')!;
+                                              : _fileName ?? '...');
                                       final path = _paths!
                                           .map((e) => e.path)
                                           .toList()[index]

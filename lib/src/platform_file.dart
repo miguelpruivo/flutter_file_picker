@@ -3,11 +3,11 @@ import 'dart:typed_data';
 
 class PlatformFile {
   const PlatformFile({
+    required this.name,
+    required this.size,
     this.path,
-    this.name,
     this.bytes,
     this.readStream,
-    this.size,
   });
 
   PlatformFile.fromMap(Map data, {this.readStream})
@@ -21,21 +21,24 @@ class PlatformFile {
   /// ```
   /// final File myFile = File(platformFile.path);
   /// ```
+  /// On web this is always `null`. You should access `bytes` property instead.
+  /// Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
   final String? path;
 
   /// File name including its extension.
-  final String? name;
+  final String name;
 
   /// Byte data for this file. Particurlarly useful if you want to manipulate its data
   /// or easily upload to somewhere else.
+  /// [Check here in the FAQ](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ) an example on how to use it to upload on web.
   final Uint8List? bytes;
 
   /// File content as stream
   final Stream<List<int>>? readStream;
 
   /// The file size in bytes.
-  final int? size;
+  final int size;
 
   /// File extension for this file.
-  String? get extension => name?.split('.').last;
+  String? get extension => name.split('.').last;
 }

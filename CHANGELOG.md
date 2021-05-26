@@ -1,3 +1,18 @@
+## 3.0.2
+##### General
+- `name` and `size` properties are now non-nullable types.
+##### Docs
+- Updates README;
+- Updates API docs;
+
+##### Example
+- Updates Android example app to V2;
+##### Android
+- Removes deprecated call warnings;
+
+##### Other
+- Adds analysis_options.yaml with linter rule to surpress warnings from generated_plugin_registrant.
+
 ## 3.0.1
 #### Android
 - Use MediaStore Opener (which goes through the gallery) instead of default explorer. (Thank you @tmthecoder).
