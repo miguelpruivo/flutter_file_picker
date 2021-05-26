@@ -85,7 +85,8 @@ abstract class FilePicker extends PlatformInterface {
   /// of it whenever needed. However, this will force the cleanup if you want to manage those on your own.
   ///
   /// Returns [true] if the files were removed with success, [false] otherwise.
-  Future<bool?> clearTemporaryFiles() async => throw UnimplementedError('clearTemporaryFiles() has not been implemented.');
+  Future<bool?> clearTemporaryFiles() async => throw UnimplementedError(
+      'clearTemporaryFiles() has not been implemented.');
 
   /// Selects a directory and returns its absolute path.
   ///
@@ -93,5 +94,6 @@ abstract class FilePicker extends PlatformInterface {
   /// Returns [null] if folder path couldn't be resolved.
   ///
   /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
-  Future<String?> getDirectoryPath() async => throw UnimplementedError('getDirectoryPath() has not been implemented.');
+  Future<String?> getDirectoryPath() async =>
+      throw UnimplementedError('getDirectoryPath() has not been implemented.');
 }

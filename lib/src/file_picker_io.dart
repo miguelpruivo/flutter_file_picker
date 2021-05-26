@@ -70,7 +70,7 @@ class FilePickerIO extends FilePicker {
     bool? withReadStream,
   ) async {
     final String type = describeEnum(fileType);
-    if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
+    if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
           'You are setting a type [$fileType]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.');
     }

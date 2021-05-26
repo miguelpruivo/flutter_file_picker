@@ -1,3 +1,6 @@
+## 3.0.2+2
+- Fixes [#725](https://github.com/miguelpruivo/flutter_file_picker/issues/725).
+
 ## 3.0.2
 ##### General
 - `name` and `size` properties are now non-nullable types.
