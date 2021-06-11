@@ -38,15 +38,15 @@ class FilePickerWeb extends FilePicker {
   }
 
   @override
-  Future<FilePickerResult?> pickFiles({
-    FileType type = FileType.any,
-    List<String>? allowedExtensions,
-    bool allowMultiple = false,
-    Function(FilePickerStatus)? onFileLoading,
-    bool? allowCompression,
-    bool? withData = true,
-    bool? withReadStream = false,
-  }) async {
+  Future<FilePickerResult?> pickFiles(
+      {FileType type = FileType.any,
+      List<String>? allowedExtensions,
+      bool allowMultiple = false,
+      Function(FilePickerStatus)? onFileLoading,
+      bool? allowCompression,
+      bool? withData = true,
+      bool? withReadStream = false,
+      bool? cachedFile = true}) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
           'You are setting a type [$type]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.');

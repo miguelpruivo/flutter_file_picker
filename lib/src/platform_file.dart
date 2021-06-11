@@ -6,6 +6,7 @@ class PlatformFile {
     required this.name,
     required this.size,
     this.path,
+    this.uri,
     this.bytes,
     this.readStream,
   });
@@ -14,6 +15,7 @@ class PlatformFile {
       : this.path = data['path'],
         this.name = data['name'],
         this.bytes = data['bytes'],
+        this.uri = data['uri'] != null ? Uri.parse(data['uri']) : null,
         this.size = data['size'];
 
   /// The absolute path for a cached copy of this file. It can be used to create a
@@ -27,6 +29,8 @@ class PlatformFile {
 
   /// File name including its extension.
   final String name;
+
+  final Uri? uri;
 
   /// Byte data for this file. Particurlarly useful if you want to manipulate its data
   /// or easily upload to somewhere else.

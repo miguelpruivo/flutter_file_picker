@@ -2,6 +2,7 @@ package com.mr.flutter.plugin.filepicker;
 
 import android.app.Activity;
 import android.app.Application;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -33,6 +34,9 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
     private static final String TAG = "FilePicker";
     private static final String CHANNEL = "miguelruivo.flutter.plugins.filepicker";
     private static final String EVENT_CHANNEL = "miguelruivo.flutter.plugins.filepickerevent";
+    private static final String GET_BYTES = "GetBytes";
+    private static final String ClOSE_FILE_INPUT_STREAM = "CloseFileInputStreamByUri";
+    private static final String OPEN_FILE_INPUT_STREAM = "OpenInputStreamByUri";
 
     private class LifeCycleObserver
             implements Application.ActivityLifecycleCallbacks, DefaultLifecycleObserver {
@@ -112,6 +116,7 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
     private MethodChannel channel;
     private static String fileType;
     private static boolean isMultipleSelection = false;
+    private static boolean cachedFile = true;
     private static boolean withData = false;
 
     /**
@@ -154,6 +159,27 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
             return;
         }
 
+        if (call.method != null && call.method.equals(GET_BYTES)) {
+            final Uri uri = Uri.parse((String) arguments.get("uri"));
+            final int offset = (int) arguments.get("offset");
+            final int size = (int) arguments.get("size");
+            result.success(FileUtils.getBytesByUri(activity.getApplicationContext(), uri, offset, size));
+            return;
+        }
+
+        if (call.method != null && call.method.equals(ClOSE_FILE_INPUT_STREAM)) {
+            final Uri uri = Uri.parse((String) arguments.get("uri"));
+            FileUtils.closeInputStreamByUri(uri);
+            result.success("");
+            return;
+        }
+        if (call.method != null && call.method.equals(OPEN_FILE_INPUT_STREAM)) {
+            final Uri uri = Uri.parse((String) arguments.get("uri"));
+            FileUtils.openInputStreamByUri(activity.getApplicationContext(), uri);
+            result.success("");
+            return;
+        }
+
         fileType = FilePickerPlugin.resolveType(call.method);
         String[] allowedExtensions = null;
 
@@ -162,13 +188,14 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
         } else if (fileType != "dir") {
             isMultipleSelection = (boolean) arguments.get("allowMultipleSelection");
             withData = (boolean) arguments.get("withData");
+            cachedFile = (boolean) arguments.get("cachedFile");
             allowedExtensions = FileUtils.getMimeTypes((ArrayList<String>) arguments.get("allowedExtensions"));
         }
 
         if (fileType == "custom" && (allowedExtensions == null || allowedExtensions.length == 0)) {
             result.error(TAG, "Unsupported filter. Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.all instead.", null);
         } else {
-            this.delegate.startFileExplorer(fileType, isMultipleSelection, withData, allowedExtensions, result);
+            this.delegate.startFileExplorer(fileType, isMultipleSelection, withData, cachedFile, allowedExtensions, result);
         }
 
     }
@@ -283,7 +310,7 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
         this.activityBinding.removeActivityResultListener(this.delegate);
         this.activityBinding.removeRequestPermissionsResultListener(this.delegate);
         this.activityBinding = null;
-        if(this.observer != null) {
+        if (this.observer != null) {
             this.lifecycle.removeObserver(this.observer);
             this.application.unregisterActivityLifecycleCallbacks(this.observer);
         }
