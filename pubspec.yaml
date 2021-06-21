@@ -26,4 +26,4 @@ flutter:
         pluginClass: FilePickerPlugin
       web:
         pluginClass: FilePickerWeb
-        fileName: src/file_picker_web.dart
+        fileName: file_picker_web.dart
