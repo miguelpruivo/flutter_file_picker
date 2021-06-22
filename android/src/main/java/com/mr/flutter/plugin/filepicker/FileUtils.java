@@ -99,17 +99,8 @@ public class FileUtils {
         return true;
     }
 
-    public static FileInfo openFileStream(final Context context, final Uri uri, boolean withData) {
-
-        Log.i(TAG, "Caching from URI: " + uri.toString());
-        FileOutputStream fos = null;
-        final FileInfo.Builder fileInfo = new FileInfo.Builder();
-        final String fileName = FileUtils.getFileName(uri, context);
-        final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/" + (fileName != null ? fileName : new Random().nextInt(100000));
-
-        final File file = new File(path);
-
-        if(file.exists() && withData) {
+    public static void loadData(final File file, FileInfo.Builder fileInfo) {
+        try {
             int size = (int) file.length();
             byte[] bytes = new byte[size];
 
@@ -123,8 +114,23 @@ public class FileUtils {
                 Log.e(TAG, "Failed to close file streams: " + e.getMessage(), null);
             }
             fileInfo.withData(bytes);
-        } else {
 
+        }  catch (Exception e) {
+            Log.e(TAG, "Failed to load bytes into memory with error " + e.toString() + ". Probably the file is too big to fit device memory. Bytes won't be added to the file this time.");
+        }
+    }
+
+    public static FileInfo openFileStream(final Context context, final Uri uri, boolean withData) {
+
+        Log.i(TAG, "Caching from URI: " + uri.toString());
+        FileOutputStream fos = null;
+        final FileInfo.Builder fileInfo = new FileInfo.Builder();
+        final String fileName = FileUtils.getFileName(uri, context);
+        final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/" + (fileName != null ? fileName : new Random().nextInt(100000));
+
+        final File file = new File(path);
+
+        if(!file.exists()) {
             file.getParentFile().mkdirs();
             try {
                 fos = new FileOutputStream(path);
@@ -137,19 +143,6 @@ public class FileUtils {
 
                     while ((len = in.read(buffer)) >= 0) {
                         out.write(buffer, 0, len);
-                    }
-
-                    if(withData) {
-                        try {
-                            FileInputStream fis = null;
-                            byte[] bytes = new byte[(int) file.length()];
-                            fis = new FileInputStream(file);
-                            fis.read(bytes);
-                            fis.close();
-                            fileInfo.withData(bytes);
-                        }  catch (Exception e) {
-                            Log.e(TAG, "Failed to load bytes into memory with error " + e.toString() + ". Probably the file is too big to fit device memory. Bytes won't be added to the file this time.");
-                        }
                     }
 
                     out.flush();
@@ -169,6 +162,10 @@ public class FileUtils {
         }
 
         Log.d(TAG, "File loaded and cached at:" + path);
+
+        if(withData) {
+            loadData(file, fileInfo);
+        }
 
         fileInfo
                 .withPath(path)

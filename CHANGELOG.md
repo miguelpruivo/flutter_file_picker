@@ -1,3 +1,13 @@
+## 3.0.3
+
+#### Web
+- Removes analysis_options.yaml from the plugin and fixes the _Don't import implementation files from another package_ warning (#746).
+#### Android
+- Addresses an issue where bytes might be missing after first picking when `withData` is set to `true`. ([#616](https://github.com/miguelpruivo/flutter_file_picker/issues/616)).
+
+#### Desktop (GO)
+- Patches README import path. (Thank you @voynichteru)
+
 ## 3.0.2+2
 - Fixes [#725](https://github.com/miguelpruivo/flutter_file_picker/issues/725).
 
