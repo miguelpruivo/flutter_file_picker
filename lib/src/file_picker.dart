@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -61,21 +62,25 @@ abstract class FilePicker extends PlatformInterface {
   /// If [allowCompression] is set, it will allow media to apply the default OS compression.
   /// Defaults to `true`.
   ///
+  /// If [cachedFile] is set, it will not load bytes into memory, you can use [getBytesByUri] to get the Bytes
+  /// when you need.
+  /// Defaults to `false`.
+  ///
   /// The result is wrapped in a [FilePickerResult] which contains helper getters
   /// with useful information regarding the picked [List<PlatformFile>].
   ///
   /// For more information, check the [API documentation](https://github.com/miguelpruivo/flutter_file_picker/wiki/api).
   ///
   /// Returns [null] if aborted.
-  Future<FilePickerResult?> pickFiles({
-    FileType type = FileType.any,
-    List<String>? allowedExtensions,
-    Function(FilePickerStatus)? onFileLoading,
-    bool allowCompression = true,
-    bool allowMultiple = false,
-    bool withData = false,
-    bool withReadStream = false,
-  }) async =>
+  Future<FilePickerResult?> pickFiles(
+          {FileType type = FileType.any,
+          List<String>? allowedExtensions,
+          Function(FilePickerStatus)? onFileLoading,
+          bool allowCompression = true,
+          bool allowMultiple = false,
+          bool withData = false,
+          bool withReadStream = false,
+          bool cachedFile = false}) async =>
       throw UnimplementedError('pickFiles() has not been implemented.');
 
   /// Asks the underlying platform to remove any temporary files created by this plugin.
@@ -87,6 +92,16 @@ abstract class FilePicker extends PlatformInterface {
   /// Returns [true] if the files were removed with success, [false] otherwise.
   Future<bool?> clearTemporaryFiles() async => throw UnimplementedError(
       'clearTemporaryFiles() has not been implemented.');
+
+  Future<Uint8List?> getBytesByUri(Uri uri, int offset, int size) async =>
+      throw UnimplementedError('getBytesByUri() has not been implemented.');
+
+  Future<void> closeFileInputStreamByUri(Uri uri) async =>
+      throw UnimplementedError(
+          'closeFileInputStreamByUri() has not been implemented.');
+
+  Future<void> openInputStreamByUri(Uri uri) async => throw UnimplementedError(
+      'openInputStreamByUri() has not been implemented.');
 
   /// Selects a directory and returns its absolute path.
   ///

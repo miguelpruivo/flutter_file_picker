@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/platform_file.dart';
@@ -15,6 +16,10 @@ final MethodChannel _channel = MethodChannel(
       : const StandardMethodCodec(),
 );
 
+const String GET_BYTES = "GetBytes";
+const String ClOSE_FILE_INPUT_STREAM = "CloseFileInputStreamByUri";
+const String OPEN_FILE_INPUT_STREAM = "OpenInputStreamByUri";
+
 const EventChannel _eventChannel =
     EventChannel('miguelruivo.flutter.plugins.filepickerevent');
 
@@ -24,15 +29,15 @@ class FilePickerIO extends FilePicker {
   static StreamSubscription? _eventSubscription;
 
   @override
-  Future<FilePickerResult?> pickFiles({
-    FileType type = FileType.any,
-    List<String>? allowedExtensions,
-    Function(FilePickerStatus)? onFileLoading,
-    bool? allowCompression = true,
-    bool allowMultiple = false,
-    bool? withData = false,
-    bool? withReadStream = false,
-  }) =>
+  Future<FilePickerResult?> pickFiles(
+          {FileType type = FileType.any,
+          List<String>? allowedExtensions,
+          Function(FilePickerStatus)? onFileLoading,
+          bool? allowCompression = true,
+          bool allowMultiple = false,
+          bool? withData = false,
+          bool? withReadStream = false,
+          bool? cachedFile = true}) =>
       _getPath(
         type,
         allowMultiple,
@@ -41,11 +46,25 @@ class FilePickerIO extends FilePicker {
         onFileLoading,
         withData,
         withReadStream,
+        cachedFile,
       );
 
   @override
   Future<bool?> clearTemporaryFiles() async =>
       _channel.invokeMethod<bool>('clear');
+
+  @override
+  Future<Uint8List?> getBytesByUri(Uri uri, int offset, int size) async =>
+      _channel.invokeMethod<Uint8List>(
+          GET_BYTES, {"uri": uri.toString(), "offset": offset, "size": size});
+
+  @override
+  Future<void> closeFileInputStreamByUri(Uri uri) async =>
+      _channel.invokeMethod(ClOSE_FILE_INPUT_STREAM, {"uri": uri.toString()});
+
+  @override
+  Future<void> openInputStreamByUri(Uri uri) async =>
+      _channel.invokeMethod(OPEN_FILE_INPUT_STREAM, {"uri": uri.toString()});
 
   @override
   Future<String?> getDirectoryPath() async {
@@ -68,6 +87,7 @@ class FilePickerIO extends FilePicker {
     Function(FilePickerStatus)? onFileLoading,
     bool? withData,
     bool? withReadStream,
+    bool? cachedFile,
   ) async {
     final String type = describeEnum(fileType);
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -90,6 +110,7 @@ class FilePickerIO extends FilePicker {
         'allowedExtensions': allowedExtensions,
         'allowCompression': allowCompression,
         'withData': withData,
+        'cachedFile': cachedFile
       });
 
       if (result == null) {

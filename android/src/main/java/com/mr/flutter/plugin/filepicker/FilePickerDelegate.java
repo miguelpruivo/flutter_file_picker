@@ -34,6 +34,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private MethodChannel.Result pendingResult;
     private boolean isMultipleSelection = false;
     private boolean loadDataToMemory = false;
+    private static boolean cachedFile = true;
     private String type;
     private String[] allowedExtensions;
     private EventChannel.EventSink eventSink;
@@ -94,9 +95,9 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             int currentItem = 0;
                             while (currentItem < count) {
                                 final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
-                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
+                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory, cachedFile);
 
-                                if(file != null) {
+                                if (file != null) {
                                     files.add(file);
                                     Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
                                 }
@@ -113,7 +114,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 Log.d(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
                                 final String dirPath = FileUtils.getFullPathFromTreeUri(uri, activity);
 
-                                if(dirPath != null) {
+                                if (dirPath != null) {
                                     finishWithSuccess(dirPath);
                                 } else {
                                     finishWithError("unknown_path", "Failed to retrieve directory path.");
@@ -121,9 +122,9 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 return;
                             }
 
-                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri, loadDataToMemory);
+                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri, loadDataToMemory, cachedFile);
 
-                            if(file != null) {
+                            if (file != null) {
                                 files.add(file);
                             }
 
@@ -227,7 +228,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     @SuppressWarnings("deprecation")
-    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final MethodChannel.Result result) {
+    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final boolean cachedFile, final String[] allowedExtensions, final MethodChannel.Result result) {
 
         if (!this.setPendingMethodCallAndResult(result)) {
             finishWithAlreadyActiveError(result);
@@ -237,6 +238,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         this.type = type;
         this.isMultipleSelection = isMultipleSelection;
         this.loadDataToMemory = withData;
+        this.cachedFile = cachedFile;
         this.allowedExtensions = allowedExtensions;
 
         if (!this.permissionManager.isPermissionGranted(Manifest.permission.READ_EXTERNAL_STORAGE)) {
@@ -256,10 +258,10 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (this.pendingResult != null) {
 
-            if(data != null && !(data instanceof String)) {
+            if (data != null && !(data instanceof String)) {
                 final ArrayList<HashMap<String, Object>> files = new ArrayList<>();
 
-                for (FileInfo file : (ArrayList<FileInfo>)data) {
+                for (FileInfo file : (ArrayList<FileInfo>) data) {
                     files.add(file.toMap());
                 }
                 data = files;
