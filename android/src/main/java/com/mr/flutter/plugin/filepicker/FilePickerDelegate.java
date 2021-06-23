@@ -19,6 +19,8 @@ import androidx.core.app.ActivityCompat;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
@@ -37,6 +39,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private String type;
     private String[] allowedExtensions;
     private EventChannel.EventSink eventSink;
+    private final FilePickerCache cache;
 
     public FilePickerDelegate(final Activity activity) {
         this(
@@ -54,7 +57,8 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                         ActivityCompat.requestPermissions(activity, new String[]{permissionName}, requestCode);
                     }
 
-                }
+                },
+                new FilePickerCache(activity)
         );
     }
 
@@ -63,95 +67,109 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     @VisibleForTesting
-    FilePickerDelegate(final Activity activity, final MethodChannel.Result result, final PermissionManager permissionManager) {
+    FilePickerDelegate(final Activity activity, final MethodChannel.Result result, final PermissionManager permissionManager, final FilePickerCache cache) {
         this.activity = activity;
         this.pendingResult = result;
         this.permissionManager = permissionManager;
+        this.cache = cache;
     }
 
 
     @Override
     public boolean onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 
-        if(type == null) {
-            return false;
-        }
-
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
 
             if (eventSink != null) {
                 eventSink.success(true);
             }
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if (data != null) {
-                        final ArrayList<FileInfo> files = new ArrayList<>();
-
-                        if (data.getClipData() != null) {
-                            final int count = data.getClipData().getItemCount();
-                            int currentItem = 0;
-                            while (currentItem < count) {
-                                final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
-                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
-
-                                if(file != null) {
-                                    files.add(file);
-                                    Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
-                                }
-                                currentItem++;
-                            }
-
-                            finishWithSuccess(files);
-                        } else if (data.getData() != null) {
-                            Uri uri = data.getData();
-
-                            if (type.equals("dir") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
-
-                                Log.d(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
-                                final String dirPath = FileUtils.getFullPathFromTreeUri(uri, activity);
-
-                                if(dirPath != null) {
-                                    finishWithSuccess(dirPath);
-                                } else {
-                                    finishWithError("unknown_path", "Failed to retrieve directory path.");
-                                }
-                                return;
-                            }
-
-                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri, loadDataToMemory);
-
-                            if(file != null) {
-                                files.add(file);
-                            }
-
-                            if (!files.isEmpty()) {
-                                Log.d(FilePickerDelegate.TAG, "File path:" + files.toString());
-                                finishWithSuccess(files);
-                            } else {
-                                finishWithError("unknown_path", "Failed to retrieve path.");
-                            }
-
-                        } else {
-                            finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
-                        }
-                    } else {
-                        finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
-                    }
+            if (pendingResult != null) {
+                if(type == null) {
+                    return false;
                 }
-            }).start();
-            return true;
 
+                handleSuccessResult(data);
+                return true;
+            } else {
+                type = cache.retrieveType();
+                if (type != null && !type.equals("dir")) {
+                    cache.saveResult(data, null, null);
+                }
+            }
         } else if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_CANCELED) {
             Log.i(TAG, "User cancelled the picker request");
-            finishWithSuccess(null);
+            if (pendingResult != null) {
+                finishWithSuccess(null);
+            } else {
+                cache.clear();
+            }
             return true;
         } else if (requestCode == REQUEST_CODE) {
             finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
         }
         return false;
+    }
+
+    private void handleSuccessResult(final Intent data) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (data != null) {
+                    final ArrayList<FileInfo> files = new ArrayList<>();
+
+                    if (data.getClipData() != null) {
+                        final int count = data.getClipData().getItemCount();
+                        int currentItem = 0;
+                        while (currentItem < count) {
+                            final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
+                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
+
+                            if (file != null) {
+                                files.add(file);
+                                Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
+                            }
+                            currentItem++;
+                        }
+
+                        finishWithSuccess(files);
+                    } else if (data.getData() != null) {
+                        Uri uri = data.getData();
+
+                        if (type != null && type.equals("dir") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
+
+                            Log.d(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
+                            final String dirPath = FileUtils.getFullPathFromTreeUri(uri, activity);
+
+                            if (dirPath != null) {
+                                finishWithSuccess(dirPath);
+                            } else {
+                                finishWithError("unknown_path", "Failed to retrieve directory path.");
+                            }
+                            return;
+                        }
+
+                        final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri, loadDataToMemory);
+
+                        if (file != null) {
+                            files.add(file);
+                        }
+
+                        if (!files.isEmpty()) {
+                            Log.d(FilePickerDelegate.TAG, "File path:" + files.toString());
+                            finishWithSuccess(files);
+                        } else {
+                            finishWithError("unknown_path", "Failed to retrieve path.");
+                        }
+
+                    } else {
+                        finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
+                    }
+                } else {
+                    finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
+                }
+            }
+        }).start();
     }
 
     @Override
@@ -178,6 +196,9 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             return false;
         }
         this.pendingResult = result;
+
+        // Clean up cache if a new file picker is launched.
+        cache.clear();
         return true;
     }
 
@@ -247,6 +268,45 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         this.startFileExplorer();
     }
 
+    void saveStateBeforeResult() {
+        cache.saveLoadDataToMemory(loadDataToMemory);
+        cache.saveType(type);
+    }
+
+    @SuppressWarnings("unchecked")
+    void retrieveLostFiles(MethodChannel.Result result) {
+        final Boolean loadDataToMemory = cache.retrieveLoadDataToMemory();
+        Map<String, Object> cacheMap = cache.getCacheMap();
+        Set<String> paths = (Set<String>) cacheMap.get(cache.MAP_KEY_PATHS);
+        if (paths != null) {
+            final ArrayList<FileInfo> files = new ArrayList<>();
+            for (String path : paths) {
+                Uri uri = Uri.parse(path);
+                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri, loadDataToMemory);
+
+                if (file != null) {
+                    files.add(file);
+                }
+            }
+            if (files.isEmpty()) {
+                result.success(null);
+            } else {
+                final ArrayList<HashMap<String, Object>> resultFiles = new ArrayList<>();
+                for (FileInfo file : files) {
+                    resultFiles.add(file.toMap());
+                }
+                final HashMap<String, Object> resultMap = new HashMap<>();
+                resultMap.put("filePickerResult", resultFiles);
+                result.success(resultMap);
+            }
+        } else if (cacheMap.isEmpty()){
+            result.success(null);
+        } else {
+            result.success(cacheMap);
+        }
+        cache.clear();
+    }
+
     @SuppressWarnings("unchecked")
     private void finishWithSuccess(Object data) {
         if (eventSink != null) {
@@ -255,11 +315,12 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (this.pendingResult != null) {
+            cache.clear(); // as we are sending the result, don't need to keep it
 
-            if(data != null && !(data instanceof String)) {
+            if (data != null && !(data instanceof String)) {
                 final ArrayList<HashMap<String, Object>> files = new ArrayList<>();
 
-                for (FileInfo file : (ArrayList<FileInfo>)data) {
+                for (FileInfo file : (ArrayList<FileInfo>) data) {
                     files.add(file.toMap());
                 }
                 data = files;
@@ -272,6 +333,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
     private void finishWithError(final String errorCode, final String errorMessage) {
         if (this.pendingResult == null) {
+            cache.saveResult(null, errorCode, errorMessage);
             return;
         }
 
