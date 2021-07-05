@@ -218,23 +218,26 @@ public class FileUtils {
             Class<?> storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
             Method getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
             Method getUuid = storageVolumeClazz.getMethod("getUuid");
-            Method getPath = storageVolumeClazz.getMethod("getPath");
+            Method getDirectory = storageVolumeClazz.getMethod("getDirectory");
             Method isPrimary = storageVolumeClazz.getMethod("isPrimary");
             Object result = getVolumeList.invoke(mStorageManager);
+            if (result == null)
+                return null;
 
             final int length = Array.getLength(result);
             for (int i = 0; i < length; i++) {
                 Object storageVolumeElement = Array.get(result, i);
                 String uuid = (String) getUuid.invoke(storageVolumeElement);
                 Boolean primary = (Boolean) isPrimary.invoke(storageVolumeElement);
+                File f = (File) getDirectory.invoke(storageVolumeElement);
 
                 // primary volume?
-                if (primary && PRIMARY_VOLUME_NAME.equals(volumeId))
-                    return (String) getPath.invoke(storageVolumeElement);
+                if (primary != null && PRIMARY_VOLUME_NAME.equals(volumeId) && f != null)
+                    return f.getPath();
 
                 // other volumes?
-                if (uuid != null && uuid.equals(volumeId))
-                    return (String) getPath.invoke(storageVolumeElement);
+                if (uuid != null && uuid.equals(volumeId) && f != null)
+                    return f.getPath();
             }
             // not found.
             return null;
