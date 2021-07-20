@@ -208,6 +208,24 @@ public class FileUtils {
         }
     }
 
+    @Nullable
+    private static String getDirectoryPath(Class<?> storageVolumeClazz, Object storageVolumeElement) {
+        try {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                Method getPath = storageVolumeClazz.getMethod("getPath");
+                return (String) getPath.invoke(storageVolumeElement);
+            }
+
+            Method getDirectory = storageVolumeClazz.getMethod("getDirectory");
+            File f = (File) getDirectory.invoke(storageVolumeElement);
+            if (f != null)
+                return f.getPath();
+
+        } catch (Exception ex) {
+            return null;
+        }
+        return null;
+    }
 
     @SuppressLint("ObsoleteSdkInt")
     private static String getVolumePath(final String volumeId, Context context) {
@@ -218,7 +236,6 @@ public class FileUtils {
             Class<?> storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
             Method getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
             Method getUuid = storageVolumeClazz.getMethod("getUuid");
-            Method getDirectory = storageVolumeClazz.getMethod("getDirectory");
             Method isPrimary = storageVolumeClazz.getMethod("isPrimary");
             Object result = getVolumeList.invoke(mStorageManager);
             if (result == null)
@@ -229,15 +246,16 @@ public class FileUtils {
                 Object storageVolumeElement = Array.get(result, i);
                 String uuid = (String) getUuid.invoke(storageVolumeElement);
                 Boolean primary = (Boolean) isPrimary.invoke(storageVolumeElement);
-                File f = (File) getDirectory.invoke(storageVolumeElement);
 
                 // primary volume?
-                if (primary != null && PRIMARY_VOLUME_NAME.equals(volumeId) && f != null)
-                    return f.getPath();
+                if (primary != null && PRIMARY_VOLUME_NAME.equals(volumeId)) {
+                    return getDirectoryPath(storageVolumeClazz, storageVolumeElement);
+                }
 
                 // other volumes?
-                if (uuid != null && uuid.equals(volumeId) && f != null)
-                    return f.getPath();
+                if (uuid != null && uuid.equals(volumeId)) {
+                    return getDirectoryPath(storageVolumeClazz, storageVolumeElement);
+                }
             }
             // not found.
             return null;
