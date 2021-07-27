@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.storage.StorageManager;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
@@ -176,9 +177,27 @@ public class FileUtils {
     }
 
     @Nullable
+    @SuppressWarnings("deprecation")
     public static String getFullPathFromTreeUri(@Nullable final Uri treeUri, Context con) {
         if (treeUri == null) {
             return null;
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            if (isDownloadsDocument(treeUri)) {
+                String docId = DocumentsContract.getDocumentId(treeUri);
+                String extPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
+                if (docId.equals("downloads")) {
+                    return extPath;
+                } else if (docId.matches("^ms[df]\\:.*")) {
+                    String fileName = getFileName(treeUri, con);
+                    return extPath + "/" + fileName;
+                } else if (docId.startsWith("raw:")) {
+                    String rawPath = docId.split(":")[1];
+                    return rawPath;
+                }
+                return null;
+            }
         }
 
         String volumePath = getVolumePath(getVolumeIdFromTreeUri(treeUri), con);
@@ -262,6 +281,10 @@ public class FileUtils {
         } catch (Exception ex) {
             return null;
         }
+    }
+
+    private static boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
