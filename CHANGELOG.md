@@ -1,3 +1,8 @@
+## 3.0.4
+##### Android
+- Addresses an issue where an invalid custom file extension wouldn't throw an error when it should. Thank you @Jahn08.
+- Fixes `getDirectoryPath()` [#745](https://github.com/miguelpruivo/flutter_file_picker/issues/745). Thank you @tomm1e.
+
 ## 3.0.3
 
 #### Web
