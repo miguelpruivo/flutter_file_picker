@@ -67,9 +67,9 @@ abstract class FilePicker extends PlatformInterface {
   /// For more information, check the [API documentation](https://github.com/miguelpruivo/flutter_file_picker/wiki/api).
   ///
   /// Returns [null] if aborted.
-  Future<FilePickerResult?> pickFiles({
+    Future<FilePickerResult?> pickFiles({
     FileType type = FileType.any,
-    List<String>? allowedExtensions,
+    List<String>? allowedExtensions = ['csv'],
     Function(FilePickerStatus)? onFileLoading,
     bool allowCompression = true,
     bool allowMultiple = false,
