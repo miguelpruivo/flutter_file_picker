@@ -6,8 +6,6 @@ import 'package:file_picker/src/platform_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import 'file_picker_result.dart';
-
 final MethodChannel _channel = MethodChannel(
   'miguelruivo.flutter.plugins.filepicker',
   Platform.isLinux || Platform.isWindows || Platform.isMacOS
@@ -27,6 +25,7 @@ class FilePickerIO extends FilePicker {
   Future<FilePickerResult?> pickFiles({
     FileType type = FileType.any,
     List<String>? allowedExtensions,
+    String? dialogTitle,
     Function(FilePickerStatus)? onFileLoading,
     bool? allowCompression = true,
     bool allowMultiple = false,
@@ -48,7 +47,7 @@ class FilePickerIO extends FilePicker {
       _channel.invokeMethod<bool>('clear');
 
   @override
-  Future<String?> getDirectoryPath() async {
+  Future<String?> getDirectoryPath({String? dialogTitle}) async {
     try {
       return await _channel.invokeMethod('dir', {});
     } on PlatformException catch (ex) {

@@ -5,9 +5,6 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
-import '../src/file_picker_result.dart';
-import '../src/platform_file.dart';
-
 class FilePickerWeb extends FilePicker {
   late Element _target;
   final String _kFilePickerInputsDomId = '__file_picker_web-file-input';
@@ -39,6 +36,7 @@ class FilePickerWeb extends FilePicker {
 
   @override
   Future<FilePickerResult?> pickFiles({
+    String? dialogTitle,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     bool allowMultiple = false,
@@ -62,6 +60,11 @@ class FilePickerWeb extends FilePicker {
     uploadInput.accept = accept;
 
     bool changeEventTriggered = false;
+
+    if (onFileLoading != null) {
+      onFileLoading(FilePickerStatus.picking);
+    }
+
     void changeEventListener(e) {
       if (changeEventTriggered) {
         return;
@@ -86,6 +89,9 @@ class FilePickerWeb extends FilePicker {
         ));
 
         if (pickedFiles.length >= files.length) {
+          if (onFileLoading != null) {
+            onFileLoading(FilePickerStatus.done);
+          }
           filesCompleter.complete(pickedFiles);
         }
       }
@@ -138,7 +144,7 @@ class FilePickerWeb extends FilePicker {
     _target.children.add(uploadInput);
     uploadInput.click();
 
-    final files = await filesCompleter.future;
+    final List<PlatformFile>? files = await filesCompleter.future;
 
     return files == null ? null : FilePickerResult(files);
   }

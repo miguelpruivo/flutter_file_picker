@@ -4,5 +4,5 @@ import 'package:flutter/widgets.dart';
 
 void main() {
   debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
-  runApp(new FilePickerDemo());
+  runApp(FilePickerDemo());
 }

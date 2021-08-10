@@ -31,6 +31,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _paths = (await FilePicker.platform.pickFiles(
         type: _pickingType,
         allowMultiple: _multiPick,
+        onFileLoading: (FilePickerStatus status) => print(status),
         allowedExtensions: (_extension?.isNotEmpty ?? false)
             ? _extension?.replaceAll(' ', '').split(',')
             : null,
@@ -44,7 +45,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     if (!mounted) return;
     setState(() {
       _loadingPath = false;
-      print(_paths!.first.extension);
       _fileName =
           _paths != null ? _paths!.map((e) => e.name).toString() : '...';
     });

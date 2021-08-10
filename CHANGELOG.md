@@ -1,3 +1,15 @@
+## 4.0.0
+### Desktop support added for all platforms (MacOS, Linux & Windows) ([#271](https://github.com/miguelpruivo/flutter_file_picker/issues/271)) 🎉
+From now on, you'll be able to use file_picker with all your platforms, a big thanks to @philenius, which made this possible and allowed the [flutter_file_picker_desktop](https://github.com/philenius/flutter_file_picker_desktop) to be merged with this one.
+
+Have in mind that because of platforms differences, that the following API methods aren't available to use on Desktop:
+- The `onFileLoading()` isn't necessary, hence, `FilePickerStatus` won't change, since it hasn't any effect on those;
+- `clearTemporaryFiles()` isn't necessary since those files aren't created — the platforms will always use a reference to the original file;
+- There is a new optional parameter `dialogTitle` which can be used to set the title of the modal dialog when picking the files;
+
+##### Web
+Adds `onFileLoading()` to Web. ([#766](https://github.com/miguelpruivo/flutter_file_picker/issues/766)).
+
 ## 3.0.4
 ##### Android
 - Addresses an issue where an invalid custom file extension wouldn't throw an error when it should. Thank you @Jahn08.

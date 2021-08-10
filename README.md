@@ -12,6 +12,9 @@
  <a href="https://www.buymeacoffee.com/gQyz2MR">
     <img alt="Buy me a coffee" src="https://img.shields.io/badge/Donate-Buy%20Me%20A%20Coffee-yellow.svg">
   </a>
+  <a href="https://github.com/miguelpruivo/flutter_file_picker/issues"><img src="https://img.shields.io/github/issues/miguelpruivo/flutter_file_picker">
+  </a>
+  <img src="https://img.shields.io/github/license/miguelpruivo/flutter_file_picker">
 </p>
 
 # File Picker
@@ -19,13 +22,12 @@ A package that allows you to use the native file explorer to pick single or mult
 
 ## Currently supported features
 * Uses OS default native pickers
+* Supports multiple platforms (Mobile, Web, Desktop and Flutter GO)
 * Pick files using  **custom format** filtering — you can provide a list of file extensions (pdf, svg, zip, etc.)
 * Pick files from **cloud files** (GDrive, Dropbox, iCloud)
 * Single or multiple file picks
 * Different default type filtering (media, image, video, audio or any)
-* Picking directories 
-* Flutter Web
-* Desktop (MacOS, Linux and Windows through Flutter Go)
+* Picking directories
 * Load file data immediately into memory (`Uint8List`) if needed; 
 
 If you have any feature that you want to see in this package, please feel free to issue a suggestion. 🎉
@@ -110,8 +112,16 @@ if (result != null) {
 For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** above.
 
 ## Example App
-![Demo](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/example.gif)
-![DemoMultiFilters](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/example_ios.gif)
+#### Android
+![Demo](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example.gif)
+#### iOS
+![DemoMultiFilters](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_ios.gif)
+#### MacOS
+![DemoMacOS](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_macos.png)
+#### Linux
+![DemoLinux](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_linux.png)
+#### Windows
+![DemoWindows](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_windows.png)
 
 ## Getting Started
 
