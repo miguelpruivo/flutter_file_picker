@@ -11,7 +11,7 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
     
-  flutter_plugin_android_lifecycle: ^2.0.0
+  flutter_plugin_android_lifecycle: ^2.0.2
   plugin_platform_interface: ^2.0.0
   ffi: ^1.1.2
   path: ^1.8.0
