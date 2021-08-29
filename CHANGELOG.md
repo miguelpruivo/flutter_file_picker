@@ -1,3 +1,6 @@
+## 4.0.0+1
+Overrides equality and toString for `platform_file` and `file_picker_result` for better comparison different results.
+
 ## 4.0.0
 ### Desktop support added for all platforms (MacOS, Linux & Windows) ([#271](https://github.com/miguelpruivo/flutter_file_picker/issues/271)) 🎉
 From now on, you'll be able to use file_picker with all your platforms, a big thanks to @philenius, which made this possible and allowed the [flutter_file_picker_desktop](https://github.com/philenius/flutter_file_picker_desktop) to be merged with this one.
