@@ -28,4 +28,17 @@ class FilePickerResult {
 
   /// A `List<String>` containing all names from picked files with its extensions.
   List<String?> get names => files.map((file) => file.name).toList();
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is FilePickerResult && listEquals(other.files, files);
+  }
+
+  @override
+  int get hashCode => files.hashCode;
+
+  @override
+  String toString() => 'FilePickerResult(files: $files)';
 }

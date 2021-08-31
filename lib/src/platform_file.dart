@@ -59,4 +59,30 @@ class PlatformFile {
 
   /// File extension for this file.
   String? get extension => name.split('.').last;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is PlatformFile &&
+        other.path == path &&
+        other.name == name &&
+        other.bytes == bytes &&
+        other.readStream == readStream &&
+        other.size == size;
+  }
+
+  @override
+  int get hashCode {
+    return path.hashCode ^
+        name.hashCode ^
+        bytes.hashCode ^
+        readStream.hashCode ^
+        size.hashCode;
+  }
+
+  @override
+  String toString() {
+    return 'PlatformFile(path: $path, name: $name, bytes: $bytes, readStream: $readStream, size: $size)';
+  }
 }
