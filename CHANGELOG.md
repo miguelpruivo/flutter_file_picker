@@ -1,5 +1,12 @@
-## 4.0.0+1
-Overrides equality and toString for `platform_file` and `file_picker_result` for better comparison different results.
+## 4.0.1
+##### General
+Overrides equality and toString for `platform_file` and `file_picker_result` for better comparison different results. Thank you @Nolence.
+##### iOS
+- Changes the presentation type of the picker from `UIModalPresentationCurrentContext` to `UIModalPresentationAutomatic` ([#813](https://github.com/miguelpruivo/flutter_file_picker/issues/813)).
+
+##### Web
+- Fixes regression of [#746](https://github.com/miguelpruivo/flutter_file_picker/issues/746).
+- Updates exception text when trying to access `path` on Web. Thank you @maxzod.
 
 ## 4.0.0
 ### Desktop support added for all platforms (MacOS, Linux & Windows) ([#271](https://github.com/miguelpruivo/flutter_file_picker/issues/271)) 🎉

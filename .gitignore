@@ -34,3 +34,4 @@ example/ios/Flutter/flutter_export_environment.sh
 example/.flutter-plugins-dependencies
 file_picker/example/.flutter-plugins-dependencies
 file_picker/example/ios/Flutter/flutter_export_environment.sh
+example/macos

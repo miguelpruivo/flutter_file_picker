@@ -134,7 +134,6 @@
     }
     
     self.documentPickerController.delegate = self;
-    self.documentPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
     self.galleryPickerController.allowsEditing = NO;
     
     [self.viewController presentViewController:self.documentPickerController animated:YES completion:nil];
@@ -157,7 +156,6 @@
         
         PHPickerViewController *pickerViewController = [[PHPickerViewController alloc] initWithConfiguration:config];
         pickerViewController.delegate = self;
-        pickerViewController.modalPresentationStyle = UIModalPresentationCurrentContext;
         [self.viewController presentViewController:pickerViewController animated:YES completion:nil];
         return;
     }
@@ -173,7 +171,6 @@
     
     self.galleryPickerController = [[UIImagePickerController alloc] init];
     self.galleryPickerController.delegate = self;
-    self.galleryPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
     self.galleryPickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
     
     switch (type) {
@@ -222,7 +219,7 @@
     
     if (@available(iOS 11.0, *)) {
         DKImageAssetExporterConfiguration * exportConfiguration = [[DKImageAssetExporterConfiguration alloc] init];
-        exportConfiguration.imageExportPreset = allowCompression ? UIImagePickerControllerImageURLExportPresetCompatible : UIImagePickerControllerImageURLExportPresetCurrent;
+        exportConfiguration.imageExportPreset = allowCompression ? DKImageExportPresentCompatible : DKImageExportPresentCurrent;
         exportConfiguration.videoExportPreset = allowCompression ? AVAssetExportPresetHighestQuality : AVAssetExportPresetPassthrough;
         dkImagePickerController.exporter = [dkImagePickerController.exporter initWithConfiguration:exportConfiguration];
     }
@@ -284,7 +281,6 @@
     self.audioPickerController.delegate = self;
     self.audioPickerController.showsCloudItems = YES;
     self.audioPickerController.allowsPickingMultipleItems = isMultiPick;
-    self.audioPickerController.modalPresentationStyle = UIModalPresentationCurrentContext;
     
     [self.viewController presentViewController:self.audioPickerController animated:YES completion:nil];
 }
