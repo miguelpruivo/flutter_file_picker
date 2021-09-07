@@ -1,3 +1,7 @@
+## 4.0.2
+##### Desktop (Windows)
+Fixes custom extension filter. Thank you @jgoyvaerts.
+
 ## 4.0.1
 ##### General
 Overrides equality and toString for `platform_file` and `file_picker_result` for better comparison different results. Thank you @Nolence.
