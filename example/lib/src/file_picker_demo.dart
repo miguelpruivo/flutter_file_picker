@@ -9,7 +9,9 @@ class FilePickerDemo extends StatefulWidget {
 
 class _FilePickerDemoState extends State<FilePickerDemo> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   String? _fileName;
+  String? _saveAsFileName;
   List<PlatformFile>? _paths;
   String? _directoryPath;
   String? _extension;
@@ -69,9 +71,35 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     });
   }
 
+  Future<void> _saveFile() async {
+    try {
+      String? fileName = await FilePicker.platform.saveFile(
+        allowedExtensions: (_extension?.isNotEmpty ?? false)
+            ? _extension?.replaceAll(' ', '').split(',')
+            : null,
+        type: _pickingType,
+      );
+      setState(() => _saveAsFileName = fileName);
+    } on PlatformException catch (e) {
+      _logException("Unsupported operation" + e.toString());
+    } catch (ex) {
+      _logException(ex.toString());
+    }
+  }
+
+  void _logException(String message) {
+    print(message);
+    _scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scaffoldMessengerKey: _scaffoldMessengerKey,
       home: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
@@ -152,12 +180,19 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                     children: <Widget>[
                       ElevatedButton(
                         onPressed: () => _openFileExplorer(),
-                        child: const Text("Open file picker"),
+                        child: Text(_multiPick ? "Pick files" : "Pick file"),
                       ),
+                      SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () => _selectFolder(),
                         child: const Text("Pick folder"),
                       ),
+                      SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () => _saveFile(),
+                        child: const Text("Save file"),
+                      ),
+                      SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () => _clearCachedFiles(),
                         child: const Text("Clear temporary files"),
@@ -214,7 +249,12 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                                             const Divider(),
                                   )),
                                 )
-                              : const SizedBox(),
+                              : _saveAsFileName != null
+                                  ? ListTile(
+                                      title: const Text('Save file'),
+                                      subtitle: Text(_saveAsFileName!),
+                                    )
+                                  : const SizedBox(),
                 ),
               ],
             ),

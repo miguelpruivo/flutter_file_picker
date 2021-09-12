@@ -126,4 +126,32 @@ abstract class FilePicker extends PlatformInterface {
   /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
   Future<String?> getDirectoryPath({String? dialogTitle}) async =>
       throw UnimplementedError('getDirectoryPath() has not been implemented.');
+
+  /// Opens a save file dialog which lets the user select a file path and a file
+  /// name to save a file.
+  /// 
+  /// This function does not actually save a file. It only opens the dialog to
+  /// let the user choose a location and file name. This function only returns
+  /// the **path** to this (non-existing) file.
+  ///
+  /// This method is only available on desktop platforms (Linux, macOS &
+  /// Windows).
+  ///
+  /// [dialogTitle] can be set to display a custom title on desktop platforms.
+  /// [fileName] can be set to a non-empty string to provide a default file
+  /// name.
+  /// The file type filter [type] defaults to [FileType.any]. Optionally,
+  /// [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`.). Both
+  /// parameters are just a proposal to the user as the save file dialog does
+  /// not enforce these restrictions.
+  ///
+  /// Returns [null] if aborted. Returns a [Future<String?>] which resolves to
+  /// the absolute path of the selected file, if the user selected a file.
+  Future<String?> saveFile({
+    String? dialogTitle,
+    String? fileName,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+  }) async =>
+      throw UnimplementedError('saveFile() has not been implemented.');
 }
