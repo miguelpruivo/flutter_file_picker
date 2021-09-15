@@ -1,3 +1,6 @@
+## 4.0.3
+Makes the `path` getter nullable to match with its property ([#823](https://github.com/miguelpruivo/flutter_file_picker/issues/823)).
+
 ## 4.0.2
 ##### Desktop (Windows)
 Fixes custom extension filter. Thank you @jgoyvaerts.

@@ -31,7 +31,7 @@ class PlatformFile {
   /// Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
   String? _path;
 
-  String get path {
+  String? get path {
     if (kIsWeb) {
       /// https://github.com/miguelpruivo/flutter_file_picker/issues/751
       throw '''
@@ -40,7 +40,7 @@ class PlatformFile {
       Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
       ''';
     }
-    return _path!;
+    return _path;
   }
 
   /// File name including its extension.
