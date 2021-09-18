@@ -27,7 +27,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _controller.addListener(() => _extension = _controller.text);
   }
 
-  void _openFileExplorer() async {
+  void _pickFiles() async {
     _resetState();
     try {
       _directoryPath = null;
@@ -221,7 +221,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                   child: Column(
                     children: <Widget>[
                       ElevatedButton(
-                        onPressed: () => _openFileExplorer(),
+                        onPressed: () => _pickFiles(),
                         child: Text(_multiPick ? "Pick files" : "Pick file"),
                       ),
                       SizedBox(height: 10),
