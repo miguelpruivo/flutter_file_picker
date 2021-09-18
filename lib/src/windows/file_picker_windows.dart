@@ -28,23 +28,30 @@ class FilePickerWindows extends FilePicker {
         comdlg32.lookupFunction<GetOpenFileNameW, GetOpenFileNameWDart>(
             'GetOpenFileNameW');
 
-    final Pointer<OPENFILENAMEW> openFileName = _instantiateOpenFileNameW(
+    final Pointer<OPENFILENAMEW> openFileNameW = _instantiateOpenFileNameW(
       allowMultiple: allowMultiple,
       allowedExtensions: allowedExtensions,
       dialogTitle: dialogTitle,
       type: type,
     );
 
-    final result = getOpenFileNameW(openFileName);
+    final result = getOpenFileNameW(openFileNameW);
+    FilePickerResult? returnValue;
     if (result == 1) {
-      final filePaths =
-          _extractSelectedFilesFromOpenFileNameW(openFileName.ref);
-      final platformFiles =
-          await filePathsToPlatformFiles(filePaths, withReadStream, withData);
+      final filePaths = _extractSelectedFilesFromOpenFileNameW(
+        openFileNameW.ref,
+      );
+      final platformFiles = await filePathsToPlatformFiles(
+        filePaths,
+        withReadStream,
+        withData,
+      );
 
-      return FilePickerResult(platformFiles);
+      returnValue = FilePickerResult(platformFiles);
     }
-    return null;
+
+    _freeMemory(openFileNameW);
+    return returnValue;
   }
 
   @override
@@ -81,13 +88,16 @@ class FilePickerWindows extends FilePicker {
     );
 
     final result = getSaveFileNameW(openFileNameW);
+    String? returnValue;
     if (result == 1) {
-      final filePaths =
-          _extractSelectedFilesFromOpenFileNameW(openFileNameW.ref);
-      return filePaths.first;
+      final filePaths = _extractSelectedFilesFromOpenFileNameW(
+        openFileNameW.ref,
+      );
+      returnValue = filePaths.first;
     }
 
-    return null;
+    _freeMemory(openFileNameW);
+    return returnValue;
   }
 
   String fileTypeToFileFilter(FileType type, List<String>? allowedExtensions) {
@@ -123,7 +133,7 @@ class FilePickerWindows extends FilePicker {
     final Pointer<BROWSEINFOA> browseInfo = calloc<BROWSEINFOA>();
     browseInfo.ref.hwndOwner = nullptr;
     browseInfo.ref.pidlRoot = nullptr;
-    browseInfo.ref.pszDisplayName = calloc.allocate<Utf16>(maxPath);
+    browseInfo.ref.pszDisplayName = calloc.allocate<Utf16>(maximumPathLength);
     browseInfo.ref.lpszTitle = dialogTitle.toNativeUtf16();
     browseInfo.ref.ulFlags =
         bifEditBox | bifNewDialogStyle | bifReturnOnlyFsDirs;
@@ -154,7 +164,7 @@ class FilePickerWindows extends FilePicker {
         shell32.lookupFunction<SHGetPathFromIDListW, SHGetPathFromIDListWDart>(
             'SHGetPathFromIDListW');
 
-    final Pointer<Utf16> pszPath = calloc.allocate<Utf16>(maxPath);
+    final Pointer<Utf16> pszPath = calloc.allocate<Utf16>(maximumPathLength);
 
     final int result = shGetPathFromIDListW(lpItem, pszPath);
     if (result == 0x00000000) {
@@ -162,9 +172,9 @@ class FilePickerWindows extends FilePicker {
           'Failed to convert item identifier list to a file system path.');
     }
 
+    final path = pszPath.toDartString();
     calloc.free(pszPath);
-
-    return pszPath.toDartString();
+    return path;
   }
 
   /// Extracts the list of selected files from the Win32 API struct [OPENFILENAMEW].
@@ -219,15 +229,16 @@ class FilePickerWindows extends FilePicker {
     List<String>? allowedExtensions,
     FileType type = FileType.any,
   }) {
+    final lpstrFileBufferSize = 20 * maximumPathLength;
     final Pointer<OPENFILENAMEW> openFileNameW = calloc<OPENFILENAMEW>();
 
     openFileNameW.ref.lStructSize = sizeOf<OPENFILENAMEW>();
     openFileNameW.ref.lpstrTitle =
         (dialogTitle ?? defaultDialogTitle).toNativeUtf16();
-    openFileNameW.ref.lpstrFile = calloc.allocate<Utf16>(maxPath);
+    openFileNameW.ref.lpstrFile = calloc.allocate<Utf16>(lpstrFileBufferSize);
     openFileNameW.ref.lpstrFilter =
         fileTypeToFileFilter(type, allowedExtensions).toNativeUtf16();
-    openFileNameW.ref.nMaxFile = maxPath;
+    openFileNameW.ref.nMaxFile = lpstrFileBufferSize;
     openFileNameW.ref.lpstrInitialDir = ''.toNativeUtf16();
     openFileNameW.ref.flags = ofnExplorer | ofnFileMustExist | ofnHideReadOnly;
 
@@ -236,11 +247,12 @@ class FilePickerWindows extends FilePicker {
     }
 
     if (defaultFileName != null) {
-      final Uint16List nativeString =
-          openFileNameW.ref.lpstrFile.cast<Uint16>().asTypedList(maxPath);
+      final Uint16List nativeString = openFileNameW.ref.lpstrFile
+          .cast<Uint16>()
+          .asTypedList(maximumPathLength);
       final safeName = defaultFileName.substring(
         0,
-        min(maxPath - 1, defaultFileName.length),
+        min(maximumPathLength - 1, defaultFileName.length),
       );
       final units = safeName.codeUnits;
       nativeString.setRange(0, units.length, units);
@@ -248,5 +260,13 @@ class FilePickerWindows extends FilePicker {
     }
 
     return openFileNameW;
+  }
+
+  void _freeMemory(Pointer<OPENFILENAMEW> openFileNameW) {
+    calloc.free(openFileNameW.ref.lpstrTitle);
+    calloc.free(openFileNameW.ref.lpstrFile);
+    calloc.free(openFileNameW.ref.lpstrFilter);
+    calloc.free(openFileNameW.ref.lpstrInitialDir);
+    calloc.free(openFileNameW);
   }
 }
