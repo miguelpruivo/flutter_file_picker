@@ -41,7 +41,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       ))
           ?.files;
     } on PlatformException catch (e) {
-      _logException("Unsupported operation" + e.toString());
+      _logException('Unsupported operation' + e.toString());
     } catch (e) {
       _logException(e.toString());
     }
@@ -67,7 +67,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         ),
       );
     } on PlatformException catch (e) {
-      _logException("Unsupported operation" + e.toString());
+      _logException('Unsupported operation' + e.toString());
     } catch (e) {
       _logException(e.toString());
     } finally {
@@ -84,7 +84,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         _userAborted = path == null;
       });
     } on PlatformException catch (e) {
-      _logException("Unsupported operation" + e.toString());
+      _logException('Unsupported operation' + e.toString());
     } catch (e) {
       _logException(e.toString());
     } finally {
@@ -106,7 +106,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         _userAborted = fileName == null;
       });
     } on PlatformException catch (e) {
-      _logException("Unsupported operation" + e.toString());
+      _logException('Unsupported operation' + e.toString());
     } catch (e) {
       _logException(e.toString());
     } finally {
@@ -222,22 +222,22 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                     children: <Widget>[
                       ElevatedButton(
                         onPressed: () => _pickFiles(),
-                        child: Text(_multiPick ? "Pick files" : "Pick file"),
+                        child: Text(_multiPick ? 'Pick files' : 'Pick file'),
                       ),
                       SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () => _selectFolder(),
-                        child: const Text("Pick folder"),
+                        child: const Text('Pick folder'),
                       ),
                       SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () => _saveFile(),
-                        child: const Text("Save file"),
+                        child: const Text('Save file'),
                       ),
                       SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () => _clearCachedFiles(),
-                        child: const Text("Clear temporary files"),
+                        child: const Text('Clear temporary files'),
                       ),
                     ],
                   ),
@@ -251,7 +251,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                       : _userAborted
                           ? Padding(
                               padding: const EdgeInsets.only(bottom: 10.0),
-                              child: const Text("User has aborted the dialog"),
+                              child: const Text('User has aborted the dialog'),
                             )
                           : _directoryPath != null
                               ? ListTile(

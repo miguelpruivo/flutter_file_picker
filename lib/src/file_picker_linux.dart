@@ -74,8 +74,8 @@ class FilePickerLinux extends FilePicker {
     );
     final arguments = generateCommandLineArguments(
       dialogTitle ?? defaultDialogTitle,
-      fileName: fileName ?? '',
       fileFilter: fileFilter,
+      fileName: fileName ?? '',
       saveFile: true,
     );
     return await runExecutableWithArguments(executable, arguments);
