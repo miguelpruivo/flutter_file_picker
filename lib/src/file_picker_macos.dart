@@ -66,6 +66,7 @@ class FilePickerMacOS extends FilePicker {
     return resultStringToFilePaths(directorySelectionResult).first;
   }
 
+  @override
   Future<String?> saveFile({
     String? dialogTitle,
     String? fileName,

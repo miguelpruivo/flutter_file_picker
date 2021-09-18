@@ -1,4 +1,6 @@
 import 'dart:ffi';
+import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:file_picker/file_picker.dart';
@@ -26,19 +28,12 @@ class FilePickerWindows extends FilePicker {
         comdlg32.lookupFunction<GetOpenFileNameW, GetOpenFileNameWDart>(
             'GetOpenFileNameW');
 
-    final Pointer<OPENFILENAMEW> openFileName = calloc<OPENFILENAMEW>();
-    openFileName.ref.lStructSize = sizeOf<OPENFILENAMEW>();
-    openFileName.ref.lpstrTitle =
-        (dialogTitle ?? defaultDialogTitle).toNativeUtf16();
-    openFileName.ref.lpstrFile = calloc.allocate<Utf16>(maxPath);
-    openFileName.ref.lpstrFilter =
-        fileTypeToFileFilter(type, allowedExtensions).toNativeUtf16();
-    openFileName.ref.nMaxFile = maxPath;
-    openFileName.ref.lpstrInitialDir = ''.toNativeUtf16();
-    openFileName.ref.flags = ofnExplorer | ofnFileMustExist | ofnHideReadOnly;
-    if (allowMultiple) {
-      openFileName.ref.flags |= ofnAllowMultiSelect;
-    }
+    final Pointer<OPENFILENAMEW> openFileName = _instantiateOpenFileNameW(
+      allowMultiple: allowMultiple,
+      allowedExtensions: allowedExtensions,
+      dialogTitle: dialogTitle,
+      type: type,
+    );
 
     final result = getOpenFileNameW(openFileName);
     if (result == 1) {
@@ -63,6 +58,36 @@ class FilePickerWindows extends FilePicker {
     return Future.value(
       _getPathFromItemIdentifierList(pathIdPointer),
     );
+  }
+
+  @override
+  Future<String?> saveFile({
+    String? dialogTitle,
+    String? fileName,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+  }) async {
+    final comdlg32 = DynamicLibrary.open('comdlg32.dll');
+
+    final getSaveFileNameW =
+        comdlg32.lookupFunction<GetSaveFileNameW, GetSaveFileNameWDart>(
+            'GetSaveFileNameW');
+
+    final Pointer<OPENFILENAMEW> openFileNameW = _instantiateOpenFileNameW(
+      allowedExtensions: allowedExtensions,
+      defaultFileName: fileName,
+      dialogTitle: dialogTitle,
+      type: type,
+    );
+
+    final result = getSaveFileNameW(openFileNameW);
+    if (result == 1) {
+      final filePaths =
+          _extractSelectedFilesFromOpenFileNameW(openFileNameW.ref);
+      return filePaths.first;
+    }
+
+    return null;
   }
 
   String fileTypeToFileFilter(FileType type, List<String>? allowedExtensions) {
@@ -185,5 +210,43 @@ class FilePickerWindows extends FilePicker {
     }
 
     return filePaths;
+  }
+
+  Pointer<OPENFILENAMEW> _instantiateOpenFileNameW({
+    bool allowMultiple = false,
+    String? dialogTitle,
+    String? defaultFileName,
+    List<String>? allowedExtensions,
+    FileType type = FileType.any,
+  }) {
+    final Pointer<OPENFILENAMEW> openFileNameW = calloc<OPENFILENAMEW>();
+
+    openFileNameW.ref.lStructSize = sizeOf<OPENFILENAMEW>();
+    openFileNameW.ref.lpstrTitle =
+        (dialogTitle ?? defaultDialogTitle).toNativeUtf16();
+    openFileNameW.ref.lpstrFile = calloc.allocate<Utf16>(maxPath);
+    openFileNameW.ref.lpstrFilter =
+        fileTypeToFileFilter(type, allowedExtensions).toNativeUtf16();
+    openFileNameW.ref.nMaxFile = maxPath;
+    openFileNameW.ref.lpstrInitialDir = ''.toNativeUtf16();
+    openFileNameW.ref.flags = ofnExplorer | ofnFileMustExist | ofnHideReadOnly;
+
+    if (allowMultiple) {
+      openFileNameW.ref.flags |= ofnAllowMultiSelect;
+    }
+
+    if (defaultFileName != null) {
+      final Uint16List nativeString =
+          openFileNameW.ref.lpstrFile.cast<Uint16>().asTypedList(maxPath);
+      final safeName = defaultFileName.substring(
+        0,
+        min(maxPath - 1, defaultFileName.length),
+      );
+      final units = safeName.codeUnits;
+      nativeString.setRange(0, units.length, units);
+      nativeString[units.length] = 0;
+    }
+
+    return openFileNameW;
   }
 }

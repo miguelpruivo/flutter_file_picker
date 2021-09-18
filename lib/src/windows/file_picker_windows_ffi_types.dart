@@ -49,6 +49,23 @@ typedef SHGetPathFromIDListWDart = int Function(
   Pointer<Utf16> pszPath,
 );
 
+/// Function from Win32 API to create a save dialog box that lets the user
+/// specify the drive, directory, and name of a file to save.
+/// Reference:
+/// https://docs.microsoft.com/en-us/windows/win32/api/commdlg/nf-commdlg-getsavefilenamew
+typedef GetSaveFileNameW = Int8 Function(
+  /// A pointer to an [OPENFILENAMEW] structure that contains information used
+  /// to initialize the dialog box. When the function [GetSaveFileNameW]
+  /// returns, this structure contains information about the user's file
+  /// selection.
+  Pointer unnamedParam1,
+);
+
+/// Dart equivalent of [GetSaveFileNameW]
+typedef GetSaveFileNameWDart = int Function(
+  Pointer unnamedParam1,
+);
+
 /// Struct from Win32 API that contains parameters for the [SHBrowseForFolderW] function and receives
 /// information about the folder selected by the user.
 ///
