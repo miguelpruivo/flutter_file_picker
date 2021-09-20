@@ -38,8 +38,8 @@ typedef SHGetPathFromIDListW = Int8 Function(
   /// the root of the namespace (the desktop).
   Pointer pidl,
 
-  /// The address of a buffer to receive the file system path. This buffer must be at least [maxPath]
-  /// characters in size.
+  /// The address of a buffer to receive the file system path. This buffer must be at least
+  /// [maximumPathLength] characters in size.
   Pointer<Utf16> pszPath,
 );
 
@@ -47,6 +47,23 @@ typedef SHGetPathFromIDListW = Int8 Function(
 typedef SHGetPathFromIDListWDart = int Function(
   Pointer pidl,
   Pointer<Utf16> pszPath,
+);
+
+/// Function from Win32 API to create a save dialog box that lets the user
+/// specify the drive, directory, and name of a file to save.
+/// Reference:
+/// https://docs.microsoft.com/en-us/windows/win32/api/commdlg/nf-commdlg-getsavefilenamew
+typedef GetSaveFileNameW = Int8 Function(
+  /// A pointer to an [OPENFILENAMEW] structure that contains information used
+  /// to initialize the dialog box. When the function [GetSaveFileNameW]
+  /// returns, this structure contains information about the user's file
+  /// selection.
+  Pointer unnamedParam1,
+);
+
+/// Dart equivalent of [GetSaveFileNameW]
+typedef GetSaveFileNameWDart = int Function(
+  Pointer unnamedParam1,
 );
 
 /// Struct from Win32 API that contains parameters for the [SHBrowseForFolderW] function and receives
@@ -64,7 +81,7 @@ class BROWSEINFOA extends Struct {
   external Pointer pidlRoot;
 
   /// Pointer to a buffer to receive the display name of the folder selected by the user. The size
-  /// of this buffer is assumed to be [maxPath] characters.
+  /// of this buffer is assumed to be [maximumPathLength] characters.
   external Pointer<Utf16> pszDisplayName;
 
   /// Pointer to a null-terminated string that is displayed above the tree view control in the dialog
@@ -189,7 +206,7 @@ const bifEditBox = 0x00000010;
 const bifNewDialogStyle = 0x00000040;
 
 /// In the Windows API, the maximum length for a path is MAX_PATH, which is defined as 260 characters.
-const maxPath = 260;
+const maximumPathLength = 260;
 
 /// The File Name list box allows multiple selections.
 const ofnAllowMultiSelect = 0x00000200;

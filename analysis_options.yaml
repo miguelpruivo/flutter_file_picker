@@ -1,3 +1,15 @@
+include: package:lints/recommended.yaml
+
 analyzer:
   exclude:
+    - build/**
+    - example/**
     - lib/generated_plugin_registrant.dart
+#   language:
+#     strict-raw-types: true
+#   strong-mode:
+#     implicit-casts: false
+
+# linter:
+#   rules:
+#     - cancel_subscriptions

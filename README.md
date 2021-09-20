@@ -15,6 +15,9 @@
   <a href="https://github.com/miguelpruivo/flutter_file_picker/issues"><img src="https://img.shields.io/github/issues/miguelpruivo/flutter_file_picker">
   </a>
   <img src="https://img.shields.io/github/license/miguelpruivo/flutter_file_picker">
+  <a href="https://github.com/miguelpruivo/flutter_file_picker/actions/workflows/main.yml">
+    <img alt="CI pipeline status" src="https://github.com/miguelpruivo/flutter_file_picker/actions/workflows/main.yml/badge.svg">
+  </a>
 </p>
 
 # File Picker
@@ -29,6 +32,7 @@ A package that allows you to use the native file explorer to pick single or mult
 * Different default type filtering (media, image, video, audio or any)
 * Picking directories
 * Load file data immediately into memory (`Uint8List`) if needed; 
+* Open a save-file / save-as dialog (a dialog that lets the user specify the drive, directory, and name of a file to save)
 
 If you have any feature that you want to see in this package, please feel free to issue a suggestion. 🎉
 
@@ -54,50 +58,69 @@ See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker
 Quick simple usage example:
 
 #### Single file
-```
+```dart
 FilePickerResult? result = await FilePicker.platform.pickFiles();
 
-if(result != null) {
-   File file = File(result.files.single.path);
+if (result != null) {
+  File file = File(result.files.single.path);
 } else {
-   // User canceled the picker
+  // User canceled the picker
 }
 ```
 #### Multiple files
-```
+```dart
 FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
 
-if(result != null) {
-   List<File> files = result.paths.map((path) => File(path)).toList();
+if (result != null) {
+  List<File> files = result.paths.map((path) => File(path)).toList();
 } else {
-   // User canceled the picker
+  // User canceled the picker
 }
 ```
 #### Multiple files with extension filter
-```
+```dart
 FilePickerResult? result = await FilePicker.platform.pickFiles(
-          type: FileType.custom,
-          allowedExtensions: ['jpg', 'pdf', 'doc'],
-        );
+  type: FileType.custom,
+  allowedExtensions: ['jpg', 'pdf', 'doc'],
+);
+```
+#### Pick a directory
+```dart
+String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+
+if (selectedDirectory == null) {
+  // User canceled the picker
+}
+```
+#### Save-file / save-as dialog
+```dart
+String? outputFile = await FilePicker.platform.saveFile(
+  dialogTitle: 'Please select an output file:',
+  fileName: 'output-file.pdf',
+);
+
+if (outputFile == null) {
+  // User canceled the picker
+}
 ```
 ### Load result and file details
-```
+```dart
 FilePickerResult? result = await FilePicker.platform.pickFiles();
 
-if(result != null) {
-   PlatformFile file = result.files.first;
-   
-   print(file.name);
-   print(file.bytes);
-   print(file.size);
-   print(file.extension);
-   print(file.path);
+if (result != null) {
+  PlatformFile file = result.files.first;
+
+  print(file.name);
+  print(file.bytes);
+  print(file.size);
+  print(file.extension);
+  print(file.path);
 } else {
-   // User canceled the picker
+  // User canceled the picker
 }
 ```
 #### Pick and upload a file to Firebase Storage with Flutter Web
-```
+```dart
 FilePickerResult? result = await FilePicker.platform.pickFiles();
 
 if (result != null) {

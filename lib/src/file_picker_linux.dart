@@ -60,6 +60,27 @@ class FilePickerLinux extends FilePicker {
     return await runExecutableWithArguments(executable, arguments);
   }
 
+  @override
+  Future<String?> saveFile({
+    String? dialogTitle,
+    String? fileName,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+  }) async {
+    final executable = await _getPathToExecutable();
+    final String fileFilter = fileTypeToFileFilter(
+      type,
+      allowedExtensions,
+    );
+    final arguments = generateCommandLineArguments(
+      dialogTitle ?? defaultDialogTitle,
+      fileFilter: fileFilter,
+      fileName: fileName ?? '',
+      saveFile: true,
+    );
+    return await runExecutableWithArguments(executable, arguments);
+  }
+
   /// Returns the path to the executables `qarma` or `zenity` as a [String].
   ///
   /// On Linux, the CLI tools `qarma` or `zenity` can be used to open a native
@@ -97,10 +118,19 @@ class FilePickerLinux extends FilePicker {
   List<String> generateCommandLineArguments(
     String dialogTitle, {
     String fileFilter = '',
+    String fileName = '',
     bool multipleFiles = false,
     bool pickDirectory = false,
+    bool saveFile = false,
   }) {
     final arguments = ['--file-selection', '--title', dialogTitle];
+
+    if (saveFile) {
+      arguments.add('--save');
+      if (fileName.isNotEmpty) {
+        arguments.add('--filename=$fileName');
+      }
+    }
 
     if (fileFilter.isNotEmpty) {
       arguments.add('--file-filter=$fileFilter');
