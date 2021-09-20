@@ -15,6 +15,9 @@
   <a href="https://github.com/miguelpruivo/flutter_file_picker/issues"><img src="https://img.shields.io/github/issues/miguelpruivo/flutter_file_picker">
   </a>
   <img src="https://img.shields.io/github/license/miguelpruivo/flutter_file_picker">
+  <a href="https://github.com/miguelpruivo/flutter_file_picker/actions/workflows/main.yml">
+    <img alt="CI pipeline status" src="https://github.com/miguelpruivo/flutter_file_picker/actions/workflows/main.yml/badge.svg">
+  </a>
 </p>
 
 # File Picker
