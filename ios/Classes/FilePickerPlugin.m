@@ -7,7 +7,6 @@
 @interface FilePickerPlugin() <DKImageAssetExporterObserver>
 @property (nonatomic) FlutterResult result;
 @property (nonatomic) FlutterEventSink eventSink;
-@property (nonatomic, readonly) UIViewController *viewController;
 @property (nonatomic) UIImagePickerController *galleryPickerController;
 @property (nonatomic) UIDocumentPickerViewController *documentPickerController;
 @property (nonatomic) UIDocumentInteractionController *interactionController;
@@ -40,12 +39,22 @@
     return self;
 }
 
-- (UIViewController *)viewController {
-    UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
-    while (rootViewController.presentedViewController) {
-        rootViewController = rootViewController.presentedViewController;
+- (UIViewController *)viewControllerWithWindow:(UIWindow *)window {
+    UIWindow *windowToUse = window;
+    if (windowToUse == nil) {
+        for (UIWindow *window in [UIApplication sharedApplication].windows) {
+            if (window.isKeyWindow) {
+                windowToUse = window;
+                break;
+            }
+        }
     }
-    return rootViewController;
+    
+    UIViewController *topController = windowToUse.rootViewController;
+    while (topController.presentedViewController) {
+        topController = topController.presentedViewController;
+    }
+    return topController;
 }
 
 - (FlutterError *)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)events {
@@ -134,9 +143,9 @@
     }
     
     self.documentPickerController.delegate = self;
-    self.galleryPickerController.allowsEditing = NO;
+    self.documentPickerController.presentationController.delegate = self;
     
-    [self.viewController presentViewController:self.documentPickerController animated:YES completion:nil];
+    [[self viewControllerWithWindow:nil] presentViewController:self.documentPickerController animated:YES completion:nil];
 }
 
 - (void) resolvePickMedia:(MediaType)type withMultiPick:(BOOL)multiPick withCompressionAllowed:(BOOL)allowCompression  {
@@ -156,7 +165,8 @@
         
         PHPickerViewController *pickerViewController = [[PHPickerViewController alloc] initWithConfiguration:config];
         pickerViewController.delegate = self;
-        [self.viewController presentViewController:pickerViewController animated:YES completion:nil];
+        pickerViewController.presentationController.delegate = self;
+        [[self viewControllerWithWindow:nil] presentViewController:pickerViewController animated:YES completion:nil];
         return;
     }
 #endif
@@ -171,6 +181,7 @@
     
     self.galleryPickerController = [[UIImagePickerController alloc] init];
     self.galleryPickerController.delegate = self;
+    self.galleryPickerController.presentationController.delegate = self;
     self.galleryPickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
     
     switch (type) {
@@ -193,7 +204,7 @@
             break;
     }
     
-    [self.viewController presentViewController:self.galleryPickerController animated:YES completion:nil];
+    [[self viewControllerWithWindow:nil] presentViewController:self.galleryPickerController animated:YES completion:nil];
     
     
 }
@@ -204,7 +215,7 @@
     UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"" message:@"" preferredStyle:UIAlertControllerStyleAlert];
     UIActivityIndicatorView* indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
     
-    UIViewController *currentViewController = self.viewController;
+    UIViewController *currentViewController = [self viewControllerWithWindow:nil];
     if(_eventSink == nil) {
         // Create alert dialog for asset caching
         [alert.view setCenter: currentViewController.view.center];
@@ -272,17 +283,18 @@
         [self handleResult: paths];
     }];
     
-    [self.viewController presentViewController:dkImagePickerController animated:YES completion:nil];
+    [[self viewControllerWithWindow:nil] presentViewController:dkImagePickerController animated:YES completion:nil];
 }
 
 - (void) resolvePickAudioWithMultiPick:(BOOL)isMultiPick {
     
     self.audioPickerController = [[MPMediaPickerController alloc] initWithMediaTypes:MPMediaTypeAnyAudio];
     self.audioPickerController.delegate = self;
+    self.audioPickerController.presentationController.delegate = self;
     self.audioPickerController.showsCloudItems = YES;
     self.audioPickerController.allowsPickingMultipleItems = isMultiPick;
     
-    [self.viewController presentViewController:self.audioPickerController animated:YES completion:nil];
+    [[self viewControllerWithWindow:nil] presentViewController:self.audioPickerController animated:YES completion:nil];
 }
 
 - (void) handleResult:(id) files {
@@ -472,6 +484,14 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 }
 
 #pragma mark - Actions canceled
+
+- (void)presentationControllerDidDismiss:(UIPresentationController *)controller {
+    Log(@"FilePicker canceled");
+    if (self.result != nil) {
+        self.result(nil);
+        self.result = nil;
+    }
+}
 
 - (void)mediaPickerDidCancel:(MPMediaPickerController *)controller {
     Log(@"FilePicker canceled");

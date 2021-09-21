@@ -1,3 +1,10 @@
+## 4.1.1
+##### iOS
+Fixes an issue that would result in picker being dismissed by pulling down the modal sheet without an event. ([#828](https://github.com/miguelpruivo/flutter_file_picker/issues/828))
+
+##### Web
+Addresses an issue when comparing files on Web would result in an error due to `path` not being accessible. ([#822](https://github.com/miguelpruivo/flutter_file_picker/issues/822)) 
+
 ## 4.1.0
 Extends API by new function `saveFiles()` for opening a save-file dialog as requested in [#799](https://github.com/miguelpruivo/flutter_file_picker/issues/799). This feature is only supported on desktop platforms (Linux, macOS, and Windows).
 

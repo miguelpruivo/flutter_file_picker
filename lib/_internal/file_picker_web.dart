@@ -96,7 +96,7 @@ class FilePickerWeb extends FilePicker {
         }
       }
 
-      files.forEach((File file) {
+      for (File file in files) {
         if (withReadStream!) {
           addPickedFile(file, null, null, _openFileReadStream(file));
           return;
@@ -116,7 +116,7 @@ class FilePickerWeb extends FilePicker {
           addPickedFile(file, reader.result as Uint8List?, null, null);
         });
         reader.readAsArrayBuffer(file);
-      });
+      }
     }
 
     void cancelledEventListener(_) {

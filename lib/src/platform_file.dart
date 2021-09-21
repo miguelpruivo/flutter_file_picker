@@ -67,7 +67,7 @@ class PlatformFile {
     }
 
     return other is PlatformFile &&
-        other.path == path &&
+        (kIsWeb || other.path == path) &&
         other.name == name &&
         other.bytes == bytes &&
         other.readStream == readStream &&
@@ -76,15 +76,17 @@ class PlatformFile {
 
   @override
   int get hashCode {
-    return path.hashCode ^
-        name.hashCode ^
-        bytes.hashCode ^
-        readStream.hashCode ^
-        size.hashCode;
+    return kIsWeb
+        ? 0
+        : path.hashCode ^
+            name.hashCode ^
+            bytes.hashCode ^
+            readStream.hashCode ^
+            size.hashCode;
   }
 
   @override
   String toString() {
-    return 'PlatformFile(path: $path, name: $name, bytes: $bytes, readStream: $readStream, size: $size)';
+    return 'PlatformFile(${kIsWeb ? '' : 'path $path'}, name: $name, bytes: $bytes, readStream: $readStream, size: $size)';
   }
 }
