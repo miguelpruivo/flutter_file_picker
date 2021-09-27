@@ -99,7 +99,7 @@ class FilePickerLinux extends FilePicker {
   String fileTypeToFileFilter(FileType type, List<String>? allowedExtensions) {
     switch (type) {
       case FileType.any:
-        return '*.*';
+        return '';
       case FileType.audio:
         return '*.mp3 *.wav *.midi *.ogg *.aac';
       case FileType.custom:

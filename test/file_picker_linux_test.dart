@@ -15,7 +15,7 @@ void main() {
 
       expect(
         picker.fileTypeToFileFilter(FileType.any, null),
-        equals('*.*'),
+        equals(''),
       );
 
       expect(
