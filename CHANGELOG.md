@@ -1,3 +1,7 @@
+## 4.1.2
+##### Desktop (Linux)
+Fixes the issue that on Linux the file type filter `FileType.any` did not allow the selection of files without file extension. ([#836](https://github.com/miguelpruivo/flutter_file_picker/issues/836))
+
 ## 4.1.1
 ##### iOS
 Fixes an issue that would result in picker being dismissed by pulling down the modal sheet without an event. ([#828](https://github.com/miguelpruivo/flutter_file_picker/issues/828))
