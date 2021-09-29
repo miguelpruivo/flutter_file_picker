@@ -1,3 +1,7 @@
+## 4.1.3
+##### iOS
+Fixes an issue where Live Photos were being picked as `.pvt` packages (since iOS 15). From now on, if `allowCompression` is set to `true`, Live Photos will automatically be converted to static JPEG pictures. ([#835](https://github.com/miguelpruivo/flutter_file_picker/issues/835)) 
+
 ## 4.1.2
 ##### Desktop (Linux)
 Fixes the issue that on Linux the file type filter `FileType.any` did not allow the selection of files without file extension. ([#836](https://github.com/miguelpruivo/flutter_file_picker/issues/836))

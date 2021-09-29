@@ -13,6 +13,7 @@
 @property (nonatomic) MPMediaPickerController *audioPickerController;
 @property (nonatomic) NSArray<NSString *> * allowedExtensions;
 @property (nonatomic) BOOL loadDataToMemory;
+@property (nonatomic) BOOL allowCompression;
 @property (nonatomic) dispatch_group_t group;
 @end
 
@@ -96,6 +97,8 @@
     
     NSDictionary * arguments = call.arguments;
     BOOL isMultiplePick = ((NSNumber*)[arguments valueForKey:@"allowMultipleSelection"]).boolValue;
+    
+    self.allowCompression = ((NSNumber*)[arguments valueForKey:@"allowCompression"]).boolValue;
     self.loadDataToMemory = ((NSNumber*)[arguments valueForKey:@"withData"]).boolValue;
     
     if([call.method isEqualToString:@"any"] || [call.method containsString:@"custom"]) {
@@ -109,7 +112,7 @@
             [self resolvePickDocumentWithMultiPick:isMultiplePick pickDirectory:NO];
         }
     } else if([call.method isEqualToString:@"video"] || [call.method isEqualToString:@"image"] || [call.method isEqualToString:@"media"]) {
-        [self resolvePickMedia:[FileUtils resolveMediaType:call.method] withMultiPick:isMultiplePick withCompressionAllowed:[arguments valueForKey:@"allowCompression"]];
+        [self resolvePickMedia:[FileUtils resolveMediaType:call.method] withMultiPick:isMultiplePick withCompressionAllowed:self.allowCompression];
     } else if([call.method isEqualToString:@"audio"]) {
         [self resolvePickAudioWithMultiPick: isMultiplePick];
     } else {
@@ -154,10 +157,7 @@
     if (@available(iOS 14, *)) {
         PHPickerConfiguration *config = [[PHPickerConfiguration alloc] init];
         config.filter = type == IMAGE ? [PHPickerFilter imagesFilter] : type == VIDEO ? [PHPickerFilter videosFilter] : [PHPickerFilter anyFilterMatchingSubfilters:@[[PHPickerFilter videosFilter], [PHPickerFilter imagesFilter]]];
-
-        if(type == VIDEO) {
-            config.preferredAssetRepresentationMode = PHPickerConfigurationAssetRepresentationModeCurrent;
-        }
+        config.preferredAssetRepresentationMode = self.allowCompression ? PHPickerConfigurationAssetRepresentationModeCompatible : PHPickerConfigurationAssetRepresentationModeCurrent;
         
         if(multiPick) {
             config.selectionLimit = 0;
@@ -416,24 +416,55 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
             }
             
             NSString * filename = url.lastPathComponent;
-            NSString * cachedFile = [NSTemporaryDirectory() stringByAppendingPathComponent:filename];
+            NSString * extension = [filename pathExtension];
+            NSFileManager * fileManager = [[NSFileManager alloc] init];
+            NSURL * cachedUrl;
             
-            NSFileManager * fileManager = NSFileManager.defaultManager;
-            
-            if([fileManager fileExistsAtPath:cachedFile]) {
-                [fileManager removeItemAtPath:cachedFile error:NULL];
+            // Check for live photos
+            if(self.allowCompression && [extension isEqualToString:@"pvt"]) {
+                NSArray * files = [fileManager contentsOfDirectoryAtURL:url includingPropertiesForKeys:@[] options:NSDirectoryEnumerationSkipsHiddenFiles error:nil];
+                
+                for (NSURL * item in files) {
+                    if (UTTypeConformsTo(UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, CFBridgingRetain([item pathExtension]), NULL), kUTTypeImage)) {
+                        
+                        UIImage * img = [UIImage imageWithContentsOfFile:item.path];
+                        NSString * fileName = [[item.path lastPathComponent] stringByDeletingPathExtension];
+                        NSData * data = UIImageJPEGRepresentation(img, 1);
+                        NSString * tmpFile = [NSTemporaryDirectory() stringByAppendingPathComponent:[fileName stringByAppendingString:@".jpeg"]];
+                        cachedUrl = [NSURL fileURLWithPath: tmpFile];
+
+                        if([fileManager fileExistsAtPath:tmpFile]) {
+                            [fileManager removeItemAtPath:tmpFile error:nil];
+                        }
+                        
+                        if([fileManager createFileAtPath:tmpFile contents:data attributes:nil]) {
+                            filename = tmpFile;
+                        } else {
+                            Log("%@ Error while caching picked Live photo", self);
+                        }
+                        break;
+                    }
+                }
+            } else {
+                NSString * cachedFile = [NSTemporaryDirectory() stringByAppendingPathComponent:filename];
+                
+                if([fileManager fileExistsAtPath:cachedFile]) {
+                    [fileManager removeItemAtPath:cachedFile error:NULL];
+                }
+                
+                cachedUrl = [NSURL fileURLWithPath: cachedFile];
+                
+                NSError *copyError;
+                [fileManager copyItemAtURL: url
+                                     toURL: cachedUrl
+                                     error: &copyError];
+                
+                if (copyError) {
+                    Log("%@ Error while caching picked file: %@", self, copyError);
+                    return;
+                }
             }
             
-            NSURL * cachedUrl = [NSURL fileURLWithPath: cachedFile];
-            NSError *copyError;
-            [NSFileManager.defaultManager copyItemAtURL: url
-                                                  toURL: cachedUrl
-                                                  error: &copyError];
-            
-            if (copyError) {
-                Log("%@ Error while caching picked file: %@", self, copyError);
-                return;
-            }
             
             [urls addObject:cachedUrl];
             dispatch_group_leave(self->_group);
