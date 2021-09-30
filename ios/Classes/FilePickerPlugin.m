@@ -17,6 +17,8 @@
 @property (nonatomic) dispatch_group_t group;
 @end
 
+const UIModalPresentationStyle presentationModel = UIModalPresentationFullScreen;
+
 @implementation FilePickerPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
     
@@ -133,6 +135,7 @@
         self.documentPickerController = [[UIDocumentPickerViewController alloc]
                                          initWithDocumentTypes: isDirectory ? @[@"public.folder"] : self.allowedExtensions
                                          inMode: isDirectory ? UIDocumentPickerModeOpen : UIDocumentPickerModeImport];
+        self.documentPickerController.modalPresentationStyle = presentationModel;
     } @catch (NSException * e) {
         Log(@"Couldn't launch documents file picker. Probably due to iOS version being below 11.0 and not having the iCloud entitlement. If so, just make sure to enable it for your app in Xcode. Exception was: %@", e);
         _result = nil;
@@ -164,6 +167,7 @@
         }
         
         PHPickerViewController *pickerViewController = [[PHPickerViewController alloc] initWithConfiguration:config];
+        pickerViewController.modalPresentationStyle = presentationModel;
         pickerViewController.delegate = self;
         pickerViewController.presentationController.delegate = self;
         [[self viewControllerWithWindow:nil] presentViewController:pickerViewController animated:YES completion:nil];
@@ -289,6 +293,7 @@
 - (void) resolvePickAudioWithMultiPick:(BOOL)isMultiPick {
     
     self.audioPickerController = [[MPMediaPickerController alloc] initWithMediaTypes:MPMediaTypeAnyAudio];
+    self.audioPickerController.modalPresentationStyle = presentationModel;
     self.audioPickerController.delegate = self;
     self.audioPickerController.presentationController.delegate = self;
     self.audioPickerController.showsCloudItems = YES;
