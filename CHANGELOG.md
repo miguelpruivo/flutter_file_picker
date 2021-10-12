@@ -1,3 +1,7 @@
+## 4.1.4
+##### Android
+Addresses an issue where multiple media files couldn't be picked in some 3rd party explorers ([#846](https://github.com/miguelpruivo/flutter_file_picker/issues/846)). Thank you @innim98.
+
 ## 4.1.3
 ##### iOS
 Fixes an issue where Live Photos were being picked as `.pvt` packages (since iOS 15). From now on, if `allowCompression` is set to `true`, Live Photos will automatically be converted to static JPEG pictures. ([#835](https://github.com/miguelpruivo/flutter_file_picker/issues/835)) 
