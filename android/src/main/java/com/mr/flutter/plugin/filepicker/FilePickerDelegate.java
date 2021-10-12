@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Parcelable;
 import android.os.Message;
 import android.provider.DocumentsContract;
 import android.util.Log;
@@ -134,6 +136,29 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 finishWithError("unknown_path", "Failed to retrieve path.");
                             }
 
+                        } else if (data.getExtras() != null){
+                            Bundle bundle = data.getExtras();
+                            if (bundle.keySet().contains("selectedItems")) {
+                                ArrayList<Parcelable> fileUris = bundle.getParcelableArrayList("selectedItems");
+                                int currentItem = 0;
+                                if (fileUris != null) {
+                                    for (Parcelable fileUri : fileUris) {
+                                        if (fileUri instanceof Uri) {
+                                            Uri currentUri = (Uri) fileUri;
+                                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
+
+                                            if (file != null) {
+                                                files.add(file);
+                                                Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
+                                            }
+                                        }
+                                        currentItem++;
+                                    }
+                                }
+                                finishWithSuccess(files);
+                            } else {
+                                finishWithError("unknown_path", "Failed to retrieve path from bundle.");
+                            }
                         } else {
                             finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
                         }
@@ -208,6 +233,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             intent.setDataAndType(uri, this.type);
             intent.setType(this.type);
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection);
+            intent.putExtra("multi-pick", this.isMultipleSelection);
 
             if (type.contains(",")) {
                 allowedExtensions = type.split(",");
