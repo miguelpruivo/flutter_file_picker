@@ -1,3 +1,8 @@
+## 4.1.5
+##### Web
+- Fixes an issue that would prevent the call to return when both `withReadStream` and `allowMultiple` were set. ([#843](https://github.com/miguelpruivo/flutter_file_picker/issues/843)).
+- Addresses an issue in the example app.
+
 ## 4.1.4
 ##### Android
 Addresses an issue where multiple media files couldn't be picked in some 3rd party explorers ([#846](https://github.com/miguelpruivo/flutter_file_picker/issues/846)). Thank you @innim98.

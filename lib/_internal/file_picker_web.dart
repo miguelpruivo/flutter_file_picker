@@ -41,9 +41,9 @@ class FilePickerWeb extends FilePicker {
     List<String>? allowedExtensions,
     bool allowMultiple = false,
     Function(FilePickerStatus)? onFileLoading,
-    bool? allowCompression,
-    bool? withData = true,
-    bool? withReadStream = false,
+    bool allowCompression = true,
+    bool withData = true,
+    bool withReadStream = false,
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
@@ -97,18 +97,18 @@ class FilePickerWeb extends FilePicker {
       }
 
       for (File file in files) {
-        if (withReadStream!) {
+        if (withReadStream) {
           addPickedFile(file, null, null, _openFileReadStream(file));
-          return;
+          continue;
         }
 
-        if (!withData!) {
+        if (!withData) {
           final FileReader reader = FileReader();
           reader.onLoadEnd.listen((e) {
             addPickedFile(file, null, reader.result as String?, null);
           });
           reader.readAsDataUrl(file);
-          return;
+          continue;
         }
 
         final FileReader reader = FileReader();

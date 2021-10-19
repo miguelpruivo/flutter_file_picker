@@ -1,4 +1,5 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -268,16 +269,18 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                                                             .map((e) => e.name)
                                                             .toList()[index]
                                                         : _fileName ?? '...');
-                                            final path = _paths!
-                                                .map((e) => e.path)
-                                                .toList()[index]
-                                                .toString();
+                                            final path = kIsWeb
+                                                ? null
+                                                : _paths!
+                                                    .map((e) => e.path)
+                                                    .toList()[index]
+                                                    .toString();
 
                                             return ListTile(
                                               title: Text(
                                                 name,
                                               ),
-                                              subtitle: Text(path),
+                                              subtitle: Text(path ?? ''),
                                             );
                                           },
                                           separatorBuilder:
