@@ -54,7 +54,8 @@ class PlatformFile {
   /// File content as stream
   final Stream<List<int>>? readStream;
 
-  /// The file size in bytes.
+  /// The file size in bytes. Defaults to `0` if the file size could not be
+  /// determined.
   final int size;
 
   /// File extension for this file.
