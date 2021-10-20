@@ -1,27 +1,33 @@
 import 'dart:io';
 
 setUpTestFiles(
-  String imageTestFile,
-  String pdfTestFile,
-  String yamlTestFile,
+  String appTestFilePath,
+  String imageTestFilePath,
+  String pdfTestFilePath,
+  String yamlTestFilePath,
 ) {
+  // .app files on macOS are actually directories but they are treated as files
+  Directory(appTestFilePath).createSync();
+
   File(
     './test/test_files/franz-michael-schneeberger-unsplash.jpg',
-  ).copySync(imageTestFile);
+  ).copySync(imageTestFilePath);
   File(
     './test/test_files/test.pdf',
-  ).copySync(pdfTestFile);
+  ).copySync(pdfTestFilePath);
   File(
     './test/test_files/test.yml',
-  ).copySync(yamlTestFile);
+  ).copySync(yamlTestFilePath);
 }
 
 tearDownTestFiles(
-  String imageTestFile,
-  String pdfTestFile,
-  String yamlTestFile,
+  String appTestFilePath,
+  String imageTestFilePath,
+  String pdfTestFilePath,
+  String yamlTestFilePath,
 ) {
-  File(imageTestFile).deleteSync();
-  File(pdfTestFile).deleteSync();
-  File(yamlTestFile).deleteSync();
+  Directory(appTestFilePath).deleteSync();
+  File(imageTestFilePath).deleteSync();
+  File(pdfTestFilePath).deleteSync();
+  File(yamlTestFilePath).deleteSync();
 }

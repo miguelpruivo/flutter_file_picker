@@ -39,7 +39,7 @@ Future<PlatformFile> createPlatformFile(
       name: basename(file.path),
       path: file.path,
       readStream: readStream,
-      size: await file.length(),
+      size: file.existsSync() ? file.lengthSync() : 0,
     );
 
 Future<String?> runExecutableWithArguments(
