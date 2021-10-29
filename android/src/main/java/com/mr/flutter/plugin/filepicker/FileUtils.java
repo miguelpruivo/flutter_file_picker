@@ -171,6 +171,7 @@ public class FileUtils {
         fileInfo
                 .withPath(path)
                 .withName(fileName)
+                .withUri(uri)
                 .withSize(Long.parseLong(String.valueOf(file.length())));
 
         return fileInfo.build();

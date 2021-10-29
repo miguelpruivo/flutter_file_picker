@@ -10,6 +10,7 @@ class PlatformFile {
     required this.size,
     this.bytes,
     this.readStream,
+    this.identifier,
   }) : _path = path;
 
   factory PlatformFile.fromMap(Map data, {Stream<List<int>>? readStream}) {
@@ -18,6 +19,7 @@ class PlatformFile {
       path: data['path'],
       bytes: data['bytes'],
       size: data['size'],
+      identifier: data['identifier'],
       readStream: readStream,
     );
   }
@@ -58,6 +60,14 @@ class PlatformFile {
   /// determined.
   final int size;
 
+  /// The platform identifier for the original file, refers to an [Uri](https://developer.android.com/reference/android/net/Uri) on Android and
+  /// to a [NSURL](https://developer.apple.com/documentation/foundation/nsurl) on iOS.
+  /// Is set to `null` on all other platforms since those are all already referencing the original file content.
+  ///
+  /// Note: You can't use this to create a Dart `File` instance since this is a safe-reference for the original platform files, for
+  /// that the [path] property should be used instead.
+  final String? identifier;
+
   /// File extension for this file.
   String? get extension => name.split('.').last;
 
@@ -72,6 +82,7 @@ class PlatformFile {
         other.name == name &&
         other.bytes == bytes &&
         other.readStream == readStream &&
+        other.identifier == identifier &&
         other.size == size;
   }
 
@@ -83,6 +94,7 @@ class PlatformFile {
             name.hashCode ^
             bytes.hashCode ^
             readStream.hashCode ^
+            identifier.hashCode ^
             size.hashCode;
   }
 

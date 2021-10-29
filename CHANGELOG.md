@@ -1,3 +1,7 @@
+## 4.2.0
+
+Adds the `identifier` property to the `PlatformFile` which references the original file identifier for both iOS & Android ([#804](https://github.com/miguelpruivo/flutter_file_picker/issues/804)).
+
 ## 4.1.6
 ##### Desktop (macOS)
 Fixes the issue that users could not pick `.app` files on macOS because FilePicker tried to determine the file size of `.app` files. On macOS, these special kind of files are actually Unix directories in a special format ([read more on StackExchange](https://apple.stackexchange.com/a/112213)). Now, if a file is picked, which is actually a directory, then the file size will be zero. ([#856](https://github.com/miguelpruivo/flutter_file_picker/issues/856))

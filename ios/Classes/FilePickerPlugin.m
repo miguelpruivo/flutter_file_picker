@@ -288,11 +288,19 @@
 
 - (void) resolvePickAudioWithMultiPick:(BOOL)isMultiPick {
     
+    
     self.audioPickerController = [[MPMediaPickerController alloc] initWithMediaTypes:MPMediaTypeAnyAudio];
     self.audioPickerController.delegate = self;
     self.audioPickerController.presentationController.delegate = self;
     self.audioPickerController.showsCloudItems = YES;
     self.audioPickerController.allowsPickingMultipleItems = isMultiPick;
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        if([self viewControllerWithWindow:nil].presentedViewController == nil){
+            Log("Exporting assets, this operation may take a while if remote (iCloud) assets are being cached.");
+        }
+    });
+
     
     [[self viewControllerWithWindow:nil] presentViewController:self.audioPickerController animated:YES completion:nil];
 }

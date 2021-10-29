@@ -8,20 +8,23 @@ public class FileInfo {
 
     final String path;
     final String name;
+    final Uri uri;
     final long size;
     final byte[] bytes;
 
-    public FileInfo(String path, String name, long size, byte[] bytes) {
+    public FileInfo(String path, String name, Uri uri, long size, byte[] bytes) {
         this.path = path;
         this.name = name;
         this.size = size;
         this.bytes = bytes;
+        this.uri = uri;
     }
 
     public static class Builder {
 
         private String path;
         private String name;
+        private Uri uri;
         private long size;
         private byte[] bytes;
 
@@ -45,8 +48,13 @@ public class FileInfo {
             return this;
         }
 
+        public Builder withUri(Uri uri){
+            this.uri = uri;
+            return this;
+        }
+
         public FileInfo build() {
-            return new FileInfo(this.path, this.name, this.size, this.bytes);
+            return new FileInfo(this.path, this.name, this.uri, this.size, this.bytes);
         }
     }
 
@@ -57,6 +65,7 @@ public class FileInfo {
         data.put("name", name);
         data.put("size", size);
         data.put("bytes", bytes);
+        data.put("identifier", uri.toString());
         return data;
     }
 }
