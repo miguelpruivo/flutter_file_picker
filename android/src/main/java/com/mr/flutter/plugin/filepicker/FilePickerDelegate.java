@@ -192,7 +192,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         if (permissionGranted) {
             this.startFileExplorer();
         } else {
-            finishWithError("read_external_storage_denied", "User did not allowed reading external storage");
+            finishWithError("read_external_storage_denied", "User did not allow reading external storage");
         }
 
         return true;
