@@ -1,3 +1,8 @@
+## 4.2.1
+
+##### Android
+Fixes an issue where `onFileLoading` would be called while picking directories ([#863](https://github.com/miguelpruivo/flutter_file_picker/issues/863)).
+
 ## 4.2.0
 
 Adds the `identifier` property to the `PlatformFile` which references the original file identifier for both iOS & Android ([#804](https://github.com/miguelpruivo/flutter_file_picker/issues/804)).

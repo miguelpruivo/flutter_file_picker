@@ -81,9 +81,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
 
-            if (eventSink != null) {
-                eventSink.success(true);
-            }
+            this.dispatchEventStatus(true);
 
             new Thread(new Runnable() {
                 @Override
@@ -192,7 +190,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         if (permissionGranted) {
             this.startFileExplorer();
         } else {
-            finishWithError("read_external_storage_denied", "User did not allowed reading external storage");
+            finishWithError("read_external_storage_denied", "User did not allow reading external storage");
         }
 
         return true;
@@ -275,9 +273,8 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
     @SuppressWarnings("unchecked")
     private void finishWithSuccess(Object data) {
-        if (eventSink != null) {
-            this.dispatchEventStatus(false);
-        }
+
+        this.dispatchEventStatus(false);
 
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (this.pendingResult != null) {
@@ -301,14 +298,17 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             return;
         }
 
-        if (eventSink != null) {
-            this.dispatchEventStatus(false);
-        }
+        this.dispatchEventStatus(false);
         this.pendingResult.error(errorCode, errorMessage, null);
         this.clearPendingResult();
     }
 
     private void dispatchEventStatus(final boolean status) {
+
+        if(eventSink == null || type.equals("dir")) {
+            return;
+        }
+
         new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(final Message message) {
