@@ -1,3 +1,8 @@
+## 4.2.2+1
+
+##### Android
+Reverts Android `READ_EXTERNAL_STORAGE` permission removal.
+
 ## 4.2.2
 
 ##### Android
