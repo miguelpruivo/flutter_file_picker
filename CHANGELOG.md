@@ -1,3 +1,8 @@
+## 4.2.2
+
+##### Android
+Removes `<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>` permission from the platform implementation Manifest since may not be required for some applications and devs can manually add it to their own application if needed ([#864](https://github.com/miguelpruivo/flutter_file_picker/issues/864)).
+
 ## 4.2.1
 
 ##### Android
