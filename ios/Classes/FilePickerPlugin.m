@@ -390,6 +390,10 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 
 -(void)picker:(PHPickerViewController *)picker didFinishPicking:(NSArray<PHPickerResult *> *)results API_AVAILABLE(ios(14)){
     
+    if(_result == nil) {
+        return;
+    }
+    
     if(self.group != nil) {
         return;
     }
