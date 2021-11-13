@@ -1,3 +1,8 @@
+## 4.1.3
+
+##### iOS
+Fixed an issue that was creating a crash when media in PHPickerViewController in iOs was tapped several times very fast, we check that _result is not empty to avoid the crash. No Github issue created.
+
 ## 4.2.2+1
 
 ##### Android
