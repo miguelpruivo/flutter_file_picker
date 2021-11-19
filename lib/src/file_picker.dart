@@ -38,7 +38,7 @@ abstract class FilePicker extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static late FilePicker _instance = _setPlatform();
+  static late FilePicker _instance = FilePicker._setPlatform();
 
   static FilePicker get platform => _instance;
 
@@ -47,7 +47,7 @@ abstract class FilePicker extends PlatformInterface {
     _instance = instance;
   }
 
-  static FilePicker _setPlatform() {
+  factory FilePicker._setPlatform() {
     if (Platform.isAndroid || Platform.isIOS) {
       return FilePickerIO();
     } else if (Platform.isLinux) {

@@ -417,12 +417,15 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         self->_eventSink([NSNumber numberWithBool:YES]);
     }
     
+    __block NSError * blockError;
+    
     for (PHPickerResult *result in results) {
         dispatch_group_enter(_group);
         [result.itemProvider loadFileRepresentationForTypeIdentifier:@"public.item" completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
             
             if(url == nil) {
-                Log("Could not load the picked given file: %@", error);
+                blockError = error;
+                Log("Could not load the picked given file: %@", blockError);
                 dispatch_group_leave(self->_group);
                 return;
             }
@@ -487,6 +490,14 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         self->_group = nil;
         if(self->_eventSink != nil) {
             self->_eventSink([NSNumber numberWithBool:NO]);
+        }
+        
+        if(blockError) {
+            self->_result([FlutterError errorWithCode:@"file_picker_error"
+                                        message:@"Temporary file could not be created"
+                                        details:blockError.description]);
+            self->_result = nil;
+            return;
         }
         [self handleResult:urls];
     });

@@ -1,4 +1,9 @@
-## 4.1.3
+## 4.2.4
+
+##### iOS
+Improves error handling when device can't fetch files due to low storage space ([#885](https://github.com/miguelpruivo/flutter_file_picker/issues/885)).
+
+## 4.2.3
 
 ##### iOS
 Fixed an issue that was creating a crash when media in PHPickerViewController in iOs was tapped several times very fast, we check that _result is not empty to avoid the crash. No Github issue created.
