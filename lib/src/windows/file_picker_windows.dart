@@ -15,6 +15,7 @@ class FilePickerWindows extends FilePicker {
   @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
+    String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
@@ -34,6 +35,7 @@ class FilePickerWindows extends FilePicker {
       allowMultiple: allowMultiple,
       allowedExtensions: allowedExtensions,
       dialogTitle: dialogTitle,
+      initialDirectory: initialDirectory,
       type: type,
       lockParentWindow: lockParentWindow,
     );
@@ -61,6 +63,7 @@ class FilePickerWindows extends FilePicker {
   Future<String?> getDirectoryPath({
     String? dialogTitle,
     bool lockParentWindow = false,
+    String? initialDirectory,
   }) {
     final pathIdPointer =
         _pickDirectory(dialogTitle ?? defaultDialogTitle, lockParentWindow);
@@ -76,6 +79,7 @@ class FilePickerWindows extends FilePicker {
   Future<String?> saveFile({
     String? dialogTitle,
     String? fileName,
+    String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     bool lockParentWindow = false,
@@ -90,6 +94,7 @@ class FilePickerWindows extends FilePicker {
       allowedExtensions: allowedExtensions,
       defaultFileName: fileName,
       dialogTitle: dialogTitle,
+      initialDirectory: initialDirectory,
       type: type,
       lockParentWindow: lockParentWindow,
     );
@@ -243,6 +248,7 @@ class FilePickerWindows extends FilePicker {
     bool allowMultiple = false,
     String? dialogTitle,
     String? defaultFileName,
+    String? initialDirectory,
     List<String>? allowedExtensions,
     FileType type = FileType.any,
     bool lockParentWindow = false,
@@ -257,7 +263,8 @@ class FilePickerWindows extends FilePicker {
     openFileNameW.ref.lpstrFilter =
         fileTypeToFileFilter(type, allowedExtensions).toNativeUtf16();
     openFileNameW.ref.nMaxFile = lpstrFileBufferSize;
-    openFileNameW.ref.lpstrInitialDir = ''.toNativeUtf16();
+    openFileNameW.ref.lpstrInitialDir =
+        (initialDirectory ?? '').toNativeUtf16();
     openFileNameW.ref.flags = ofnExplorer | ofnFileMustExist | ofnHideReadOnly;
 
     if (lockParentWindow) {

@@ -136,7 +136,7 @@ abstract class FilePicker extends PlatformInterface {
   /// window). This parameter works only on Windows desktop.
   ///
   /// [initialDirectory] can be optionally set to select the directory where the
-  /// dialog is opened.
+  /// dialog is opened. On Windows, [initialDirectory] is not supported.
   /// 
   /// Returns `null` if aborted or if the folder path couldn't be resolved.
   ///
