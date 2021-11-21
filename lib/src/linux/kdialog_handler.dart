@@ -7,6 +7,7 @@ class KDialogHandler implements DialogHandler {
     String dialogTitle, {
     String fileFilter = '',
     String fileName = '',
+    String initialDirectory = '',
     bool multipleFiles = false,
     bool pickDirectory = false,
     bool saveFile = false,

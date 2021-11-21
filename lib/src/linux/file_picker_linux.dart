@@ -9,6 +9,7 @@ class FilePickerLinux extends FilePicker {
   @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
+    String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
@@ -29,6 +30,7 @@ class FilePickerLinux extends FilePicker {
     final List<String> arguments = dialogHandler.generateCommandLineArguments(
       dialogTitle ?? defaultDialogTitle,
       fileFilter: fileFilter,
+      initialDirectory: initialDirectory ?? '',
       multipleFiles: allowMultiple,
       pickDirectory: false,
     );
@@ -57,11 +59,13 @@ class FilePickerLinux extends FilePicker {
   Future<String?> getDirectoryPath({
     String? dialogTitle,
     bool lockParentWindow = false,
+    String? initialDirectory,
   }) async {
     final executable = await _getPathToExecutable();
     final List<String> arguments =
         DialogHandler(executable).generateCommandLineArguments(
       dialogTitle ?? defaultDialogTitle,
+      initialDirectory: initialDirectory ?? '',
       pickDirectory: true,
     );
     return await runExecutableWithArguments(executable, arguments);
@@ -71,6 +75,7 @@ class FilePickerLinux extends FilePicker {
   Future<String?> saveFile({
     String? dialogTitle,
     String? fileName,
+    String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     bool lockParentWindow = false,
@@ -87,6 +92,7 @@ class FilePickerLinux extends FilePicker {
       dialogTitle ?? defaultDialogTitle,
       fileFilter: fileFilter,
       fileName: fileName ?? '',
+      initialDirectory: initialDirectory ?? '',
       saveFile: true,
     );
 
