@@ -67,7 +67,7 @@ abstract class FilePicker extends PlatformInterface {
   /// Default [type] set to [FileType.any] with [allowMultiple] set to `false`.
   /// Optionally, [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`.).
   ///
-  /// If [withData] is set, picked files will have its byte data immediately available on memory as `Uint8List`
+  /// If [withData] is set, picked files will have its byte data immediately available on memory as [Uint8List]
   /// which can be useful if you are picking it for server upload or similar. However, have in mind that
   /// enabling this on IO (iOS & Android) may result in out of memory issues if you allow multiple picks or
   /// pick huge files. Use [withReadStream] instead. Defaults to `true` on web, `false` otherwise.
@@ -88,6 +88,9 @@ abstract class FilePicker extends PlatformInterface {
   ///
   /// [dialogTitle] can be optionally set on desktop platforms to set the modal window title. It will be ignored on
   /// other platforms.
+  /// 
+  /// [initialDirectory] can be optionally set to select the directory where the
+  /// dialog is opened.
   ///
   /// The result is wrapped in a [FilePickerResult] which contains helper getters
   /// with useful information regarding the picked [List<PlatformFile>].
@@ -97,6 +100,7 @@ abstract class FilePicker extends PlatformInterface {
   /// Returns `null` if aborted.
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
+    String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
@@ -126,14 +130,22 @@ abstract class FilePicker extends PlatformInterface {
   /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
   ///
   /// [dialogTitle] can be set to display a custom title on desktop platforms. It will be ignored on Web & IO.
-  ///
+
   /// If [lockParentWindow] is set, the child window (file picker window) will
   /// stay in front of the Flutter window until it is closed (like a modal
   /// window). This parameter works only on Windows desktop.
   ///
+  /// [initialDirectory] can be optionally set to select the directory where the
+  /// dialog is opened.
+  /// 
   /// Returns `null` if aborted or if the folder path couldn't be resolved.
-  Future<String?> getDirectoryPath(
-          {String? dialogTitle, bool lockParentWindow = false}) async =>
+  ///
+  /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
+  Future<String?> getDirectoryPath({
+    String? dialogTitle,
+    bool lockParentWindow = false,
+    String? initialDirectory,
+  }) async =>
       throw UnimplementedError('getDirectoryPath() has not been implemented.');
 
   /// Opens a save file dialog which lets the user select a file path and a file
@@ -147,11 +159,14 @@ abstract class FilePicker extends PlatformInterface {
   /// Windows).
   ///
   /// [dialogTitle] can be set to display a custom title on desktop platforms.
-  ///
+  /// 
   /// [fileName] can be set to a non-empty string to provide a default file
   /// name. Throws an `IllegalCharacterInFileNameException` under Windows if the
   /// given [fileName] contains forbidden characters.
-  ///
+  /// 
+  /// [initialDirectory] can be optionally set to select the directory where the
+  /// file picker dialog is opened. 
+  /// 
   /// The file type filter [type] defaults to [FileType.any]. Optionally,
   /// [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`.). Both
   /// parameters are just a proposal to the user as the save file dialog does
@@ -166,6 +181,7 @@ abstract class FilePicker extends PlatformInterface {
   Future<String?> saveFile({
     String? dialogTitle,
     String? fileName,
+    String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     bool lockParentWindow = false,
