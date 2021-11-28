@@ -189,6 +189,40 @@ void main() {
         equals('/Volumes/TAILS 4.20 - 202/EFI/debian/grub/x86_64-efi'),
       );
     });
+
+    test(
+        'should interpret the result of picking filenames that contain blanks and commas',
+        () {
+      final picker = FilePickerMacOS();
+
+      final filePaths = picker.resultStringToFilePaths(
+        'alias Macintosh:Users:JohnDoe:test, test.csv, alias macOS Base System:bin:unicorn , generator.sh',
+      );
+
+      expect(filePaths.length, equals(2));
+      expect(
+        filePaths[0],
+        equals('/Volumes/Macintosh/Users/JohnDoe/test, test.csv'),
+      );
+      expect(
+        filePaths[1],
+        equals('/Volumes/macOS Base System/bin/unicorn , generator.sh'),
+      );
+    });
+
+    test('should interpret the result of the save file dialog', () {
+      final picker = FilePickerMacOS();
+
+      final filePaths = picker.resultStringToFilePaths(
+        'file macOS:Users:JohnDoe:Desktop:bill.pdf',
+      );
+
+      expect(filePaths.length, equals(1));
+      expect(
+        filePaths[0],
+        equals('/Volumes/macOS/Users/JohnDoe/Desktop/bill.pdf'),
+      );
+    });
   });
 
   group('generateCommandLineArguments()', () {
