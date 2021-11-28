@@ -190,7 +190,8 @@ void main() {
       );
     });
 
-    test('should interpret the result of picking filenames that contain blanks and commas',
+    test(
+        'should interpret the result of picking filenames that contain blanks and commas',
         () {
       final picker = FilePickerMacOS();
 
