@@ -1,5 +1,7 @@
 ## 4.2.6
-Fixes linting error during Android builds ([#851](https://github.com/miguelpruivo/flutter_file_picker/issues/851)).
+
+##### Android
+Fixes linting error during builds ([#851](https://github.com/miguelpruivo/flutter_file_picker/issues/851)).
 
 ## 4.2.5
 
