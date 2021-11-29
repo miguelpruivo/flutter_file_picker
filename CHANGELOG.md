@@ -1,3 +1,8 @@
+## 4.2.5
+
+##### Desktop (macOS)
+Fixes the issue of picking filenames that contain a comma followed by a space ([#890](https://github.com/miguelpruivo/flutter_file_picker/issues/890)).
+
 ## 4.2.4
 
 ##### iOS

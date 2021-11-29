@@ -158,21 +158,32 @@ class FilePickerMacOS extends FilePicker {
       .replaceAll('\n', '\\\n');
 
   /// Transforms the result string (stdout) of `osascript` into a [List] of
-  /// file paths.
+  /// POSIX file paths.
   List<String> resultStringToFilePaths(String fileSelectionResult) {
     if (fileSelectionResult.trim().isEmpty) {
       return [];
     }
-    return fileSelectionResult
+
+    final paths = fileSelectionResult
         .trim()
-        .split(', ')
+        .split(', alias ')
         .map((String path) => path.trim())
         .where((String path) => path.isNotEmpty)
-        .map((String path) {
-      final pathElements = path.split(':').where((e) => e.isNotEmpty).toList();
+        .toList();
 
-      // First token is either "alias" or "file" (in case of saveFile dialog)
-      final volumeName = pathElements[0].split(' ').sublist(1).join(' ');
+    if (paths.length == 1 && paths.first.startsWith('file ')) {
+      // The first token of the first path is "file" in case of the save file
+      // dialog
+      paths[0] = paths[0].substring(5);
+    } else if (paths.isNotEmpty && paths.first.startsWith('alias ')) {
+      // The first token of the first path is "alias" in case of the
+      // file/directory picker dialog
+      paths[0] = paths[0].substring(6);
+    }
+
+    return paths.map((String path) {
+      final pathElements = path.split(':').where((e) => e.isNotEmpty).toList();
+      final volumeName = pathElements[0];
       return ['/Volumes', volumeName, ...pathElements.sublist(1)].join('/');
     }).toList();
   }
