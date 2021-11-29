@@ -14,6 +14,7 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -177,6 +178,7 @@ public class FileUtils {
         return fileInfo.build();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Nullable
     @SuppressWarnings("deprecation")
     public static String getFullPathFromTreeUri(@Nullable final Uri treeUri, Context con) {
