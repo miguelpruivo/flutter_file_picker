@@ -1,3 +1,8 @@
+## 4.2.7
+
+##### Desktop (Windows)
+Fixes the issue under Windows that the user could select all file types even though a file type filter was enabled. This error existed because the user could select the entry `All Files (*.*)` in the file type filter dropdown ([#871](https://github.com/miguelpruivo/flutter_file_picker/issues/871)).
+
 ## 4.2.6
 
 ##### Android
