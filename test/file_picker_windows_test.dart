@@ -11,32 +11,32 @@ void main() {
 
       expect(
         picker.fileTypeToFileFilter(FileType.any, null),
-        equals('*.*\x00\x00'),
+        equals('All Files (*.*)\x00*.*\x00\x00'),
       );
 
       expect(
         picker.fileTypeToFileFilter(FileType.audio, null),
-        equals('Audios (*.mp3)\x00*.mp3\x00All Files (*.*)\x00*.*\x00\x00'),
+        equals('Audios (*.mp3)\x00*.mp3\x00\x00'),
       );
 
       expect(
         picker.fileTypeToFileFilter(FileType.image, null),
         equals(
-          'Images (*.jpeg,*.png,*.gif)\x00*.jpg;*.jpeg;*.png;*.gif\x00All Files (*.*)\x00*.*\x00\x00',
+          'Images (*.jpeg,*.png,*.gif)\x00*.jpg;*.jpeg;*.png;*.gif\x00\x00',
         ),
       );
 
       expect(
         picker.fileTypeToFileFilter(FileType.media, null),
         equals(
-          'Videos (*.webm,*.wmv,*.mpeg,*.mkv,*.mp4,*.avi,*.mov,*.flv)\x00*.webm;*.wmv;*.mpeg;*.mkv;*mp4;*.avi;*.mov;*.flv\x00Images (*.jpeg,*.png,*.gif)\x00*.jpg;*.jpeg;*.png;*.gif\x00All Files (*.*)\x00*.*\x00\x00',
+          'Videos (*.webm,*.wmv,*.mpeg,*.mkv,*.mp4,*.avi,*.mov,*.flv)\x00*.webm;*.wmv;*.mpeg;*.mkv;*mp4;*.avi;*.mov;*.flv\x00Images (*.jpeg,*.png,*.gif)\x00*.jpg;*.jpeg;*.png;*.gif\x00\x00',
         ),
       );
 
       expect(
         picker.fileTypeToFileFilter(FileType.video, null),
         equals(
-          'Videos (*.webm,*.wmv,*.mpeg,*.mkv,*.mp4,*.avi,*.mov,*.flv)\x00*.webm;*.wmv;*.mpeg;*.mkv;*mp4;*.avi;*.mov;*.flv\x00All Files (*.*)\x00*.*\x00\x00',
+          'Videos (*.webm,*.wmv,*.mpeg,*.mkv,*.mp4,*.avi,*.mov,*.flv)\x00*.webm;*.wmv;*.mpeg;*.mkv;*mp4;*.avi;*.mov;*.flv\x00\x00',
         ),
       );
     });
