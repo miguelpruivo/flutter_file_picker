@@ -14,10 +14,11 @@ Also, sometimes a simple `flutter clean` and `flutter build` again with latest f
 A clear and concise description of what the bug is. If the issue happens to be on Android, please make sure that it also happens with a different device/simulator and/or version.
 
 **Platform**
-- [] Android
-- [] iOS
-- [] Web
-- [] Desktop (Go)
+
+- [ ] Android
+- [ ] iOS
+- [ ] Web
+- [ ] Desktop
 
 **Platform OS version**
 What version did it happen?
