@@ -16,7 +16,8 @@ void main() {
 
       expect(
         picker.fileTypeToFileFilter(FileType.audio, null),
-        equals('Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav\x00\x00'),
+        equals(
+            'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav\x00\x00'),
       );
 
       expect(

@@ -101,15 +101,15 @@ class FilePickerMacOS extends FilePicker {
       case FileType.any:
         return '';
       case FileType.audio:
-        return '"", "aac", "midi", "mp3", "ogg", "wav"';
+        return '"aac", "midi", "mp3", "ogg", "wav"';
       case FileType.custom:
         return '"", "' + allowedExtensions!.join('", "') + '"';
       case FileType.image:
-        return '"", "bmp", "gif", "jpeg", "jpg", "png"';
+        return '"bmp", "gif", "jpeg", "jpg", "png"';
       case FileType.media:
-        return '"", "avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv", "bmp", "gif", "jpeg", "jpg", "png"';
+        return '"avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv", "bmp", "gif", "jpeg", "jpg", "png"';
       case FileType.video:
-        return '"", "avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv"';
+        return '"avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv"';
       default:
         throw Exception('unknown file type');
     }
