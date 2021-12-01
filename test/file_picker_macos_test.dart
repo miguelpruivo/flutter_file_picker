@@ -16,24 +16,24 @@ void main() {
 
       expect(
         picker.fileTypeToFileFilter(FileType.audio, null),
-        equals('"", "mp3", "wav", "midi", "ogg", "aac"'),
+        equals('"", "aac", "midi", "mp3", "ogg", "wav"'),
       );
 
       expect(
         picker.fileTypeToFileFilter(FileType.image, null),
-        equals('"", "jpg", "jpeg", "bmp", "gif", "png"'),
+        equals('"", "bmp", "gif", "jpeg", "jpg", "png"'),
       );
 
       expect(
         picker.fileTypeToFileFilter(FileType.media, null),
         equals(
-          '"", "webm", "mpeg", "mkv", "mp4", "avi", "mov", "flv", "jpg", "jpeg", "bmp", "gif", "png"',
+          '"", "avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv", "bmp", "gif", "jpeg", "jpg", "png"',
         ),
       );
 
       expect(
         picker.fileTypeToFileFilter(FileType.video, null),
-        equals('"", "webm", "mpeg", "mkv", "mp4", "avi", "mov", "flv"'),
+        equals('"", "avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv"'),
       );
     });
 
