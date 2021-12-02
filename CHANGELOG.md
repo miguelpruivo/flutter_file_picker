@@ -1,3 +1,8 @@
+## 4.2.7
+
+##### Desktop (macOS & Windows)
+Fixes the issue under Windows that the user could select all file types even though a file type filter was enabled. This error existed because the user could select the entry `All Files (*.*)` in the file type filter dropdown. Also, fixes the bug under macOS that users could select files without file extension even when one of the pre-defined file type filters (audio, image, video, or media) was enabled. ([#871](https://github.com/miguelpruivo/flutter_file_picker/issues/871)).
+
 ## 4.2.6
 
 ##### Android

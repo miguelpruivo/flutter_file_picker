@@ -16,24 +16,24 @@ void main() {
 
       expect(
         picker.fileTypeToFileFilter(FileType.audio, null),
-        equals('"", "mp3", "wav", "midi", "ogg", "aac"'),
+        equals('"aac", "midi", "mp3", "ogg", "wav"'),
       );
 
       expect(
         picker.fileTypeToFileFilter(FileType.image, null),
-        equals('"", "jpg", "jpeg", "bmp", "gif", "png"'),
+        equals('"bmp", "gif", "jpeg", "jpg", "png"'),
       );
 
       expect(
         picker.fileTypeToFileFilter(FileType.media, null),
         equals(
-          '"", "webm", "mpeg", "mkv", "mp4", "avi", "mov", "flv", "jpg", "jpeg", "bmp", "gif", "png"',
+          '"avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv", "bmp", "gif", "jpeg", "jpg", "png"',
         ),
       );
 
       expect(
         picker.fileTypeToFileFilter(FileType.video, null),
-        equals('"", "webm", "mpeg", "mkv", "mp4", "avi", "mov", "flv"'),
+        equals('"avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv"'),
       );
     });
 
@@ -42,6 +42,12 @@ void main() {
         () {
       final picker = FilePickerMacOS();
 
+      // TODO: the first empty file type ("", ) is required in some cases, e.g.
+      // when filtering for *.dart and other special file types. Unfortunately,
+      // the empty file type enables the selection of files without extension.
+      // In other cases, e.g. when filtering for *.png files, it isn't required
+      // to provide the empty file type. We need to find a solution to make the
+      // filter work without having to provide an empty file type first.
       expect(
         picker.fileTypeToFileFilter(FileType.custom, ['dart']),
         equals('"", "dart"'),
