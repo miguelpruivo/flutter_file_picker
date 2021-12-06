@@ -60,8 +60,24 @@ public class FileUtils {
 
         try {
 
+            String realPath = null;
+            try {
+                realPath = RealPathUtil.getRealPath(context, uri);
+                if (realPath != null) {
+                    int cut = realPath.lastIndexOf('/');
+                    if (cut != -1) {
+                        result = realPath.substring(cut + 1);
+                        /// get file real name
+                        return result;
+                    }
+                }
+            } catch (Exception exception) {
+                Log.e(TAG, "Failed to get real path: " + exception.getMessage());
+            }
+
             if (uri.getScheme().equals("content")) {
-                Cursor cursor = context.getContentResolver().query(uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null);
+                Cursor cursor = context.getContentResolver().query(uri, new String[] { OpenableColumns.DISPLAY_NAME },
+                        null, null, null);
                 try {
                     if (cursor != null && cursor.moveToFirst()) {
                         result = cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME));
@@ -77,7 +93,7 @@ public class FileUtils {
                     result = result.substring(cut + 1);
                 }
             }
-        } catch (Exception ex){
+        } catch (Exception ex) {
             Log.e(TAG, "Failed to handle file name: " + ex.toString());
         }
 
@@ -117,8 +133,9 @@ public class FileUtils {
             }
             fileInfo.withData(bytes);
 
-        }  catch (Exception e) {
-            Log.e(TAG, "Failed to load bytes into memory with error " + e.toString() + ". Probably the file is too big to fit device memory. Bytes won't be added to the file this time.");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to load bytes into memory with error " + e.toString()
+                    + ". Probably the file is too big to fit device memory. Bytes won't be added to the file this time.");
         }
     }
 
@@ -128,11 +145,14 @@ public class FileUtils {
         FileOutputStream fos = null;
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
         final String fileName = FileUtils.getFileName(uri, context);
-        final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/" + (fileName != null ? fileName : new Random().nextInt(100000));
+        final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/"
+                + (fileName != null ? fileName : new Random().nextInt(100000));
 
         final File file = new File(path);
-
-        if(!file.exists()) {
+        if (file.exists()) {
+            file.delete();
+        }
+        if (!file.exists()) {
             file.getParentFile().mkdirs();
             try {
                 fos = new FileOutputStream(path);
@@ -165,7 +185,7 @@ public class FileUtils {
 
         Log.d(TAG, "File loaded and cached at:" + path);
 
-        if(withData) {
+        if (withData) {
             loadData(file, fileInfo);
         }
 
@@ -189,7 +209,8 @@ public class FileUtils {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             if (isDownloadsDocument(treeUri)) {
                 String docId = DocumentsContract.getDocumentId(treeUri);
-                String extPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
+                String extPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                        .getPath();
                 if (docId.equals("downloads")) {
                     return extPath;
                 } else if (docId.matches("^ms[df]\\:.*")) {
@@ -221,8 +242,7 @@ public class FileUtils {
         if (documentPath.length() > 0) {
             if (documentPath.startsWith(File.separator)) {
                 return volumePath + documentPath;
-            }
-            else {
+            } else {
                 return volumePath + File.separator + documentPath;
             }
         } else {
@@ -251,10 +271,10 @@ public class FileUtils {
 
     @SuppressLint("ObsoleteSdkInt")
     private static String getVolumePath(final String volumeId, Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return null;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            return null;
         try {
-            StorageManager mStorageManager =
-                    (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+            StorageManager mStorageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
             Class<?> storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
             Method getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
             Method getUuid = storageVolumeClazz.getMethod("getUuid");
@@ -294,17 +314,20 @@ public class FileUtils {
     private static String getVolumeIdFromTreeUri(final Uri treeUri) {
         final String docId = DocumentsContract.getTreeDocumentId(treeUri);
         final String[] split = docId.split(":");
-        if (split.length > 0) return split[0];
-        else return null;
+        if (split.length > 0)
+            return split[0];
+        else
+            return null;
     }
-
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private static String getDocumentPathFromTreeUri(final Uri treeUri) {
         final String docId = DocumentsContract.getTreeDocumentId(treeUri);
         final String[] split = docId.split(":");
-        if ((split.length >= 2) && (split[1] != null)) return split[1];
-        else return File.separator;
+        if ((split.length >= 2) && (split[1] != null))
+            return split[1];
+        else
+            return File.separator;
     }
 
 }
