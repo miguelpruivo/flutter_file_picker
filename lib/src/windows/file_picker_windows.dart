@@ -229,7 +229,7 @@ class FilePickerWindows extends FilePicker {
     List<String>? allowedExtensions,
     FileType type = FileType.any,
   }) {
-    final lpstrFileBufferSize = 20 * maximumPathLength;
+    final lpstrFileBufferSize = 8192 * maximumPathLength;
     final Pointer<OPENFILENAMEW> openFileNameW = calloc<OPENFILENAMEW>();
 
     openFileNameW.ref.lStructSize = sizeOf<OPENFILENAMEW>();
