@@ -1,3 +1,9 @@
+## 4.2.8
+
+##### Desktop (Windows)
+Fixes the issue under Windows that the user could not select more than about 256 files (depending on the length of the file paths) because the buffer size for storing the selected file paths was too small. ([#918](https://github.com/miguelpruivo/flutter_file_picker/issues/918)).
+
+
 ## 4.2.7
 
 ##### Desktop (macOS & Windows)
