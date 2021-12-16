@@ -21,6 +21,7 @@ class FilePickerWindows extends FilePicker {
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
+    bool lockParentWindow = false,
   }) async {
     final comdlg32 = DynamicLibrary.open('comdlg32.dll');
 
@@ -33,6 +34,7 @@ class FilePickerWindows extends FilePicker {
       allowedExtensions: allowedExtensions,
       dialogTitle: dialogTitle,
       type: type,
+      lockParentWindow: lockParentWindow,
     );
 
     final result = getOpenFileNameW(openFileNameW);
@@ -73,6 +75,7 @@ class FilePickerWindows extends FilePicker {
     String? fileName,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
+    bool lockParentWindow = false,
   }) async {
     final comdlg32 = DynamicLibrary.open('comdlg32.dll');
 
@@ -85,6 +88,7 @@ class FilePickerWindows extends FilePicker {
       defaultFileName: fileName,
       dialogTitle: dialogTitle,
       type: type,
+      lockParentWindow: lockParentWindow,
     );
 
     final result = getSaveFileNameW(openFileNameW);
@@ -228,6 +232,7 @@ class FilePickerWindows extends FilePicker {
     String? defaultFileName,
     List<String>? allowedExtensions,
     FileType type = FileType.any,
+    bool lockParentWindow = false,
   }) {
     final lpstrFileBufferSize = 8192 * maximumPathLength;
     final Pointer<OPENFILENAMEW> openFileNameW = calloc<OPENFILENAMEW>();
@@ -241,6 +246,18 @@ class FilePickerWindows extends FilePicker {
     openFileNameW.ref.nMaxFile = lpstrFileBufferSize;
     openFileNameW.ref.lpstrInitialDir = ''.toNativeUtf16();
     openFileNameW.ref.flags = ofnExplorer | ofnFileMustExist | ofnHideReadOnly;
+
+    if (lockParentWindow) {
+      final _user32 = DynamicLibrary.open('user32.dll');
+
+      final findWindowA = _user32.lookupFunction<
+          Int32 Function(Pointer<Utf8> _lpClassName, Pointer<Utf8> _lpWindowName),
+          int Function(Pointer<Utf8> _lpClassName,
+              Pointer<Utf8> _lpWindowName)>('FindWindowA');
+
+      int hWnd = findWindowA('FLUTTER_RUNNER_WIN32_WINDOW'.toNativeUtf8(), nullptr);
+      openFileNameW.ref.hwndOwner = Pointer.fromAddress(hWnd);
+    }
 
     if (allowMultiple) {
       openFileNameW.ref.flags |= ofnAllowMultiSelect;

@@ -15,6 +15,7 @@ class FilePickerLinux extends FilePicker {
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
+    bool lockParentWindow = false,
   }) async {
     final String executable = await _getPathToExecutable();
     final String fileFilter = fileTypeToFileFilter(
@@ -66,6 +67,7 @@ class FilePickerLinux extends FilePicker {
     String? fileName,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
+    bool lockParentWindow = false,
   }) async {
     final executable = await _getPathToExecutable();
     final String fileFilter = fileTypeToFileFilter(

@@ -83,6 +83,9 @@ abstract class FilePicker extends PlatformInterface {
   /// If `allowCompression` is set, it will allow media to apply the default OS compression.
   /// Defaults to `true`.
   ///
+  /// If `lockParentWindow` is set, the child window(File Picker) will stay in front
+  /// of the flutter window until it get closed. (Only Windows)
+  ///
   /// `dialogTitle` can be optionally set on desktop platforms to set the modal window title. It will be ignored on
   /// other platforms.
   ///
@@ -101,6 +104,7 @@ abstract class FilePicker extends PlatformInterface {
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
+    bool lockParentWindow = false,
   }) async =>
       throw UnimplementedError('pickFiles() has not been implemented.');
 
@@ -145,6 +149,9 @@ abstract class FilePicker extends PlatformInterface {
   /// parameters are just a proposal to the user as the save file dialog does
   /// not enforce these restrictions.
   ///
+  /// If `lockParentWindow` is set, the child window(File Picker) will stay in front
+  /// of the flutter window until it get closed. (Only Windows)
+  ///
   /// Returns [null] if aborted. Returns a [Future<String?>] which resolves to
   /// the absolute path of the selected file, if the user selected a file.
   Future<String?> saveFile({
@@ -152,6 +159,7 @@ abstract class FilePicker extends PlatformInterface {
     String? fileName,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
+    bool lockParentWindow = false,
   }) async =>
       throw UnimplementedError('saveFile() has not been implemented.');
 }
