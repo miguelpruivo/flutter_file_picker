@@ -52,6 +52,7 @@ class FilePickerLinux extends FilePicker {
   @override
   Future<String?> getDirectoryPath({
     String? dialogTitle,
+    bool lockParentWindow = false,
   }) async {
     final executable = await _getPathToExecutable();
     final arguments = generateCommandLineArguments(

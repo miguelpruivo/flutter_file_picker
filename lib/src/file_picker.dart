@@ -127,8 +127,11 @@ abstract class FilePicker extends PlatformInterface {
   ///
   /// `dialogTitle` can be set to display a custom title on desktop platforms. It will be ignored on Web & IO.
   ///
+  /// If `lockParentWindow` is set, the child window(File Picker) will stay in front
+  /// of the flutter window until it get closed. (Only Windows)
+  ///
   /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
-  Future<String?> getDirectoryPath({String? dialogTitle}) async =>
+  Future<String?> getDirectoryPath({String? dialogTitle, bool lockParentWindow = false}) async =>
       throw UnimplementedError('getDirectoryPath() has not been implemented.');
 
   /// Opens a save file dialog which lets the user select a file path and a file

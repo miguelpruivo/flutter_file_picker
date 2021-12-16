@@ -59,8 +59,9 @@ class FilePickerWindows extends FilePicker {
   @override
   Future<String?> getDirectoryPath({
     String? dialogTitle,
+    bool lockParentWindow = false,
   }) {
-    final pathIdPointer = _pickDirectory(dialogTitle ?? defaultDialogTitle);
+    final pathIdPointer = _pickDirectory(dialogTitle ?? defaultDialogTitle, lockParentWindow);
     if (pathIdPointer == null) {
       return Future.value(null);
     }
@@ -127,7 +128,7 @@ class FilePickerWindows extends FilePicker {
   ///
   /// Returns a PIDL that specifies the location of the selected folder relative to the root of the
   /// namespace. Returns null, if the user clicked on the "Cancel" button in the dialog box.
-  Pointer? _pickDirectory(String dialogTitle) {
+  Pointer? _pickDirectory(String dialogTitle, bool lockParentWindow) {
     final shell32 = DynamicLibrary.open('shell32.dll');
 
     final shBrowseForFolderW =
@@ -135,7 +136,9 @@ class FilePickerWindows extends FilePicker {
             'SHBrowseForFolderW');
 
     final Pointer<BROWSEINFOA> browseInfo = calloc<BROWSEINFOA>();
-    browseInfo.ref.hwndOwner = nullptr;
+    if (lockParentWindow) {
+      browseInfo.ref.hwndOwner = _getWindowHandle();
+    }
     browseInfo.ref.pidlRoot = nullptr;
     browseInfo.ref.pszDisplayName = calloc.allocate<Utf16>(maximumPathLength);
     browseInfo.ref.lpszTitle = dialogTitle.toNativeUtf16();
@@ -248,15 +251,7 @@ class FilePickerWindows extends FilePicker {
     openFileNameW.ref.flags = ofnExplorer | ofnFileMustExist | ofnHideReadOnly;
 
     if (lockParentWindow) {
-      final _user32 = DynamicLibrary.open('user32.dll');
-
-      final findWindowA = _user32.lookupFunction<
-          Int32 Function(Pointer<Utf8> _lpClassName, Pointer<Utf8> _lpWindowName),
-          int Function(Pointer<Utf8> _lpClassName,
-              Pointer<Utf8> _lpWindowName)>('FindWindowA');
-
-      int hWnd = findWindowA('FLUTTER_RUNNER_WIN32_WINDOW'.toNativeUtf8(), nullptr);
-      openFileNameW.ref.hwndOwner = Pointer.fromAddress(hWnd);
+      openFileNameW.ref.hwndOwner = _getWindowHandle();
     }
 
     if (allowMultiple) {
@@ -277,6 +272,19 @@ class FilePickerWindows extends FilePicker {
     }
 
     return openFileNameW;
+  }
+
+  Pointer _getWindowHandle(){
+    final _user32 = DynamicLibrary.open('user32.dll');
+
+    final findWindowA = _user32.lookupFunction<
+        Int32 Function(Pointer<Utf8> _lpClassName, Pointer<Utf8> _lpWindowName),
+        int Function(Pointer<Utf8> _lpClassName,
+            Pointer<Utf8> _lpWindowName)>('FindWindowA');
+
+    int hWnd = findWindowA('FLUTTER_RUNNER_WIN32_WINDOW'.toNativeUtf8(), nullptr);
+
+    return Pointer.fromAddress(hWnd);
   }
 
   void _freeMemory(Pointer<OPENFILENAMEW> openFileNameW) {

@@ -49,6 +49,7 @@ class FilePickerMacOS extends FilePicker {
   @override
   Future<String?> getDirectoryPath({
     String? dialogTitle,
+    bool lockParentWindow = false,
   }) async {
     final String executable = await isExecutableOnPath('osascript');
     final List<String> arguments = generateCommandLineArguments(
