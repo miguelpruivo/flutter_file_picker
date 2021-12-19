@@ -61,7 +61,8 @@ class FilePickerWindows extends FilePicker {
     String? dialogTitle,
     bool lockParentWindow = false,
   }) {
-    final pathIdPointer = _pickDirectory(dialogTitle ?? defaultDialogTitle, lockParentWindow);
+    final pathIdPointer =
+        _pickDirectory(dialogTitle ?? defaultDialogTitle, lockParentWindow);
     if (pathIdPointer == null) {
       return Future.value(null);
     }
@@ -187,12 +188,12 @@ class FilePickerWindows extends FilePicker {
   /// Extracts the list of selected files from the Win32 API struct [OPENFILENAMEW].
   ///
   /// After the user has closed the file picker dialog, Win32 API sets the property
-  /// [lpstrFile] of [OPENFILENAMEW] to the user's selection. This property contains
-  /// a string terminated by two [null] characters. If the user has selected only one
+  /// `lpstrFile` of [OPENFILENAMEW] to the user's selection. This property contains
+  /// a string terminated by two `null` characters. If the user has selected only one
   /// file, then the returned string contains the absolute file path, e. g.
   /// `C:\Users\John\file1.jpg\x00\x00`. If the user has selected more than one file,
   /// then the returned string contains the directory of the selected files, followed
-  /// by a [null] character, followed by the file names each separated by a [null]
+  /// by a `null` character, followed by the file names each separated by a `null`
   /// character, e.g. `C:\Users\John\x00file1.jpg\x00file2.jpg\x00file3.jpg\x00\x00`.
   List<String> _extractSelectedFilesFromOpenFileNameW(
     OPENFILENAMEW openFileNameW,
@@ -274,7 +275,7 @@ class FilePickerWindows extends FilePicker {
     return openFileNameW;
   }
 
-  Pointer _getWindowHandle(){
+  Pointer _getWindowHandle() {
     final _user32 = DynamicLibrary.open('user32.dll');
 
     final findWindowA = _user32.lookupFunction<
@@ -282,7 +283,8 @@ class FilePickerWindows extends FilePicker {
         int Function(Pointer<Utf8> _lpClassName,
             Pointer<Utf8> _lpWindowName)>('FindWindowA');
 
-    int hWnd = findWindowA('FLUTTER_RUNNER_WIN32_WINDOW'.toNativeUtf8(), nullptr);
+    int hWnd =
+        findWindowA('FLUTTER_RUNNER_WIN32_WINDOW'.toNativeUtf8(), nullptr);
 
     return Pointer.fromAddress(hWnd);
   }
