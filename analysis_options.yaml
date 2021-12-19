@@ -10,6 +10,8 @@ analyzer:
 #   strong-mode:
 #     implicit-casts: false
 
-# linter:
-#   rules:
-#     - cancel_subscriptions
+linter:
+  rules:
+    # - cancel_subscriptions
+    - comment_references
+    - slash_for_doc_comments

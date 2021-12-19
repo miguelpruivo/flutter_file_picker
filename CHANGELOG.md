@@ -1,3 +1,8 @@
+## 4.3.0
+
+##### Desktop (Windows)
+Adds the parameter `lockParentWindow` for Windows desktop. This parameter makes the file picker dialog behave like a modal window. That is, the file picker always stays in front of the Flutter window until it is closed. Thank you @vinicios-cervantes.
+
 ## 4.2.8
 
 ##### Desktop (Windows)

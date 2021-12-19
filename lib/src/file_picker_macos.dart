@@ -12,6 +12,7 @@ class FilePickerMacOS extends FilePicker {
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
+    bool lockParentWindow = false,
   }) async {
     final String executable = await isExecutableOnPath('osascript');
     final String fileFilter = fileTypeToFileFilter(
@@ -48,6 +49,7 @@ class FilePickerMacOS extends FilePicker {
   @override
   Future<String?> getDirectoryPath({
     String? dialogTitle,
+    bool lockParentWindow = false,
   }) async {
     final String executable = await isExecutableOnPath('osascript');
     final List<String> arguments = generateCommandLineArguments(
@@ -72,6 +74,7 @@ class FilePickerMacOS extends FilePicker {
     String? fileName,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
+    bool lockParentWindow = false,
   }) async {
     final String executable = await isExecutableOnPath('osascript');
     final String fileFilter = fileTypeToFileFilter(

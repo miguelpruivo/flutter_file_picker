@@ -21,6 +21,7 @@ class FilePickerWindows extends FilePicker {
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
+    bool lockParentWindow = false,
   }) async {
     final comdlg32 = DynamicLibrary.open('comdlg32.dll');
 
@@ -33,6 +34,7 @@ class FilePickerWindows extends FilePicker {
       allowedExtensions: allowedExtensions,
       dialogTitle: dialogTitle,
       type: type,
+      lockParentWindow: lockParentWindow,
     );
 
     final result = getOpenFileNameW(openFileNameW);
@@ -57,8 +59,10 @@ class FilePickerWindows extends FilePicker {
   @override
   Future<String?> getDirectoryPath({
     String? dialogTitle,
+    bool lockParentWindow = false,
   }) {
-    final pathIdPointer = _pickDirectory(dialogTitle ?? defaultDialogTitle);
+    final pathIdPointer =
+        _pickDirectory(dialogTitle ?? defaultDialogTitle, lockParentWindow);
     if (pathIdPointer == null) {
       return Future.value(null);
     }
@@ -73,6 +77,7 @@ class FilePickerWindows extends FilePicker {
     String? fileName,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
+    bool lockParentWindow = false,
   }) async {
     final comdlg32 = DynamicLibrary.open('comdlg32.dll');
 
@@ -85,6 +90,7 @@ class FilePickerWindows extends FilePicker {
       defaultFileName: fileName,
       dialogTitle: dialogTitle,
       type: type,
+      lockParentWindow: lockParentWindow,
     );
 
     final result = getSaveFileNameW(openFileNameW);
@@ -123,7 +129,7 @@ class FilePickerWindows extends FilePicker {
   ///
   /// Returns a PIDL that specifies the location of the selected folder relative to the root of the
   /// namespace. Returns null, if the user clicked on the "Cancel" button in the dialog box.
-  Pointer? _pickDirectory(String dialogTitle) {
+  Pointer? _pickDirectory(String dialogTitle, bool lockParentWindow) {
     final shell32 = DynamicLibrary.open('shell32.dll');
 
     final shBrowseForFolderW =
@@ -131,7 +137,9 @@ class FilePickerWindows extends FilePicker {
             'SHBrowseForFolderW');
 
     final Pointer<BROWSEINFOA> browseInfo = calloc<BROWSEINFOA>();
-    browseInfo.ref.hwndOwner = nullptr;
+    if (lockParentWindow) {
+      browseInfo.ref.hwndOwner = _getWindowHandle();
+    }
     browseInfo.ref.pidlRoot = nullptr;
     browseInfo.ref.pszDisplayName = calloc.allocate<Utf16>(maximumPathLength);
     browseInfo.ref.lpszTitle = dialogTitle.toNativeUtf16();
@@ -180,12 +188,12 @@ class FilePickerWindows extends FilePicker {
   /// Extracts the list of selected files from the Win32 API struct [OPENFILENAMEW].
   ///
   /// After the user has closed the file picker dialog, Win32 API sets the property
-  /// [lpstrFile] of [OPENFILENAMEW] to the user's selection. This property contains
-  /// a string terminated by two [null] characters. If the user has selected only one
+  /// `lpstrFile` of [OPENFILENAMEW] to the user's selection. This property contains
+  /// a string terminated by two `null` characters. If the user has selected only one
   /// file, then the returned string contains the absolute file path, e. g.
   /// `C:\Users\John\file1.jpg\x00\x00`. If the user has selected more than one file,
   /// then the returned string contains the directory of the selected files, followed
-  /// by a [null] character, followed by the file names each separated by a [null]
+  /// by a `null` character, followed by the file names each separated by a `null`
   /// character, e.g. `C:\Users\John\x00file1.jpg\x00file2.jpg\x00file3.jpg\x00\x00`.
   List<String> _extractSelectedFilesFromOpenFileNameW(
     OPENFILENAMEW openFileNameW,
@@ -228,6 +236,7 @@ class FilePickerWindows extends FilePicker {
     String? defaultFileName,
     List<String>? allowedExtensions,
     FileType type = FileType.any,
+    bool lockParentWindow = false,
   }) {
     final lpstrFileBufferSize = 8192 * maximumPathLength;
     final Pointer<OPENFILENAMEW> openFileNameW = calloc<OPENFILENAMEW>();
@@ -241,6 +250,10 @@ class FilePickerWindows extends FilePicker {
     openFileNameW.ref.nMaxFile = lpstrFileBufferSize;
     openFileNameW.ref.lpstrInitialDir = ''.toNativeUtf16();
     openFileNameW.ref.flags = ofnExplorer | ofnFileMustExist | ofnHideReadOnly;
+
+    if (lockParentWindow) {
+      openFileNameW.ref.hwndOwner = _getWindowHandle();
+    }
 
     if (allowMultiple) {
       openFileNameW.ref.flags |= ofnAllowMultiSelect;
@@ -260,6 +273,20 @@ class FilePickerWindows extends FilePicker {
     }
 
     return openFileNameW;
+  }
+
+  Pointer _getWindowHandle() {
+    final _user32 = DynamicLibrary.open('user32.dll');
+
+    final findWindowA = _user32.lookupFunction<
+        Int32 Function(Pointer<Utf8> _lpClassName, Pointer<Utf8> _lpWindowName),
+        int Function(Pointer<Utf8> _lpClassName,
+            Pointer<Utf8> _lpWindowName)>('FindWindowA');
+
+    int hWnd =
+        findWindowA('FLUTTER_RUNNER_WIN32_WINDOW'.toNativeUtf8(), nullptr);
+
+    return Pointer.fromAddress(hWnd);
   }
 
   void _freeMemory(Pointer<OPENFILENAMEW> openFileNameW) {
