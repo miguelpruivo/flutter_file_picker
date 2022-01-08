@@ -22,12 +22,20 @@ class FilePickerLinux extends FilePicker {
       type,
       allowedExtensions,
     );
-    final List<String> arguments = generateCommandLineArguments(
-      dialogTitle ?? defaultDialogTitle,
-      fileFilter: fileFilter,
-      multipleFiles: allowMultiple,
-      pickDirectory: false,
-    );
+
+    final List<String> arguments = (executable.contains('kdialog'))
+        ? generateKdialogArguments(
+            dialogTitle ?? defaultDialogTitle,
+            fileFilter: fileFilter,
+            multipleFiles: allowMultiple,
+            pickDirectory: false,
+          )
+        : generateCommandLineArguments(
+            dialogTitle ?? defaultDialogTitle,
+            fileFilter: fileFilter,
+            multipleFiles: allowMultiple,
+            pickDirectory: false,
+          );
 
     final String? fileSelectionResult = await runExecutableWithArguments(
       executable,
@@ -55,10 +63,15 @@ class FilePickerLinux extends FilePicker {
     bool lockParentWindow = false,
   }) async {
     final executable = await _getPathToExecutable();
-    final arguments = generateCommandLineArguments(
-      dialogTitle ?? defaultDialogTitle,
-      pickDirectory: true,
-    );
+    final List<String> arguments = (executable.contains('kdialog'))
+        ? generateKdialogArguments(
+            dialogTitle ?? defaultDialogTitle,
+            pickDirectory: true,
+          )
+        : generateCommandLineArguments(
+            dialogTitle ?? defaultDialogTitle,
+            pickDirectory: true,
+          );
     return await runExecutableWithArguments(executable, arguments);
   }
 
@@ -75,25 +88,38 @@ class FilePickerLinux extends FilePicker {
       type,
       allowedExtensions,
     );
-    final arguments = generateCommandLineArguments(
-      dialogTitle ?? defaultDialogTitle,
-      fileFilter: fileFilter,
-      fileName: fileName ?? '',
-      saveFile: true,
-    );
+    final List<String> arguments = (executable.contains('kdialog'))
+        ? generateKdialogArguments(
+            dialogTitle ?? defaultDialogTitle,
+            fileFilter: fileFilter,
+            fileName: fileName ?? '',
+            saveFile: true,
+          )
+        : generateCommandLineArguments(
+            dialogTitle ?? defaultDialogTitle,
+            fileFilter: fileFilter,
+            fileName: fileName ?? '',
+            saveFile: true,
+          );
     return await runExecutableWithArguments(executable, arguments);
   }
 
-  /// Returns the path to the executables `qarma` or `zenity` as a [String].
-  ///
+  /// Returns the path to the executables `qarma`, `zenity` or `kdialog` as a
+  /// [String].
   /// On Linux, the CLI tools `qarma` or `zenity` can be used to open a native
   /// file picker dialog. It seems as if all Linux distributions have at least
   /// one of these two tools pre-installed (on Ubuntu `zenity` is pre-installed).
-  /// The future returns an error, if neither of both executables was found on
+  /// On distribuitions that use KDE Plasma as their Desktop Environment,
+  /// `kdialog` is used to achieve these functionalities.
+  /// The future returns an error, if none of the executables was found on
   /// the path.
   Future<String> _getPathToExecutable() async {
     try {
-      return await isExecutableOnPath('qarma');
+      try {
+        return await isExecutableOnPath('qarma');
+      } on Exception {
+        return await isExecutableOnPath('kdialog');
+      }
     } on Exception {
       return await isExecutableOnPath('zenity');
     }
@@ -150,7 +176,39 @@ class FilePickerLinux extends FilePicker {
     return arguments;
   }
 
-  /// Transforms the result string (stdout) of `qarma` / `zenity` into a [List]
+  List<String> generateKdialogArguments(
+    String dialogTitle, {
+    String fileFilter = '',
+    String fileName = '',
+    bool multipleFiles = false,
+    bool pickDirectory = false,
+    bool saveFile = false,
+  }) {
+    final arguments = ['--title', dialogTitle];
+
+    if (saveFile) {
+      arguments.add('--getsavefilename');
+      if (fileName.isNotEmpty) {
+        arguments.add(fileName);
+      }
+    }
+
+    if (fileFilter.isNotEmpty) {
+      arguments.add(fileFilter);
+    }
+
+    if (multipleFiles) {
+      arguments.add('--multiple');
+    }
+
+    if (pickDirectory) {
+      arguments.add('--getexistingdirectory');
+    }
+
+    return arguments;
+  }
+
+  /// Transforms the result string (stdout) of `qarma`, `zenity` or `kdialog` into a [List]
   /// of file paths.
   List<String> resultStringToFilePaths(String fileSelectionResult) {
     if (fileSelectionResult.trim().isEmpty) {
