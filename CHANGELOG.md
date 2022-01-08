@@ -1,3 +1,8 @@
+## 4.3.1
+
+#### Desktop (Linux)
+Adds KDE Plasma's `kdialog` arguments, allowing `filepicker` to invoke `kdialog` for file system manipulation using shell scripts on distributions that use KDE Plasma as their Desktop Environment and don't ship `zenity` or `qarma`.
+
 ## 4.3.0
 
 ##### Desktop (Windows)
