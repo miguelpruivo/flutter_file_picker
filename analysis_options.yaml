@@ -28,7 +28,7 @@ linter:
     - avoid_slow_async_io
     - avoid_type_to_string
     - avoid_types_as_parameter_names
-    # - avoid_web_libraries_in_flutter
+    - avoid_web_libraries_in_flutter
     - cancel_subscriptions
     - close_sinks
     - control_flow_in_finally
