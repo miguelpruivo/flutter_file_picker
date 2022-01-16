@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/utils.dart';
+import 'package:file_picker/src/exceptions.dart';
 import 'package:file_picker/src/windows/file_picker_windows_ffi_types.dart';
 import 'package:path/path.dart';
 
@@ -125,6 +126,13 @@ class FilePickerWindows extends FilePicker {
     }
   }
 
+  validateFileName(String fileName) {
+    if (fileName.contains(RegExp(r'[<>:\/\\|?*"]'))) {
+      throw IllegalCharacterInFileNameException(
+          'Reserved characters may not be used in file names. See: https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions');
+    }
+  }
+
   /// Uses the Win32 API to display a dialog box that enables the user to select a folder.
   ///
   /// Returns a PIDL that specifies the location of the selected folder relative to the root of the
@@ -203,6 +211,7 @@ class FilePickerWindows extends FilePicker {
     int i = 0;
     bool lastCharWasNull = false;
 
+    // ignore: literal_only_boolean_expressions
     while (true) {
       final char = openFileNameW.lpstrFile.cast<Uint16>().elementAt(i).value;
       if (char == 0) {
@@ -260,6 +269,8 @@ class FilePickerWindows extends FilePicker {
     }
 
     if (defaultFileName != null) {
+      validateFileName(defaultFileName);
+
       final Uint16List nativeString = openFileNameW.ref.lpstrFile
           .cast<Uint16>()
           .asTypedList(maximumPathLength);
