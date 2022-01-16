@@ -1,3 +1,9 @@
+## 4.3.2
+
+#### Desktop (Windows)
+Fixes the issue under Windows that the save-file dialog did not open if the specified file name contained an illegal character. Windows prohibits the usage of [reserved characters in file names](https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions). Now the exception `IllegalCharacterInFileNameException` is thrown if the specified file name contains forbidden characters
+([#926](https://github.com/miguelpruivo/flutter_file_picker/issues/926)).
+
 ## 4.3.1
 
 #### Desktop (Linux)
