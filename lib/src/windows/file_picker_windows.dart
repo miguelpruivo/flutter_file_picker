@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/utils.dart';
+import 'package:file_picker/src/exceptions.dart';
 import 'package:file_picker/src/windows/file_picker_windows_ffi_types.dart';
 import 'package:path/path.dart';
 
@@ -122,6 +123,13 @@ class FilePickerWindows extends FilePicker {
         return 'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)\x00*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv\x00\x00';
       default:
         throw Exception('unknown file type');
+    }
+  }
+
+  validateFileName(String fileName) {
+    if (fileName.contains(RegExp(r'[<>:\/\\|?*"]'))) {
+      throw IllegalCharacterInFileNameException(
+          'Reserved characters may not be used in file names. See: https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions');
     }
   }
 
@@ -260,6 +268,8 @@ class FilePickerWindows extends FilePicker {
     }
 
     if (defaultFileName != null) {
+      validateFileName(defaultFileName);
+
       final Uint16List nativeString = openFileNameW.ref.lpstrFile
           .cast<Uint16>()
           .asTypedList(maximumPathLength);

@@ -4,11 +4,10 @@ import 'dart:io';
 import 'package:file_picker/src/file_picker_io.dart';
 import 'package:file_picker/src/file_picker_linux.dart';
 import 'package:file_picker/src/file_picker_macos.dart';
+import 'package:file_picker/src/file_picker_result.dart';
 import 'package:file_picker/src/windows/stub.dart'
     if (dart.library.io) 'package:file_picker/src/windows/file_picker_windows.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
-import 'file_picker_result.dart';
 
 const String defaultDialogTitle = 'File Picker';
 
@@ -150,7 +149,8 @@ abstract class FilePicker extends PlatformInterface {
   /// [dialogTitle] can be set to display a custom title on desktop platforms.
   ///
   /// [fileName] can be set to a non-empty string to provide a default file
-  /// name.
+  /// name. Throws an `IllegalCharacterInFileNameException` under Windows if the
+  /// given [fileName] contains forbidden characters.
   ///
   /// The file type filter [type] defaults to [FileType.any]. Optionally,
   /// [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`.). Both
