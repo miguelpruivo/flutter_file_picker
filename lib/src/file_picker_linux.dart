@@ -186,23 +186,34 @@ class FilePickerLinux extends FilePicker {
   }) {
     final arguments = ['--title', dialogTitle];
 
-    if (saveFile) {
+    // Choose right dialog
+    if (saveFile && !pickDirectory) {
       arguments.add('--getsavefilename');
-      if (fileName.isNotEmpty) {
-        arguments.add(fileName);
-      }
+    } else if (!saveFile && !pickDirectory) {
+      arguments.add('--getopenfilename');
+    } else {
+      arguments.add('--getexistingdirectory');
     }
 
-    if (fileFilter.isNotEmpty) {
-      arguments.add(fileFilter);
+    // Start directory for the dialog
+    if (fileName.isNotEmpty) {
+      arguments.add(fileName);
+    }
+
+    if (!pickDirectory && fileFilter.isNotEmpty) {
+      // In order to specify a filter, a start directory has to be specified
+      if (fileName.isEmpty) {
+        arguments.add('.');
+      }
+
+      // Patch the file filter string because KDialog expects a different format
+      final extensions = fileFilter.replaceAll('*', '').replaceAll(' ', ', ');
+      final filter = '${extensions} files ($fileFilter)';
+      arguments.add(filter);
     }
 
     if (multipleFiles) {
       arguments.add('--multiple');
-    }
-
-    if (pickDirectory) {
-      arguments.add('--getexistingdirectory');
     }
 
     return arguments;
