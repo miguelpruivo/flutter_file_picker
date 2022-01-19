@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:file_picker/src/file_picker.dart';
 import 'package:file_picker/src/file_picker_result.dart';
+import 'package:file_picker/src/linux/dialog_handler.dart';
 import 'package:file_picker/src/platform_file.dart';
 import 'package:file_picker/src/utils.dart';
 
@@ -18,24 +19,19 @@ class FilePickerLinux extends FilePicker {
     bool lockParentWindow = false,
   }) async {
     final String executable = await _getPathToExecutable();
-    final String fileFilter = fileTypeToFileFilter(
+    final dialogHandler = DialogHandler(executable);
+
+    final String fileFilter = dialogHandler.fileTypeToFileFilter(
       type,
       allowedExtensions,
     );
 
-    final List<String> arguments = (executable.contains('kdialog'))
-        ? generateKdialogArguments(
-            dialogTitle ?? defaultDialogTitle,
-            fileFilter: fileFilter,
-            multipleFiles: allowMultiple,
-            pickDirectory: false,
-          )
-        : generateCommandLineArguments(
-            dialogTitle ?? defaultDialogTitle,
-            fileFilter: fileFilter,
-            multipleFiles: allowMultiple,
-            pickDirectory: false,
-          );
+    final List<String> arguments = dialogHandler.generateCommandLineArguments(
+      dialogTitle ?? defaultDialogTitle,
+      fileFilter: fileFilter,
+      multipleFiles: allowMultiple,
+      pickDirectory: false,
+    );
 
     final String? fileSelectionResult = await runExecutableWithArguments(
       executable,
@@ -45,7 +41,7 @@ class FilePickerLinux extends FilePicker {
       return null;
     }
 
-    final List<String> filePaths = resultStringToFilePaths(
+    final List<String> filePaths = dialogHandler.resultStringToFilePaths(
       fileSelectionResult,
     );
     final List<PlatformFile> platformFiles = await filePathsToPlatformFiles(
@@ -63,15 +59,11 @@ class FilePickerLinux extends FilePicker {
     bool lockParentWindow = false,
   }) async {
     final executable = await _getPathToExecutable();
-    final List<String> arguments = (executable.contains('kdialog'))
-        ? generateKdialogArguments(
-            dialogTitle ?? defaultDialogTitle,
-            pickDirectory: true,
-          )
-        : generateCommandLineArguments(
-            dialogTitle ?? defaultDialogTitle,
-            pickDirectory: true,
-          );
+    final List<String> arguments =
+        DialogHandler(executable).generateCommandLineArguments(
+      dialogTitle ?? defaultDialogTitle,
+      pickDirectory: true,
+    );
     return await runExecutableWithArguments(executable, arguments);
   }
 
@@ -84,23 +76,20 @@ class FilePickerLinux extends FilePicker {
     bool lockParentWindow = false,
   }) async {
     final executable = await _getPathToExecutable();
-    final String fileFilter = fileTypeToFileFilter(
+    final dialogHandler = DialogHandler(executable);
+
+    final String fileFilter = dialogHandler.fileTypeToFileFilter(
       type,
       allowedExtensions,
     );
-    final List<String> arguments = (executable.contains('kdialog'))
-        ? generateKdialogArguments(
-            dialogTitle ?? defaultDialogTitle,
-            fileFilter: fileFilter,
-            fileName: fileName ?? '',
-            saveFile: true,
-          )
-        : generateCommandLineArguments(
-            dialogTitle ?? defaultDialogTitle,
-            fileFilter: fileFilter,
-            fileName: fileName ?? '',
-            saveFile: true,
-          );
+
+    final List<String> arguments = dialogHandler.generateCommandLineArguments(
+      dialogTitle ?? defaultDialogTitle,
+      fileFilter: fileFilter,
+      fileName: fileName ?? '',
+      saveFile: true,
+    );
+
     return await runExecutableWithArguments(executable, arguments);
   }
 
@@ -123,108 +112,5 @@ class FilePickerLinux extends FilePicker {
     } on Exception {
       return await isExecutableOnPath('zenity');
     }
-  }
-
-  String fileTypeToFileFilter(FileType type, List<String>? allowedExtensions) {
-    switch (type) {
-      case FileType.any:
-        return '';
-      case FileType.audio:
-        return '*.aac *.midi *.mp3 *.ogg *.wav';
-      case FileType.custom:
-        return '*.' + allowedExtensions!.join(' *.');
-      case FileType.image:
-        return '*.bmp *.gif *.jpeg *.jpg *.png';
-      case FileType.media:
-        return '*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv *.bmp *.gif *.jpeg *.jpg *.png';
-      case FileType.video:
-        return '*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv';
-      default:
-        throw Exception('unknown file type');
-    }
-  }
-
-  List<String> generateCommandLineArguments(
-    String dialogTitle, {
-    String fileFilter = '',
-    String fileName = '',
-    bool multipleFiles = false,
-    bool pickDirectory = false,
-    bool saveFile = false,
-  }) {
-    final arguments = ['--file-selection', '--title', dialogTitle];
-
-    if (saveFile) {
-      arguments.add('--save');
-      if (fileName.isNotEmpty) {
-        arguments.add('--filename=$fileName');
-      }
-    }
-
-    if (fileFilter.isNotEmpty) {
-      arguments.add('--file-filter=$fileFilter');
-    }
-
-    if (multipleFiles) {
-      arguments.add('--multiple');
-    }
-
-    if (pickDirectory) {
-      arguments.add('--directory');
-    }
-
-    return arguments;
-  }
-
-  List<String> generateKdialogArguments(
-    String dialogTitle, {
-    String fileFilter = '',
-    String fileName = '',
-    bool multipleFiles = false,
-    bool pickDirectory = false,
-    bool saveFile = false,
-  }) {
-    final arguments = ['--title', dialogTitle];
-
-    // Choose right dialog
-    if (saveFile && !pickDirectory) {
-      arguments.add('--getsavefilename');
-    } else if (!saveFile && !pickDirectory) {
-      arguments.add('--getopenfilename');
-    } else {
-      arguments.add('--getexistingdirectory');
-    }
-
-    // Start directory for the dialog
-    if (fileName.isNotEmpty) {
-      arguments.add(fileName);
-    }
-
-    if (!pickDirectory && fileFilter.isNotEmpty) {
-      // In order to specify a filter, a start directory has to be specified
-      if (fileName.isEmpty) {
-        arguments.add('.');
-      }
-
-      // Patch the file filter string because KDialog expects a different format
-      final extensions = fileFilter.replaceAll('*', '').replaceAll(' ', ', ');
-      final filter = '${extensions} files ($fileFilter)';
-      arguments.add(filter);
-    }
-
-    if (multipleFiles) {
-      arguments.add('--multiple');
-    }
-
-    return arguments;
-  }
-
-  /// Transforms the result string (stdout) of `qarma`, `zenity` or `kdialog` into a [List]
-  /// of file paths.
-  List<String> resultStringToFilePaths(String fileSelectionResult) {
-    if (fileSelectionResult.trim().isEmpty) {
-      return [];
-    }
-    return fileSelectionResult.split('|');
   }
 }
