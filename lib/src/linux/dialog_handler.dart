@@ -12,8 +12,9 @@ abstract class DialogHandler {
         pathToExecutable.endsWith('zenity')) {
       return QarmaAndZenityHandler();
     }
-    throw Exception(
-        'Cannot generate CLI arguments for executable $pathToExecutable');
+    throw UnimplementedError(
+      'DialogHandler for executable $pathToExecutable has not been implemented',
+    );
   }
 
   /// Generates the command line arguments to open a dialog with the respective
