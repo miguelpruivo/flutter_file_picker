@@ -27,5 +27,12 @@ void main() {
         isInstanceOf<QarmaAndZenityHandler>(),
       );
     });
+
+    test('should throw an exception for unknown executables', () {
+      expect(
+        () => DialogHandler('/usr/bin/osascript'),
+        throwsUnimplementedError,
+      );
+    });
   });
 }
