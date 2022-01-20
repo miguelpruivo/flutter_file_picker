@@ -35,7 +35,6 @@ class KDialogHandler implements DialogHandler {
       arguments.add(fileFilter);
     }
 
-    // TODO: not working
     if (multipleFiles) {
       arguments.add('--multiple');
     }
@@ -48,13 +47,40 @@ class KDialogHandler implements DialogHandler {
     FileType type,
     List<String>? allowedExtensions,
   ) {
-    // TODO: implement fileTypeToFileFilter
-    throw UnimplementedError();
+    switch (type) {
+      case FileType.any:
+        return '';
+      case FileType.audio:
+        return 'Audio File (*.aac *.midi *.mp3 *.ogg *.wav)';
+      case FileType.custom:
+        return allowedExtensions!
+                .map((ext) => ext.toUpperCase())
+                .join(' File, ') +
+            ' File (*.' +
+            allowedExtensions.join(' *.') +
+            ')';
+      case FileType.image:
+        return 'Image File (*.bmp *.gif *.jpeg *.jpg *.png)';
+      case FileType.media:
+        return 'Media File (*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv *.bmp *.gif *.jpeg *.jpg *.png)';
+      case FileType.video:
+        return 'Video File (*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv)';
+      default:
+        throw Exception('unknown file type');
+    }
   }
 
   @override
   List<String> resultStringToFilePaths(String fileSelectionResult) {
-    // TODO: implement resultStringToFilePaths
-    throw UnimplementedError();
+    if (fileSelectionResult.trim().isEmpty) {
+      return [];
+    }
+
+    // KDialog uses spaces to seperate picked paths
+    // Note: This breaks for paths with directories that have a space at the end
+    return fileSelectionResult
+        .split(' /')
+        .map((String path) => path.startsWith('/') ? path : '/' + path)
+        .toList();
   }
 }
