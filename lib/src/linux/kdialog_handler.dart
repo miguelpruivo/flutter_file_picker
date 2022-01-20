@@ -36,7 +36,7 @@ class KDialogHandler implements DialogHandler {
     }
 
     if (multipleFiles) {
-      arguments.add('--multiple');
+      arguments.addAll(['--multiple', '--separate-output']);
     }
 
     return arguments;
@@ -76,10 +76,8 @@ class KDialogHandler implements DialogHandler {
       return [];
     }
 
-    // KDialog uses spaces to seperate picked paths
-    // Note: This breaks for paths with directories that have a space at the end
     return fileSelectionResult
-        .split(' /')
+        .split('\n')
         .map((String path) => path.startsWith('/') ? path : '/' + path)
         .toList();
   }

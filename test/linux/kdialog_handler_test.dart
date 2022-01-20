@@ -75,7 +75,7 @@ void main() {
 
     test('should interpret the result of picking multiple files', () {
       final filePaths = KDialogHandler().resultStringToFilePaths(
-        '$imageTestFile $pdfTestFile $yamlTestFile',
+        '$imageTestFile\n$pdfTestFile\n$yamlTestFile',
       );
 
       expect(filePaths.length, equals(3));
@@ -84,16 +84,17 @@ void main() {
       expect(filePaths[2], equals(yamlTestFile));
     });
 
-    test(
-        'should interpret the result of file names that contain vertical pipes',
-        () {
+    test('should interpret the result of file paths that contain blanks', () {
       final filePaths = KDialogHandler().resultStringToFilePaths(
-        '$imageTestFile /home/user/file-with- -in-name.txt /tmp/image.png',
+        '$imageTestFile\n/tmp/ dir with blanks / file with blanks.txt\n/tmp/image.png',
       );
 
       expect(filePaths.length, equals(3));
       expect(filePaths[0], equals(imageTestFile));
-      expect(filePaths[1], equals('/home/user/file-with- -in-name.txt'));
+      expect(
+        filePaths[1],
+        equals('/tmp/ dir with blanks / file with blanks.txt'),
+      );
       expect(filePaths[2], equals('/tmp/image.png'));
     });
 
@@ -145,7 +146,9 @@ void main() {
 
       expect(
         cliArguments.join(' '),
-        equals("""--title Select files: --getopenfilename --multiple"""),
+        equals(
+          """--title Select files: --getopenfilename --multiple --separate-output""",
+        ),
       );
     });
 
@@ -180,7 +183,8 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals(
-            """--title Select HTML files: --getopenfilename . HTML File (*.html) --multiple"""),
+          """--title Select HTML files: --getopenfilename . HTML File (*.html) --multiple --separate-output""",
+        ),
       );
     });
 
