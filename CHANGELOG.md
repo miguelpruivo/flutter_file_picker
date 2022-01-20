@@ -1,3 +1,8 @@
+## 4.3.3
+
+#### Desktop (Linux)
+Introduces two fixes for the KDE Plasma Linux implementation which uses `kdialog` to open the file picker dialogs. Firstly, the selection of multiple files is fixed so that file paths with blanks/spaces are handled correctly. Secondly, file type filters are implemented. Thank you @w1th0utnam3.
+
 ## 4.3.2
 
 #### Desktop (Windows)
