@@ -1,7 +1,7 @@
 @TestOn('linux')
 
 import 'package:file_picker/src/file_picker.dart';
-import 'package:file_picker/src/file_picker_linux.dart';
+import 'package:file_picker/src/linux/qarma_and_zenity_handler.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -10,77 +10,70 @@ void main() {
   final yamlTestFile = '/tmp/test_linux.yml';
 
   group('fileTypeToFileFilter()', () {
-    test('should return the file filter', () {
-      final picker = FilePickerLinux();
+    test('should return the file filter string for predefined file types', () {
+      final dialogHandler = QarmaAndZenityHandler();
 
       expect(
-        picker.fileTypeToFileFilter(FileType.any, null),
+        dialogHandler.fileTypeToFileFilter(FileType.any, null),
         equals(''),
       );
 
       expect(
-        picker.fileTypeToFileFilter(FileType.audio, null),
+        dialogHandler.fileTypeToFileFilter(FileType.audio, null),
         equals('*.aac *.midi *.mp3 *.ogg *.wav'),
       );
 
       expect(
-        picker.fileTypeToFileFilter(FileType.image, null),
+        dialogHandler.fileTypeToFileFilter(FileType.image, null),
         equals('*.bmp *.gif *.jpeg *.jpg *.png'),
       );
 
       expect(
-        picker.fileTypeToFileFilter(FileType.media, null),
+        dialogHandler.fileTypeToFileFilter(FileType.media, null),
         equals(
           '*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv *.bmp *.gif *.jpeg *.jpg *.png',
         ),
       );
 
       expect(
-        picker.fileTypeToFileFilter(FileType.video, null),
+        dialogHandler.fileTypeToFileFilter(FileType.video, null),
         equals('*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv'),
       );
     });
 
-    test(
-        'should return the file filter when given a list of custom file extensions',
-        () {
-      final picker = FilePickerLinux();
+    test('should return the file filter string for custom file extensions', () {
+      final dialogHandler = QarmaAndZenityHandler();
 
       expect(
-        picker.fileTypeToFileFilter(FileType.custom, ['dart']),
+        dialogHandler.fileTypeToFileFilter(FileType.custom, ['dart']),
         equals('*.dart'),
       );
 
       expect(
-        picker.fileTypeToFileFilter(FileType.custom, ['dart', 'html']),
+        dialogHandler.fileTypeToFileFilter(FileType.custom, ['dart', 'html']),
         equals('*.dart *.html'),
       );
     });
   });
 
   group('resultStringToFilePaths()', () {
-    test('should interpret the result of picking a single file', () async {
-      final picker = FilePickerLinux();
-
-      final filePaths = picker.resultStringToFilePaths(imageTestFile);
+    test('should interpret the result of picking a single file', () {
+      final filePaths = QarmaAndZenityHandler().resultStringToFilePaths(
+        imageTestFile,
+      );
 
       expect(filePaths.length, equals(1));
       expect(filePaths[0], imageTestFile);
     });
 
-    test('should return an empty list if the file picker result was empty',
-        () async {
-      final picker = FilePickerLinux();
-
-      final filePaths = picker.resultStringToFilePaths('');
+    test('should return an empty list if the file picker result was empty', () {
+      final filePaths = QarmaAndZenityHandler().resultStringToFilePaths('');
 
       expect(filePaths.length, equals(0));
     });
 
-    test('should interpret the result of picking multiple files', () async {
-      final picker = FilePickerLinux();
-
-      final filePaths = picker.resultStringToFilePaths(
+    test('should interpret the result of picking multiple files', () {
+      final filePaths = QarmaAndZenityHandler().resultStringToFilePaths(
         '$imageTestFile|$pdfTestFile|$yamlTestFile',
       );
 
@@ -90,10 +83,21 @@ void main() {
       expect(filePaths[2], equals(yamlTestFile));
     });
 
-    test('should interpret the result of picking a directory', () async {
-      final picker = FilePickerLinux();
+    test(
+        'should interpret the result of file names that contain vertical pipes',
+        () {
+      final filePaths = QarmaAndZenityHandler().resultStringToFilePaths(
+        '$imageTestFile|/home/user/file-with-|-in-name.txt|/tmp/image.png',
+      );
 
-      final filePaths = picker.resultStringToFilePaths(
+      expect(filePaths.length, equals(3));
+      expect(filePaths[0], equals(imageTestFile));
+      expect(filePaths[1], equals('/home/user/file-with-|-in-name.txt'));
+      expect(filePaths[2], equals('/tmp/image.png'));
+    });
+
+    test('should interpret the result of picking a directory', () {
+      final filePaths = QarmaAndZenityHandler().resultStringToFilePaths(
         '/home/john/studies',
       );
 
@@ -104,9 +108,7 @@ void main() {
 
   group('generateCommandLineArguments()', () {
     test('should generate the arguments for picking a single file', () {
-      final picker = FilePickerLinux();
-
-      final cliArguments = picker.generateCommandLineArguments(
+      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
         'Select a file:',
         multipleFiles: false,
         pickDirectory: false,
@@ -119,9 +121,7 @@ void main() {
     });
 
     test('should generate the arguments for the save-file dialog', () {
-      final picker = FilePickerLinux();
-
-      final cliArguments = picker.generateCommandLineArguments(
+      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
         'Select output file:',
         multipleFiles: false,
         pickDirectory: false,
@@ -137,9 +137,7 @@ void main() {
     });
 
     test('should generate the arguments for picking multiple files', () {
-      final picker = FilePickerLinux();
-
-      final cliArguments = picker.generateCommandLineArguments(
+      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
         'Select files:',
         multipleFiles: true,
         pickDirectory: false,
@@ -154,9 +152,7 @@ void main() {
     test(
         'should generate the arguments for picking a single file with a custom file filter',
         () {
-      final picker = FilePickerLinux();
-
-      final cliArguments = picker.generateCommandLineArguments(
+      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
         'Select a file:',
         fileFilter: '*.dart *.yml',
         multipleFiles: false,
@@ -174,9 +170,7 @@ void main() {
     test(
         'should generate the arguments for picking multiple files with a custom file filter',
         () {
-      final picker = FilePickerLinux();
-
-      final cliArguments = picker.generateCommandLineArguments(
+      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
         'Select HTML files:',
         fileFilter: '*.html',
         multipleFiles: true,
@@ -191,9 +185,7 @@ void main() {
     });
 
     test('should generate the arguments for picking a directory', () {
-      final picker = FilePickerLinux();
-
-      final cliArguments = picker.generateCommandLineArguments(
+      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
         'Select a directory:',
         pickDirectory: true,
       );
