@@ -67,7 +67,7 @@ abstract class FilePicker extends PlatformInterface {
   /// Default [type] set to [FileType.any] with [allowMultiple] set to `false`.
   /// Optionally, [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`.).
   ///
-  /// If [withData] is set, picked files will have its byte data immediately available on memory as [Uint8List]
+  /// If [withData] is set, picked files will have its byte data immediately available on memory as `Uint8List`
   /// which can be useful if you are picking it for server upload or similar. However, have in mind that
   /// enabling this on IO (iOS & Android) may result in out of memory issues if you allow multiple picks or
   /// pick huge files. Use [withReadStream] instead. Defaults to `true` on web, `false` otherwise.

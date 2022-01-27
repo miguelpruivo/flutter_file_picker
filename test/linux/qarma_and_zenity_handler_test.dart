@@ -199,9 +199,7 @@ void main() {
     test(
         'should generate the arguments for picking a file when an initial directory is given',
         () {
-      final picker = FilePickerLinux();
-
-      final cliArguments = picker.generateCommandLineArguments(
+      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
         'Select a file:',
         initialDirectory: '/home/user/Desktop/',
       );
@@ -216,9 +214,7 @@ void main() {
     test(
         'should generate the arguments for saving a file when an initial directory is given',
         () {
-      final picker = FilePickerLinux();
-
-      final cliArguments = picker.generateCommandLineArguments(
+      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
         'Save as:',
         initialDirectory: '/home/user/Desktop/',
         saveFile: true,
@@ -234,9 +230,7 @@ void main() {
     test(
         'should generate the arguments for saving a file when an initial directory and the filename is given',
         () {
-      final picker = FilePickerLinux();
-
-      final cliArguments = picker.generateCommandLineArguments(
+      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
         'Save as:',
         fileName: 'output.pdf',
         initialDirectory: '/home/user/Desktop/',
