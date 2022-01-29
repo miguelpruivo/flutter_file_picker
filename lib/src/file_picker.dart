@@ -88,9 +88,9 @@ abstract class FilePicker extends PlatformInterface {
   ///
   /// [dialogTitle] can be optionally set on desktop platforms to set the modal window title. It will be ignored on
   /// other platforms.
-  /// 
-  /// [initialDirectory] can be optionally set to select the directory where the
-  /// dialog is opened.
+  ///
+  /// [initialDirectory] can be optionally set to an absolute path to specify
+  /// where the dialog should open. Only supported on Linux, macOS, and Windows.
   ///
   /// The result is wrapped in a [FilePickerResult] which contains helper getters
   /// with useful information regarding the picked [List<PlatformFile>].
@@ -130,14 +130,14 @@ abstract class FilePicker extends PlatformInterface {
   /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
   ///
   /// [dialogTitle] can be set to display a custom title on desktop platforms. It will be ignored on Web & IO.
-
+  ///
   /// If [lockParentWindow] is set, the child window (file picker window) will
   /// stay in front of the Flutter window until it is closed (like a modal
   /// window). This parameter works only on Windows desktop.
   ///
-  /// [initialDirectory] can be optionally set to select the directory where the
-  /// dialog is opened. On Windows, [initialDirectory] is not supported.
-  /// 
+  /// [initialDirectory] can be optionally set to an absolute path to specify
+  /// where the dialog should open. Only supported on Linux, macOS, and Windows.
+  ///
   /// Returns `null` if aborted or if the folder path couldn't be resolved.
   ///
   /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
@@ -159,14 +159,14 @@ abstract class FilePicker extends PlatformInterface {
   /// Windows).
   ///
   /// [dialogTitle] can be set to display a custom title on desktop platforms.
-  /// 
+  ///
   /// [fileName] can be set to a non-empty string to provide a default file
   /// name. Throws an `IllegalCharacterInFileNameException` under Windows if the
   /// given [fileName] contains forbidden characters.
-  /// 
-  /// [initialDirectory] can be optionally set to select the directory where the
-  /// file picker dialog is opened. 
-  /// 
+  ///
+  /// [initialDirectory] can be optionally set to an absolute path to specify
+  /// where the dialog should open. Only supported on Linux, macOS, and Windows.
+  ///
   /// The file type filter [type] defaults to [FileType.any]. Optionally,
   /// [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`.). Both
   /// parameters are just a proposal to the user as the save file dialog does

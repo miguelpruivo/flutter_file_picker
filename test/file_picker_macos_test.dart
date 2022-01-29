@@ -335,7 +335,9 @@ void main() {
       );
     });
 
-    test('should generate the arguments for picking a file when an initial directory is given', () {
+    test(
+        'should generate the arguments for picking a file when an initial directory is given',
+        () {
       final picker = FilePickerMacOS();
 
       final cliArguments = picker.generateCommandLineArguments(
@@ -345,11 +347,14 @@ void main() {
 
       expect(
         cliArguments.join(' '),
-        equals('-e choose file default location "/Users/john/Desktop" with prompt "Pick a file:"'),
+        equals(
+            '-e choose file default location "/Users/john/Desktop" with prompt "Pick a file:"'),
       );
     });
 
-    test('should generate the arguments for picking a directory when an initial directory is given', () {
+    test(
+        'should generate the arguments for picking a directory when an initial directory is given',
+        () {
       final picker = FilePickerMacOS();
 
       final cliArguments = picker.generateCommandLineArguments(
@@ -361,11 +366,14 @@ void main() {
 
       expect(
         cliArguments.join(' '),
-        equals('-e choose folder default location "/Users/john/workspace" with prompt "Pick directory:"'),
+        equals(
+            '-e choose folder default location "/Users/john/workspace" with prompt "Pick directory:"'),
       );
     });
 
-    test('should generate the arguments for saving a file when an initial directory is given', () {
+    test(
+        'should generate the arguments for saving a file when an initial directory is given',
+        () {
       final picker = FilePickerMacOS();
 
       final cliArguments = picker.generateCommandLineArguments(
@@ -377,7 +385,8 @@ void main() {
 
       expect(
         cliArguments.join(' '),
-        equals('-e choose file name default name "output.pdf" default location "/Users/john/Downloads" with prompt "Save as:"'),
+        equals(
+            '-e choose file name default name "output.pdf" default location "/Users/john/Downloads" with prompt "Save as:"'),
       );
     });
   });

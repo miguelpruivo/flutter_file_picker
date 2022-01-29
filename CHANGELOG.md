@@ -1,3 +1,8 @@
+## 4.4.0
+
+#### Desktop (Linux, macOS, and Windows)
+Adds the additional parameter `initialDirectory` to configure the initial directory where the dialog should be opened. This parameter is supported for all three dialogs (pick files, pick directory, and save file). The only exception is that the parameter does not work on Windows for the function `getDirectoryPath()`. Please note that this feature has not been implemented for Android and iOS.
+
 ## 4.3.3
 
 #### Desktop (Linux)
