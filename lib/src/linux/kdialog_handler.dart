@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/linux/dialog_handler.dart';
+import 'package:path/path.dart' as p;
 
 class KDialogHandler implements DialogHandler {
   @override
@@ -14,7 +15,6 @@ class KDialogHandler implements DialogHandler {
   }) {
     final arguments = ['--title', dialogTitle];
 
-    // Choose right dialog
     if (saveFile && !pickDirectory) {
       arguments.add('--getsavefilename');
     } else if (!saveFile && !pickDirectory) {
@@ -24,13 +24,17 @@ class KDialogHandler implements DialogHandler {
     }
 
     // Start directory for the dialog
-    if (fileName.isNotEmpty) {
-      arguments.add(fileName);
+    if (fileName.isNotEmpty && initialDirectory.isNotEmpty) {
+      arguments.add(p.join(initialDirectory, fileName));
+    } else if (fileName.isNotEmpty) {
+      arguments.add(p.absolute(fileName));
+    } else if (initialDirectory.isNotEmpty) {
+      arguments.add(initialDirectory);
     }
 
     if (!pickDirectory && fileFilter.isNotEmpty) {
       // In order to specify a filter, a start directory has to be specified
-      if (fileName.isEmpty) {
+      if (fileName.isEmpty && initialDirectory.isEmpty) {
         arguments.add('.');
       }
       arguments.add(fileFilter);

@@ -3,6 +3,7 @@
 import 'package:file_picker/src/file_picker.dart';
 import 'package:file_picker/src/linux/kdialog_handler.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 
 void main() {
   final imageTestFile = '/tmp/test_linux.jpg';
@@ -133,7 +134,8 @@ void main() {
 
       expect(
         cliArguments.join(' '),
-        equals("""--title Select output file: --getsavefilename test.out"""),
+        equals(
+            """--title Select output file: --getsavefilename ${p.absolute('test.out')}"""),
       );
     });
 
@@ -197,6 +199,68 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals("""--title Select a directory: --getexistingdirectory"""),
+      );
+    });
+
+    test(
+        'should generate the arguments for picking a file when an initial directory is given',
+        () {
+      final cliArguments = KDialogHandler().generateCommandLineArguments(
+        'Select a file:',
+        initialDirectory: '/etc/python3.8',
+      );
+
+      expect(
+        cliArguments.join(' '),
+        equals("""--title Select a file: --getopenfilename /etc/python3.8"""),
+      );
+    });
+
+    test(
+        'should generate the arguments for saving a file when an initial directory is given',
+        () {
+      final cliArguments = KDialogHandler().generateCommandLineArguments(
+        'Save as:',
+        initialDirectory: '/home/user/Desktop/',
+        saveFile: true,
+      );
+
+      expect(
+        cliArguments.join(' '),
+        equals("""--title Save as: --getsavefilename /home/user/Desktop/"""),
+      );
+    });
+
+    test(
+        'should generate the arguments for saving a file when an initial directory and the filename is given',
+        () {
+      final cliArguments = KDialogHandler().generateCommandLineArguments(
+        'Save as:',
+        fileName: 'output.pdf',
+        initialDirectory: '/tmp',
+        saveFile: true,
+      );
+
+      expect(
+        cliArguments.join(' '),
+        equals("""--title Save as: --getsavefilename /tmp/output.pdf"""),
+      );
+    });
+
+    test(
+        'should set the KDialog option "startDir" to the current directory if a file filter is given but fileName and initialDir are empty',
+        () {
+      final cliArguments = KDialogHandler().generateCommandLineArguments(
+        'Select a file:',
+        fileFilter: 'HTML File (*.html)',
+        fileName: '',
+        initialDirectory: '',
+      );
+
+      expect(
+        cliArguments.join(' '),
+        equals(
+            """--title Select a file: --getopenfilename . HTML File (*.html)"""),
       );
     });
   });
