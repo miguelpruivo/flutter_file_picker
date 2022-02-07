@@ -350,7 +350,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     if(@available(iOS 13.0, *)) {
         
         if(pickedVideoUrl != nil) {
-            NSString * fileName = [pickedVideoUrl lastPathComponent];
+            NSString * fileName = [[pickedVideoUrl lastPathComponent] stringByReplacingOccurrencesOfString:@" " withString:@"_"];
             NSURL * destination = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:fileName]];
             
             if([[NSFileManager defaultManager] isReadableFileAtPath: [pickedVideoUrl path]]) {
@@ -445,7 +445,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
                         UIImage * img = [UIImage imageWithContentsOfFile:item.path];
                         NSString * fileName = [[item.path lastPathComponent] stringByDeletingPathExtension];
                         NSData * data = UIImageJPEGRepresentation(img, 1);
-                        NSString * tmpFile = [NSTemporaryDirectory() stringByAppendingPathComponent:[fileName stringByAppendingString:@".jpeg"]];
+                        NSString * tmpFile = [NSTemporaryDirectory() stringByAppendingPathComponent:[[fileName stringByAppendingString:@".jpeg"] stringByReplacingOccurrencesOfString:@" " withString:@"_"]];
                         cachedUrl = [NSURL fileURLWithPath: tmpFile];
 
                         if([fileManager fileExistsAtPath:tmpFile]) {
@@ -461,7 +461,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
                     }
                 }
             } else {
-                NSString * cachedFile = [NSTemporaryDirectory() stringByAppendingPathComponent:filename];
+                NSString * cachedFile = [NSTemporaryDirectory() stringByAppendingPathComponent: [filename stringByReplacingOccurrencesOfString:@" " withString:@"_"]];
                 
                 if([fileManager fileExistsAtPath:cachedFile]) {
                     [fileManager removeItemAtPath:cachedFile error:NULL];
