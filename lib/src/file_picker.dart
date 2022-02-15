@@ -89,6 +89,9 @@ abstract class FilePicker extends PlatformInterface {
   /// [dialogTitle] can be optionally set on desktop platforms to set the modal window title. It will be ignored on
   /// other platforms.
   ///
+  /// [initialDirectory] can be optionally set to an absolute path to specify
+  /// where the dialog should open. Only supported on Linux, macOS, and Windows.
+  ///
   /// The result is wrapped in a [FilePickerResult] which contains helper getters
   /// with useful information regarding the picked [List<PlatformFile>].
   ///
@@ -97,6 +100,7 @@ abstract class FilePicker extends PlatformInterface {
   /// Returns `null` if aborted.
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
+    String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
@@ -131,9 +135,17 @@ abstract class FilePicker extends PlatformInterface {
   /// stay in front of the Flutter window until it is closed (like a modal
   /// window). This parameter works only on Windows desktop.
   ///
+  /// [initialDirectory] can be optionally set to an absolute path to specify
+  /// where the dialog should open. Only supported on Linux, macOS, and Windows.
+  ///
   /// Returns `null` if aborted or if the folder path couldn't be resolved.
-  Future<String?> getDirectoryPath(
-          {String? dialogTitle, bool lockParentWindow = false}) async =>
+  ///
+  /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
+  Future<String?> getDirectoryPath({
+    String? dialogTitle,
+    bool lockParentWindow = false,
+    String? initialDirectory,
+  }) async =>
       throw UnimplementedError('getDirectoryPath() has not been implemented.');
 
   /// Opens a save file dialog which lets the user select a file path and a file
@@ -152,6 +164,9 @@ abstract class FilePicker extends PlatformInterface {
   /// name. Throws an `IllegalCharacterInFileNameException` under Windows if the
   /// given [fileName] contains forbidden characters.
   ///
+  /// [initialDirectory] can be optionally set to an absolute path to specify
+  /// where the dialog should open. Only supported on Linux, macOS, and Windows.
+  ///
   /// The file type filter [type] defaults to [FileType.any]. Optionally,
   /// [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`.). Both
   /// parameters are just a proposal to the user as the save file dialog does
@@ -166,6 +181,7 @@ abstract class FilePicker extends PlatformInterface {
   Future<String?> saveFile({
     String? dialogTitle,
     String? fileName,
+    String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     bool lockParentWindow = false,

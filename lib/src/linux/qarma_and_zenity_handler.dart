@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/linux/dialog_handler.dart';
+import 'package:path/path.dart' as p;
 
 class QarmaAndZenityHandler implements DialogHandler {
   @override
@@ -7,6 +8,7 @@ class QarmaAndZenityHandler implements DialogHandler {
     String dialogTitle, {
     String fileFilter = '',
     String fileName = '',
+    String initialDirectory = '',
     bool multipleFiles = false,
     bool pickDirectory = false,
     bool saveFile = false,
@@ -15,9 +17,14 @@ class QarmaAndZenityHandler implements DialogHandler {
 
     if (saveFile) {
       arguments.add('--save');
-      if (fileName.isNotEmpty) {
-        arguments.add('--filename=$fileName');
-      }
+    }
+
+    if (fileName.isNotEmpty && initialDirectory.isNotEmpty) {
+      arguments.add('--filename=${p.join(initialDirectory, fileName)}');
+    } else if (fileName.isNotEmpty) {
+      arguments.add('--filename=$fileName');
+    } else if (initialDirectory.isNotEmpty) {
+      arguments.add('--filename=$initialDirectory');
     }
 
     if (fileFilter.isNotEmpty) {

@@ -195,5 +195,53 @@ void main() {
         equals("""--file-selection --title Select a directory: --directory"""),
       );
     });
+
+    test(
+        'should generate the arguments for picking a file when an initial directory is given',
+        () {
+      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
+        'Select a file:',
+        initialDirectory: '/home/user/Desktop/',
+      );
+
+      expect(
+        cliArguments.join(' '),
+        equals(
+            """--file-selection --title Select a file: --filename=/home/user/Desktop/"""),
+      );
+    });
+
+    test(
+        'should generate the arguments for saving a file when an initial directory is given',
+        () {
+      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
+        'Save as:',
+        initialDirectory: '/home/user/Desktop/',
+        saveFile: true,
+      );
+
+      expect(
+        cliArguments.join(' '),
+        equals(
+            """--file-selection --title Save as: --save --filename=/home/user/Desktop/"""),
+      );
+    });
+
+    test(
+        'should generate the arguments for saving a file when an initial directory and the filename is given',
+        () {
+      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
+        'Save as:',
+        fileName: 'output.pdf',
+        initialDirectory: '/home/user/Desktop/',
+        saveFile: true,
+      );
+
+      expect(
+        cliArguments.join(' '),
+        equals(
+            """--file-selection --title Save as: --save --filename=/home/user/Desktop/output.pdf"""),
+      );
+    });
   });
 }

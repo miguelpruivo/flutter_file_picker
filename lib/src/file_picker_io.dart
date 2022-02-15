@@ -26,6 +26,7 @@ class FilePickerIO extends FilePicker {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     String? dialogTitle,
+    String? initialDirectory,
     Function(FilePickerStatus)? onFileLoading,
     bool? allowCompression = true,
     bool allowMultiple = false,
@@ -48,8 +49,11 @@ class FilePickerIO extends FilePicker {
       _channel.invokeMethod<bool>('clear');
 
   @override
-  Future<String?> getDirectoryPath(
-      {String? dialogTitle, bool lockParentWindow = false}) async {
+  Future<String?> getDirectoryPath({
+    String? dialogTitle,
+    bool lockParentWindow = false,
+    String? initialDirectory,
+  }) async {
     try {
       return await _channel.invokeMethod('dir', {});
     } on PlatformException catch (ex) {
