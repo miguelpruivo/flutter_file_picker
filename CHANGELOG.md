@@ -1,3 +1,8 @@
+## 4.5.0
+
+#### Desktop (Windows)
+Changes the implementation of `getDirectoryPath()` on Windows to provide a modern dialog that looks the same as a file picker dialog ([#915](https://github.com/miguelpruivo/flutter_file_picker/issues/915)).
+
 ## 4.4.0
 
 #### Desktop (Linux, macOS, and Windows)

@@ -36,6 +36,18 @@ A package that allows you to use the native file explorer to pick single or mult
 
 If you have any feature that you want to see in this package, please feel free to issue a suggestion. 🎉
 
+## Compatibility Chart
+
+| API                   | Android            | iOS                | Linux              | macOS              | Windows            | Web                |
+| --------------------- | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ |
+| clearTemporaryFiles() | :white_check_mark: | :white_check_mark: | :x:                | :x:                | :x:                | :x:                |
+| getDirectoryPath()    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x:                |
+| pickFiles()           | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| saveFile()            | :x:                | :x:                | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x:                |
+
+See the [API section of the File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api) or the [official API reference on pub.dev](https://pub.dev/documentation/file_picker/latest/file_picker/FilePicker-class.html) for further details.
+
+
 ## Documentation
 See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** for every detail on about how to install, setup and use it.
 

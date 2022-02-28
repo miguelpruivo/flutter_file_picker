@@ -136,10 +136,14 @@ abstract class FilePicker extends PlatformInterface {
   /// window). This parameter works only on Windows desktop.
   ///
   /// [initialDirectory] can be optionally set to an absolute path to specify
-  /// where the dialog should open. Only supported on Linux, macOS, and Windows.
+  /// where the dialog should open. Only supported on Linux and macOS.
   ///
-  /// Returns `null` if aborted or if the folder path couldn't be resolved.
+  /// Returns a [Future<String?>] which resolves to  the absolute path of the selected directory,
+  /// if the user selected a directory. Returns `null` if the user aborted the dialog or if the
+  /// folder path couldn't be resolved.
   ///
+  /// Note: on Windows, throws a `WindowsException` with a detailed error message, if the dialog
+  /// could not be instantiated or the dialog result could not be interpreted.
   /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
   Future<String?> getDirectoryPath({
     String? dialogTitle,
