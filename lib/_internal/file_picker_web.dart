@@ -60,6 +60,7 @@ class FilePickerWeb extends FilePicker {
     uploadInput.draggable = true;
     uploadInput.multiple = allowMultiple;
     uploadInput.accept = accept;
+    uploadInput.style.display = 'none';
 
     bool changeEventTriggered = false;
 
