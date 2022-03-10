@@ -4,6 +4,11 @@
 Add conditional compilation of media, audio and document pickers for iOS.
 This prevents error messages for permissions (NSPhotoLibraryUsageDescription, NSAppleMusicUsageDescription, etc.) when publishing to app store connect, in case you don't need either category. This addresses [#783](https://github.com/miguelpruivo/flutter_file_picker/issues/783) in a different way.
 
+## 4.5.1
+
+#### Web
+Adds `display:none` to the internal input element to fix a display issue in specific scenario's.
+
 ## 4.5.0
 
 #### Desktop (Windows)
