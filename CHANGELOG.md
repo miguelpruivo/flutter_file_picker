@@ -1,3 +1,8 @@
+## 4.5.1
+
+#### Web
+Adds `display:none` to the internal input element to fix a display issue in specific scenario's.
+
 ## 4.5.0
 
 #### Desktop (Windows)
