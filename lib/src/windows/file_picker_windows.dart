@@ -268,7 +268,8 @@ class FilePickerWindows extends FilePicker {
     openFileNameW.ref.nMaxFile = lpstrFileBufferSize;
     openFileNameW.ref.lpstrInitialDir =
         (initialDirectory ?? '').toNativeUtf16();
-    openFileNameW.ref.flags = ofnExplorer | ofnFileMustExist | ofnHideReadOnly;
+    openFileNameW.ref.flags =
+        ofnExplorer | ofnFileMustExist | ofnNoChangeDir | ofnHideReadOnly;
 
     if (lockParentWindow) {
       openFileNameW.ref.hwndOwner = _getWindowHandle();

@@ -217,5 +217,8 @@ const ofnExplorer = 0x00080000;
 /// The user can type only names of existing files in the File Name entry field.
 const ofnFileMustExist = 0x00001000;
 
+/// Keeps current directory
+const ofnNoChangeDir = 0x00000008;
+
 /// Hides the Read Only check box.
 const ofnHideReadOnly = 0x00000004;
