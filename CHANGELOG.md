@@ -1,3 +1,8 @@
+## 4.5.2
+
+#### Android
+Get the absolute path of the file you selected. Fix memory leaks.
+
 ## 4.5.1
 
 #### Web

@@ -71,11 +71,28 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         this.permissionManager = permissionManager;
     }
 
+    private void takePersistableUriPermission(Intent intent, Uri uri) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            final int takeFlags = intent.getFlags() & Intent.FLAG_GRANT_READ_URI_PERMISSION;
+            activity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
+        }
+    }
+
+    private FileInfo parseUri(Intent intent, Uri uri) {
+        takePersistableUriPermission(intent, uri);
+        String path = UriUtils.getPath(activity, uri);
+        if (path != null) {
+            File f = new File(path);
+            return new FileInfo(path, f.getName(), uri, f.length(), null);
+        } else {
+            return FileUtils.openFileStream(activity, uri, loadDataToMemory);
+        }
+    }
 
     @Override
     public boolean onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 
-        if(type == null) {
+        if (type == null) {
             return false;
         }
 
@@ -94,12 +111,14 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             int currentItem = 0;
                             while (currentItem < count) {
                                 final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
-                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
 
-                                if(file != null) {
+                                FileInfo file = parseUri(data, currentUri);
+                                if (file != null) {
                                     files.add(file);
-                                    Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
+                                    Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #"
+                                        + currentItem + " - URI: " + currentUri.getPath());
                                 }
+
                                 currentItem++;
                             }
 
@@ -113,7 +132,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 Log.d(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
                                 final String dirPath = FileUtils.getFullPathFromTreeUri(uri, activity);
 
-                                if(dirPath != null) {
+                                if (dirPath != null) {
                                     finishWithSuccess(dirPath);
                                 } else {
                                     finishWithError("unknown_path", "Failed to retrieve directory path.");
@@ -121,9 +140,8 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 return;
                             }
 
-                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri, loadDataToMemory);
-
-                            if(file != null) {
+                            FileInfo file = parseUri(data, uri);
+                            if (file != null) {
                                 files.add(file);
                             }
 
@@ -143,8 +161,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                     for (Parcelable fileUri : fileUris) {
                                         if (fileUri instanceof Uri) {
                                             Uri currentUri = (Uri) fileUri;
-                                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
-
+                                            FileInfo file = parseUri(data, currentUri);
                                             if (file != null) {
                                                 files.add(file);
                                                 Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
@@ -220,12 +237,14 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         if (type.equals("dir")) {
             intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         } else {
-            if (type.equals("image/*")) {
-                intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            } else {
-                intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-            }
+            //if (type.equals("image/*")) {
+            //    intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            //} else {
+            //    intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            //    intent.addCategory(Intent.CATEGORY_OPENABLE);
+            //}
+            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
             final Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
             Log.d(TAG, "Selected type " + type);
             intent.setDataAndType(uri, this.type);

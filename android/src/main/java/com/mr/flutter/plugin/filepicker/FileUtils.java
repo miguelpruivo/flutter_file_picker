@@ -33,6 +33,7 @@ public class FileUtils {
 
     private static final String TAG = "FilePickerUtils";
     private static final String PRIMARY_VOLUME_NAME = "primary";
+    private static final int MAX_COPY_SIZE = 50 * 1024 * 1024;
 
     public static String[] getMimeTypes(final ArrayList<String> allowedExtensions) {
 
@@ -125,6 +126,7 @@ public class FileUtils {
     public static FileInfo openFileStream(final Context context, final Uri uri, boolean withData) {
 
         Log.i(TAG, "Caching from URI: " + uri.toString());
+        InputStream in = null;
         FileOutputStream fos = null;
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
         final String fileName = FileUtils.getFileName(uri, context);
@@ -132,34 +134,39 @@ public class FileUtils {
 
         final File file = new File(path);
 
-        if(!file.exists()) {
+        if (!file.exists()) {
             file.getParentFile().mkdirs();
             try {
+                in = context.getContentResolver().openInputStream(uri);
+                if (in.available() > MAX_COPY_SIZE) return null;
                 fos = new FileOutputStream(path);
-                try {
-                    final BufferedOutputStream out = new BufferedOutputStream(fos);
-                    final InputStream in = context.getContentResolver().openInputStream(uri);
+                final BufferedOutputStream out = new BufferedOutputStream(fos);
 
-                    final byte[] buffer = new byte[8192];
-                    int len = 0;
+                final byte[] buffer = new byte[8192];
+                int len = 0;
 
-                    while ((len = in.read(buffer)) >= 0) {
-                        out.write(buffer, 0, len);
-                    }
-
-                    out.flush();
-                } finally {
-                    fos.getFD().sync();
+                while ((len = in.read(buffer)) >= 0) {
+                    out.write(buffer, 0, len);
                 }
+
+                out.flush();
             } catch (final Exception e) {
-                try {
-                    fos.close();
-                } catch (final IOException | NullPointerException ex) {
-                    Log.e(TAG, "Failed to close file streams: " + e.getMessage(), null);
-                    return null;
-                }
-                Log.e(TAG, "Failed to retrieve path: " + e.getMessage(), null);
+                Log.e(TAG, "Failed to retrieve path: " + e.getMessage(), e);
                 return null;
+            } finally {
+                if (fos != null) {
+                    try {
+                        fos.getFD().sync();
+                        fos.close();
+                    } catch (Exception ignored) {
+                    }
+                }
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (Exception ignored) {
+                    }
+                }
             }
         }
 
