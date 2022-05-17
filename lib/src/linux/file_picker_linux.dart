@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'package:file_picker/src/file_picker.dart';
-import 'package:file_picker/src/file_picker_result.dart';
-import 'package:file_picker/src/linux/dialog_handler.dart';
-import 'package:file_picker/src/platform_file.dart';
-import 'package:file_picker/src/utils.dart';
+import 'package:file_picker_fork/src/file_picker.dart';
+import 'package:file_picker_fork/src/file_picker_result.dart';
+import 'package:file_picker_fork/src/linux/dialog_handler.dart';
+import 'package:file_picker_fork/src/platform_file.dart';
+import 'package:file_picker_fork/src/utils.dart';
 
 class FilePickerLinux extends FilePicker {
   @override

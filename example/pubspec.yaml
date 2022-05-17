@@ -15,7 +15,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  file_picker:
+  file_picker_fork:
     path: ../
 
 flutter:

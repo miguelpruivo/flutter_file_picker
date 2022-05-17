@@ -1,5 +1,5 @@
-import 'package:file_picker/file_picker.dart';
-import 'package:file_picker/src/linux/dialog_handler.dart';
+import 'package:file_picker_fork/file_picker.dart';
+import 'package:file_picker_fork/src/linux/dialog_handler.dart';
 import 'package:path/path.dart' as p;
 
 class KDialogHandler implements DialogHandler {

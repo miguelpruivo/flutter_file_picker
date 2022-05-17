@@ -1,4 +1,4 @@
-library file_picker;
+library file_picker_fork;
 
 export './src/file_picker.dart';
 export './src/platform_file.dart';

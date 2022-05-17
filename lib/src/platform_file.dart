@@ -30,16 +30,16 @@ class PlatformFile {
   /// final File myFile = File(platformFile.path);
   /// ```
   /// On web this is always `null`. You should access `bytes` property instead.
-  /// Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
+  /// Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker_fork/wiki/FAQ)
   String? _path;
 
   String? get path {
     if (kIsWeb) {
-      /// https://github.com/miguelpruivo/flutter_file_picker/issues/751
+      /// https://github.com/miguelpruivo/flutter_file_picker_fork/issues/751
       throw '''
       On web `path` is always `null`,
       You should access `bytes` property instead,
-      Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
+      Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker_fork/wiki/FAQ)
       ''';
     }
     return _path;
@@ -50,7 +50,7 @@ class PlatformFile {
 
   /// Byte data for this file. Particurlarly useful if you want to manipulate its data
   /// or easily upload to somewhere else.
-  /// [Check here in the FAQ](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ) an example on how to use it to upload on web.
+  /// [Check here in the FAQ](https://github.com/miguelpruivo/flutter_file_picker_fork/wiki/FAQ) an example on how to use it to upload on web.
   final Uint8List? bytes;
 
   /// File content as stream

@@ -1,4 +1,4 @@
-import 'package:file_picker/src/platform_file.dart';
+import 'package:file_picker_fork/src/platform_file.dart';
 import 'package:flutter/foundation.dart';
 
 class FilePickerResult {
