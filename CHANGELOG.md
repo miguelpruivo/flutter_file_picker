@@ -1,3 +1,7 @@
+## 4.5.2
+#### Desktop (Windows)
+Adds the flag `OFN_NOCHANGEDIR` to prevent current directory from changing on Windows. That makes all platform consistent.
+
 ## 4.5.1
 
 #### Web
