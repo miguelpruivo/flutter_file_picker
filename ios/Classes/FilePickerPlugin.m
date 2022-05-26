@@ -2,14 +2,22 @@
 #import "FileUtils.h"
 #import "ImageUtils.h"
 
+#ifdef PICKER_MEDIA
 @import DKImagePickerController;
 
 @interface FilePickerPlugin() <DKImageAssetExporterObserver>
+#else
+@interface FilePickerPlugin()
+#endif
 @property (nonatomic) FlutterResult result;
 @property (nonatomic) FlutterEventSink eventSink;
+#ifdef PICKER_MEDIA
 @property (nonatomic) UIImagePickerController *galleryPickerController;
+#endif
+#ifdef PICKER_DOCUMENT
 @property (nonatomic) UIDocumentPickerViewController *documentPickerController;
 @property (nonatomic) UIDocumentInteractionController *interactionController;
+#endif
 @property (nonatomic) MPMediaPickerController *audioPickerController;
 @property (nonatomic) NSArray<NSString *> * allowedExtensions;
 @property (nonatomic) BOOL loadDataToMemory;
@@ -87,7 +95,13 @@
     
     if([call.method isEqualToString:@"dir"]) {
         if (@available(iOS 13, *)) {
+#ifdef PICKER_DOCUMENT
             [self resolvePickDocumentWithMultiPick:NO pickDirectory:YES];
+#else
+            _result([FlutterError errorWithCode:@"Unsupported picker type"
+                                        message:@"Support for the Document picker is not compiled in. Remove the Pod::PICKER_DOCUMENT=false statement from your Podfile."
+                                        details:nil]);
+#endif
         } else {
             _result([self getDocumentDirectory]);
             _result = nil;
@@ -109,12 +123,30 @@
                                         details:nil]);
             _result = nil;
         } else if(self.allowedExtensions != nil) {
+#ifdef PICKER_DOCUMENT
             [self resolvePickDocumentWithMultiPick:isMultiplePick pickDirectory:NO];
+#else
+            _result([FlutterError errorWithCode:@"Unsupported picker type"
+                                        message:@"Support for the Document picker is not compiled in. Remove the Pod::PICKER_DOCUMENT=false statement from your Podfile."
+                                        details:nil]);
+#endif
         }
     } else if([call.method isEqualToString:@"video"] || [call.method isEqualToString:@"image"] || [call.method isEqualToString:@"media"]) {
+#ifdef PICKER_MEDIA
         [self resolvePickMedia:[FileUtils resolveMediaType:call.method] withMultiPick:isMultiplePick withCompressionAllowed:self.allowCompression];
+#else
+        _result([FlutterError errorWithCode:@"Unsupported picker type"
+                                    message:@"Support for the Media picker is not compiled in. Remove the Pod::PICKER_MEDIA=false statement from your Podfile."
+                                    details:nil]);
+#endif
     } else if([call.method isEqualToString:@"audio"]) {
-        [self resolvePickAudioWithMultiPick: isMultiplePick];
+ #ifdef PICKER_AUDIO
+       [self resolvePickAudioWithMultiPick: isMultiplePick];
+ #else
+        _result([FlutterError errorWithCode:@"Unsupported picker type"
+                                    message:@"Support for the Audio picker is not compiled in. Remove the Pod::PICKER_AUDIO=false statement from your Podfile."
+                                    details:nil]);
+#endif      
     } else {
         result(FlutterMethodNotImplemented);
         _result = nil;
@@ -127,6 +159,8 @@
 }
 
 #pragma mark - Resolvers
+
+#ifdef PICKER_DOCUMENT
 - (void)resolvePickDocumentWithMultiPick:(BOOL)allowsMultipleSelection pickDirectory:(BOOL)isDirectory {
     
     @try{
@@ -150,7 +184,9 @@
     
     [[self viewControllerWithWindow:nil] presentViewController:self.documentPickerController animated:YES completion:nil];
 }
+#endif // PICKER_DOCUMENT
 
+#ifdef PICKER_MEDIA
 - (void) resolvePickMedia:(MediaType)type withMultiPick:(BOOL)multiPick withCompressionAllowed:(BOOL)allowCompression  {
     
 #ifdef PHPicker
@@ -285,7 +321,9 @@
     
     [[self viewControllerWithWindow:nil] presentViewController:dkImagePickerController animated:YES completion:nil];
 }
+#endif // PICKER_MEDIA
 
+#ifdef PICKER_AUDIO
 - (void) resolvePickAudioWithMultiPick:(BOOL)isMultiPick {
     
     
@@ -304,6 +342,8 @@
     
     [[self viewControllerWithWindow:nil] presentViewController:self.audioPickerController animated:YES completion:nil];
 }
+#endif // PICKER_AUDIO
+
 
 - (void) handleResult:(id) files {
     _result([FileUtils resolveFileInfo: [files isKindOfClass: [NSArray class]] ? files : @[files] withData:self.loadDataToMemory]);
@@ -312,6 +352,7 @@
 
 #pragma mark - Delegates
 
+#ifdef PICKER_DOCUMENT
 // DocumentPicker delegate - iOS 10 only
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url{
     [self.documentPickerController dismissViewControllerAnimated:YES completion:nil];
@@ -336,8 +377,9 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
     [self handleResult: urls];
 }
+#endif // PICKER_DOCUMENT
 
-
+#ifdef PICKER_MEDIA
 // ImagePicker delegate
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     if(_result == nil) {
@@ -503,9 +545,10 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     });
 }
 
-#endif
+#endif // PHPicker
+#endif // PICKER_MEDIA
 
-
+#ifdef PICKER_AUDIO
 // AudioPicker delegate
 - (void)mediaPicker: (MPMediaPickerController *)mediaPicker didPickMediaItems:(MPMediaItemCollection *)mediaItemCollection
 {
@@ -536,9 +579,11 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     }
     [self handleResult:urls];
 }
+#endif // PICKER_AUDIO
 
 #pragma mark - Actions canceled
 
+#ifdef PICKER_MEDIA
 - (void)presentationControllerDidDismiss:(UIPresentationController *)controller {
     Log(@"FilePicker canceled");
     if (self.result != nil) {
@@ -546,27 +591,34 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         self.result = nil;
     }
 }
+#endif // PICKER_MEDIA
 
+#ifdef PICKER_AUDIO
 - (void)mediaPickerDidCancel:(MPMediaPickerController *)controller {
     Log(@"FilePicker canceled");
     _result(nil);
     _result = nil;
     [controller dismissViewControllerAnimated:YES completion:NULL];
 }
+#endif // PICKER_AUDIO
 
+#ifdef PICKER_DOCUMENT
 - (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller {
     Log(@"FilePicker canceled");
     _result(nil);
     _result = nil;
     [controller dismissViewControllerAnimated:YES completion:NULL];
 }
+#endif // PICKER_DOCUMENT
 
+#ifdef PICKER_MEDIA
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
     Log(@"FilePicker canceled");
     _result(nil);
     _result = nil;
     [picker dismissViewControllerAnimated:YES completion:NULL];
 }
+#endif
 
 #pragma mark - Alert dialog
 
