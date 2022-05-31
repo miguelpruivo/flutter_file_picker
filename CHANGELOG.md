@@ -1,3 +1,9 @@
+## 4.6.1
+
+#### iOS
+Handle `UTTypeCreatePreferredIdentifierForTag` returning `NULL`. This prevents a crash observed
+on the iOS simulator on Apple Silicon ([#1040](https://github.com/miguelpruivo/flutter_file_picker/issues/783)).
+
 ## 4.6.0
 
 #### iOS
