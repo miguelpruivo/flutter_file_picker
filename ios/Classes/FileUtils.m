@@ -47,15 +47,18 @@
         
         NSMutableArray<NSString*>* utis = [[NSMutableArray<NSString*> alloc] init];
         
-        for(int i = 0 ; i<allowedExtensions.count ; i++){
+        for(int i = 0 ; i<allowedExtensions.count ; i++) {
             NSString * format = [NSString stringWithFormat:@"dummy.%@", allowedExtensions[i]];
             CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[format pathExtension], NULL);
             NSString * UTIString = (__bridge NSString *)(UTI);
-            CFRelease(UTI);
-            if([UTIString containsString:@"dyn."]){
+            if (UTI) CFRelease(UTI);
+            if (!UTI) {
+                Log(@"[Skipping type] Resolving type from extension is not supported: %@", allowedExtensions[i]);
+                continue;
+            } else if ([UTIString containsString:@"dyn."]) {
                 Log(@"[Skipping type] Unsupported file type: %@", UTIString);
                 continue;
-            } else{
+            } else {
                 Log(@"Custom file type supported: %@", UTIString);
                 [utis addObject: UTIString];
             }
