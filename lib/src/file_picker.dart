@@ -37,7 +37,7 @@ abstract class FilePicker extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static late FilePicker _instance = FilePicker._setPlatform();
+  static FilePicker _instance = FilePicker._setPlatform();
 
   static FilePicker get platform => _instance;
 

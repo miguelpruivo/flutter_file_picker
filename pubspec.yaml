@@ -11,14 +11,14 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
     
-  flutter_plugin_android_lifecycle: ^2.0.2
-  plugin_platform_interface: ^2.0.0
-  ffi: ^1.1.2
-  path: ^1.8.0
-  win32: ^2.4.1
+  flutter_plugin_android_lifecycle: ^2.0.6
+  plugin_platform_interface: ^2.1.2
+  ffi: ^2.0.1
+  path: ^1.8.1
+  win32: ^2.7.0
 
 dev_dependencies:
-  lints: ^1.0.1
+  lints: ^2.0.0
   flutter_test:
     sdk: flutter
 
