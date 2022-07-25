@@ -58,9 +58,7 @@ class KDialogHandler implements DialogHandler {
       case FileType.audio:
         return 'Audio File (*.aac *.midi *.mp3 *.ogg *.wav)';
       case FileType.custom:
-        return '${allowedExtensions!
-                .map((ext) => ext.toUpperCase())
-                .join(' File, ')} File (*.${allowedExtensions.join(' *.')})';
+        return '${allowedExtensions!.map((ext) => ext.toUpperCase()).join(' File, ')} File (*.${allowedExtensions.join(' *.')})';
       case FileType.image:
         return 'Image File (*.bmp *.gif *.jpeg *.jpg *.png)';
       case FileType.media:
