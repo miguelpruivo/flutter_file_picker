@@ -297,12 +297,12 @@ class FilePickerWindows extends FilePicker {
   }
 
   Pointer _getWindowHandle() {
-    final _user32 = DynamicLibrary.open('user32.dll');
+    final user32 = DynamicLibrary.open('user32.dll');
 
-    final findWindowA = _user32.lookupFunction<
-        Int32 Function(Pointer<Utf8> _lpClassName, Pointer<Utf8> _lpWindowName),
-        int Function(Pointer<Utf8> _lpClassName,
-            Pointer<Utf8> _lpWindowName)>('FindWindowA');
+    final findWindowA = user32.lookupFunction<
+        Int32 Function(Pointer<Utf8> lpClassName, Pointer<Utf8> lpWindowName),
+        int Function(Pointer<Utf8> lpClassName,
+            Pointer<Utf8> lpWindowName)>('FindWindowA');
 
     int hWnd =
         findWindowA('FLUTTER_RUNNER_WIN32_WINDOW'.toNativeUtf8(), nullptr);

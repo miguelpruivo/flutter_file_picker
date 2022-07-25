@@ -1,3 +1,9 @@
+## 5.0.0
+
+#### General
+Updated dependecies (most importantly is upgrade from ffi 1.1.2 to 2.0.1).
+Update lints from 1.0.1 to 2.0.0 (with several fixes of code).
+
 ## 4.6.1
 
 #### iOS
