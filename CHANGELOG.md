@@ -1,3 +1,7 @@
+## 5.0.1
+#### Android
+Replaces random number generation with milliseconds timestamp in file name fallback.
+
 ## 5.0.0
 
 #### General
