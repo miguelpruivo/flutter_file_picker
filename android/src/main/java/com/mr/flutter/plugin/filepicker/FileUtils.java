@@ -138,6 +138,89 @@ public class FileUtils {
         }
         return null;
     }
+    
+    @TargetApi(19)
+    private static String getForApi19(Context context, Uri uri) {
+        Log.e(TAG, "Getting for API 19 or above" + uri);
+        if (DocumentsContract.isDocumentUri(context, uri)) {
+            Log.e(TAG, "Document URI");
+            if (isExternalStorageDocument(uri)) {
+                Log.e(TAG, "External Document URI");
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+                if ("primary".equalsIgnoreCase(type)) {
+                    Log.e(TAG, "Primary External Document URI");
+                    return getExternalPath(context) + "/" + split[1];
+                }
+            } else if (isDownloadsDocument(uri)) {
+                Log.e(TAG, "Downloads External Document URI");
+                String id = DocumentsContract.getDocumentId(uri);
+
+                if (!TextUtils.isEmpty(id)) {
+                    if (id.startsWith("raw:")) {
+                        return id.replaceFirst("raw:", "");
+                    }
+                        String[] contentUriPrefixesToTry = new String[]{
+                                "content://downloads/public_downloads",
+                                "content://downloads/my_downloads",
+                                "content://downloads/all_downloads"
+                        };
+                    if(id.contains(":")){
+                        id = id.split(":")[1];
+                    }
+                        for (String contentUriPrefix : contentUriPrefixesToTry) {
+                            Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.valueOf(id));
+                            try {
+                                String path = getDataColumn(context, contentUri, null, null);
+                                if (path != null) {
+                                    return path;
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Something went wrong while retrieving document path: " + e.toString());
+                            }
+                        }
+
+                    }
+            } else if (isMediaDocument(uri)) {
+                Log.e(TAG, "Media Document URI");
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                Uri contentUri = null;
+                if ("image".equals(type)) {
+                    Log.i(TAG, "Image Media Document URI");
+                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                } else if ("video".equals(type)) {
+                    Log.i(TAG, "Video Media Document URI");
+                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                } else if ("audio".equals(type)) {
+                    Log.i(TAG, "Audio Media Document URI");
+                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                }
+
+                final String selection = "_id=?";
+                final String[] selectionArgs = new String[]{
+                        split[1]
+                };
+
+                return getDataColumn(context, contentUri, selection, selectionArgs);
+            }
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            Log.e(TAG, "NO DOCUMENT URI - CONTENT");
+            if (isGooglePhotosUri(uri)) {
+                return uri.getLastPathSegment();
+            } else if (isDropBoxUri(uri)) {
+                return null;
+            }
+            return getDataColumn(context, uri, null, null);
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            Log.e(TAG, "No DOCUMENT URI - FILE");
+            return uri.getPath();
+        }
+        return null;
+    }
     public static FileInfo openFileStream(final Context context, final Uri uri, boolean withData) {
 
         Log.i(TAG, "Caching from URI: " + uri.toString());
@@ -324,5 +407,9 @@ public class FileUtils {
         if ((split.length >= 2) && (split[1] != null)) return split[1];
         else return File.separator;
     }
+    private static boolean isGooglePhotosUri(Uri uri) {
+        return "com.google.android.apps.photos.content".equals(uri.getAuthority());
+    }
+
 
 }
