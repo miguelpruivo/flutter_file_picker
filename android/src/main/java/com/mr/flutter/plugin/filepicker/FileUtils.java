@@ -240,6 +240,7 @@ public class FileUtils {
             Log.i(TAG, "abhi1618o testing1: " + path);
         }
         
+        file= File(path);
 
         // if(!file.exists()) {
         // file.getParentFile().mkdirs();
