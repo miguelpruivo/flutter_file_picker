@@ -129,40 +129,40 @@ public class FileUtils {
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
         final String fileName = FileUtils.getFileName(uri, context);
         Log.i(TAG, "abhi1618o testing: " + fileName);
-        final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/" + (fileName != null ? fileName : System.currentTimeMillis());
-
+        final String path = context.getFilesDir().getAbsolutePath() + "/file_picker/" + (fileName != null ? fileName : System.currentTimeMillis());
+        Log.i(TAG, "abhi1618o testing: " + path);
         final File file = new File(path);
 
-        if(!file.exists()) {
-            file.getParentFile().mkdirs();
-            try {
-                fos = new FileOutputStream(path);
-                try {
-                    final BufferedOutputStream out = new BufferedOutputStream(fos);
-                    final InputStream in = context.getContentResolver().openInputStream(uri);
+        // if(!file.exists()) {
+        //     file.getParentFile().mkdirs();
+        //     try {
+        //         fos = new FileOutputStream(path);
+        //         try {
+        //             final BufferedOutputStream out = new BufferedOutputStream(fos);
+        //             final InputStream in = context.getContentResolver().openInputStream(uri);
 
-                    final byte[] buffer = new byte[8192];
-                    int len = 0;
+        //             final byte[] buffer = new byte[8192];
+        //             int len = 0;
 
-                    while ((len = in.read(buffer)) >= 0) {
-                        out.write(buffer, 0, len);
-                    }
+        //             while ((len = in.read(buffer)) >= 0) {
+        //                 out.write(buffer, 0, len);
+        //             }
 
-                    out.flush();
-                } finally {
-                    fos.getFD().sync();
-                }
-            } catch (final Exception e) {
-                try {
-                    fos.close();
-                } catch (final IOException | NullPointerException ex) {
-                    Log.e(TAG, "Failed to close file streams: " + e.getMessage(), null);
-                    return null;
-                }
-                Log.e(TAG, "Failed to retrieve path: " + e.getMessage(), null);
-                return null;
-            }
-        }
+        //             out.flush();
+        //         } finally {
+        //             fos.getFD().sync();
+        //         }
+        //     } catch (final Exception e) {
+        //         try {
+        //             fos.close();
+        //         } catch (final IOException | NullPointerException ex) {
+        //             Log.e(TAG, "Failed to close file streams: " + e.getMessage(), null);
+        //             return null;
+        //         }
+        //         Log.e(TAG, "Failed to retrieve path: " + e.getMessage(), null);
+        //         return null;
+        //     }
+        // }
 
         Log.d(TAG, "File loaded and cached at:" + path);
 
