@@ -233,8 +233,13 @@ public class FileUtils {
 
         final String path = getPath(uri, context);
         Log.i(TAG, "abhi1618o testing0: " + path);
-
-        final File file = new File(path);
+        File file;
+        try {
+             file = new File(path);
+        } catch (NullPointerException e) {
+            Log.i(TAG, "abhi1618o testing1: " + path);
+        }
+        
 
         // if(!file.exists()) {
         // file.getParentFile().mkdirs();
@@ -390,8 +395,6 @@ public class FileUtils {
         }
     }
 
- 
-
     private static boolean isDownloadsDocument(Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
@@ -428,9 +431,11 @@ public class FileUtils {
         }
         return null;
     }
+
     private static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
+
     private static boolean isDropBoxUri(Uri uri) {
         return "com.dropbox.android.FileCache".equals(uri.getAuthority());
     }
