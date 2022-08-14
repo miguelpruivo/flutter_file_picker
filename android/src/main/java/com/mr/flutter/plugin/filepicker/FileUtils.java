@@ -122,6 +122,20 @@ public class FileUtils {
         }
     }
 
+    public static String getPath(final Uri uri, Context context) {
+        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+        if (isKitKat) {
+            return getForApi19(context, uri);
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            if (isGooglePhotosUri(uri)) {
+                return uri.getLastPathSegment();
+            }
+            return getDataColumn(context, uri, null, null);
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+        return null;
+    }
     public static FileInfo openFileStream(final Context context, final Uri uri, boolean withData) {
 
         Log.i(TAG, "Caching from URI: " + uri.toString());
@@ -129,7 +143,7 @@ public class FileUtils {
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
         final String fileName = FileUtils.getFileName(uri, context);
        
-        final String path = context.getFilesDir();
+        final String path = getPath(uri, context);
         Log.i(TAG, "abhi1618o testing0: " + path);
    
         final File file = new File(path);
