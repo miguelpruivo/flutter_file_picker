@@ -129,8 +129,9 @@ public class FileUtils {
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
         final String fileName = FileUtils.getFileName(uri, context);
        
-        final String path = context.getFilesDir().getAbsolutePath();
-        Log.i(TAG, "abhi1618o testing: " + path);
+        final String path = context.getFilesDir();
+        Log.i(TAG, "abhi1618o testing0: " + path);
+   
         final File file = new File(path);
 
         // if(!file.exists()) {
