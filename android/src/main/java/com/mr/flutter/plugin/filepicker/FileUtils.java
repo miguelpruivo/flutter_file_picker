@@ -240,7 +240,7 @@ public class FileUtils {
             Log.i(TAG, "abhi1618o testing1: " + path);
         }
         
-        file= File(path);
+
 
         // if(!file.exists()) {
         // file.getParentFile().mkdirs();
@@ -283,7 +283,7 @@ public class FileUtils {
                 .withPath(path)
                 .withName(fileName)
                 .withUri(uri)
-                .withSize(Long.parseLong(String.valueOf(file.length())));
+                .withSize(10.0);
 
         return fileInfo.build();
     }
