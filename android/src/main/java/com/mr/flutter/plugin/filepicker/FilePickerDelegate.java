@@ -35,7 +35,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private final PermissionManager permissionManager;
     private MethodChannel.Result pendingResult;
     private boolean isMultipleSelection = false;
-    private boolean loadDataToMemory = false;
+    private  boolean loadDataToMemory = false;
     private String type;
     private String[] allowedExtensions;
     private EventChannel.EventSink eventSink;
