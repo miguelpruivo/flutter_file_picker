@@ -12,8 +12,10 @@ import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
-
+import android.provider.MediaStore;
+import android.content.ContentUris;
 import androidx.annotation.Nullable;
+import android.text.TextUtils;
 import androidx.annotation.RequiresApi;
 
 import java.io.BufferedInputStream;
