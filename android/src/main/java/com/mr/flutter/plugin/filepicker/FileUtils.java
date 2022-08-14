@@ -390,27 +390,7 @@ public class FileUtils {
         }
     }
 
-    private static String getDataColumn(Context context, Uri uri, String selection,
-            String[] selectionArgs) {
-        Cursor cursor = null;
-        final String column = "_data";
-        final String[] projection = {
-                column
-        };
-        try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
-                    null);
-            if (cursor != null && cursor.moveToFirst()) {
-                final int index = cursor.getColumnIndexOrThrow(column);
-                return cursor.getString(index);
-            }
-        } catch (Exception ex) {
-        } finally {
-            if (cursor != null)
-                cursor.close();
-        }
-        return null;
-    }
+ 
 
     private static boolean isDownloadsDocument(Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
