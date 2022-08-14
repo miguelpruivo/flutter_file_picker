@@ -128,8 +128,8 @@ public class FileUtils {
         FileOutputStream fos = null;
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
         final String fileName = FileUtils.getFileName(uri, context);
-        Log.i(TAG, "abhi1618o testing: " + fileName);
-        final String path = context.getFilesDir().getAbsolutePath() + "/file_picker/" + (fileName != null ? fileName : System.currentTimeMillis());
+       
+        final String path = context.getFilesDir().getAbsolutePath();
         Log.i(TAG, "abhi1618o testing: " + path);
         final File file = new File(path);
 
