@@ -48,7 +48,7 @@ class PlatformFile {
   /// File name including its extension.
   final String name;
 
-  /// Byte data for this file. Particurlarly useful if you want to manipulate its data
+  /// Byte data for this file. Particularly useful if you want to manipulate its data
   /// or easily upload to somewhere else.
   /// [Check here in the FAQ](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ) an example on how to use it to upload on web.
   final Uint8List? bytes;
