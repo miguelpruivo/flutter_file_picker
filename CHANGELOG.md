@@ -1,3 +1,7 @@
+## 5.1.0
+#### Desktop (Windows)
+Update Dependencies to latest versions (Win32 2.7.0 to 3.0.0)
+
 ## 5.0.1
 #### Android
 Replaces random number generation with milliseconds timestamp in file name fallback.
