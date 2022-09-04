@@ -8,7 +8,7 @@ import 'package:file_picker/src/utils.dart';
 import 'package:file_picker/src/exceptions.dart';
 import 'package:file_picker/src/windows/file_picker_windows_ffi_types.dart';
 import 'package:path/path.dart';
-import 'package:win32/win32.dart';
+import 'package:win32/winrt.dart';
 
 FilePicker filePickerWithFFI() => FilePickerWindows();
 
@@ -78,17 +78,17 @@ class FilePickerWindows extends FilePicker {
     final fileDialog = FileOpenDialog.createInstance();
 
     final optionsPointer = calloc<Uint32>();
-    hr = fileDialog.GetOptions(optionsPointer);
+    hr = fileDialog.getOptions(optionsPointer);
     if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
     final options = optionsPointer.value |
         FILEOPENDIALOGOPTIONS.FOS_PICKFOLDERS |
         FILEOPENDIALOGOPTIONS.FOS_FORCEFILESYSTEM;
-    hr = fileDialog.SetOptions(options);
+    hr = fileDialog.setOptions(options);
     if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
     final title = TEXT(dialogTitle ?? defaultDialogTitle);
-    hr = fileDialog.SetTitle(title);
+    hr = fileDialog.setTitle(title);
     if (!SUCCEEDED(hr)) throw WindowsException(hr);
     free(title);
 
@@ -107,9 +107,9 @@ class FilePickerWindows extends FilePicker {
     // }
 
     final hwndOwner = lockParentWindow ? GetForegroundWindow() : NULL;
-    hr = fileDialog.Show(hwndOwner);
+    hr = fileDialog.show(hwndOwner);
     if (!SUCCEEDED(hr)) {
-      fileDialog.Release();
+      fileDialog.release();
       CoUninitialize();
 
       if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED)) {
@@ -119,20 +119,20 @@ class FilePickerWindows extends FilePicker {
     }
 
     final ppsi = calloc<COMObject>();
-    hr = fileDialog.GetResult(ppsi.cast());
+    hr = fileDialog.getResult(ppsi.cast());
     if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
     final item = IShellItem(ppsi);
     final pathPtr = calloc<Pointer<Utf16>>();
-    hr = item.GetDisplayName(SIGDN.SIGDN_FILESYSPATH, pathPtr);
+    hr = item.getDisplayName(SIGDN.SIGDN_FILESYSPATH, pathPtr);
     if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
     final path = pathPtr.value.toDartString();
 
-    hr = item.Release();
+    hr = item.release();
     if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
-    hr = fileDialog.Release();
+    hr = fileDialog.release();
     CoUninitialize();
 
     return Future.value(path);
