@@ -485,10 +485,12 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
                     
                     if (UTTypeConformsTo(UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, CFBridgingRetain([item pathExtension]), NULL), kUTTypeImage)) {
                         NSData *assetData = [NSData dataWithContentsOfURL:item];
+                        //Convert any type of image to jpeg
+                        NSData *convertedImageData = UIImageJPEGRepresentation([UIImage imageWithData:assetData], 1.0);
                         //Get meta data from asset
                         NSDictionary *metaData = [ImageUtils getMetaDataFromImageData:assetData];
                         //Append meta data into jpeg of live photo
-                        NSData *data = [ImageUtils imageFromImage:assetData withMetaData:metaData];
+                        NSData *data = [ImageUtils imageFromImage:convertedImageData withMetaData:metaData];
                         //Save jpeg
                         NSString * fileName = [[item.path lastPathComponent] stringByDeletingPathExtension];
                         NSString * tmpFile = [NSTemporaryDirectory() stringByAppendingPathComponent:[fileName stringByAppendingString:@".jpeg"]];
