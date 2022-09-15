@@ -15,7 +15,7 @@ dependencies:
   plugin_platform_interface: ^2.1.2
   ffi: ^2.0.1
   path: ^1.8.0
-  win32: ^2.7.0
+  win32: ^3.0.0
 
 dev_dependencies:
   lints: ^2.0.0
