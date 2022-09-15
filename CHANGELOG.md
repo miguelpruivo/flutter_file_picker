@@ -1,6 +1,13 @@
 ## 5.1.0
 #### Desktop (Windows)
-Update Dependencies to latest versions (Win32 2.7.0 to 3.0.0)
+- Update Dependencies to latest versions (Win32 2.7.0 to 3.0.0). (Thank you @ishangavidusha)
+- Set default dialog title to empty. (Thank you @whuhewei)
+
+#### iOS
+Fixes an issue when picking live photos. (Thank you @nagibazad)
+
+#### Android
+Removes READ_EXTERNAL_STORAGE on SDKs targeting 33 or above. (Thank you @alexmercerind)
 
 ## 5.0.1
 #### Android
