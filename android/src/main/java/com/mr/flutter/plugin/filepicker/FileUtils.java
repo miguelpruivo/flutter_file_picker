@@ -122,50 +122,62 @@ public class FileUtils {
         }
     }
 
-    public static FileInfo openFileStream(final Context context, final Uri uri, boolean withData) {
+   public static FileInfo openFileStream(final Context context, final Uri uri, boolean withData) {
 
-        Log.i(TAG, "Caching from URI: " + uri.toString());
+       
         FileOutputStream fos = null;
+        String path = getPath(uri, context);
+        File file;
+        String fileName;
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
-        final String fileName = FileUtils.getFileName(uri, context);
-        final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/" + (fileName != null ? fileName : System.currentTimeMillis());
 
-        final File file = new File(path);
-
-        if(!file.exists()) {
-            file.getParentFile().mkdirs();
-            try {
-                fos = new FileOutputStream(path);
+       
+        if (path == null) {
+            Log.i(TAG, "Caching from URI: " + uri.toString());
+            fileName = FileUtils.getFileName(uri, context);
+            path = context.getCacheDir().getAbsolutePath() + "/file_picker/"
+                    + (fileName != null ? fileName : System.currentTimeMillis());
+            file = new File(path);
+            if (!file.exists()) {
+                file.getParentFile().mkdirs();
                 try {
-                    final BufferedOutputStream out = new BufferedOutputStream(fos);
-                    final InputStream in = context.getContentResolver().openInputStream(uri);
+                    fos = new FileOutputStream(path);
+                    try {
+                        final BufferedOutputStream out = new BufferedOutputStream(fos);
+                        final InputStream in = context.getContentResolver().openInputStream(uri);
 
-                    final byte[] buffer = new byte[8192];
-                    int len = 0;
+                        final byte[] buffer = new byte[8192];
+                        int len = 0;
 
-                    while ((len = in.read(buffer)) >= 0) {
-                        out.write(buffer, 0, len);
+                        while ((len = in.read(buffer)) >= 0) {
+                            out.write(buffer, 0, len);
+                        }
+
+                        out.flush();
+                    } finally {
+                        fos.getFD().sync();
                     }
-
-                    out.flush();
-                } finally {
-                    fos.getFD().sync();
-                }
-            } catch (final Exception e) {
-                try {
-                    fos.close();
-                } catch (final IOException | NullPointerException ex) {
-                    Log.e(TAG, "Failed to close file streams: " + e.getMessage(), null);
+                } catch (final Exception e) {
+                    try {
+                        fos.close();
+                    } catch (final IOException | NullPointerException ex) {
+                        Log.e(TAG, "Failed to close file streams: " + e.getMessage(), null);
+                        return null;
+                    }
+                    Log.e(TAG, "Failed to retrieve path: " + e.getMessage(), null);
                     return null;
                 }
-                Log.e(TAG, "Failed to retrieve path: " + e.getMessage(), null);
-                return null;
             }
+        } else {
+            Log.i(TAG, "Uncached file path: " + path);
+            fileName = FileUtils.getFileName(uri, context);
+            file = new File(path);
+
         }
 
         Log.d(TAG, "File loaded and cached at:" + path);
 
-        if(withData) {
+        if (withData) {
             loadData(file, fileInfo);
         }
 
