@@ -32,4 +32,35 @@
     return nil;
 }
 
++ (NSDictionary *)getMetaDataFromImageData:(NSData *)imageData {
+  CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
+  NSDictionary *metadata =
+      (NSDictionary *)CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL));
+  CFRelease(source);
+  return metadata;
+}
+
++ (NSData *)imageFromImage:(NSData *)imageData withMetaData:(NSDictionary *)metadata {
+  NSMutableData *targetData = [NSMutableData data];
+  CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)imageData, NULL);
+  if (source == NULL) {
+    return nil;
+  }
+  CGImageDestinationRef destination = NULL;
+  CFStringRef sourceType = CGImageSourceGetType(source);
+  if (sourceType != NULL) {
+    destination =
+        CGImageDestinationCreateWithData((__bridge CFMutableDataRef)targetData, sourceType, 1, nil);
+  }
+  if (destination == NULL) {
+    CFRelease(source);
+    return nil;
+  }
+  CGImageDestinationAddImageFromSource(destination, source, 0, (__bridge CFDictionaryRef)metadata);
+  CGImageDestinationFinalize(destination);
+  CFRelease(source);
+  CFRelease(destination);
+  return targetData;
+}
+
 @end

@@ -482,11 +482,17 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
                 NSArray * files = [fileManager contentsOfDirectoryAtURL:url includingPropertiesForKeys:@[] options:NSDirectoryEnumerationSkipsHiddenFiles error:nil];
                 
                 for (NSURL * item in files) {
+                    
                     if (UTTypeConformsTo(UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, CFBridgingRetain([item pathExtension]), NULL), kUTTypeImage)) {
-                        
-                        UIImage * img = [UIImage imageWithContentsOfFile:item.path];
+                        NSData *assetData = [NSData dataWithContentsOfURL:item];
+                        //Convert any type of image to jpeg
+                        NSData *convertedImageData = UIImageJPEGRepresentation([UIImage imageWithData:assetData], 1.0);
+                        //Get meta data from asset
+                        NSDictionary *metaData = [ImageUtils getMetaDataFromImageData:assetData];
+                        //Append meta data into jpeg of live photo
+                        NSData *data = [ImageUtils imageFromImage:convertedImageData withMetaData:metaData];
+                        //Save jpeg
                         NSString * fileName = [[item.path lastPathComponent] stringByDeletingPathExtension];
-                        NSData * data = UIImageJPEGRepresentation(img, 1);
                         NSString * tmpFile = [NSTemporaryDirectory() stringByAppendingPathComponent:[fileName stringByAppendingString:@".jpeg"]];
                         cachedUrl = [NSURL fileURLWithPath: tmpFile];
 
