@@ -6,9 +6,6 @@
  <a href="https://github.com/Solido/awesome-flutter">
     <img alt="Awesome Flutter" src="https://img.shields.io/badge/Awesome-Flutter-blue.svg?longCache=true&style=flat-square">
   </a>
- <a href="https://codemagic.io/apps/5ce89f4a9b46f5000ca89638/5ce89f4a9b46f5000ca89637/latest_build">
-    <img alt="Build Status" src="https://api.codemagic.io/apps/5ee2d379c2d4737a756cbd00/5ee2d379c2d4737a756cbcff/status_badge.svg">
-  </a>
  <a href="https://www.buymeacoffee.com/gQyz2MR">
     <img alt="Buy me a coffee" src="https://img.shields.io/badge/Donate-Buy%20Me%20A%20Coffee-yellow.svg">
   </a>
