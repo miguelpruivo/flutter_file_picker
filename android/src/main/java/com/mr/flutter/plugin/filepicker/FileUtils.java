@@ -175,7 +175,7 @@ public class FileUtils {
 
         }
 
-        Log.d(TAG, "File loaded and cached at:" + path);
+
 
         if (withData) {
             loadData(file, fileInfo);
