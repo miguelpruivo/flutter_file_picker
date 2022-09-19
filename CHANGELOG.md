@@ -1,3 +1,8 @@
+## 5.2.0
+
+#### Android
+- Fixes issue with caching on android
+- Files will be retrieved without caching to avoid delay (Only cached if paths cannot be retrieved directly )
 ## 5.1.0
 #### Desktop (Windows)
 - Update Dependencies to latest versions (Win32 2.7.0 to 3.0.0). (Thank you @ishangavidusha)
