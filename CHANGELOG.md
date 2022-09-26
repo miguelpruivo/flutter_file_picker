@@ -1,3 +1,7 @@
+## 5.2.0+1
+- Reverts 5.2.0 due to multiple regressions.
+
+
 ## 5.2.0
 
 #### Android
