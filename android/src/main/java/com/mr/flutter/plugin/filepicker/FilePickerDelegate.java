@@ -137,7 +137,8 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                         } else if (data.getExtras() != null){
                             Bundle bundle = data.getExtras();
                             if (bundle.keySet().contains("selectedItems")) {
-                                ArrayList<Parcelable> fileUris = bundle.getParcelableArrayList("selectedItems");
+                                ArrayList<Parcelable> fileUris = getSelectedItems(bundle);
+
                                 int currentItem = 0;
                                 if (fileUris != null) {
                                     for (Parcelable fileUri : fileUris) {
@@ -206,6 +207,15 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
     private static void finishWithAlreadyActiveError(final MethodChannel.Result result) {
         result.error("already_active", "File picker is already active", null);
+    }
+
+    @SuppressWarnings("deprecation")
+    private ArrayList<Parcelable> getSelectedItems(Bundle bundle){
+        if(Build.VERSION.SDK_INT >= 33){
+            return bundle.getParcelableArrayList("selectedItems", Parcelable.class);
+        }
+
+        return bundle.getParcelableArrayList("selectedItems");
     }
 
     @SuppressWarnings("deprecation")
