@@ -1,3 +1,7 @@
+## 5.2.2
+### Android
+- Fix deprecation warning for `getParcelable(String key)` method.
+
 ## 5.2.1
 #### Android
 - Removed build constant TIRAMISU to fix build error if targeting API 32 or less ([#1140](https://github.com/miguelpruivo/flutter_file_picker/issues/1140), [#1124](https://github.com/miguelpruivo/flutter_file_picker/issues/1124))
