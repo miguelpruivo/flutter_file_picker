@@ -22,10 +22,10 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion flutter.compileSdkVersion
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion flutter.minSdkVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     lintOptions {
