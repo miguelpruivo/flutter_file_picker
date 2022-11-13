@@ -9,8 +9,6 @@ class FilePickerWeb extends FilePicker {
   late Element _target;
   final String _kFilePickerInputsDomId = '__file_picker_web-file-input';
 
-  final int _readStreamChunkSize = 1000 * 1000; // 1 MB
-
   static final FilePickerWeb platform = FilePickerWeb._();
 
   FilePickerWeb._() {
@@ -45,6 +43,7 @@ class FilePickerWeb extends FilePicker {
     bool allowCompression = true,
     bool withData = true,
     bool withReadStream = false,
+    int streamChunkSize = 1 << 20,
     bool lockParentWindow = false,
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -101,6 +100,7 @@ class FilePickerWeb extends FilePicker {
 
       for (File file in files) {
         if (withReadStream) {
+          this._openFileReadStream
           addPickedFile(file, null, null, _openFileReadStream(file));
           continue;
         }
@@ -180,14 +180,14 @@ class FilePickerWeb extends FilePicker {
 
     int start = 0;
     while (start < file.size) {
-      final end = start + _readStreamChunkSize > file.size
+      final end = start + readStreamChunkSize > file.size
           ? file.size
-          : start + _readStreamChunkSize;
+          : start + readStreamChunkSize;
       final blob = file.slice(start, end);
       reader.readAsArrayBuffer(blob);
       await reader.onLoad.first;
       yield reader.result as List<int>;
-      start += _readStreamChunkSize;
+      start += readStreamChunkSize;
     }
   }
 }

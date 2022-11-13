@@ -46,6 +46,8 @@ abstract class FilePicker extends PlatformInterface {
     _instance = instance;
   }
 
+  int readStreamChunkSize = 1 << 20;
+
   factory FilePicker._setPlatform() {
     if (Platform.isAndroid || Platform.isIOS) {
       return FilePickerIO();
