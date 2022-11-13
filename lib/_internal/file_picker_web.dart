@@ -100,7 +100,6 @@ class FilePickerWeb extends FilePicker {
 
       for (File file in files) {
         if (withReadStream) {
-          this._openFileReadStream
           addPickedFile(file, null, null, _openFileReadStream(file));
           continue;
         }
