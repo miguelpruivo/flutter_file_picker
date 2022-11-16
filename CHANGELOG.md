@@ -1,4 +1,8 @@
 ## 5.2.2
+
+### General
+- Increased coverage of test cases for functions in the utils file.
+
 ### Android
 - Fix deprecation warning for `getParcelable(String key)` method.
 
