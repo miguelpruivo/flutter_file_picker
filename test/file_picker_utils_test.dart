@@ -132,4 +132,15 @@ void main() {
       expect(platformFiles.length, equals(filePaths.length));
     });
   });
+
+  group('runExecutableWithArguments()', () {
+    test('should catch an exception when sending an empty filepath', () async {
+      final filepath = '';
+
+      expect(
+        () async => await isExecutableOnPath(filepath),
+        throwsA(isA<Exception>()),
+      );
+    });
+  });
 }
