@@ -1,3 +1,7 @@
+## 5.2.3
+### iOS
+- Fixes an issue when picking live photos where the key photo was changed.
+
 ## 5.2.2
 ### Android
 - Fix deprecation warning for `getParcelable(String key)` method.
