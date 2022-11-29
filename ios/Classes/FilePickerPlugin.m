@@ -492,8 +492,8 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
                         //Append meta data into jpeg of live photo
                         NSData *data = [ImageUtils imageFromImage:convertedImageData withMetaData:metaData];
                         //Save jpeg
-                        NSString * fileName = [[item.path lastPathComponent] stringByDeletingPathExtension];
-                        NSString * tmpFile = [NSTemporaryDirectory() stringByAppendingPathComponent:[fileName stringByAppendingString:@".jpeg"]];
+                        NSString * filenameWithoutExtension = [filename stringByDeletingPathExtension];
+                        NSString * tmpFile = [NSTemporaryDirectory() stringByAppendingPathComponent:[filenameWithoutExtension stringByAppendingString:@".jpeg"]];
                         cachedUrl = [NSURL fileURLWithPath: tmpFile];
 
                         if([fileManager fileExistsAtPath:tmpFile]) {
