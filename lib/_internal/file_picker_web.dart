@@ -9,6 +9,8 @@ class FilePickerWeb extends FilePicker {
   late Element _target;
   final String _kFilePickerInputsDomId = '__file_picker_web-file-input';
 
+  int _readStreamChunkSize = 1 << 20;
+
   static final FilePickerWeb platform = FilePickerWeb._();
 
   FilePickerWeb._() {
@@ -178,14 +180,18 @@ class FilePickerWeb extends FilePicker {
 
     int start = 0;
     while (start < file.size) {
-      final end = start + readStreamChunkSize > file.size
+      final end = start + _readStreamChunkSize > file.size
           ? file.size
-          : start + readStreamChunkSize;
+          : start + _readStreamChunkSize;
       final blob = file.slice(start, end);
       reader.readAsArrayBuffer(blob);
       await reader.onLoad.first;
       yield reader.result as List<int>;
-      start += readStreamChunkSize;
+      start += _readStreamChunkSize;
     }
   }
+
+  @override
+  void setReadStreamChunkSize(int chunkSize) =>
+      _readStreamChunkSize = chunkSize;
 }

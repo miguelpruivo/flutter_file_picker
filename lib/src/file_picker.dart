@@ -46,8 +46,6 @@ abstract class FilePicker extends PlatformInterface {
     _instance = instance;
   }
 
-  int readStreamChunkSize = 1 << 20;
-
   factory FilePicker._setPlatform() {
     if (Platform.isAndroid || Platform.isIOS) {
       return FilePickerIO();
@@ -193,4 +191,9 @@ abstract class FilePicker extends PlatformInterface {
     bool lockParentWindow = false,
   }) async =>
       throw UnimplementedError('saveFile() has not been implemented.');
+
+  /// Set chunk size of file stream, only taking effect for web when
+  /// [withReadStream] is `true` in [pickFiles] method.
+  void setReadStreamChunkSize(int chunkSize) => throw UnimplementedError(
+      'setReadStreamChunkSize() has not been implemented.');
 }
