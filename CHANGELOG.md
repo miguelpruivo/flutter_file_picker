@@ -1,3 +1,7 @@
+## 5.2.4
+### Desktop (Windows)
+- Calling pick/save file dialog will no longer freeze ui thread.
+
 ## 5.2.3
 ### iOS
 - Fixes an issue when picking live photos where the key photo was changed.
