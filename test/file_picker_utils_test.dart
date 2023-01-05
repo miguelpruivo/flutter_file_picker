@@ -1,6 +1,7 @@
 @TestOn('linux || mac-os')
 
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:file_picker/src/utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -26,7 +27,7 @@ void main() {
     test('should return an instance of PlatformFile', () async {
       final imageFile = File(imageTestFile);
       final bytes = imageFile.readAsBytesSync();
-      final readStream = imageFile.openRead();
+      final readStream = ([int? s, int? e]) => imageFile.openRead(s, e).map((c) => c as Uint8List);
 
       final platformFile =
           await createPlatformFile(imageFile, bytes, readStream);

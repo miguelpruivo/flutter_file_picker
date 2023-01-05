@@ -81,7 +81,7 @@ class FilePickerWeb extends FilePicker {
         File file,
         Uint8List? bytes,
         String? path,
-        Stream<List<int>> Function([int? start, int? end])? readStream,
+        Stream<Uint8List> Function([int? start, int? end])? readStream,
       ) {
         pickedFiles.add(PlatformFile(
           name: file.name,
@@ -175,7 +175,7 @@ class FilePickerWeb extends FilePicker {
     }
   }
 
-  Stream<List<int>> _openFileReadStream(File file, [int? start, int? end]) async* {
+  Stream<Uint8List> _openFileReadStream(File file, [int? start, int? end]) async* {
     final reader = FileReader();
 
     int globalOffset = start ?? 0;
@@ -187,7 +187,7 @@ class FilePickerWeb extends FilePicker {
       final blob = file.slice(globalOffset, chunkEnd);
       reader.readAsArrayBuffer(blob);
       await reader.onLoad.first;
-      yield reader.result as List<int>;
+      yield reader.result as Uint8List;
       globalOffset += _readStreamChunkSize;
     }
   }
