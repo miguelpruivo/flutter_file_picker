@@ -33,14 +33,22 @@ Future<PlatformFile> createPlatformFile(
   File file,
   Uint8List? bytes,
   Stream<Uint8List> Function([int?, int?])? readStream,
-) async =>
-    PlatformFile(
-      bytes: bytes,
-      name: basename(file.path),
-      path: file.path,
-      readStream: readStream,
-      size: file.existsSync() ? file.lengthSync() : 0,
-    );
+) async {
+  DateTime? lastModified;
+  try {
+    lastModified = file.lastModifiedSync();
+  } catch (e) {
+    // ignore
+  }
+  return PlatformFile(
+    bytes: bytes,
+    name: basename(file.path),
+    lastModified: lastModified,
+    path: file.path,
+    readStream: readStream,
+    size: file.existsSync() ? file.lengthSync() : 0,
+  );
+}
 
 Future<String?> runExecutableWithArguments(
   String executable,

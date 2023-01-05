@@ -87,6 +87,7 @@ class FilePickerWeb extends FilePicker {
           name: file.name,
           path: path,
           size: bytes != null ? bytes.length : file.size,
+          lastModified: file.lastModifiedDate,
           bytes: bytes,
           readStream: readStream,
         ));
