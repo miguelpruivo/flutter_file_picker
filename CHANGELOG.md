@@ -1,3 +1,7 @@
+## 5.2.5
+### iOS
+- Fix preprocessor definitions in podspec (thanks @tomk9)
+
 ## 5.2.4
 ### Desktop (Windows)
 - Calling pick/save file dialog will no longer freeze ui thread.
