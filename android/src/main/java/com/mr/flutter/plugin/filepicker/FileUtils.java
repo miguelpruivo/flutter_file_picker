@@ -132,7 +132,14 @@ public class FileUtils {
 
         final File file = new File(path);
 
-        if(!file.exists()) {
+        boolean fileExisted = file.exists();
+        if (fileExisted) {
+            try {
+                fileExisted = file.length() == context.getContentResolver().openFileDescriptor(uri, "r").getStatSize();
+            } catch (final Exception ignored) {}
+        }
+
+        if(!fileExisted) {
             file.getParentFile().mkdirs();
             try {
                 fos = new FileOutputStream(path);
