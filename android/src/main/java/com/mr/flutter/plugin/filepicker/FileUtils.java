@@ -91,7 +91,14 @@ public class FileUtils {
 
             if (files != null) {
                 for (final File file : files) {
-                    file.delete();
+                    if (file.isFile()) {
+                        file.delete();
+                    } else {
+                        for (final File secFile : file.listFiles()) {
+                            secFile.delete();
+                        }
+                        file.delete();
+                    }
                 }
             }
         } catch (final Exception ex) {
@@ -128,7 +135,7 @@ public class FileUtils {
         FileOutputStream fos = null;
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
         final String fileName = FileUtils.getFileName(uri, context);
-        final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/" + (fileName != null ? fileName : System.currentTimeMillis());
+        final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/" + uri.toString().hashCode() + "/" + (fileName != null ? fileName : System.currentTimeMillis());
 
         final File file = new File(path);
 
