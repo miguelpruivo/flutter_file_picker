@@ -16,7 +16,7 @@ const EventChannel _eventChannel =
     EventChannel('miguelruivo.flutter.plugins.filepickerevent');
 
 /// An implementation of [FilePicker] that uses method channels.
-class FilePickerIO extends FilePicker {
+class FilePickerIO extends FilePicker {   
   static const String _tag = 'MethodChannelFilePicker';
   static StreamSubscription? _eventSubscription;
 
@@ -32,6 +32,7 @@ class FilePickerIO extends FilePicker {
     bool? withData = false,
     bool? withReadStream = false,
     bool lockParentWindow = false,
+    int selectionLimit = 0,
   }) =>
       _getPath(
         type,
@@ -41,6 +42,7 @@ class FilePickerIO extends FilePicker {
         onFileLoading,
         withData,
         withReadStream,
+        selectionLimit,
       );
 
   @override
@@ -72,6 +74,7 @@ class FilePickerIO extends FilePicker {
     Function(FilePickerStatus)? onFileLoading,
     bool? withData,
     bool? withReadStream,
+    int selectionLimit,
   ) async {
     final String type = describeEnum(fileType);
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -94,6 +97,7 @@ class FilePickerIO extends FilePicker {
         'allowedExtensions': allowedExtensions,
         'allowCompression': allowCompression,
         'withData': withData,
+        'selectionLimit': selectionLimit,
       });
 
       if (result == null) {
