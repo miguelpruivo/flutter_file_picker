@@ -143,7 +143,10 @@ public class FileUtils {
         if (fileExisted) {
             try {
                 fileExisted = file.length() == context.getContentResolver().openFileDescriptor(uri, "r").getStatSize();
-            } catch (final Exception ignored) {}
+            } catch (final Exception e) {
+                Log.e(TAG, "Failed to get file size: " + e.getMessage(), null);
+                fileExisted = false;
+            }
         }
 
         if(!fileExisted) {
