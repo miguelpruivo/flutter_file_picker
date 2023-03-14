@@ -67,8 +67,8 @@ class FilePickerWindows extends FilePicker {
     final comdlg32 = DynamicLibrary.open('comdlg32.dll');
 
     final getOpenFileNameW =
-    comdlg32.lookupFunction<GetOpenFileNameW, GetOpenFileNameWDart>(
-        'GetOpenFileNameW');
+        comdlg32.lookupFunction<GetOpenFileNameW, GetOpenFileNameWDart>(
+            'GetOpenFileNameW');
 
     final Pointer<OPENFILENAMEW> openFileNameW = _instantiateOpenFileNameW(
       allowMultiple: allowMultiple,
@@ -205,8 +205,8 @@ class FilePickerWindows extends FilePicker {
     final comdlg32 = DynamicLibrary.open('comdlg32.dll');
 
     final getSaveFileNameW =
-    comdlg32.lookupFunction<GetSaveFileNameW, GetSaveFileNameWDart>(
-        'GetSaveFileNameW');
+        comdlg32.lookupFunction<GetSaveFileNameW, GetSaveFileNameWDart>(
+            'GetSaveFileNameW');
 
     final Pointer<OPENFILENAMEW> openFileNameW = _instantiateOpenFileNameW(
       allowedExtensions: allowedExtensions,
@@ -373,7 +373,6 @@ class FilePickerWindows extends FilePicker {
     calloc.free(openFileNameW);
   }
 
-
   static void _callPickFiles(_OpenSaveFileArgs args) {
     final impl = FilePickerWindows();
     args.port.send(impl._pickFiles(
@@ -396,7 +395,6 @@ class FilePickerWindows extends FilePicker {
         allowedExtensions: args.allowedExtensions,
         lockParentWindow: args.lockParentWindow));
   }
-
 }
 
 class _OpenSaveFileArgs {
@@ -412,12 +410,12 @@ class _OpenSaveFileArgs {
 
   _OpenSaveFileArgs(
       {required this.port,
-        this.dialogTitle,
-        this.fileName,
-        this.initialDirectory,
-        this.type = FileType.any,
-        this.allowedExtensions,
-        this.allowCompression = true,
-        this.allowMultiple = false,
-        this.lockParentWindow = false});
+      this.dialogTitle,
+      this.fileName,
+      this.initialDirectory,
+      this.type = FileType.any,
+      this.allowedExtensions,
+      this.allowCompression = true,
+      this.allowMultiple = false,
+      this.lockParentWindow = false});
 }
