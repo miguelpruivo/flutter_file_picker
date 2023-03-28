@@ -49,7 +49,8 @@ class FilePickerWeb extends FilePicker {
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
-          'You are setting a type [$type]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.');
+        'You are setting a type [$type]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.',
+      );
     }
 
     final Completer<List<PlatformFile>?> filesCompleter =
@@ -83,13 +84,15 @@ class FilePickerWeb extends FilePicker {
         String? path,
         Stream<List<int>>? readStream,
       ) {
-        pickedFiles.add(PlatformFile(
-          name: file.name,
-          path: path,
-          size: bytes != null ? bytes.length : file.size,
-          bytes: bytes,
-          readStream: readStream,
-        ));
+        pickedFiles.add(
+          PlatformFile(
+            name: file.name,
+            path: path,
+            size: bytes != null ? bytes.length : file.size,
+            bytes: bytes,
+            readStream: readStream,
+          ),
+        );
 
         if (pickedFiles.length >= files.length) {
           if (onFileLoading != null) {

@@ -58,7 +58,8 @@ class FilePickerIO extends FilePicker {
     } on PlatformException catch (ex) {
       if (ex.code == "unknown_path") {
         print(
-            '[$_tag] Could not resolve directory path. Maybe it\'s a protected one or unsupported (such as Downloads folder). If you are on Android, make sure that you are on SDK 21 or above.');
+          '[$_tag] Could not resolve directory path. Maybe it\'s a protected one or unsupported (such as Downloads folder). If you are on Android, make sure that you are on SDK 21 or above.',
+        );
       }
     }
     return null;
@@ -76,15 +77,18 @@ class FilePickerIO extends FilePicker {
     final String type = describeEnum(fileType);
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
-          'You are setting a type [$fileType]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.');
+        'You are setting a type [$fileType]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.',
+      );
     }
     try {
       _eventSubscription?.cancel();
       if (onFileLoading != null) {
         _eventSubscription = _eventChannel.receiveBroadcastStream().listen(
-              (data) => onFileLoading((data as bool)
-                  ? FilePickerStatus.picking
-                  : FilePickerStatus.done),
+              (data) => onFileLoading(
+                (data as bool)
+                    ? FilePickerStatus.picking
+                    : FilePickerStatus.done,
+              ),
               onError: (error) => throw Exception(error),
             );
       }
@@ -119,7 +123,8 @@ class FilePickerIO extends FilePicker {
       rethrow;
     } catch (e) {
       print(
-          '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
+        '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e',
+      );
       rethrow;
     }
   }

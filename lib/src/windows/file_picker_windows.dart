@@ -62,7 +62,8 @@ class FilePickerWindows extends FilePicker {
 
     final getOpenFileNameW =
         comdlg32.lookupFunction<GetOpenFileNameW, GetOpenFileNameWDart>(
-            'GetOpenFileNameW');
+      'GetOpenFileNameW',
+    );
 
     final Pointer<OPENFILENAMEW> openFileNameW =
         _instantiateOpenFileNameW(args);
@@ -92,7 +93,9 @@ class FilePickerWindows extends FilePicker {
     String? initialDirectory,
   }) {
     int hr = CoInitializeEx(
-        nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+      nullptr,
+      COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE,
+    );
 
     if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
@@ -171,17 +174,18 @@ class FilePickerWindows extends FilePicker {
   }) async {
     final port = ReceivePort();
     await Isolate.spawn(
-        _callSaveFile,
-        _OpenSaveFileArgs(
-          port: port.sendPort,
-          defaultFileName: fileName,
-          dialogTitle: dialogTitle,
-          initialDirectory: initialDirectory,
-          type: type,
-          allowedExtensions: allowedExtensions,
-          lockParentWindow: lockParentWindow,
-          confirmOverwrite: true,
-        ));
+      _callSaveFile,
+      _OpenSaveFileArgs(
+        port: port.sendPort,
+        defaultFileName: fileName,
+        dialogTitle: dialogTitle,
+        initialDirectory: initialDirectory,
+        type: type,
+        allowedExtensions: allowedExtensions,
+        lockParentWindow: lockParentWindow,
+        confirmOverwrite: true,
+      ),
+    );
     return (await port.first) as String?;
   }
 
@@ -190,7 +194,8 @@ class FilePickerWindows extends FilePicker {
 
     final getSaveFileNameW =
         comdlg32.lookupFunction<GetSaveFileNameW, GetSaveFileNameWDart>(
-            'GetSaveFileNameW');
+      'GetSaveFileNameW',
+    );
 
     final Pointer<OPENFILENAMEW> openFileNameW =
         _instantiateOpenFileNameW(args);
@@ -230,7 +235,8 @@ class FilePickerWindows extends FilePicker {
   validateFileName(String fileName) {
     if (fileName.contains(RegExp(r'[<>:\/\\|?*"]'))) {
       throw IllegalCharacterInFileNameException(
-          'Reserved characters may not be used in file names. See: https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions');
+        'Reserved characters may not be used in file names. See: https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions',
+      );
     }
   }
 
@@ -331,8 +337,10 @@ class FilePickerWindows extends FilePicker {
 
     final findWindowA = user32.lookupFunction<
         Int32 Function(Pointer<Utf8> lpClassName, Pointer<Utf8> lpWindowName),
-        int Function(Pointer<Utf8> lpClassName,
-            Pointer<Utf8> lpWindowName)>('FindWindowA');
+        int Function(
+      Pointer<Utf8> lpClassName,
+      Pointer<Utf8> lpWindowName,
+    )>('FindWindowA');
 
     int hWnd =
         findWindowA('FLUTTER_RUNNER_WIN32_WINDOW'.toNativeUtf8(), nullptr);

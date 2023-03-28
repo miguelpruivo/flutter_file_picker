@@ -119,8 +119,10 @@ void main() {
       );
 
       expect(filePaths.length, equals(1));
-      expect(filePaths[0],
-          equals('/Volumes/macOS/Users/john/Downloads/config.yml'));
+      expect(
+        filePaths[0],
+        equals('/Volumes/macOS/Users/john/Downloads/config.yml'),
+      );
     });
 
     test('should interpret the result of picking two files', () {
@@ -143,8 +145,10 @@ void main() {
       );
 
       expect(filePaths.length, equals(1));
-      expect(filePaths[0],
-          equals('/Volumes/macOS/System/iOSSupport/usr/lib/swift'));
+      expect(
+        filePaths[0],
+        equals('/Volumes/macOS/System/iOSSupport/usr/lib/swift'),
+      );
     });
 
     test(
@@ -175,7 +179,9 @@ void main() {
 
       expect(filePaths.length, equals(3));
       expect(
-          filePaths[0], equals('/Volumes/WD Backup/photos/my screenshot.jpg'));
+        filePaths[0],
+        equals('/Volumes/WD Backup/photos/my screenshot.jpg'),
+      );
       expect(filePaths[1], equals('/Volumes/WD Backup/photos/christmas.png'));
       expect(filePaths[2], equals('/Volumes/WD Backup/photos/image33.png'));
     });
@@ -261,7 +267,8 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals(
-            '-e choose file name default name "test.out" with prompt "Select output file:"'),
+          '-e choose file name default name "test.out" with prompt "Select output file:"',
+        ),
       );
     });
 
@@ -297,7 +304,8 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals(
-            '-e choose file of type {"dart", "yml"} with prompt "Select a file:"'),
+          '-e choose file of type {"dart", "yml"} with prompt "Select a file:"',
+        ),
       );
     });
 
@@ -348,7 +356,8 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals(
-            '-e choose file default location "/Users/john/Desktop" with prompt "Pick a file:"'),
+          '-e choose file default location "/Users/john/Desktop" with prompt "Pick a file:"',
+        ),
       );
     });
 
@@ -367,7 +376,8 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals(
-            '-e choose folder default location "/Users/john/workspace" with prompt "Pick directory:"'),
+          '-e choose folder default location "/Users/john/workspace" with prompt "Pick directory:"',
+        ),
       );
     });
 
@@ -386,7 +396,8 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals(
-            '-e choose file name default name "output.pdf" default location "/Users/john/Downloads" with prompt "Save as:"'),
+          '-e choose file name default name "output.pdf" default location "/Users/john/Downloads" with prompt "Save as:"',
+        ),
       );
     });
   });

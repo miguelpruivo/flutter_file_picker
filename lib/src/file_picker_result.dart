@@ -20,10 +20,13 @@ class FilePickerResult {
   ///
   /// Only available on IO. Throws `UnsupportedError` on Web.
   List<String?> get paths => files
-      .map((file) => kIsWeb
-          ? throw UnsupportedError(
-              'Picking paths is unsupported on Web. Please, use bytes property instead.')
-          : file.path)
+      .map(
+        (file) => kIsWeb
+            ? throw UnsupportedError(
+                'Picking paths is unsupported on Web. Please, use bytes property instead.',
+              )
+            : file.path,
+      )
       .toList();
 
   /// A `List<String>` containing all names from picked files with its extensions.

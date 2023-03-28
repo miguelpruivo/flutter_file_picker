@@ -14,12 +14,20 @@ void main() {
 
   setUpAll(
     () => setUpTestFiles(
-        appTestFilePath, imageTestFile, pdfTestFile, yamlTestFile),
+      appTestFilePath,
+      imageTestFile,
+      pdfTestFile,
+      yamlTestFile,
+    ),
   );
 
   tearDownAll(
     () => tearDownTestFiles(
-        appTestFilePath, imageTestFile, pdfTestFile, yamlTestFile),
+      appTestFilePath,
+      imageTestFile,
+      pdfTestFile,
+      yamlTestFile,
+    ),
   );
 
   group('createPlatformFile()', () {

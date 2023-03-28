@@ -84,17 +84,18 @@ void main() {
     });
 
     test(
-        'should interpret the result of file names that contain vertical pipes',
-        () {
-      final filePaths = QarmaAndZenityHandler().resultStringToFilePaths(
-        '$imageTestFile|/home/user/file-with-|-in-name.txt|/tmp/image.png',
-      );
+      'should interpret the result of file names that contain vertical pipes',
+      () {
+        final filePaths = QarmaAndZenityHandler().resultStringToFilePaths(
+          '$imageTestFile|/home/user/file-with-|-in-name.txt|/tmp/image.png',
+        );
 
-      expect(filePaths.length, equals(3));
-      expect(filePaths[0], equals(imageTestFile));
-      expect(filePaths[1], equals('/home/user/file-with-|-in-name.txt'));
-      expect(filePaths[2], equals('/tmp/image.png'));
-    });
+        expect(filePaths.length, equals(3));
+        expect(filePaths[0], equals(imageTestFile));
+        expect(filePaths[1], equals('/home/user/file-with-|-in-name.txt'));
+        expect(filePaths[2], equals('/tmp/image.png'));
+      },
+    );
 
     test('should interpret the result of picking a directory', () {
       final filePaths = QarmaAndZenityHandler().resultStringToFilePaths(
@@ -132,7 +133,8 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals(
-            """--file-selection --title Select output file: --save --confirm-overwrite --filename=test.out"""),
+          """--file-selection --title Select output file: --save --confirm-overwrite --filename=test.out""",
+        ),
       );
     });
 
@@ -150,39 +152,44 @@ void main() {
     });
 
     test(
-        'should generate the arguments for picking a single file with a custom file filter',
-        () {
-      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
-        'Select a file:',
-        fileFilter: '*.dart *.yml',
-        multipleFiles: false,
-        pickDirectory: false,
-      );
+      'should generate the arguments for picking a single file with a custom file filter',
+      () {
+        final cliArguments =
+            QarmaAndZenityHandler().generateCommandLineArguments(
+          'Select a file:',
+          fileFilter: '*.dart *.yml',
+          multipleFiles: false,
+          pickDirectory: false,
+        );
 
-      expect(
-        cliArguments.join(' '),
-        equals(
-          """--file-selection --title Select a file: --file-filter=*.dart *.yml""",
-        ),
-      );
-    });
+        expect(
+          cliArguments.join(' '),
+          equals(
+            """--file-selection --title Select a file: --file-filter=*.dart *.yml""",
+          ),
+        );
+      },
+    );
 
     test(
-        'should generate the arguments for picking multiple files with a custom file filter',
-        () {
-      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
-        'Select HTML files:',
-        fileFilter: '*.html',
-        multipleFiles: true,
-        pickDirectory: false,
-      );
+      'should generate the arguments for picking multiple files with a custom file filter',
+      () {
+        final cliArguments =
+            QarmaAndZenityHandler().generateCommandLineArguments(
+          'Select HTML files:',
+          fileFilter: '*.html',
+          multipleFiles: true,
+          pickDirectory: false,
+        );
 
-      expect(
-        cliArguments.join(' '),
-        equals(
-            """--file-selection --title Select HTML files: --file-filter=*.html --multiple"""),
-      );
-    });
+        expect(
+          cliArguments.join(' '),
+          equals(
+            """--file-selection --title Select HTML files: --file-filter=*.html --multiple""",
+          ),
+        );
+      },
+    );
 
     test('should generate the arguments for picking a directory', () {
       final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
@@ -197,51 +204,60 @@ void main() {
     });
 
     test(
-        'should generate the arguments for picking a file when an initial directory is given',
-        () {
-      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
-        'Select a file:',
-        initialDirectory: '/home/user/Desktop/',
-      );
+      'should generate the arguments for picking a file when an initial directory is given',
+      () {
+        final cliArguments =
+            QarmaAndZenityHandler().generateCommandLineArguments(
+          'Select a file:',
+          initialDirectory: '/home/user/Desktop/',
+        );
 
-      expect(
-        cliArguments.join(' '),
-        equals(
-            """--file-selection --title Select a file: --filename=/home/user/Desktop/"""),
-      );
-    });
-
-    test(
-        'should generate the arguments for saving a file when an initial directory is given',
-        () {
-      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
-        'Save as:',
-        initialDirectory: '/home/user/Desktop/',
-        saveFile: true,
-      );
-
-      expect(
-        cliArguments.join(' '),
-        equals(
-            """--file-selection --title Save as: --save --confirm-overwrite --filename=/home/user/Desktop/"""),
-      );
-    });
+        expect(
+          cliArguments.join(' '),
+          equals(
+            """--file-selection --title Select a file: --filename=/home/user/Desktop/""",
+          ),
+        );
+      },
+    );
 
     test(
-        'should generate the arguments for saving a file when an initial directory and the filename is given',
-        () {
-      final cliArguments = QarmaAndZenityHandler().generateCommandLineArguments(
-        'Save as:',
-        fileName: 'output.pdf',
-        initialDirectory: '/home/user/Desktop/',
-        saveFile: true,
-      );
+      'should generate the arguments for saving a file when an initial directory is given',
+      () {
+        final cliArguments =
+            QarmaAndZenityHandler().generateCommandLineArguments(
+          'Save as:',
+          initialDirectory: '/home/user/Desktop/',
+          saveFile: true,
+        );
 
-      expect(
-        cliArguments.join(' '),
-        equals(
-            """--file-selection --title Save as: --save --confirm-overwrite --filename=/home/user/Desktop/output.pdf"""),
-      );
-    });
+        expect(
+          cliArguments.join(' '),
+          equals(
+            """--file-selection --title Save as: --save --confirm-overwrite --filename=/home/user/Desktop/""",
+          ),
+        );
+      },
+    );
+
+    test(
+      'should generate the arguments for saving a file when an initial directory and the filename is given',
+      () {
+        final cliArguments =
+            QarmaAndZenityHandler().generateCommandLineArguments(
+          'Save as:',
+          fileName: 'output.pdf',
+          initialDirectory: '/home/user/Desktop/',
+          saveFile: true,
+        );
+
+        expect(
+          cliArguments.join(' '),
+          equals(
+            """--file-selection --title Save as: --save --confirm-overwrite --filename=/home/user/Desktop/output.pdf""",
+          ),
+        );
+      },
+    );
   });
 }

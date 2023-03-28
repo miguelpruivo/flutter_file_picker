@@ -18,7 +18,8 @@ void main() {
       expect(
         picker.fileTypeToFileFilter(FileType.audio, null),
         equals(
-            'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav\x00\x00'),
+          'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav\x00\x00',
+        ),
       );
 
       expect(
@@ -63,58 +64,75 @@ void main() {
   group('validateFileName()', () {
     test('should throw an exception if the file name contains a < (less than)',
         () {
-      expect(() => FilePickerWindows().validateFileName('file with < .txt'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
+      expect(
+        () => FilePickerWindows().validateFileName('file with < .txt'),
+        throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+      );
     });
     test(
         'should throw an exception if the file name contains a > (greater than)',
         () {
-      expect(() => FilePickerWindows().validateFileName('file>.csv'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
+      expect(
+        () => FilePickerWindows().validateFileName('file>.csv'),
+        throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+      );
     });
     test('should throw an exception if the file name contains a : (colon)', () {
-      expect(() => FilePickerWindows().validateFileName('fi:le.csv'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
+      expect(
+        () => FilePickerWindows().validateFileName('fi:le.csv'),
+        throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+      );
     });
     test(
         'should throw an exception if the file name contains a " (double quote)',
         () {
-      expect(() => FilePickerWindows().validateFileName('"output.csv'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
+      expect(
+        () => FilePickerWindows().validateFileName('"output.csv'),
+        throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+      );
     });
     test(
         'should throw an exception if the file name contains a / (forward slash)',
         () {
-      expect(() => FilePickerWindows().validateFileName('my-output/-file.csv'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
+      expect(
+        () => FilePickerWindows().validateFileName('my-output/-file.csv'),
+        throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+      );
     });
     test('should throw an exception if the file name contains a \\ (backslash)',
         () {
       expect(
-          () =>
-              FilePickerWindows().validateFileName('invalid-\\-file-name.csv'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
+        () => FilePickerWindows().validateFileName('invalid-\\-file-name.csv'),
+        throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+      );
     });
     test('should throw an exception if the file name contains a | (pipe)', () {
-      expect(() => FilePickerWindows().validateFileName('download|.pdf'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
+      expect(
+        () => FilePickerWindows().validateFileName('download|.pdf'),
+        throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+      );
     });
     test(
         'should throw an exception if the file name contains a ? (question mark)',
         () {
-      expect(() => FilePickerWindows().validateFileName('bill?-2021-12-18.pdf'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
+      expect(
+        () => FilePickerWindows().validateFileName('bill?-2021-12-18.pdf'),
+        throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+      );
     });
     test('should throw an exception if the file name contains a * (asterisk)',
         () {
-      expect(() => FilePickerWindows().validateFileName('*.txt'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
+      expect(
+        () => FilePickerWindows().validateFileName('*.txt'),
+        throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+      );
     });
     test('should return normally given a valid file name', () {
       expect(
-          () => FilePickerWindows()
-              .validateFileName('0123456789,;.-_+#\'äöüß!§\$%&(){}[]=`´.txt'),
-          returnsNormally);
+        () => FilePickerWindows()
+            .validateFileName('0123456789,;.-_+#\'äöüß!§\$%&(){}[]=`´.txt'),
+        returnsNormally,
+      );
     });
   });
 }

@@ -122,7 +122,8 @@ abstract class FilePicker extends PlatformInterface {
   ///
   /// Returns `true` if the files were removed with success, `false` otherwise.
   Future<bool?> clearTemporaryFiles() async => throw UnimplementedError(
-      'clearTemporaryFiles() has not been implemented.');
+        'clearTemporaryFiles() has not been implemented.',
+      );
 
   /// Selects a directory and returns its absolute path.
   ///

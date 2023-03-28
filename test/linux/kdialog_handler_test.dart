@@ -39,7 +39,8 @@ void main() {
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.video, null),
         equals(
-            'Video File (*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv)'),
+          'Video File (*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv)',
+        ),
       );
     });
 
@@ -135,7 +136,8 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals(
-            """--title Select output file: --getsavefilename ${p.absolute('test.out')}"""),
+          """--title Select output file: --getsavefilename ${p.absolute('test.out')}""",
+        ),
       );
     });
 
@@ -260,7 +262,8 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals(
-            """--title Select a file: --getopenfilename . HTML File (*.html)"""),
+          """--title Select a file: --getopenfilename . HTML File (*.html)""",
+        ),
       );
     });
   });
