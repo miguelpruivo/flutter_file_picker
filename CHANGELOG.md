@@ -1,3 +1,7 @@
+## 5.2.7
+### Desktop (Windows)
+Fixes the behavior of the `saveFile()` dialog on Windows. Now, when the user selects an already existing file, then Windows prompts the user to confirm overwriting this file. This change makes the dialog behave the same on all desktop platforms (macOS, Linux, and Windows). Previously, Windows would not have asked the user for confirmation ([#989](https://github.com/miguelpruivo/flutter_file_picker/issues/989)).
+
 ## 5.2.6
 ### Web
 - Increase time to wait on js result
