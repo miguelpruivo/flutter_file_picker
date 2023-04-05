@@ -116,7 +116,8 @@ class FilePickerWindows extends FilePicker {
 
     final options = optionsPointer.value |
         FILEOPENDIALOGOPTIONS.FOS_PICKFOLDERS |
-        FILEOPENDIALOGOPTIONS.FOS_FORCEFILESYSTEM;
+        FILEOPENDIALOGOPTIONS.FOS_FORCEFILESYSTEM |
+        FILEOPENDIALOGOPTIONS.FOS_NOCHANGEDIR;
     hr = fileDialog.setOptions(options);
     if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
@@ -326,7 +327,8 @@ class FilePickerWindows extends FilePicker {
     openFileNameW.ref.nMaxFile = lpstrFileBufferSize;
     openFileNameW.ref.lpstrInitialDir =
         (initialDirectory ?? '').toNativeUtf16();
-    openFileNameW.ref.flags = ofnExplorer | ofnFileMustExist | ofnHideReadOnly;
+    openFileNameW.ref.flags =
+        ofnExplorer | ofnFileMustExist | ofnHideReadOnly | ofnNoChangeDir;
 
     if (lockParentWindow) {
       openFileNameW.ref.hwndOwner = _getWindowHandle();
