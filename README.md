@@ -145,15 +145,19 @@ For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flu
 
 ## Example App
 #### Android
-![Demo](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example.gif)
+![DemoAndroid](https://github.com/miguelpruivo/flutter_file_picker/blob/bugfix/%231254-current-directory-changes-after-picking-files/example/screenshots/example_android.gif)
+
 #### iOS
 ![DemoMultiFilters](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_ios.gif)
+
 #### MacOS
 ![DemoMacOS](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_macos.png)
+
 #### Linux
-![DemoLinux](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_linux.png)
+![DemoLinux](https://github.com/miguelpruivo/flutter_file_picker/blob/bugfix/%231254-current-directory-changes-after-picking-files/example/screenshots/example_linux.gif)
+
 #### Windows
-![DemoWindows](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_windows.png)
+![DemoWindows](https://github.com/miguelpruivo/flutter_file_picker/blob/bugfix/%231254-current-directory-changes-after-picking-files/example/screenshots/example_windows.gif)
 
 ## Getting Started
 
