@@ -145,7 +145,7 @@ For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flu
 
 ## Example App
 #### Android
-![DemoAndroid](https://github.com/miguelpruivo/flutter_file_picker/blob/bugfix/%231254-current-directory-changes-after-picking-files/example/screenshots/example_android.gif)
+https://user-images.githubusercontent.com/9049899/231513581-12dbbaa1-5c5d-4c81-9e44-f7cd5207180b.mp4
 
 #### iOS
 ![DemoMultiFilters](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_ios.gif)
@@ -154,10 +154,11 @@ For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flu
 ![DemoMacOS](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_macos.png)
 
 #### Linux
-![DemoLinux](https://github.com/miguelpruivo/flutter_file_picker/blob/bugfix/%231254-current-directory-changes-after-picking-files/example/screenshots/example_linux.gif)
+https://user-images.githubusercontent.com/9049899/231513766-90a9cc75-b5c0-4816-ba15-4e3d3e2a6274.mp4
+
 
 #### Windows
-![DemoWindows](https://github.com/miguelpruivo/flutter_file_picker/blob/bugfix/%231254-current-directory-changes-after-picking-files/example/screenshots/example_windows.gif)
+https://user-images.githubusercontent.com/9049899/231513826-958bd1d3-334b-4036-b126-3ff4ca716992.mp4
 
 ## Getting Started
 
@@ -165,6 +166,3 @@ For help getting started with Flutter, view our online
 [documentation](https://flutter.io/).
 
 For help on editing plugin code, view the [documentation](https://flutter.io/platform-plugins/#edit-code).
-
-
-
