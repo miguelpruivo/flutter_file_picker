@@ -1,3 +1,7 @@
+## 5.2.9
+#### General
+Fixes the errors `Type 'Uint8List' not found` and `'Uint8List' isn't a type` ([#1260](https://github.com/miguelpruivo/flutter_file_picker/issues/1260)). Thank you @miguelslemos!
+
 ## 5.2.8
 
 ### Desktop (Windows)
