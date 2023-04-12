@@ -16,7 +16,7 @@ class QarmaAndZenityHandler implements DialogHandler {
     final arguments = ['--file-selection', '--title', dialogTitle];
 
     if (saveFile) {
-      arguments.add('--save');
+      arguments.addAll(['--save', '--confirm-overwrite']);
     }
 
     if (fileName.isNotEmpty && initialDirectory.isNotEmpty) {
