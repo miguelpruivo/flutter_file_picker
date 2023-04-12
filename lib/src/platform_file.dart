@@ -1,4 +1,6 @@
 import 'dart:async';
+// ignore: unnecessary_import
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 
