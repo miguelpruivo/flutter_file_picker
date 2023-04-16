@@ -122,7 +122,7 @@ void main() {
     });
   });
 
-  group('_extractSelectedFilesFromOpenFileNameW', () {
+  group('extractSelectedFilesFromOpenFileNameW', () {
     test('should parse the result of picking a single file', () {
       final Pointer<OPENFILENAMEW> openFileNameW = calloc<OPENFILENAMEW>();
       openFileNameW.ref.lpstrFile =
@@ -151,5 +151,24 @@ void main() {
       expect(filePaths[1], equals("C:\\Users\\Jane\\file2.pdf"));
       expect(filePaths[2], equals("C:\\Users\\Jane\\file3.docx"));
     });
+  });
+
+  /** See https://github.com/miguelpruivo/flutter_file_picker/issues/1257 for reconstructing this special case. */
+  test(
+      'should parse the result of the save-file dialog when the dialog was instantiated with a long '
+      'default file name that is contained - in parts - in the result separated by only one null character',
+      () {
+    final Pointer<OPENFILENAMEW> x = calloc<OPENFILENAMEW>();
+    x.ref.lpstrFile =
+        "C:\\Users\\John\\Desktop\\test.txt\x00qrstuvwxyz0123456789.png\x00\x00"
+            .toNativeUtf16();
+
+    final filePaths = FilePickerWindows().extractSelectedFilesFromOpenFileNameW(
+      x.ref,
+      isResultFromSaveFileDialog: true,
+    );
+
+    expect(filePaths, hasLength(1));
+    expect(filePaths[0], equals("C:\\Users\\John\\Desktop\\test.txt"));
   });
 }
