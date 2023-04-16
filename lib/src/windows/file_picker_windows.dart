@@ -70,7 +70,7 @@ class FilePickerWindows extends FilePicker {
     final result = getOpenFileNameW(openFileNameW);
     late final List<String>? files;
     if (result == 1) {
-      final filePaths = _extractSelectedFilesFromOpenFileNameW(
+      final filePaths = extractSelectedFilesFromOpenFileNameW(
         openFileNameW.ref,
       );
       files = filePaths;
@@ -198,7 +198,7 @@ class FilePickerWindows extends FilePicker {
     final result = getSaveFileNameW(openFileNameW);
     String? returnValue;
     if (result == 1) {
-      final filePaths = _extractSelectedFilesFromOpenFileNameW(
+      final filePaths = extractSelectedFilesFromOpenFileNameW(
         openFileNameW.ref,
       );
       returnValue = filePaths.first;
@@ -244,7 +244,7 @@ class FilePickerWindows extends FilePicker {
   /// then the returned string contains the directory of the selected files, followed
   /// by a `null` character, followed by the file names each separated by a `null`
   /// character, e.g. `C:\Users\John\x00file1.jpg\x00file2.jpg\x00file3.jpg\x00\x00`.
-  List<String> _extractSelectedFilesFromOpenFileNameW(
+  List<String> extractSelectedFilesFromOpenFileNameW(
     OPENFILENAMEW openFileNameW,
   ) {
     final List<String> filePaths = [];
