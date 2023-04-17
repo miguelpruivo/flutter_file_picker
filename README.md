@@ -145,7 +145,7 @@ For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flu
 
 ## Example App
 #### Android
-https://user-images.githubusercontent.com/9049899/231513581-12dbbaa1-5c5d-4c81-9e44-f7cd5207180b.mp4
+![DemoAndroid](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_android.gif)
 
 #### iOS
 ![DemoMultiFilters](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_ios.gif)
@@ -154,11 +154,11 @@ https://user-images.githubusercontent.com/9049899/231513581-12dbbaa1-5c5d-4c81-9
 ![DemoMacOS](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_macos.png)
 
 #### Linux
-https://user-images.githubusercontent.com/9049899/231513766-90a9cc75-b5c0-4816-ba15-4e3d3e2a6274.mp4
+![DemoLinux](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_linux.gif)
 
-
+Android
 #### Windows
-https://user-images.githubusercontent.com/9049899/231513826-958bd1d3-334b-4036-b126-3ff4ca716992.mp4
+![DemoWindows](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_windows.gif)
 
 ## Getting Started
 
