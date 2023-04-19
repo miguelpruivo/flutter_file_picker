@@ -70,7 +70,7 @@ class FilePickerWindows extends FilePicker {
     final result = getOpenFileNameW(openFileNameW);
     late final List<String>? files;
     if (result == 1) {
-      final filePaths = _extractSelectedFilesFromOpenFileNameW(
+      final filePaths = extractSelectedFilesFromOpenFileNameW(
         openFileNameW.ref,
       );
       files = filePaths;
@@ -198,8 +198,9 @@ class FilePickerWindows extends FilePicker {
     final result = getSaveFileNameW(openFileNameW);
     String? returnValue;
     if (result == 1) {
-      final filePaths = _extractSelectedFilesFromOpenFileNameW(
+      final filePaths = extractSelectedFilesFromOpenFileNameW(
         openFileNameW.ref,
+        isResultFromSaveFileDialog: true,
       );
       returnValue = filePaths.first;
     }
@@ -244,24 +245,35 @@ class FilePickerWindows extends FilePicker {
   /// then the returned string contains the directory of the selected files, followed
   /// by a `null` character, followed by the file names each separated by a `null`
   /// character, e.g. `C:\Users\John\x00file1.jpg\x00file2.jpg\x00file3.jpg\x00\x00`.
-  List<String> _extractSelectedFilesFromOpenFileNameW(
-    OPENFILENAMEW openFileNameW,
-  ) {
+  ///
+  /// `isResultFromSaveFileDialog` allows to handle the result of the save-file
+  /// dialog differently because somehow, if the save-file dialog is invoked with a
+  /// long default file name (e.g. `abcdefghijklmnopqrstuvxyz0123456789.png`) and the
+  /// user changed the file name to a short one (e.g. `test.txt`), then the field
+  /// `lpstrFile` not only contains the selected file `test.txt` but also, separated
+  /// by only one `null` character, some remaining part of the originally given default
+  /// file name.
+  List<String> extractSelectedFilesFromOpenFileNameW(
+    OPENFILENAMEW openFileNameW, {
+    bool isResultFromSaveFileDialog = false,
+  }) {
     final List<String> filePaths = [];
     final buffer = StringBuffer();
     int i = 0;
     bool lastCharWasNull = false;
-
     // ignore: literal_only_boolean_expressions
     while (true) {
       final char = openFileNameW.lpstrFile.cast<Uint16>().elementAt(i).value;
-      if (char == 0) {
-        if (lastCharWasNull) {
+      final currentCharIsNull = char == 0;
+      if (currentCharIsNull && lastCharWasNull) {
+        break;
+      } else if (currentCharIsNull) {
+        filePaths.add(buffer.toString());
+        buffer.clear();
+        lastCharWasNull = true;
+
+        if (isResultFromSaveFileDialog) {
           break;
-        } else {
-          filePaths.add(buffer.toString());
-          buffer.clear();
-          lastCharWasNull = true;
         }
       } else {
         lastCharWasNull = false;
