@@ -1,3 +1,7 @@
+## 5.2.11
+### Desktop (Windows)
+Updates dependencies, including win32 bump to 4.1.3 ([#1255](https://github.com/miguelpruivo/flutter_file_picker/issues/1255)).
+
 ## 5.2.10
 ### Desktop (Windows)
 Fixes the bug that the result of the save-file dialog was incorrect when it was invoked with a long default file name but the user selected a file with a much short file name ([#1257](https://github.com/miguelpruivo/flutter_file_picker/issues/1257)).
