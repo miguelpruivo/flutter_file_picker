@@ -156,7 +156,6 @@ For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flu
 #### Linux
 ![DemoLinux](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_linux.gif)
 
-Android
 #### Windows
 ![DemoWindows](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_windows.gif)
 
