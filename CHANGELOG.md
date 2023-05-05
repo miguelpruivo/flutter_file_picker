@@ -1,3 +1,7 @@
+## 5.2.12
+### Android
+Updates Gradle to version 8.0
+
 ## 5.2.11
 ### Desktop (Windows)
 Updates dependencies, including win32 bump to 4.1.3 ([#1255](https://github.com/miguelpruivo/flutter_file_picker/issues/1255)).
