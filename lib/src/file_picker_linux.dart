@@ -6,6 +6,11 @@ import 'package:file_picker/src/utils.dart';
 import 'package:xdg_desktop_portal/xdg_desktop_portal.dart';
 
 class FilePickerLinux extends FilePicker {
+  String _uriToFilePath(String uri) {
+    final parsedUri = Uri.parse(uri);
+    return parsedUri.toFilePath();
+  }
+
   XdgFileChooserFilter _fileTypeToFileFilter(
       FileType type, List<String>? allowedExtensions) {
     switch (type) {
@@ -66,7 +71,7 @@ class FilePickerLinux extends FilePicker {
         )
         .first;
 
-    final filePaths = result.uris;
+    final filePaths = result.uris.map(_uriToFilePath).toList();
 
     final List<PlatformFile> platformFiles = await filePathsToPlatformFiles(
       filePaths,
@@ -92,7 +97,7 @@ class FilePickerLinux extends FilePicker {
         )
         .first;
 
-    return result.uris.first;
+    return _uriToFilePath(result.uris.first);
   }
 
   @override
@@ -129,6 +134,6 @@ class FilePickerLinux extends FilePicker {
           //currentFolder: directory,
         )
         .first;
-    return result.uris.first;
+    return _uriToFilePath(result.uris.first);
   }
 }
