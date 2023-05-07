@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
 import 'package:file_picker/src/file_picker.dart';
 import 'package:file_picker/src/file_picker_result.dart';
 import 'package:file_picker/src/platform_file.dart';
@@ -113,18 +111,22 @@ class FilePickerLinux extends FilePicker {
       allowedExtensions,
     );
 
+/*
     Uint8List? directory;
     if (initialDirectory != null) {
-      final encodedDirectory = utf8.encode(initialDirectory);
+      final dir = Directory(initialDirectory);
+      print(dir.absolute.path);
+      final encodedDirectory = utf8.encode(dir.absolute.path);
       directory = Uint8List.fromList(encodedDirectory);
     }
+*/
 
     final result = await client.fileChooser
         .saveFile(
           title: dialogTitle ?? defaultDialogTitle,
           filters: [fileFilter],
           currentName: fileName,
-          currentFolder: directory,
+          //currentFolder: directory,
         )
         .first;
     return result.uris.first;
