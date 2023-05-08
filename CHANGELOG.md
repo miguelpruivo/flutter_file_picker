@@ -1,4 +1,4 @@
-## 5.2.12
+## 5.3.0
 ### Android
 Updates Gradle to version 7.5
 Adds the namespace property for compatibility with Gradle 8
