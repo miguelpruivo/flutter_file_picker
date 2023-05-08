@@ -1,3 +1,8 @@
+## 5.3.0
+### Android
+Updates Gradle to version 7.5
+Adds the namespace property for compatibility with Gradle 8
+
 ## 5.2.11
 ### Desktop (Windows)
 Updates dependencies, including win32 bump to 4.1.3 ([#1255](https://github.com/miguelpruivo/flutter_file_picker/issues/1255)).
