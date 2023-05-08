@@ -1,6 +1,7 @@
 ## 5.2.12
 ### Android
-Updates Gradle to version 8.0
+Updates Gradle to version 7.5
+Adds the namespace property for compatibility with Gradle 8
 
 ## 5.2.11
 ### Desktop (Windows)
