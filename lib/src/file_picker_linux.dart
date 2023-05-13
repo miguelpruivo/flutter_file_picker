@@ -62,24 +62,27 @@ class FilePickerLinux extends FilePicker {
       allowedExtensions,
     );
 
-    final result = await client.fileChooser
-        .openFile(
-          title: dialogTitle ?? defaultDialogTitle,
-          filters: [fileFilter],
-          multiple: allowMultiple,
-          directory: false,
-        )
-        .first;
+    try {
+      final result = await client.fileChooser
+          .openFile(
+            title: dialogTitle ?? defaultDialogTitle,
+            filters: [fileFilter],
+            multiple: allowMultiple,
+            directory: false,
+            parentWindow: "example",
+          )
+          .first;
+      final filePaths = result.uris.map(_uriToFilePath).toList();
 
-    final filePaths = result.uris.map(_uriToFilePath).toList();
-
-    final List<PlatformFile> platformFiles = await filePathsToPlatformFiles(
-      filePaths,
-      withReadStream,
-      withData,
-    );
-
-    return FilePickerResult(platformFiles);
+      final List<PlatformFile> platformFiles = await filePathsToPlatformFiles(
+        filePaths,
+        withReadStream,
+        withData,
+      );
+      return FilePickerResult(platformFiles);
+    } on XdgPortalRequestFailedException {
+      return null;
+    }
   }
 
   @override
@@ -90,14 +93,17 @@ class FilePickerLinux extends FilePicker {
   }) async {
     final client = XdgDesktopPortalClient();
 
-    final result = await client.fileChooser
-        .openFile(
-          title: dialogTitle ?? defaultDialogTitle,
-          directory: true,
-        )
-        .first;
-
-    return _uriToFilePath(result.uris.first);
+    try {
+      final result = await client.fileChooser
+          .openFile(
+            title: dialogTitle ?? defaultDialogTitle,
+            directory: true,
+          )
+          .first;
+      return _uriToFilePath(result.uris.first);
+    } on XdgPortalRequestFailedException {
+      return null;
+    }
   }
 
   @override
@@ -126,14 +132,18 @@ class FilePickerLinux extends FilePicker {
     }
 */
 
-    final result = await client.fileChooser
-        .saveFile(
-          title: dialogTitle ?? defaultDialogTitle,
-          filters: [fileFilter],
-          currentName: fileName,
-          //currentFolder: directory,
-        )
-        .first;
-    return _uriToFilePath(result.uris.first);
+    try {
+      final result = await client.fileChooser
+          .saveFile(
+            title: dialogTitle ?? defaultDialogTitle,
+            filters: [fileFilter],
+            currentName: fileName,
+            //currentFolder: directory,
+          )
+          .first;
+      return _uriToFilePath(result.uris.first);
+    } on XdgPortalRequestFailedException {
+      return null;
+    }
   }
 }
