@@ -124,13 +124,19 @@ class FilePickerLinux extends FilePicker {
 
 /*
     Uint8List? directory;
+    Uint8List? fullFilePath;
     if (initialDirectory != null) {
-      final dir = Directory(initialDirectory);
-      print(dir.absolute.path);
-      final encodedDirectory = utf8.encode(dir.absolute.path);
+      final dir = Directory(initialDirectory).absolute;
+      final filePath = path.join(dir.path, fileName);
+      final encodedDirectory = utf8.encode(dir.path);
+      final encodedFilePath = utf8.encode(filePath);
       directory = Uint8List.fromList(encodedDirectory);
+      fullFilePath = Uint8List.fromList(encodedFilePath);
     }
 */
+
+//    print(utf8.decode(directory ?? []));
+//    print(utf8.decode(fullFilePath ?? []));
 
     try {
       final result = await client.fileChooser
@@ -139,6 +145,7 @@ class FilePickerLinux extends FilePicker {
             filters: [fileFilter],
             currentName: fileName,
             //currentFolder: directory,
+            //currentFile: fullFilePath,
           )
           .first;
       return _uriToFilePath(result.uris.first);
