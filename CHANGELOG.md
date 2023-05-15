@@ -1,3 +1,36 @@
+## 5.3.0
+### Android
+Updates Gradle to version 7.5
+Adds the namespace property for compatibility with Gradle 8
+
+## 5.2.11
+### Desktop (Windows)
+Updates dependencies, including win32 bump to 4.1.3 ([#1255](https://github.com/miguelpruivo/flutter_file_picker/issues/1255)).
+
+## 5.2.10
+### Desktop (Windows)
+Fixes the bug that the result of the save-file dialog was incorrect when it was invoked with a long default file name but the user selected a file with a much short file name ([#1257](https://github.com/miguelpruivo/flutter_file_picker/issues/1257)).
+
+## 5.2.9
+#### General
+Fixes the errors `Type 'Uint8List' not found` and `'Uint8List' isn't a type` ([#1260](https://github.com/miguelpruivo/flutter_file_picker/issues/1260)). Thank you @miguelslemos!
+
+## 5.2.8
+
+### Desktop (Windows)
+Fixes the bug that the current directory sometimes changed after the user picked a file. Now, after the dialog is closed, the current directory is automatically restored to its original value even if the user changed the directory while searching for files ([#1254](https://github.com/miguelpruivo/flutter_file_picker/issues/1254)). Thank you @Tokenyet!
+
+### Desktop (Linux)
+Fixes the behavior of the `saveFile()` dialog on Ubuntu/Kubuntu. This fix should have been committed in the previous version _5.2.7_ but was forgotten. Now, when the user selects an already existing file, then Ubuntu prompts the user to confirm overwriting this file. This change finally makes the dialog behave the same on all desktop platforms (macOS, Linux, and Windows) ([#989](https://github.com/miguelpruivo/flutter_file_picker/issues/989)).
+    
+## 5.2.7
+### Desktop (Windows)
+Fixes the behavior of the `saveFile()` dialog on Windows. Now, when the user selects an already existing file, then Windows prompts the user to confirm overwriting this file. This change makes the dialog behave the same on all desktop platforms (macOS, Linux, and Windows). Previously, Windows would not have asked the user for confirmation ([#989](https://github.com/miguelpruivo/flutter_file_picker/issues/989)).
+
+## 5.2.6
+### Web
+- Increase time to wait on js result
+
 ## 5.2.5
 ### iOS
 - Fix preprocessor definitions in podspec (thanks @tomk9)
@@ -161,7 +194,7 @@ Addresses an issue where multiple media files couldn't be picked in some 3rd par
 
 ## 4.1.3
 ##### iOS
-Fixes an issue where Live Photos were being picked as `.pvt` packages (since iOS 15). From now on, if `allowCompression` is set to `true`, Live Photos will automatically be converted to static JPEG pictures. ([#835](https://github.com/miguelpruivo/flutter_file_picker/issues/835)) 
+Fixes an issue where Live Photos were being picked as `.pvt` packages (since iOS 15). From now on, if `allowCompression` is set to `true`, Live Photos will automatically be converted to static JPEG pictures. ([#835](https://github.com/miguelpruivo/flutter_file_picker/issues/835))
 
 ## 4.1.2
 ##### Desktop (Linux)
@@ -172,7 +205,7 @@ Fixes the issue that on Linux the file type filter `FileType.any` did not allow 
 Fixes an issue that would result in picker being dismissed by pulling down the modal sheet without an event. ([#828](https://github.com/miguelpruivo/flutter_file_picker/issues/828))
 
 ##### Web
-Addresses an issue when comparing files on Web would result in an error due to `path` not being accessible. ([#822](https://github.com/miguelpruivo/flutter_file_picker/issues/822)) 
+Addresses an issue when comparing files on Web would result in an error due to `path` not being accessible. ([#822](https://github.com/miguelpruivo/flutter_file_picker/issues/822))
 
 ## 4.1.0
 Extends API by new function `saveFiles()` for opening a save-file dialog as requested in [#799](https://github.com/miguelpruivo/flutter_file_picker/issues/799). This feature is only supported on desktop platforms (Linux, macOS, and Windows).
@@ -257,7 +290,7 @@ Adds null safety support ([#510](https://github.com/miguelpruivo/flutter_file_pi
 - Updates `preferredAssetRepresentationMode`. Thank you @nrikiji.
 
 ## 2.1.6
-- Addresses an issue on iOS 14 and later where events `onFileLoading` events weren't being provided ([#577](https://github.com/miguelpruivo/flutter_file_picker/issues/577)). 
+- Addresses an issue on iOS 14 and later where events `onFileLoading` events weren't being provided ([#577](https://github.com/miguelpruivo/flutter_file_picker/issues/577)).
 
 ## 2.1.5+1
 - Web: Updates `size` property from `PlatformFile` to be in bytes instead of kb;
@@ -267,7 +300,7 @@ Adds null safety support ([#510](https://github.com/miguelpruivo/flutter_file_pi
 iOS & Android: Updates `size` property from `PlatformFile` to be in bytes instead of kb.
 
 ## 2.1.4
-iOS: Fixes iOS ViewController which is nil when UIWindow.rootViewController have changed. ([#525](https://github.com/miguelpruivo/flutter_file_picker/issues/525)). Thank you @devcxm. 
+iOS: Fixes iOS ViewController which is nil when UIWindow.rootViewController have changed. ([#525](https://github.com/miguelpruivo/flutter_file_picker/issues/525)). Thank you @devcxm.
 
 ## 2.1.3
 Android: Updates file name handling method. ([#487](https://github.com/miguelpruivo/flutter_file_picker/issues/487))
@@ -303,7 +336,7 @@ Minor fix on CHANGELOG regarding version `2.0.9`.
 ## 2.0.9
 Android: Updates package visibility to fully support Android 11 (SDK 30 and later). ([#440](https://github.com/miguelpruivo/flutter_file_picker/issues/440))
 
-*Note: If you have build issues from now on because `<queries>` aren't recognized, you'll need to update your build.gradle to use one of the [following patched versions](https://github.com/miguelpruivo/flutter_file_picker/wiki/Troubleshooting#android).* 
+*Note: If you have build issues from now on because `<queries>` aren't recognized, you'll need to update your build.gradle to use one of the [following patched versions](https://github.com/miguelpruivo/flutter_file_picker/wiki/Troubleshooting#android).*
 
 ## 2.0.8+1
 - iOS: Updates media picker to launch in app context (instead of modal).
@@ -313,7 +346,7 @@ Android: Updates package visibility to fully support Android 11 (SDK 30 and late
 Fixes an issue on iOS 14, where canceling with swipe gestures, could result in cancel event not being dispatched. ([#431](https://github.com/miguelpruivo/flutter_file_picker/issues/431)).
 
 ## 2.0.7
-Fixes [#425](https://github.com/miguelpruivo/flutter_file_picker/issues/425) and updates iOS to use NSDocumentDirectory on iOS 12 or lower. Thanks @allanwolski. 
+Fixes [#425](https://github.com/miguelpruivo/flutter_file_picker/issues/425) and updates iOS to use NSDocumentDirectory on iOS 12 or lower. Thanks @allanwolski.
 
 ## 2.0.6
 iOS: Fixes iOS 14 media picker (image & video) (#405, #407).
@@ -394,7 +427,7 @@ Updates README file.
 Adds `onFileLoading` handler for every picking method that will provide picking status: `FilePickerStatus.loading` and `FilePickerStatus.done` so you can, for example, display a custom loader.
 
 ## 1.10.0
-Adds `getDirectoryPath()` method that allows you to select and pick directory paths. Android, requires SDK 21 or above for this to work, and iOS requires iOS 11 or above. 
+Adds `getDirectoryPath()` method that allows you to select and pick directory paths. Android, requires SDK 21 or above for this to work, and iOS requires iOS 11 or above.
 
 ## 1.9.0+1
 Adds a temporary workaround on Android where it can trigger `onRequestPermissionsResult` twice, related to Flutter issue [49365](https://github.com/flutter/flutter/issues/49365) for anyone affected in Flutter versions below 1.14.6.
@@ -483,7 +516,7 @@ Updates go-flutter dependencies.
 
 ## 1.4.0+1
 
-**Bug fix:** Fixes an issue that could prevent internal storage files from being properly picked. 
+**Bug fix:** Fixes an issue that could prevent internal storage files from being properly picked.
 
 ## 1.4.0
 
@@ -517,7 +550,7 @@ Updates go-flutter dependencies.
 
 ## 1.3.5
 
-**Bug fix:** Fixes an issue that could prevent users to pick files from the iCloud Drive app, on versions below iOS 11. 
+**Bug fix:** Fixes an issue that could prevent users to pick files from the iCloud Drive app, on versions below iOS 11.
 
 ## 1.3.4+1
 
@@ -539,18 +572,18 @@ Updates go-flutter dependencies.
 
 ## 1.3.1
 
-**Bug fix:** Fixes an issue on Android, where other activity would try to call `FilePicker`'s result object when it shouldn't.  
+**Bug fix:** Fixes an issue on Android, where other activity would try to call `FilePicker`'s result object when it shouldn't.
 
 ## 1.3.0
 
 **Breaking changes**
  * `FileType.CAMERA` is no longer available, if you need it, you can use this package along with [image_picker](https://pub.dartlang.org/packages/image_picker).
- 
+
 **New features**
  * You can now pick multiple files by using the `getMultiFilePath()` method which will return a `Map<String,String>` with all paths from selected files, where the key matches the file name and the value its path. Optionally, it also supports filtering by file extension, otherwise all files will be selectable. Nevertheless, you should keep using `getFilePath()` for single path picking.
  * You can now use `FileType.AUDIO` to pick audio files. In iOS this will let you select from your music library. Paths from DRM protected files won't be loaded (see README for more details).
  * Adds `getFile()` utility method that does the same of `getFilePath()` but returns a `File` object instead, for the returned path.
- 
+
 **Bug fixes and updates**
  * This package is no longer attached to the [image_picker](https://pub.dartlang.org/packages/image_picker), and because of that, camera permission is also no longer required.
  * Fixes an issue where sometimes the _InputStream_ wasn't being properly closed. Also, its exception is now being forward to the plugin caller.
@@ -566,13 +599,13 @@ Updates go-flutter dependencies.
 
 ## 1.1.0
 
-**Breaking changes** 
+**Breaking changes**
  * `FileType.PDF` was removed since now it can be used along with custom file types by using the `FileType.CUSTOM` and providing the file extension (e.g. PDF, SVG, ZIP, etc.).
  * `FileType.CAPTURE` is now `FileType.CAMERA`
- 
+
 **New features**
  * Now it is possible to provide a custom file extension to filter file picking options by using `FileType.CUSTOM`
- 
+
 **Bug fixes and updates**
  * Fixes file names from cloud on Android. Previously it would always display **Document**
  * Fixes an issue on iOS where an exception was being thrown after canceling and re-opening the picker.
@@ -583,11 +616,11 @@ Updates go-flutter dependencies.
 
 ## 1.0.3
 
- * Fixes `build.gradle`.  
+ * Fixes `build.gradle`.
 
 ## 1.0.2
 
- * Minor update of README file. 
+ * Minor update of README file.
 
 ## 1.0.1
 
@@ -599,17 +632,17 @@ Updates go-flutter dependencies.
  * Adds support for ANY and VIDEO files.
  * Fixes an issue where permissions were recursively asked on Android.
  * Fixes an issue where some paths from document files couldn't be loaded with Android 8.0.
- * Updates README file to match changes. 
- * General refactor & cleanup. 
+ * Updates README file to match changes.
+ * General refactor & cleanup.
 
 ## 0.1.6
-* Replaces commons dependency with FilePath class on Android, to handle path resolution on different SDK. 
+* Replaces commons dependency with FilePath class on Android, to handle path resolution on different SDK.
 
 ## 0.1.5
-* Minor correction in the README file. 
+* Minor correction in the README file.
 
 ## 0.1.4
-* Changed Meta minimum version due to versioning conflict with flutter_localization. 
+* Changed Meta minimum version due to versioning conflict with flutter_localization.
 
 ## 0.1.3
 
@@ -617,7 +650,7 @@ Updates go-flutter dependencies.
 
 ## 0.1.2
 
-* Changed license from Apache 2.0 to MIT. 
+* Changed license from Apache 2.0 to MIT.
 * Adds demo screenshot.
 
 ## 0.1.1

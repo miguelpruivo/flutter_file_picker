@@ -36,6 +36,8 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+
+    namespace 'com.mr.flutter.plugin.filepicker.example'
 }
 
 flutter {
