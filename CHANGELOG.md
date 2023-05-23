@@ -1,3 +1,7 @@
+## 5.3.1
+
+Bump Dart SDK lower bound to <4.0.0 to support Dart 3
+
 ## 5.3.0
 ### Android
 Updates Gradle to version 7.5
