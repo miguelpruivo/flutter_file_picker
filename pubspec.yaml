@@ -16,6 +16,7 @@ dependencies:
   ffi: ^2.0.1
   path: ^1.8.2
   win32: ^4.1.3
+  xdg_desktop_portal: ^0.1.12
 
 dev_dependencies:
   lints: ^2.0.1
