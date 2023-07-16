@@ -15,16 +15,18 @@ Future<List<PlatformFile>> filePathsToPlatformFiles(
         .map((String filePath) async {
       final file = File(filePath);
 
+      Stream<List<int>>? readStream;
+
       if (withReadStream) {
-        return createPlatformFile(file, null, file.openRead());
+        readStream = file.openRead();
       }
 
       if (!withData) {
-        return createPlatformFile(file, null, null);
+        return createPlatformFile(file, null, readStream);
       }
 
       final bytes = await file.readAsBytes();
-      return createPlatformFile(file, bytes, null);
+      return createPlatformFile(file, bytes, readStream);
     }).toList(),
   );
 }

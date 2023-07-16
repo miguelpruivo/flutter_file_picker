@@ -100,15 +100,15 @@ class FilePickerWeb extends FilePicker {
       }
 
       for (File file in files) {
+        Stream<List<int>>? readStream;
         if (withReadStream) {
-          addPickedFile(file, null, null, _openFileReadStream(file));
-          continue;
+          readStream = _openFileReadStream(file);
         }
 
         if (!withData) {
           final FileReader reader = FileReader();
           reader.onLoadEnd.listen((e) {
-            addPickedFile(file, null, reader.result as String?, null);
+            addPickedFile(file, null, reader.result as String?, readStream);
           });
           reader.readAsDataUrl(file);
           continue;
@@ -116,7 +116,7 @@ class FilePickerWeb extends FilePicker {
 
         final FileReader reader = FileReader();
         reader.onLoadEnd.listen((e) {
-          addPickedFile(file, reader.result as Uint8List?, null, null);
+          addPickedFile(file, reader.result as Uint8List?, null, readStream);
         });
         reader.readAsArrayBuffer(file);
       }
