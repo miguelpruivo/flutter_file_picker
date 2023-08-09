@@ -15,6 +15,7 @@ class FilePickerLinux extends FilePicker {
     Function(FilePickerStatus)? onFileLoading,
     bool allowCompression = true,
     bool allowMultiple = false,
+    int limitSelect = 0,
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,

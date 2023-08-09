@@ -29,6 +29,7 @@ class FilePickerIO extends FilePicker {
     Function(FilePickerStatus)? onFileLoading,
     bool? allowCompression = true,
     bool allowMultiple = false,
+    int limitSelect = 0,
     bool? withData = false,
     bool? withReadStream = false,
     bool lockParentWindow = false,
@@ -36,6 +37,7 @@ class FilePickerIO extends FilePicker {
       _getPath(
         type,
         allowMultiple,
+        limitSelect,
         allowCompression,
         allowedExtensions,
         onFileLoading,
@@ -67,6 +69,7 @@ class FilePickerIO extends FilePicker {
   Future<FilePickerResult?> _getPath(
     FileType fileType,
     bool allowMultipleSelection,
+    int limitSelect,
     bool? allowCompression,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
@@ -91,6 +94,7 @@ class FilePickerIO extends FilePicker {
 
       final List<Map>? result = await _channel.invokeListMethod(type, {
         'allowMultipleSelection': allowMultipleSelection,
+        'limitSelect': limitSelect,
         'allowedExtensions': allowedExtensions,
         'allowCompression': allowCompression,
         'withData': withData,

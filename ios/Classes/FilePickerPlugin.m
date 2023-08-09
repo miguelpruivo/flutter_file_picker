@@ -112,6 +112,8 @@
     NSDictionary * arguments = call.arguments;
     BOOL isMultiplePick = ((NSNumber*)[arguments valueForKey:@"allowMultipleSelection"]).boolValue;
     
+    NSInteger limitSelect = ((NSNumber*)[arguments valueForKey:@"limitSelect"]).integerValue;
+    
     self.allowCompression = ((NSNumber*)[arguments valueForKey:@"allowCompression"]).boolValue;
     self.loadDataToMemory = ((NSNumber*)[arguments valueForKey:@"withData"]).boolValue;
     
@@ -133,7 +135,10 @@
         }
     } else if([call.method isEqualToString:@"video"] || [call.method isEqualToString:@"image"] || [call.method isEqualToString:@"media"]) {
 #ifdef PICKER_MEDIA
-        [self resolvePickMedia:[FileUtils resolveMediaType:call.method] withMultiPick:isMultiplePick withCompressionAllowed:self.allowCompression];
+        [self resolvePickMedia:[FileUtils resolveMediaType:call.method]
+                 withMultiPick:isMultiplePick
+                     withLimit: limitSelect
+        withCompressionAllowed:self.allowCompression];
 #else
         _result([FlutterError errorWithCode:@"Unsupported picker type"
                                     message:@"Support for the Media picker is not compiled in. Remove the Pod::PICKER_MEDIA=false statement from your Podfile."
@@ -187,7 +192,10 @@
 #endif // PICKER_DOCUMENT
 
 #ifdef PICKER_MEDIA
-- (void) resolvePickMedia:(MediaType)type withMultiPick:(BOOL)multiPick withCompressionAllowed:(BOOL)allowCompression  {
+- (void) resolvePickMedia:(MediaType)type
+            withMultiPick:(BOOL)multiPick
+            withLimit:(NSInteger)limitSeelct
+   withCompressionAllowed:(BOOL)allowCompression  {
     
 #ifdef PHPicker
     if (@available(iOS 14, *)) {
@@ -195,9 +203,7 @@
         config.filter = type == IMAGE ? [PHPickerFilter imagesFilter] : type == VIDEO ? [PHPickerFilter videosFilter] : [PHPickerFilter anyFilterMatchingSubfilters:@[[PHPickerFilter videosFilter], [PHPickerFilter imagesFilter]]];
         config.preferredAssetRepresentationMode = self.allowCompression ? PHPickerConfigurationAssetRepresentationModeCompatible : PHPickerConfigurationAssetRepresentationModeCurrent;
         
-        if(multiPick) {
-            config.selectionLimit = 0;
-        }
+        config.selectionLimit = limitSeelct;
         
         PHPickerViewController *pickerViewController = [[PHPickerViewController alloc] initWithConfiguration:config];
         pickerViewController.delegate = self;

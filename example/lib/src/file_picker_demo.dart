@@ -40,6 +40,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _paths = (await FilePicker.platform.pickFiles(
         type: _pickingType,
         allowMultiple: _multiPick,
+        limitSelect: 10,
         onFileLoading: (FilePickerStatus status) => print(status),
         allowedExtensions: (_extension?.isNotEmpty ?? false)
             ? _extension?.replaceAll(' ', '').split(',')
