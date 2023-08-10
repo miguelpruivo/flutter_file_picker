@@ -380,8 +380,14 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
                 NSLog(@"%@", error.localizedDescription);
             }
         }
+
         // Move file from app_id-Inbox to tmp/filename
-        [[NSFileManager defaultManager] moveItemAtPath:url.path toPath:tempURL.path error:&error];
+        if([tempURL startAccessingSecurityScopedResource])
+        {
+            [[NSFileManager defaultManager] moveItemAtPath:url.path toPath:tempURL.path error:&error];
+            [tempURL stopAccessingSecurityScopedResource];
+        }
+
         if (error) {
             NSLog(@"%@", error.localizedDescription);
         } else {
