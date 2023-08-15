@@ -143,4 +143,16 @@ void main() {
       );
     });
   });
+
+  group('isAlpha()', () {
+    test('should identify alpha chars', () async {
+      expect(isAlpha('a'), equals(true));
+      expect(isAlpha('A'), equals(true));
+      expect(isAlpha('z'), equals(true));
+      expect(isAlpha('Z'), equals(true));
+      expect(isAlpha('.'), equals(false));
+      expect(isAlpha('*'), equals(false));
+      expect(isAlpha(' '), equals(false));
+    });
+  });
 }
