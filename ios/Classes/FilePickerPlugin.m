@@ -21,6 +21,7 @@
 @property (nonatomic) MPMediaPickerController *audioPickerController;
 @property (nonatomic) NSArray<NSString *> * allowedExtensions;
 @property (nonatomic) BOOL loadDataToMemory;
+@property (nonatomic) NSString * initialDirectory;
 @property (nonatomic) BOOL allowCompression;
 @property (nonatomic) dispatch_group_t group;
 @end
@@ -114,6 +115,7 @@
     
     self.allowCompression = ((NSNumber*)[arguments valueForKey:@"allowCompression"]).boolValue;
     self.loadDataToMemory = ((NSNumber*)[arguments valueForKey:@"withData"]).boolValue;
+    self.initialDirectory = [arguments valueForKey:@"initialDirectory"];
     
     if([call.method isEqualToString:@"any"] || [call.method containsString:@"custom"]) {
         self.allowedExtensions = [FileUtils resolveType:call.method withAllowedExtensions: [arguments valueForKey:@"allowedExtensions"]];
@@ -167,6 +169,17 @@
         self.documentPickerController = [[UIDocumentPickerViewController alloc]
                                          initWithDocumentTypes: isDirectory ? @[@"public.folder"] : self.allowedExtensions
                                          inMode: isDirectory ? UIDocumentPickerModeOpen : UIDocumentPickerModeImport];
+        
+        if (self.initialDirectory != nil && [self.initialDirectory length] > 0) {
+            NSURL *initialDirectoryURL = [NSURL fileURLWithPath:self.initialDirectory];
+            NSFileManager *fileManager = [NSFileManager defaultManager];
+            
+            if ([fileManager fileExistsAtPath:[initialDirectoryURL path]]) {
+                self.documentPickerController.directoryURL = initialDirectoryURL;
+            } else {
+                Log(@"Error: The initial directory does not exist at path: %@", initialDirectoryURL);
+            }
+        }
     } @catch (NSException * e) {
         Log(@"Couldn't launch documents file picker. Probably due to iOS version being below 11.0 and not having the iCloud entitlement. If so, just make sure to enable it for your app in Xcode. Exception was: %@", e);
         _result = nil;
