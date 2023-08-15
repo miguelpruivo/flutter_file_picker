@@ -80,7 +80,6 @@ class QarmaAndZenityHandler implements DialogHandler {
         .split("")
         .map((e) =>
             isAlpha(e) ? "[" + e.toLowerCase() + e.toUpperCase() + "]" : e)
-        .join("")
-        .toString();
+        .join();
   }
 }
