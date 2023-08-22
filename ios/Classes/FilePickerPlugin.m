@@ -473,7 +473,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         return;
     }
     
-    NSMutableArray<NSURL *> * urls = [[NSMutableArray alloc] initWithCapacity:results.count];
+    NSMutableArray<NSURL *> * urls = [[NSMutableArray alloc] initWithCapacity: results.count];
     
     self.group = dispatch_group_create();
     
@@ -483,8 +483,13 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
     __block NSError * blockError;
     
-    for (PHPickerResult *result in results) {
+    for (NSInteger index = 0; index < results.count; ++index) {
+        [urls addObject:[NSNull null]];
+
         dispatch_group_enter(_group);
+
+        PHPickerResult * result = [results objectAtIndex: index];
+
         [result.itemProvider loadFileRepresentationForTypeIdentifier:@"public.item" completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
             
             if(url == nil) {
@@ -494,7 +499,10 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
                 return;
             }
             
-            NSString * filename = url.lastPathComponent;
+            long timestamp = (long)([[NSDate date] timeIntervalSince1970] * 1000);
+            NSString * filenameWithoutExtension = [url.lastPathComponent stringByDeletingPathExtension];
+            NSString * fileExtension = url.pathExtension;
+            NSString * filename = [NSString stringWithFormat:@"%@-%ld.%@", filenameWithoutExtension, timestamp, fileExtension];
             NSString * extension = [filename pathExtension];
             NSFileManager * fileManager = [[NSFileManager alloc] init];
             NSURL * cachedUrl;
@@ -551,7 +559,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
             }
             
             
-            [urls addObject:cachedUrl];
+            [urls replaceObjectAtIndex:index withObject:cachedUrl];
             dispatch_group_leave(self->_group);
         }];
     }
