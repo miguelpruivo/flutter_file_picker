@@ -131,7 +131,6 @@ class FilePickerWindows extends FilePicker {
     final hwndOwner = lockParentWindow ? GetForegroundWindow() : NULL;
     hr = fileDialog.show(hwndOwner);
     if (!SUCCEEDED(hr)) {
-      fileDialog.release();
       CoUninitialize();
 
       if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED)) {
@@ -154,7 +153,6 @@ class FilePickerWindows extends FilePicker {
     hr = item.release();
     if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
-    hr = fileDialog.release();
     CoUninitialize();
 
     return Future.value(path);
