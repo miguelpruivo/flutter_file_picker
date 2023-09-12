@@ -23,6 +23,7 @@
 @property (nonatomic) BOOL loadDataToMemory;
 @property (nonatomic) BOOL allowCompression;
 @property (nonatomic) dispatch_group_t group;
+@property (nonatomic) MediaType type;
 @end
 
 @implementation FilePickerPlugin
@@ -188,6 +189,8 @@
 
 #ifdef PICKER_MEDIA
 - (void) resolvePickMedia:(MediaType)type withMultiPick:(BOOL)multiPick withCompressionAllowed:(BOOL)allowCompression  {
+
+    self.type = type;
     
 #ifdef PHPicker
     if (@available(iOS 14, *)) {
@@ -483,8 +486,8 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
     __block NSError * blockError;
 
-    bool isImageFilter = picker.configuration.filter == PHPickerFilter.imagesFilter;
-    NSString * utiType = isImageFilter ? @"public.image" : @"public.audiovisual-content";
+    bool isImageSelection = self.type == IMAGE;
+    NSString * utiType = isImageSelection ? @"public.image" : @"public.audiovisual-content";
     
     for (NSInteger index = 0; index < results.count; ++index) {
         [urls addObject:[NSNull null]];
