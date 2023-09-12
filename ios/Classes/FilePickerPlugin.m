@@ -482,6 +482,9 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     }
     
     __block NSError * blockError;
+
+    bool isImageFilter = picker.configuration.filter == PHPickerFilter.imagesFilter;
+    NSString * utiType = isImageFilter ? @"public.image" : @"public.audiovisual-content";
     
     for (NSInteger index = 0; index < results.count; ++index) {
         [urls addObject:[NSNull null]];
@@ -490,7 +493,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 
         PHPickerResult * result = [results objectAtIndex: index];
 
-        [result.itemProvider loadFileRepresentationForTypeIdentifier:@"public.item" completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
+        [result.itemProvider loadFileRepresentationForTypeIdentifier:utiType completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
             
             if(url == nil) {
                 blockError = error;
