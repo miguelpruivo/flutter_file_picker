@@ -1,3 +1,6 @@
+## 5.5.1
+### iOS
+- fix [1367](https://github.com/miguelpruivo/flutter_file_picker/issues/1367)
 ## 5.5.0
 ### iOS
 Fix if selecting from gallery multiple files from remote sources (eg GoPro, Drone) imported to the device gallery and uploaded to iCloud they would have the same file name and it shows only one image repeated
