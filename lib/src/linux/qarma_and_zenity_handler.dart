@@ -52,7 +52,7 @@ class QarmaAndZenityHandler implements DialogHandler {
       case FileType.audio:
         return "Audio Files | ${toCaseInsensitive('*.aac *.midi *.mp3 *.ogg *.wav')}";
       case FileType.custom:
-        return '*.${allowedExtensions!.join(' *.')}';
+        return "Custom Files | ${toCaseInsensitive('*.${allowedExtensions!.join(' *.')}')}";
       case FileType.image:
         return "Image Files | ${toCaseInsensitive('*.bmp *.gif *.jpeg *.jpg *.png')}";
       case FileType.media:

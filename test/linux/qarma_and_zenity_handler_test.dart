@@ -48,12 +48,12 @@ void main() {
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.custom, ['dart']),
-        equals('*.dart'),
+        equals('Custom Files | *.[dD][aA][rR][tT]'),
       );
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.custom, ['dart', 'html']),
-        equals('*.dart *.html'),
+        equals('Custom Files | *.[dD][aA][rR][tT] *.[hH][tT][mM][lL]'),
       );
     });
   });
