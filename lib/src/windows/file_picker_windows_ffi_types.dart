@@ -219,3 +219,9 @@ const ofnFileMustExist = 0x00001000;
 
 /// Hides the Read Only check box.
 const ofnHideReadOnly = 0x00000004;
+
+/// Causes the Save As dialog box to generate a message box if the selected file already exists. The user must confirm whether to overwrite the file.
+const ofnOverwritePrompt = 0x00000002;
+
+/// Restores the current directory to its original value if the user changed the directory while searching for files.
+const ofnNoChangeDir = 0x00000008;

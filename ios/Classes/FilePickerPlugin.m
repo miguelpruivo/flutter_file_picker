@@ -366,16 +366,38 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     if(_result == nil) {
         return;
     }
+    NSMutableArray<NSURL *> *newUrls = [NSMutableArray new];
+    for (NSURL *url in urls) {
+        // Create file URL to temporary folder
+        NSURL *tempURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
+        // Append filename (name+extension) to URL
+        tempURL = [tempURL URLByAppendingPathComponent:url.lastPathComponent];
+        NSError *error;
+        // If file with same name exists remove it (replace file with new one)
+        if ([[NSFileManager defaultManager] fileExistsAtPath:tempURL.path]) {
+            [[NSFileManager defaultManager] removeItemAtPath:tempURL.path error:&error];
+            if (error) {
+                NSLog(@"%@", error.localizedDescription);
+            }
+        }
+        // Move file from app_id-Inbox to tmp/filename
+        [[NSFileManager defaultManager] moveItemAtPath:url.path toPath:tempURL.path error:&error];
+        if (error) {
+            NSLog(@"%@", error.localizedDescription);
+        } else {
+            [newUrls addObject:tempURL];
+        }
+    }
     
     [self.documentPickerController dismissViewControllerAnimated:YES completion:nil];
     
     if(controller.documentPickerMode == UIDocumentPickerModeOpen) {
-        _result([urls objectAtIndex:0].path);
+        _result([newUrls objectAtIndex:0].path);
         _result = nil;
         return;
     }
     
-    [self handleResult: urls];
+    [self handleResult: newUrls];
 }
 #endif // PICKER_DOCUMENT
 
@@ -451,7 +473,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         return;
     }
     
-    NSMutableArray<NSURL *> * urls = [[NSMutableArray alloc] initWithCapacity:results.count];
+    NSMutableArray<NSURL *> * urls = [[NSMutableArray alloc] initWithCapacity: results.count];
     
     self.group = dispatch_group_create();
     
@@ -461,8 +483,13 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
     __block NSError * blockError;
     
-    for (PHPickerResult *result in results) {
+    for (NSInteger index = 0; index < results.count; ++index) {
+        [urls addObject:[NSNull null]];
+
         dispatch_group_enter(_group);
+
+        PHPickerResult * result = [results objectAtIndex: index];
+
         [result.itemProvider loadFileRepresentationForTypeIdentifier:@"public.item" completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
             
             if(url == nil) {
@@ -472,7 +499,10 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
                 return;
             }
             
-            NSString * filename = url.lastPathComponent;
+            long timestamp = (long)([[NSDate date] timeIntervalSince1970] * 1000);
+            NSString * filenameWithoutExtension = [url.lastPathComponent stringByDeletingPathExtension];
+            NSString * fileExtension = url.pathExtension;
+            NSString * filename = [NSString stringWithFormat:@"%@-%ld.%@", filenameWithoutExtension, timestamp, fileExtension];
             NSString * extension = [filename pathExtension];
             NSFileManager * fileManager = [[NSFileManager alloc] init];
             NSURL * cachedUrl;
@@ -529,7 +559,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
             }
             
             
-            [urls addObject:cachedUrl];
+            [urls replaceObjectAtIndex:index withObject:cachedUrl];
             dispatch_group_leave(self->_group);
         }];
     }

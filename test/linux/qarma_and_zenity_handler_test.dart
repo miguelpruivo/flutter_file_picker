@@ -132,7 +132,7 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals(
-            """--file-selection --title Select output file: --save --filename=test.out"""),
+            """--file-selection --title Select output file: --save --confirm-overwrite --filename=test.out"""),
       );
     });
 
@@ -223,7 +223,7 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals(
-            """--file-selection --title Save as: --save --filename=/home/user/Desktop/"""),
+            """--file-selection --title Save as: --save --confirm-overwrite --filename=/home/user/Desktop/"""),
       );
     });
 
@@ -240,7 +240,7 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals(
-            """--file-selection --title Save as: --save --filename=/home/user/Desktop/output.pdf"""),
+            """--file-selection --title Save as: --save --confirm-overwrite --filename=/home/user/Desktop/output.pdf"""),
       );
     });
   });

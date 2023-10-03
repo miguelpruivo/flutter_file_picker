@@ -21,16 +21,16 @@ A flutter plugin to show native file picker dialogs.
 
   preprocess_definitions=[]
   if !Pod.const_defined?(:PICKER_MEDIA) || PICKER_MEDIA
-    preprocess_definitions << ["PICKER_MEDIA=1"]
+    preprocess_definitions << "PICKER_MEDIA=1"
     s.dependency 'DKImagePickerController/PhotoGallery'
   end
   if !Pod.const_defined?(:PICKER_AUDIO) || PICKER_AUDIO
-    preprocess_definitions << ["PICKER_AUDIO=1"]
+    preprocess_definitions << "PICKER_AUDIO=1"
   end
   if !Pod.const_defined?(:PICKER_DOCUMENT) || PICKER_DOCUMENT
-    preprocess_definitions << ["PICKER_DOCUMENT=1"]
+    preprocess_definitions << "PICKER_DOCUMENT=1"
   end
-  s.pod_target_xcconfig = { "GCC_PREPROCESSOR_DEFINITIONS" => preprocess_definitions }
+  s.pod_target_xcconfig = { "GCC_PREPROCESSOR_DEFINITIONS" => preprocess_definitions.join(' ') }
 
 end
 
