@@ -1,5 +1,7 @@
 package com.mr.flutter.plugin.filepicker;
 
+import static androidx.core.app.ActivityCompat.startActivityForResult;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
@@ -221,6 +223,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     @SuppressWarnings("deprecation")
     private void startFileExplorer() {
         final Intent intent;
+        Intent intentChooser = null;
 
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (type == null) {
@@ -232,6 +235,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         } else {
             if (type.equals("image/*")) {
                 intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                intentChooser = Intent.createChooser(intent, "Select a photo");
             } else {
                 intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -253,7 +257,11 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         }
 
         if (intent.resolveActivity(this.activity.getPackageManager()) != null) {
-            this.activity.startActivityForResult(intent, REQUEST_CODE);
+            if(intentChooser != null) {
+                this.activity.startActivityForResult(intentChooser, REQUEST_CODE);
+            } else {
+                this.activity.startActivityForResult(intent, REQUEST_CODE);
+            }
         } else {
             Log.e(TAG, "Can't find a valid activity to handle the request. Make sure you've a file explorer installed.");
             finishWithError("invalid_format_type", "Can't handle the provided file type.");
