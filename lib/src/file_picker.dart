@@ -140,7 +140,7 @@ abstract class FilePicker extends PlatformInterface {
   /// window). This parameter works only on Windows desktop.
   ///
   /// [initialDirectory] can be optionally set to an absolute path to specify
-  /// where the dialog should open. Only supported on Linux and macOS.
+  /// where the dialog should open. Only supported on Linux, macOS, and Windows.
   ///
   /// Returns a [Future<String?>] which resolves to  the absolute path of the selected directory,
   /// if the user selected a directory. Returns `null` if the user aborted the dialog or if the
