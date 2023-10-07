@@ -116,19 +116,18 @@ class FilePickerWindows extends FilePicker {
     if (!SUCCEEDED(hr)) throw WindowsException(hr);
     free(title);
 
-    // TODO: figure out how to set the initial directory via SetDefaultFolder / SetFolder
-    // if (initialDirectory != null) {
-    //   final folder = TEXT(initialDirectory);
-    //   final riid = calloc<COMObject>();
-    //   final item = IShellItem(riid);
-    //   final location = item.ptr;
-    //   SHCreateItemFromParsingName(folder, nullptr, riid.cast(), item.ptr.cast());
-    //   hr = fileDialog.AddPlace(item.ptr, FDAP.FDAP_TOP);
-    //   if (!SUCCEEDED(hr)) throw WindowsException(hr);
-    //   hr = fileDialog.SetFolder(location);
-    //   if (!SUCCEEDED(hr)) throw WindowsException(hr);
-    //   free(folder);
-    // }
+    if (initialDirectory != null) {
+      final folder = TEXT(initialDirectory);
+      final riid = convertToIID(IID_IShellItem);
+      final ppv = calloc<Pointer>();
+      hr = SHCreateItemFromParsingName(folder, nullptr, riid, ppv);
+      final item = IShellItem(ppv.cast());
+      free(riid);
+      free(folder);
+      if (!SUCCEEDED(hr)) throw WindowsException(hr);
+      hr = fileDialog.setFolder(item.ptr.cast<Pointer<COMObject>>().value);
+      if (!SUCCEEDED(hr)) throw WindowsException(hr);
+    }
 
     final hwndOwner = lockParentWindow ? GetForegroundWindow() : NULL;
     hr = fileDialog.show(hwndOwner);
