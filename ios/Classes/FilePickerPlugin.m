@@ -460,7 +460,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     __block NSError * blockError;
     
     for (NSInteger index = 0; index < results.count; ++index) {
-        [urls addObject:[NSNull null]];
+        [urls addObject:[NSURL URLWithString:@""]];
 
         dispatch_group_enter(_group);
 
