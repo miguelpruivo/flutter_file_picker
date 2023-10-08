@@ -353,12 +353,6 @@
 #pragma mark - Delegates
 
 #ifdef PICKER_DOCUMENT
-// DocumentPicker delegate - iOS 10 only
-- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url{
-    [self.documentPickerController dismissViewControllerAnimated:YES completion:nil];
-    [self handleResult:url];
-}
-
 // DocumentPicker delegate
 - (void)documentPicker:(UIDocumentPickerViewController *)controller
 didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
