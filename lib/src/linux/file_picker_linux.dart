@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:file_picker/src/file_picker.dart';
 import 'package:file_picker/src/file_picker_result.dart';
 import 'package:file_picker/src/linux/dialog_handler.dart';
@@ -119,4 +120,7 @@ class FilePickerLinux extends FilePicker {
       return await isExecutableOnPath('zenity');
     }
   }
+
+  @override
+  Future<void> setImagePickerTitle(String imagePickerTitle) async {}
 }

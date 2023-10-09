@@ -123,4 +123,13 @@ class FilePickerIO extends FilePicker {
       rethrow;
     }
   }
+
+  @override
+  Future<void> setImagePickerTitle(String imagePickerTitle) async {
+    if (Platform.isAndroid) {
+      await _channel.invokeListMethod('setImagePickerTitle', {
+        'title': imagePickerTitle,
+      });
+    }
+  }
 }

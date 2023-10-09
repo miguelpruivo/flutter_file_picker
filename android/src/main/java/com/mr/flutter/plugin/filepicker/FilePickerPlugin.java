@@ -164,7 +164,10 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
             withData = (boolean) arguments.get("withData");
             allowedExtensions = FileUtils.getMimeTypes((ArrayList<String>) arguments.get("allowedExtensions"));
         }
-
+        if (call.method.equals("setImagePickerTitle")) {
+            this.delegate.setImagePickerTitle((String) arguments.get("title"));
+            return;
+        }
         if (call.method != null && call.method.equals("custom") && (allowedExtensions == null || allowedExtensions.length == 0)) {
             result.error(TAG, "Unsupported filter. Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.all instead.", null);
         } else {
@@ -283,7 +286,7 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
         this.activityBinding.removeActivityResultListener(this.delegate);
         this.activityBinding.removeRequestPermissionsResultListener(this.delegate);
         this.activityBinding = null;
-        if(this.observer != null) {
+        if (this.observer != null) {
             this.lifecycle.removeObserver(this.observer);
             this.application.unregisterActivityLifecycleCallbacks(this.observer);
         }

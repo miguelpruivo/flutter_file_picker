@@ -203,4 +203,7 @@ class FilePickerMacOS extends FilePicker {
       return ['/Volumes', volumeName, ...pathElements.sublist(1)].join('/');
     }).toList();
   }
+
+  @override
+  Future<void> setImagePickerTitle(String imagePickerTitle) async {}
 }
