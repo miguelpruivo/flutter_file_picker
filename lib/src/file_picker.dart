@@ -46,10 +46,6 @@ abstract class FilePicker extends PlatformInterface {
     _instance = instance;
   }
 
-  /// this method is meant to set the image picker plugin title
-  /// for Android only.
-  Future<void> setImagePickerTitle(String imagePickerTitle);
-
   factory FilePicker._setPlatform() {
     if (Platform.isAndroid || Platform.isIOS) {
       return FilePickerIO();

@@ -41,7 +41,6 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private String type;
     private String[] allowedExtensions;
     private EventChannel.EventSink eventSink;
-    private String imagePickerTitle;
 
     public FilePickerDelegate(final Activity activity) {
         this(
@@ -221,10 +220,6 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         return bundle.getParcelableArrayList("selectedItems");
     }
 
-    public void setImagePickerTitle(String imagePickerTitle) {
-        this.imagePickerTitle = imagePickerTitle;
-    }
-
     @SuppressWarnings("deprecation")
     private void startFileExplorer() {
         final Intent intent;
@@ -240,7 +235,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         } else {
             if (type.equals("image/*")) {
                 intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                intentChooser = Intent.createChooser(intent, imagePickerTitle == null ? "Choose a file" : imagePickerTitle);
+                intentChooser = Intent.createChooser(intent, "Select a photo");
             } else {
                 intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
