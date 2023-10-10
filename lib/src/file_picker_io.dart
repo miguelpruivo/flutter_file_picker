@@ -35,6 +35,7 @@ class FilePickerIO extends FilePicker {
   }) =>
       _getPath(
         type,
+        dialogTitle,
         allowMultiple,
         allowCompression,
         allowedExtensions,
@@ -66,6 +67,7 @@ class FilePickerIO extends FilePicker {
 
   Future<FilePickerResult?> _getPath(
     FileType fileType,
+    String? dialogTitle,
     bool allowMultipleSelection,
     bool? allowCompression,
     List<String>? allowedExtensions,
@@ -94,6 +96,7 @@ class FilePickerIO extends FilePicker {
         'allowedExtensions': allowedExtensions,
         'allowCompression': allowCompression,
         'withData': withData,
+        'dialogTitle': dialogTitle,
       });
 
       if (result == null) {

@@ -5,6 +5,7 @@ import android.app.Application;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -168,7 +169,7 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
         if (call.method != null && call.method.equals("custom") && (allowedExtensions == null || allowedExtensions.length == 0)) {
             result.error(TAG, "Unsupported filter. Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.all instead.", null);
         } else {
-            this.delegate.startFileExplorer(fileType, isMultipleSelection, withData, allowedExtensions, result);
+            this.delegate.startFileExplorer(fileType, isMultipleSelection, withData, allowedExtensions, result, (String) arguments.get("dialogTitle"));
         }
 
     }
