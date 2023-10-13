@@ -1,3 +1,10 @@
+## 6.0.0
+Update minimum Flutter version to 3.7.0.
+
+### iOS
+Update minimum iOS version to 11.0.
+Fix several warnings in the iOS plugin implementation.
+
 ## 5.5.0
 ### iOS
 Fix if selecting from gallery multiple files from remote sources (eg GoPro, Drone) imported to the device gallery and uploaded to iCloud they would have the same file name and it shows only one image repeated

@@ -15,7 +15,7 @@ A flutter plugin to show native file picker dialogs.
   s.source_files          = 'Classes/**/*'
   s.public_header_files   = 'Classes/**/*.h'
   
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '11.0'
 
   s.dependency 'Flutter'
 
