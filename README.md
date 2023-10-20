@@ -71,7 +71,7 @@ Quick simple usage example:
 FilePickerResult? result = await FilePicker.platform.pickFiles();
 
 if (result != null) {
-  File file = File(result.files.single.path);
+  File file = File(result.files, result.files.single.path!);
 } else {
   // User canceled the picker
 }
