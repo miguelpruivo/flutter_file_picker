@@ -1,3 +1,6 @@
+## 6.0.1
+Fixed endless loop on ios safari when canceling picking. ([#1364](https://github.com/miguelpruivo/flutter_file_picker/issues/1364)). Thank you @test0terter0n!
+
 ## 6.0.0
 Update minimum Flutter version to 3.7.0.
 
