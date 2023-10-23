@@ -92,6 +92,8 @@ abstract class FilePicker extends PlatformInterface {
   /// [initialDirectory] can be optionally set to an absolute path to specify
   /// where the dialog should open. Only supported on Linux, macOS, and Windows.
   ///
+  /// [readSequential] can be optionally set on web to keep the import file order during import.
+  ///
   /// The result is wrapped in a [FilePickerResult] which contains helper getters
   /// with useful information regarding the picked [List<PlatformFile>].
   ///
@@ -109,6 +111,7 @@ abstract class FilePicker extends PlatformInterface {
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
+    bool readSequential = false,
   }) async =>
       throw UnimplementedError('pickFiles() has not been implemented.');
 
