@@ -144,6 +144,7 @@ class FilePickerWeb extends FilePicker {
 
     uploadInput.onChange.listen(changeEventListener);
     uploadInput.addEventListener('change', changeEventListener);
+    uploadInput.addEventListener('cancel', cancelledEventListener);
 
     // Listen focus event for cancelled
     window.addEventListener('focus', cancelledEventListener);
