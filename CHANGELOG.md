@@ -1,3 +1,6 @@
+## 6.1.0
+Add `readSequential` flag for web. If `readSequential` is true, order of picked files will be preserved. If flag is false, files will be read parallel. 
+
 ## 6.0.0
 Update minimum Flutter version to 3.7.0.
 
