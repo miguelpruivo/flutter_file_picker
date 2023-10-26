@@ -43,6 +43,20 @@ class FilePickerIO extends FilePicker {
       );
 
   @override
+  Future<String?> saveFile({
+    String? dialogTitle,
+    String? fileName,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    bool lockParentWindow = false,
+  }) =>
+      _getSavePath(
+        type,
+        allowedExtensions,
+      );
+
+  @override
   Future<bool?> clearTemporaryFiles() async =>
       _channel.invokeMethod<bool>('clear');
 
@@ -121,5 +135,31 @@ class FilePickerIO extends FilePicker {
           '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
       rethrow;
     }
+  }
+
+  Future<String?> _getSavePath(
+    FileType fileType,
+    List<String>? allowedExtensions,
+  ) async {
+    final String type = fileType.name;
+    if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
+      throw Exception(
+          'You are setting a type [$fileType]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.');
+    }
+    try {
+      return await _channel.invokeMethod('save', {
+        'allowedExtensions': allowedExtensions,
+      });
+    } on PlatformException catch (e) {
+      if (e.code == "unknown_path") {
+        print(
+            '[$_tag] Could not resolve directory path. Maybe it\'s a protected one or unsupported (such as Downloads folder). If you are on Android, make sure that you are on SDK 21 or above.');
+      }
+      print('[$_tag] Platform exception: $e');
+    } catch (e) {
+      print(
+          '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
+    }
+    return null;
   }
 }

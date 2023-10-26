@@ -1,3 +1,6 @@
+## 6.1.0
+### Android
+- saveFile() method implemented for the android platform
 ## 6.0.0
 Update minimum Flutter version to 3.7.0.
 

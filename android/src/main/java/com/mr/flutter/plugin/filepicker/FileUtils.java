@@ -7,11 +7,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.storage.StorageVolume;
 import android.os.storage.StorageManager;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -176,6 +178,46 @@ public class FileUtils {
                 .withSize(Long.parseLong(String.valueOf(file.length())));
 
         return fileInfo.build();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @Nullable
+    @SuppressWarnings("deprecation")
+    public static String getAbsolutePathFromUri(Uri uri, Context context) {
+        String absolutePath = null;
+        if (DocumentsContract.isDocumentUri(context, uri)) {
+            // DocumentProvider
+            String documentId = DocumentsContract.getDocumentId(uri);
+            String[] split = documentId.split(":");
+            String authority = split[0];
+            String path = split[1];
+
+            try {
+                DocumentsContract.deleteDocument(context.getContentResolver(), uri);
+
+                StorageManager storageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+                StorageVolume storageVolume = null;
+                List<StorageVolume> storageVolumes = storageManager.getStorageVolumes();
+                for (StorageVolume volume : storageVolumes) {
+                    if (
+                        "primary".equalsIgnoreCase(authority) ||
+                        (volume.getUuid() != null && volume.getUuid().equals(authority))
+                        ) {
+                        storageVolume = volume;
+                        break;
+                    }
+                }
+
+                if (storageVolume != null) {
+                    String rootPath = storageVolume.getDirectory().getAbsolutePath();
+                    absolutePath = rootPath + "/" + path;
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return absolutePath;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)

@@ -159,6 +159,8 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
 
         if (fileType == null) {
             result.notImplemented();
+        } else if (fileType == "save") {
+            allowedExtensions = FileUtils.getMimeTypes((ArrayList<String>) arguments.get("allowedExtensions"));
         } else if (fileType != "dir") {
             isMultipleSelection = (boolean) arguments.get("allowMultipleSelection");
             withData = (boolean) arguments.get("withData");
@@ -189,6 +191,9 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
                 return "*/*";
             case "dir":
                 return "dir";
+            case "save":
+                return "save";
+
             default:
                 return null;
         }
