@@ -195,13 +195,13 @@ public class FileUtils {
             String path = split[1];
 
             try {
-
-                StorageManager storageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+                StorageManager storageManager =
+                    (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
                 StorageVolume storageVolume = null;
                 List<StorageVolume> storageVolumes = storageManager.getStorageVolumes();
                 for (StorageVolume volume : storageVolumes) {
                     if (
-                        "primary".equalsIgnoreCase(authority) ||
+                        PRIMARY_VOLUME_NAME.equals(authority) ||
                         (volume.getUuid() != null && volume.getUuid().equals(authority))
                         ) {
                         storageVolume = volume;
@@ -213,12 +213,15 @@ public class FileUtils {
                     String rootPath = storageVolume.getDirectory().getAbsolutePath();
                     absolutePath = rootPath + "/" + path;
                     try {
-                        OutputStream outputStream = context.getContentResolver().openOutputStream(uri);
-                        InputStream inputStream = new FileInputStream(input);
-                        byte[] buffer = new byte[1024];
-                        int bytesRead = 0;
-                        while ((bytesRead = inputStream.read(buffer)) != -1) {
-                            outputStream.write(buffer, 0, bytesRead);
+                        File iFile = new File(input);
+                        if (iFile.exists() && iFile.isFile()) {
+                            OutputStream outputStream = context.getContentResolver().openOutputStream(uri);
+                            InputStream inputStream = new FileInputStream(input);
+                            byte[] buffer = new byte[1024];
+                            int bytesRead = 0;
+                            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                                outputStream.write(buffer, 0, bytesRead);
+                            }
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
