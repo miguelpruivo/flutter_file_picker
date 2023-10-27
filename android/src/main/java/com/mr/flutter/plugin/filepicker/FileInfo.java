@@ -20,6 +20,10 @@ public class FileInfo {
         this.uri = uri;
     }
 
+    public String toString() {
+        return "path: " + this.path + ", name: " + this.name;
+    }
+
     public static class Builder {
 
         private String path;

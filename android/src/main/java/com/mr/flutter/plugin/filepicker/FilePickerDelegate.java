@@ -37,6 +37,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private boolean isMultipleSelection = false;
     private boolean loadDataToMemory = false;
     private String type;
+    private String input;
     private String[] allowedExtensions;
     private EventChannel.EventSink eventSink;
 
@@ -119,16 +120,26 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                     finishWithError("unknown_path", "Failed to retrieve directory path.");
                                 }
                                 return;
+                            } else if (type.equals("save") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                Log.d(FilePickerDelegate.TAG, "[SaveFile] File URI:" + uri.toString());
+                                final String filePath = FileUtils.getAbsolutePathFromUri(uri, input, activity);
+                                if(filePath != null) {
+                                    Log.d(FilePickerDelegate.TAG, "[SaveFile] File Path:" + filePath);
+                                    finishWithSuccess(filePath);
+                                } else {
+                                    finishWithError("unknown_path", "Failed to retrieve file path.");
+                                }
+                                return;
                             }
 
                             final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri, loadDataToMemory);
 
                             if(file != null) {
+                                Log.d(FilePickerDelegate.TAG, file.toString());
                                 files.add(file);
                             }
 
                             if (!files.isEmpty()) {
-                                Log.d(FilePickerDelegate.TAG, "File path:" + files.toString());
                                 finishWithSuccess(files);
                             } else {
                                 finishWithError("unknown_path", "Failed to retrieve path.");
@@ -229,6 +240,14 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
         if (type.equals("dir")) {
             intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        } else if (type.equals("save")) {
+            intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            Log.d(TAG, "Selected type " + type);
+            intent.setType("*/*");
+            if (allowedExtensions != null) {
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions);
+            }
         } else {
             if (type.equals("image/*")) {
                 intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -261,7 +280,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     @SuppressWarnings("deprecation")
-    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final MethodChannel.Result result) {
+    public void startFileExplorer(final String type, final String input, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final MethodChannel.Result result) {
 
         if (!this.setPendingMethodCallAndResult(result)) {
             finishWithAlreadyActiveError(result);
@@ -269,6 +288,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         }
 
         this.type = type;
+        this.input = input;
         this.isMultipleSelection = isMultipleSelection;
         this.loadDataToMemory = withData;
         this.allowedExtensions = allowedExtensions;

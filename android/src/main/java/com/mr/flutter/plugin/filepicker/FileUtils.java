@@ -7,11 +7,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.storage.StorageVolume;
 import android.os.storage.StorageManager;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -24,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -176,6 +179,60 @@ public class FileUtils {
                 .withSize(Long.parseLong(String.valueOf(file.length())));
 
         return fileInfo.build();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @Nullable
+    @SuppressWarnings("deprecation")
+    public static String getAbsolutePathFromUri(Uri uri, String input, Context context) {
+        String absolutePath = null;
+        if (DocumentsContract.isDocumentUri(context, uri)) {
+
+            // DocumentProvider
+            String documentId = DocumentsContract.getDocumentId(uri);
+            String[] split = documentId.split(":");
+            String authority = split[0];
+            String path = split[1];
+
+            try {
+                StorageManager storageManager =
+                    (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+                StorageVolume storageVolume = null;
+                List<StorageVolume> storageVolumes = storageManager.getStorageVolumes();
+                for (StorageVolume volume : storageVolumes) {
+                    if (
+                        PRIMARY_VOLUME_NAME.equals(authority) ||
+                        (volume.getUuid() != null && volume.getUuid().equals(authority))
+                        ) {
+                        storageVolume = volume;
+                        break;
+                    }
+                }
+
+                if (storageVolume != null) {
+                    String rootPath = storageVolume.getDirectory().getAbsolutePath();
+                    absolutePath = rootPath + "/" + path;
+                    try {
+                        File iFile = new File(input);
+                        if (iFile.exists() && iFile.isFile()) {
+                            OutputStream outputStream = context.getContentResolver().openOutputStream(uri);
+                            InputStream inputStream = new FileInputStream(input);
+                            byte[] buffer = new byte[1024];
+                            int bytesRead = 0;
+                            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                                outputStream.write(buffer, 0, bytesRead);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return absolutePath;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)

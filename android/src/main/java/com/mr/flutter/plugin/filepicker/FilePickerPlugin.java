@@ -111,6 +111,7 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
     private Activity activity;
     private MethodChannel channel;
     private static String fileType;
+    private static String inputFile;
     private static boolean isMultipleSelection = false;
     private static boolean withData = false;
 
@@ -159,6 +160,9 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
 
         if (fileType == null) {
             result.notImplemented();
+        } else if (fileType == "save") {
+            inputFile         = (String) arguments.get("inputFile");
+            allowedExtensions = FileUtils.getMimeTypes((ArrayList<String>) arguments.get("allowedExtensions"));
         } else if (fileType != "dir") {
             isMultipleSelection = (boolean) arguments.get("allowMultipleSelection");
             withData = (boolean) arguments.get("withData");
@@ -168,7 +172,7 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
         if (call.method != null && call.method.equals("custom") && (allowedExtensions == null || allowedExtensions.length == 0)) {
             result.error(TAG, "Unsupported filter. Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.all instead.", null);
         } else {
-            this.delegate.startFileExplorer(fileType, isMultipleSelection, withData, allowedExtensions, result);
+            this.delegate.startFileExplorer(fileType, inputFile, isMultipleSelection, withData, allowedExtensions, result);
         }
 
     }
@@ -189,6 +193,9 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
                 return "*/*";
             case "dir":
                 return "dir";
+            case "save":
+                return "save";
+
             default:
                 return null;
         }
