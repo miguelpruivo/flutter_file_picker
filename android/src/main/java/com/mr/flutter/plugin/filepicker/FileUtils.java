@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -183,9 +184,10 @@ public class FileUtils {
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Nullable
     @SuppressWarnings("deprecation")
-    public static String getAbsolutePathFromUri(Uri uri, Context context) {
+    public static String getAbsolutePathFromUri(Uri uri, String input, Context context) {
         String absolutePath = null;
         if (DocumentsContract.isDocumentUri(context, uri)) {
+
             // DocumentProvider
             String documentId = DocumentsContract.getDocumentId(uri);
             String[] split = documentId.split(":");
@@ -193,7 +195,6 @@ public class FileUtils {
             String path = split[1];
 
             try {
-                DocumentsContract.deleteDocument(context.getContentResolver(), uri);
 
                 StorageManager storageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
                 StorageVolume storageVolume = null;
@@ -211,8 +212,19 @@ public class FileUtils {
                 if (storageVolume != null) {
                     String rootPath = storageVolume.getDirectory().getAbsolutePath();
                     absolutePath = rootPath + "/" + path;
+                    try {
+                        OutputStream outputStream = context.getContentResolver().openOutputStream(uri);
+                        InputStream inputStream = new FileInputStream(input);
+                        byte[] buffer = new byte[1024];
+                        int bytesRead = 0;
+                        while ((bytesRead = inputStream.read(buffer)) != -1) {
+                            outputStream.write(buffer, 0, bytesRead);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            } catch (FileNotFoundException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

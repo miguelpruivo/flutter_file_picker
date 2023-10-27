@@ -37,6 +37,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private boolean isMultipleSelection = false;
     private boolean loadDataToMemory = false;
     private String type;
+    private String input;
     private String[] allowedExtensions;
     private EventChannel.EventSink eventSink;
 
@@ -121,7 +122,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 return;
                             } else if (type.equals("save") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                 Log.d(FilePickerDelegate.TAG, "[SaveFile] File URI:" + uri.toString());
-                                final String filePath = FileUtils.getAbsolutePathFromUri(uri, activity);
+                                final String filePath = FileUtils.getAbsolutePathFromUri(uri, input, activity);
                                 if(filePath != null) {
                                     Log.d(FilePickerDelegate.TAG, "[SaveFile] File Path:" + filePath);
                                     finishWithSuccess(filePath);
@@ -279,7 +280,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     @SuppressWarnings("deprecation")
-    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final MethodChannel.Result result) {
+    public void startFileExplorer(final String type, final String input, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final MethodChannel.Result result) {
 
         if (!this.setPendingMethodCallAndResult(result)) {
             finishWithAlreadyActiveError(result);
@@ -287,6 +288,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         }
 
         this.type = type;
+        this.input = input;
         this.isMultipleSelection = isMultipleSelection;
         this.loadDataToMemory = withData;
         this.allowedExtensions = allowedExtensions;

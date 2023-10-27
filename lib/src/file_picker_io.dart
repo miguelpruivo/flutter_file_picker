@@ -52,6 +52,7 @@ class FilePickerIO extends FilePicker {
     bool lockParentWindow = false,
   }) =>
       _getSavePath(
+        fileName!,
         type,
         allowedExtensions,
       );
@@ -138,6 +139,7 @@ class FilePickerIO extends FilePicker {
   }
 
   Future<String?> _getSavePath(
+    String inputFile,
     FileType fileType,
     List<String>? allowedExtensions,
   ) async {
@@ -148,6 +150,7 @@ class FilePickerIO extends FilePicker {
     }
     try {
       return await _channel.invokeMethod('save', {
+        'inputFile': inputFile,
         'allowedExtensions': allowedExtensions,
       });
     } on PlatformException catch (e) {
