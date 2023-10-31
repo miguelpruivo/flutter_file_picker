@@ -71,7 +71,7 @@ Quick simple usage example:
 FilePickerResult? result = await FilePicker.platform.pickFiles();
 
 if (result != null) {
-  File file = File(result.files.single.path);
+  File file = File(result.files.single.path!);
 } else {
   // User canceled the picker
 }
@@ -81,7 +81,7 @@ if (result != null) {
 FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
 
 if (result != null) {
-  List<File> files = result.paths.map((path) => File(path)).toList();
+  List<File> files = result.paths.map((path) => File(path!)).toList();
 } else {
   // User canceled the picker
 }
