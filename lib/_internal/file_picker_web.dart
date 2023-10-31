@@ -46,6 +46,7 @@ class FilePickerWeb extends FilePicker {
     bool withData = true,
     bool withReadStream = false,
     bool lockParentWindow = false,
+    bool readSequential = false,
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
@@ -68,7 +69,7 @@ class FilePickerWeb extends FilePicker {
       onFileLoading(FilePickerStatus.picking);
     }
 
-    void changeEventListener(e) {
+    void changeEventListener(e) async {
       if (changeEventTriggered) {
         return;
       }
@@ -114,11 +115,16 @@ class FilePickerWeb extends FilePicker {
           continue;
         }
 
+        final syncCompleter = Completer<void>();
         final FileReader reader = FileReader();
         reader.onLoadEnd.listen((e) {
           addPickedFile(file, reader.result as Uint8List?, null, null);
+          syncCompleter.complete();
         });
         reader.readAsArrayBuffer(file);
+        if (readSequential) {
+          await syncCompleter.future;
+        }
       }
     }
 
@@ -138,6 +144,7 @@ class FilePickerWeb extends FilePicker {
 
     uploadInput.onChange.listen(changeEventListener);
     uploadInput.addEventListener('change', changeEventListener);
+    uploadInput.addEventListener('cancel', cancelledEventListener);
 
     // Listen focus event for cancelled
     window.addEventListener('focus', cancelledEventListener);
