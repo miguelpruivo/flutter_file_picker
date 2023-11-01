@@ -1,7 +1,21 @@
-## 5.5.1
+## 6.1.1
 ### Android
-Android's CSV mime type is "text/comma-separated-values". Added standard "text/csv" when the
-csv extension is specified which fixes issues when picking csv files in Google Drive.
+Android's CSV mime type is `text/comma-separated-values`. Added standard `text/csv` when the
+CSV extension is specified which fixes issues when picking CSV files from Google Drive
+on Android devices.
+
+## 6.1.0
+### Web
+Fixed endless loop on ios safari when canceling picking. ([#1364](https://github.com/miguelpruivo/flutter_file_picker/issues/1364)). Thank you @test0terter0n!
+Add `readSequential` flag for web. If `readSequential` is true, order of picked files will be preserved. If flag is false, files will be read parallel. Thank you @test0terter0n!
+
+## 6.0.0
+Update minimum Flutter version to 3.7.0.
+
+### iOS
+Update minimum iOS version to 11.0.
+Fix several warnings in the iOS plugin implementation.
+
 ## 5.5.0
 ### iOS
 Fix if selecting from gallery multiple files from remote sources (eg GoPro, Drone) imported to the device gallery and uploaded to iCloud they would have the same file name and it shows only one image repeated
