@@ -38,5 +38,7 @@ android {
         implementation "androidx.lifecycle:lifecycle-runtime:2.1.0"
     }
 
-    namespace 'com.mr.flutter.plugin.filepicker'
+    if (project.android.hasProperty("namespace")) {
+        namespace 'com.mr.flutter.plugin.filepicker' 
+    }
 }
