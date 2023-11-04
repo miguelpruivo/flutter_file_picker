@@ -1,3 +1,9 @@
+## 6.1.1
+### Android
+Android's CSV mime type is `text/comma-separated-values`. Added standard `text/csv` when the
+CSV extension is specified which fixes issues when picking CSV files from Google Drive
+on Android devices.
+
 ## 6.1.0
 ### Web
 Fixed endless loop on ios safari when canceling picking. ([#1364](https://github.com/miguelpruivo/flutter_file_picker/issues/1364)). Thank you @test0terter0n!
@@ -50,7 +56,7 @@ Fixes the bug that the current directory sometimes changed after the user picked
 
 ### Desktop (Linux)
 Fixes the behavior of the `saveFile()` dialog on Ubuntu/Kubuntu. This fix should have been committed in the previous version _5.2.7_ but was forgotten. Now, when the user selects an already existing file, then Ubuntu prompts the user to confirm overwriting this file. This change finally makes the dialog behave the same on all desktop platforms (macOS, Linux, and Windows) ([#989](https://github.com/miguelpruivo/flutter_file_picker/issues/989)).
-    
+
 ## 5.2.7
 ### Desktop (Windows)
 Fixes the behavior of the `saveFile()` dialog on Windows. Now, when the user selects an already existing file, then Windows prompts the user to confirm overwriting this file. This change makes the dialog behave the same on all desktop platforms (macOS, Linux, and Windows). Previously, Windows would not have asked the user for confirmation ([#989](https://github.com/miguelpruivo/flutter_file_picker/issues/989)).
