@@ -244,6 +244,21 @@ public class FileUtils {
     }
 
     @Nullable
+    @SuppressWarnings("deprecation")
+    public static String getTreeUriFromFullPath(@Nullable String fullPath, Context con) {
+        if (fullPath == null) {
+            return null;
+        }
+
+        String newPath = getVolumeIdPath(fullPath, con);
+        if (newPath == null) {
+            return File.separator;
+        }
+
+        return newPath;
+    }
+
+    @Nullable
     private static String getDirectoryPath(Class<?> storageVolumeClazz, Object storageVolumeElement) {
         try {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
@@ -290,6 +305,44 @@ public class FileUtils {
                 // other volumes?
                 if (uuid != null && uuid.equals(volumeId)) {
                     return getDirectoryPath(storageVolumeClazz, storageVolumeElement);
+                }
+            }
+            // not found.
+            return null;
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    @SuppressLint("ObsoleteSdkInt")
+    private static String getVolumeIdPath(final String fullPath, Context context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return null;
+        try {
+            StorageManager mStorageManager =
+                    (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+            Class<?> storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
+            Method getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
+            Method getUuid = storageVolumeClazz.getMethod("getUuid");
+            Method isPrimary = storageVolumeClazz.getMethod("isPrimary");
+            Object result = getVolumeList.invoke(mStorageManager);
+            if (result == null)
+                return null;
+
+            final int length = Array.getLength(result);
+            for (int i = 0; i < length; i++) {
+                Object storageVolumeElement = Array.get(result, i);
+                String uuid = (String) getUuid.invoke(storageVolumeElement);
+                Boolean primary = (Boolean) isPrimary.invoke(storageVolumeElement);
+
+                String volumePath = getDirectoryPath(storageVolumeClazz, storageVolumeElement);
+                if (fullPath.startsWith(volumePath)) {
+                    if (primary == true) {
+                        return PRIMARY_VOLUME_NAME + ":" + fullPath.substring(volumePath.length());
+                    }
+
+                    if (uuid != null) {
+                        return uuid + ":" + fullPath.substring(volumePath.length());
+                    }
                 }
             }
             // not found.

@@ -38,6 +38,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private boolean loadDataToMemory = false;
     private String type;
     private String[] allowedExtensions;
+    private String initialDirectory;
     private EventChannel.EventSink eventSink;
 
     public FilePickerDelegate(final Activity activity) {
@@ -110,7 +111,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             if (type.equals("dir") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                 uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
 
-                                Log.d(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
+                                Log.d(FilePickerDelegate.TAG, "[DirectoryPick] File URI:" + uri.toString());
                                 final String dirPath = FileUtils.getFullPathFromTreeUri(uri, activity);
 
                                 if(dirPath != null) {
@@ -229,6 +230,11 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
         if (type.equals("dir")) {
             intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+
+            Log.d(TAG, "Initial directory " + initialDirectory);
+            if (initialDirectory != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, DocumentsContract.buildDocumentUri("com.android.externalstorage.documents", initialDirectory));
+            }
         } else {
             if (type.equals("image/*")) {
                 intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -261,7 +267,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     @SuppressWarnings("deprecation")
-    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final MethodChannel.Result result) {
+    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final String initialDirectory, final MethodChannel.Result result) {
 
         if (!this.setPendingMethodCallAndResult(result)) {
             finishWithAlreadyActiveError(result);
@@ -272,6 +278,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         this.isMultipleSelection = isMultipleSelection;
         this.loadDataToMemory = withData;
         this.allowedExtensions = allowedExtensions;
+        this.initialDirectory = FileUtils.getTreeUriFromFullPath(initialDirectory, activity);
         // `READ_EXTERNAL_STORAGE` permission is not needed since SDK 33 (Android 13 or higher).
         // `READ_EXTERNAL_STORAGE` & `WRITE_EXTERNAL_STORAGE` are no longer meant to be used, but classified into granular types.
         // Reference: https://developer.android.com/about/versions/13/behavior-changes-13

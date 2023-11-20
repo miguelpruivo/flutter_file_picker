@@ -54,7 +54,9 @@ class FilePickerIO extends FilePicker {
     String? initialDirectory,
   }) async {
     try {
-      return await _channel.invokeMethod('dir', {});
+      return await _channel.invokeMethod('dir', {
+        'initialDirectory': initialDirectory
+      });
     } on PlatformException catch (ex) {
       if (ex.code == "unknown_path") {
         print(
