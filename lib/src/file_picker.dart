@@ -107,6 +107,7 @@ abstract class FilePicker extends PlatformInterface {
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
     bool allowCompression = true,
+    int compressionQuality = 30,
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
