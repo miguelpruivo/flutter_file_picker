@@ -107,6 +107,10 @@ class FilePickerMacOS extends FilePicker {
   }
 
   String fileTypeToFileFilter(FileType type, List<String>? allowedExtensions) {
+    if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
+      throw Exception(
+        'You are setting a type [$type]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.');
+    }
     switch (type) {
       case FileType.any:
         return '';
@@ -117,7 +121,7 @@ class FilePickerMacOS extends FilePicker {
       case FileType.image:
         return '"bmp", "gif", "jpeg", "jpg", "png"';
       case FileType.media:
-        return '"avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv", "bmp", "gif", "jpeg", "jpg", "png"';
+        return '"avi", "flv", "m4v", "mkv", "mov", "mp4", "mpeg", "webm", "wmv", "bmp", "gif", "jpeg", "jpg", "png"';
       case FileType.video:
         return '"avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv"';
       default:
