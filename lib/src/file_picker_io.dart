@@ -75,8 +75,12 @@ class FilePickerIO extends FilePicker {
   ) async {
     final String type = fileType.name;
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
-      throw Exception(
-          'You are setting a type [$fileType]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.');
+      throw ArgumentError.value(
+         allowedExtensions,
+         'allowedExtensions',
+         'Custom extension filters are only allowed with FileType.custom. '
+         'Remove the extension filter or change the FileType to FileType.custom.'
+      );
     }
     try {
       _eventSubscription?.cancel();
