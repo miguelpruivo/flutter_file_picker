@@ -123,4 +123,29 @@ class FilePickerIO extends FilePicker {
       rethrow;
     }
   }
+
+  @override
+  Future<String?> saveFile(
+      {String? dialogTitle,
+      String? fileName,
+      String? initialDirectory,
+      FileType type = FileType.any,
+      List<String>? allowedExtensions,
+      bool lockParentWindow = false}) {
+    if (Platform.isIOS || Platform.isAndroid) {
+      return _channel.invokeMethod("save", {
+        "fileName": fileName,
+        "fileType": type.name,
+        "allowedExtensions": allowedExtensions,
+      });
+    }
+    return super.saveFile(
+      dialogTitle: dialogTitle,
+      fileName: fileName,
+      initialDirectory: initialDirectory,
+      type: type,
+      allowedExtensions: allowedExtensions,
+      lockParentWindow: lockParentWindow,
+    );
+  }
 }

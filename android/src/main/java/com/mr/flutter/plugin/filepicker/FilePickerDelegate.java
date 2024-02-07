@@ -30,6 +30,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
     private static final String TAG = "FilePickerDelegate";
     private static final int REQUEST_CODE = (FilePickerPlugin.class.hashCode() + 43) & 0x0000ffff;
+    private static final int SAVE_FILE_CODE = (FilePickerPlugin.class.hashCode() + 83) & 0x0000ffff;
 
     private final Activity activity;
     private final PermissionManager permissionManager;
@@ -74,7 +75,22 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
     @Override
     public boolean onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        // Save file
+        if (requestCode == SAVE_FILE_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                this.dispatchEventStatus(true);
+                final Uri uri = data.getData();
+                finishWithSuccess(uri.toString());
+                return true;
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                Log.i(TAG, "User cancelled the save request");
+                finishWithSuccess(null);
+            }
+            return false;
+        }
 
+        // Pick files
         if(type == null) {
             return false;
         }
@@ -282,6 +298,35 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             }
         }
         this.startFileExplorer();
+    }
+
+    public void saveFile(String fileName, String type, String initialDirectory, String[] allowedExtensions, MethodChannel.Result result) {
+        if (!this.setPendingMethodCallAndResult(result)) {
+            finishWithAlreadyActiveError(result);
+            return;
+        }
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        if (fileName != null && !fileName.isEmpty()) {
+            intent.putExtra(Intent.EXTRA_TITLE, fileName);
+        }
+        if (type != null && !"dir".equals(type) && type.split(",").length == 1) {
+            intent.setType(type);
+        } else {
+            intent.setType("*/*");
+        }
+        if (initialDirectory != null && !initialDirectory.isEmpty()) {
+            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(initialDirectory));
+        }
+        if (allowedExtensions != null && allowedExtensions.length > 0) {
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions);
+        }
+        if (intent.resolveActivity(this.activity.getPackageManager()) != null) {
+            this.activity.startActivityForResult(intent, SAVE_FILE_CODE);
+        } else {
+            Log.e(TAG, "Can't find a valid activity to handle the request. Make sure you've a file explorer installed.");
+            finishWithError("invalid_format_type", "Can't handle the provided file type.");
+        }
     }
 
     @SuppressWarnings("unchecked")
