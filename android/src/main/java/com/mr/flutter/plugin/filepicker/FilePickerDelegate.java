@@ -80,7 +80,12 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             if (resultCode == Activity.RESULT_OK) {
                 this.dispatchEventStatus(true);
                 final Uri uri = data.getData();
-                finishWithSuccess(uri.toString());
+                String path = null;
+                if (uri != null) {
+                    path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                            .getAbsolutePath() + File.separator + FileUtils.getFileName(uri, this.activity);
+                }
+                finishWithSuccess(path);
                 return true;
             }
             if (resultCode == Activity.RESULT_CANCELED) {

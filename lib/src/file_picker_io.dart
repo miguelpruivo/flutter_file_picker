@@ -136,6 +136,7 @@ class FilePickerIO extends FilePicker {
       return _channel.invokeMethod("save", {
         "fileName": fileName,
         "fileType": type.name,
+        "initialDirectory": initialDirectory,
         "allowedExtensions": allowedExtensions,
       });
     }
