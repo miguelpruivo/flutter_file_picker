@@ -169,10 +169,10 @@
 
 - (void)saveFileWithName:(NSString*)fileName fileType:(NSString *)fileType initialDirectory:(NSString*)initialDirectory allowedExtensions:(NSArray<NSString*>*)allowedExtensions{
     self.isSaveFile = YES;
-    NSFileManager*fm = [NSFileManager defaultManager];
-    NSURL *documentsDirectory = [fm URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask][0];
+    NSFileManager* fm = [NSFileManager defaultManager];
+    NSURL* documentsDirectory = [fm URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask][0];
     NSURL* destinationPath = [documentsDirectory URLByAppendingPathComponent:fileName];
-    NSError *error;
+    NSError* error;
     if ([fm fileExistsAtPath:destinationPath.path]) {
         [fm removeItemAtURL:destinationPath error:&error];
         if (error != nil) {
@@ -181,7 +181,7 @@
         }
     }
     [[NSData data] writeToURL:destinationPath options:NSDataWritingAtomic error:&error];
-    if (error!=nil) {
+    if (error != nil) {
         _result([FlutterError errorWithCode:@"Failed to write file" message:[error debugDescription] details:nil]);
         error = nil;
     }
@@ -189,7 +189,7 @@
     self.documentPickerController.delegate = self;
     self.documentPickerController.presentationController.delegate = self;
     if(@available(iOS 13, *)){
-        if(![initialDirectory isEqualToString:@""]){
+       if(![[NSNull null] isEqual:initialDirectory] && ![@"" isEqualToString:initialDirectory]){
             self.documentPickerController.directoryURL = [NSURL URLWithString:initialDirectory];
         }
     }
