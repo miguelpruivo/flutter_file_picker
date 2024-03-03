@@ -131,6 +131,7 @@ class FilePickerIO extends FilePicker {
       String? initialDirectory,
       FileType type = FileType.any,
       List<String>? allowedExtensions,
+      Uint8List? bytes,
       bool lockParentWindow = false}) {
     if (Platform.isIOS || Platform.isAndroid) {
       return _channel.invokeMethod("save", {
@@ -138,6 +139,7 @@ class FilePickerIO extends FilePicker {
         "fileType": type.name,
         "initialDirectory": initialDirectory,
         "allowedExtensions": allowedExtensions,
+        "bytes": bytes,
       });
     }
     return super.saveFile(
@@ -146,6 +148,7 @@ class FilePickerIO extends FilePicker {
       initialDirectory: initialDirectory,
       type: type,
       allowedExtensions: allowedExtensions,
+      bytes: bytes,
       lockParentWindow: lockParentWindow,
     );
   }

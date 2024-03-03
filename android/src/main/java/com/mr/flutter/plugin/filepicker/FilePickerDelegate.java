@@ -18,7 +18,10 @@ import android.util.Log;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.app.ActivityCompat;
 
+
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -40,6 +43,8 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private String type;
     private String[] allowedExtensions;
     private EventChannel.EventSink eventSink;
+
+    private byte[] bytes;
 
     public FilePickerDelegate(final Activity activity) {
         this(
@@ -80,13 +85,24 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             if (resultCode == Activity.RESULT_OK) {
                 this.dispatchEventStatus(true);
                 final Uri uri = data.getData();
-                String path = null;
                 if (uri != null) {
-                    path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                  String  path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                             .getAbsolutePath() + File.separator + FileUtils.getFileName(uri, this.activity);
+                    try {
+                        OutputStream outputStream = this.activity.getContentResolver().openOutputStream(uri);
+                        if(outputStream != null){
+                            outputStream.write(bytes);
+                            outputStream.flush();
+                            outputStream.close();
+                        }
+                        finishWithSuccess(path);
+                        return true;
+                    } catch (IOException e) {
+                        Log.i(TAG, "Error while saving file", e);
+                        finishWithError("Error while saving file", e.getMessage());
+                    }
                 }
-                finishWithSuccess(path);
-                return true;
+
             }
             if (resultCode == Activity.RESULT_CANCELED) {
                 Log.i(TAG, "User cancelled the save request");
@@ -96,7 +112,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         }
 
         // Pick files
-        if(type == null) {
+        if (type == null) {
             return false;
         }
 
@@ -117,7 +133,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
                                 final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
 
-                                if(file != null) {
+                                if (file != null) {
                                     files.add(file);
                                     Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
                                 }
@@ -134,7 +150,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 Log.d(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
                                 final String dirPath = FileUtils.getFullPathFromTreeUri(uri, activity);
 
-                                if(dirPath != null) {
+                                if (dirPath != null) {
                                     finishWithSuccess(dirPath);
                                 } else {
                                     finishWithError("unknown_path", "Failed to retrieve directory path.");
@@ -144,7 +160,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
                             final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri, loadDataToMemory);
 
-                            if(file != null) {
+                            if (file != null) {
                                 files.add(file);
                             }
 
@@ -155,7 +171,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 finishWithError("unknown_path", "Failed to retrieve path.");
                             }
 
-                        } else if (data.getExtras() != null){
+                        } else if (data.getExtras() != null) {
                             Bundle bundle = data.getExtras();
                             if (bundle.keySet().contains("selectedItems")) {
                                 ArrayList<Parcelable> fileUris = getSelectedItems(bundle);
@@ -231,8 +247,8 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     @SuppressWarnings("deprecation")
-    private ArrayList<Parcelable> getSelectedItems(Bundle bundle){
-        if(Build.VERSION.SDK_INT >= 33){
+    private ArrayList<Parcelable> getSelectedItems(Bundle bundle) {
+        if (Build.VERSION.SDK_INT >= 33) {
             return bundle.getParcelableArrayList("selectedItems", Parcelable.class);
         }
 
@@ -305,7 +321,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         this.startFileExplorer();
     }
 
-    public void saveFile(String fileName, String type, String initialDirectory, String[] allowedExtensions, MethodChannel.Result result) {
+    public void saveFile(String fileName, String type, String initialDirectory, String[] allowedExtensions, byte[] bytes, MethodChannel.Result result) {
         if (!this.setPendingMethodCallAndResult(result)) {
             finishWithAlreadyActiveError(result);
             return;
@@ -315,6 +331,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         if (fileName != null && !fileName.isEmpty()) {
             intent.putExtra(Intent.EXTRA_TITLE, fileName);
         }
+        this.bytes = bytes;
         if (type != null && !"dir".equals(type) && type.split(",").length == 1) {
             intent.setType(type);
         } else {
@@ -342,10 +359,10 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (this.pendingResult != null) {
 
-            if(data != null && !(data instanceof String)) {
+            if (data != null && !(data instanceof String)) {
                 final ArrayList<HashMap<String, Object>> files = new ArrayList<>();
 
-                for (FileInfo file : (ArrayList<FileInfo>)data) {
+                for (FileInfo file : (ArrayList<FileInfo>) data) {
                     files.add(file.toMap());
                 }
                 data = files;
@@ -368,7 +385,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
     private void dispatchEventStatus(final boolean status) {
 
-        if(eventSink == null || type.equals("dir")) {
+        if (eventSink == null || type.equals("dir")) {
             return;
         }
 
