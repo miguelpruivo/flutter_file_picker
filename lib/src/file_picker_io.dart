@@ -29,6 +29,7 @@ class FilePickerIO extends FilePicker {
     bool? allowCompression = true,
     bool allowMultiple = false,
     bool? withData = false,
+    int compressionQuality = 30,
     bool? withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
@@ -41,6 +42,7 @@ class FilePickerIO extends FilePicker {
         onFileLoading,
         withData,
         withReadStream,
+        compressionQuality,
       );
 
   @override
@@ -72,6 +74,7 @@ class FilePickerIO extends FilePicker {
     Function(FilePickerStatus)? onFileLoading,
     bool? withData,
     bool? withReadStream,
+    int? compressionQuality,
   ) async {
     final String type = fileType.name;
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -94,6 +97,7 @@ class FilePickerIO extends FilePicker {
         'allowedExtensions': allowedExtensions,
         'allowCompression': allowCompression,
         'withData': withData,
+        'compressionQuality': compressionQuality,
       });
 
       if (result == null) {

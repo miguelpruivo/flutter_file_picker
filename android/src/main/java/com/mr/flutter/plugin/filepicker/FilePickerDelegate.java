@@ -19,6 +19,8 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.app.ActivityCompat;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -37,6 +39,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private boolean isMultipleSelection = false;
     private boolean loadDataToMemory = false;
     private String type;
+    private int compressionQuality=20;
     private String[] allowedExtensions;
     private EventChannel.EventSink eventSink;
 
@@ -89,13 +92,18 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                     if (data != null) {
                         final ArrayList<FileInfo> files = new ArrayList<>();
 
+
                         if (data.getClipData() != null) {
                             final int count = data.getClipData().getItemCount();
                             int currentItem = 0;
                             while (currentItem < count) {
-                                final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
-                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
+                                 Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
 
+                                if(type=="image/*" && compressionQuality>0) {
+
+                                    currentUri=FileUtils.compressImage(currentUri,compressionQuality,activity.getApplicationContext());
+                                }
+                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
                                 if(file != null) {
                                     files.add(file);
                                     Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
@@ -106,6 +114,10 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             finishWithSuccess(files);
                         } else if (data.getData() != null) {
                             Uri uri = data.getData();
+
+                            if(type=="image/*" && compressionQuality>0) {
+                                uri=FileUtils.compressImage(uri,compressionQuality,activity.getApplicationContext());
+                            }
 
                             if (type.equals("dir") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                 uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
@@ -261,17 +273,17 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     @SuppressWarnings("deprecation")
-    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final MethodChannel.Result result) {
+    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final int compressionQuality, final MethodChannel.Result result) {
 
         if (!this.setPendingMethodCallAndResult(result)) {
             finishWithAlreadyActiveError(result);
             return;
         }
-
         this.type = type;
         this.isMultipleSelection = isMultipleSelection;
         this.loadDataToMemory = withData;
         this.allowedExtensions = allowedExtensions;
+        this.compressionQuality=compressionQuality;
         // `READ_EXTERNAL_STORAGE` permission is not needed since SDK 33 (Android 13 or higher).
         // `READ_EXTERNAL_STORAGE` & `WRITE_EXTERNAL_STORAGE` are no longer meant to be used, but classified into granular types.
         // Reference: https://developer.android.com/about/versions/13/behavior-changes-13
@@ -286,13 +298,11 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
     @SuppressWarnings("unchecked")
     private void finishWithSuccess(Object data) {
-
         this.dispatchEventStatus(false);
 
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (this.pendingResult != null) {
-
-            if(data != null && !(data instanceof String)) {
+            if (data != null && !(data instanceof String)) {
                 final ArrayList<HashMap<String, Object>> files = new ArrayList<>();
 
                 for (FileInfo file : (ArrayList<FileInfo>)data) {
