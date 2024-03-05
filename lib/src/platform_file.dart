@@ -38,7 +38,7 @@ class PlatformFile {
     if (kIsWeb) {
       /// https://github.com/miguelpruivo/flutter_file_picker/issues/751
       throw '''
-      On web `path` is always `null`,
+      On web `path` is unavailable and accessing it causes this exception.
       You should access `bytes` property instead,
       Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
       ''';

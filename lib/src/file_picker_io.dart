@@ -29,6 +29,7 @@ class FilePickerIO extends FilePicker {
     bool? allowCompression = true,
     bool allowMultiple = false,
     bool? withData = false,
+    int compressionQuality = 30,
     bool? withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
@@ -41,6 +42,7 @@ class FilePickerIO extends FilePicker {
         onFileLoading,
         withData,
         withReadStream,
+        compressionQuality,
       );
 
   @override
@@ -72,11 +74,16 @@ class FilePickerIO extends FilePicker {
     Function(FilePickerStatus)? onFileLoading,
     bool? withData,
     bool? withReadStream,
+    int? compressionQuality,
   ) async {
     final String type = fileType.name;
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
-      throw Exception(
-          'You are setting a type [$fileType]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.');
+      throw ArgumentError.value(
+        allowedExtensions,
+        'allowedExtensions',
+        'Custom extension filters are only allowed with FileType.custom. '
+            'Remove the extension filter or change the FileType to FileType.custom.',
+      );
     }
     try {
       _eventSubscription?.cancel();
@@ -94,6 +101,7 @@ class FilePickerIO extends FilePicker {
         'allowedExtensions': allowedExtensions,
         'allowCompression': allowCompression,
         'withData': withData,
+        'compressionQuality': compressionQuality,
       });
 
       if (result == null) {

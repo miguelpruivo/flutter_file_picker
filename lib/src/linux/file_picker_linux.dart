@@ -20,6 +20,7 @@ class FilePickerLinux extends FilePicker {
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
+    int compressionQuality = 30,
   }) async {
     final String executable = await _getPathToExecutable();
     final dialogHandler = DialogHandler(executable);
