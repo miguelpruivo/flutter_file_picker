@@ -2,6 +2,11 @@
 ### Android
 Fix [#872](https://github.com/miguelpruivo/flutter_file_picker/issues/872)
 
+## 6.1.1
+### Android
+Android's CSV mime type is `text/comma-separated-values`. Added standard `text/csv` when the
+CSV extension is specified which fixes issues when picking CSV files from Google Drive
+on Android devices.
 
 ## 6.1.0
 ### Web
