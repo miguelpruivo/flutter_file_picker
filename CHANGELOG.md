@@ -1,3 +1,7 @@
+## 7.0.0
+### Mobile (Android, iOS)
+Save file to mobile platforms with `bytes`.
+
 ## 6.2.0
 ### Android
 Add ability to compress images on android by specifying a compression quality value ([#735]
