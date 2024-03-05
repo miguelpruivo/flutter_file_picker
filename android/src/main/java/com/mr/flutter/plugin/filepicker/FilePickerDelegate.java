@@ -15,15 +15,13 @@ import android.os.Message;
 import android.provider.DocumentsContract;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.app.ActivityCompat;
-
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -316,7 +314,6 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             finishWithAlreadyActiveError(result);
             return;
         }
-
         this.type = type;
         this.isMultipleSelection = isMultipleSelection;
         this.loadDataToMemory = withData;
@@ -334,6 +331,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         this.startFileExplorer();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void saveFile(String fileName, String type, String initialDirectory, String[] allowedExtensions, byte[] bytes, MethodChannel.Result result) {
         if (!this.setPendingMethodCallAndResult(result)) {
             finishWithAlreadyActiveError(result);
@@ -351,7 +349,9 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             intent.setType("*/*");
         }
         if (initialDirectory != null && !initialDirectory.isEmpty()) {
-            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(initialDirectory));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(initialDirectory));
+            }
         }
         if (allowedExtensions != null && allowedExtensions.length > 0) {
             intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions);
@@ -366,7 +366,6 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
     @SuppressWarnings("unchecked")
     private void finishWithSuccess(Object data) {
-
         this.dispatchEventStatus(false);
 
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
@@ -397,7 +396,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
     private void dispatchEventStatus(final boolean status) {
 
-        if (eventSink == null || type.equals("dir")) {
+        if(eventSink == null || type.equals("dir")) {
             return;
         }
 
