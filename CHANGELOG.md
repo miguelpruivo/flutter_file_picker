@@ -1,3 +1,9 @@
+## 6.2.0
+### Android
+Add ability to compress images on android by specifying a compression quality value ([#735]
+(https://github.com/miguelpruivo/flutter_file_picker/issues/735)).
+
+
 ## 6.1.1
 ### Android
 Android's CSV mime type is `text/comma-separated-values`. Added standard `text/csv` when the
