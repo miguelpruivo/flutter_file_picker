@@ -92,28 +92,27 @@ public class FileUtils {
     }
 
 
-    public static Uri compressImage(Uri originalImageUri, int compressionQuality,Context context) {
-        String originalImagePath = getRealPathFromURI(context,originalImageUri);
-       Uri compressedUri=null;
-       File compressedFile=null;
+    public static Uri compressImage(Uri originalImageUri, int compressionQuality, Context context) {
+        Uri compressedUri;
         try {
-             compressedFile=createImageFile();
-            Bitmap originalBitmap = BitmapFactory.decodeFile(originalImagePath);
-            String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() +
-                    "/FilePicker";
+            File compressedFile = createImageFile();
+            Bitmap originalBitmap = BitmapFactory.decodeStream(context.getContentResolver().openInputStream(originalImageUri));
             // Compress and save the image
             FileOutputStream fos = new FileOutputStream(compressedFile);
             originalBitmap.compress(Bitmap.CompressFormat.JPEG, compressionQuality, fos);
             fos.flush();
             fos.close();
-            compressedUri=Uri.fromFile(compressedFile);
-        }catch (FileNotFoundException e) {
+            compressedUri = Uri.fromFile(compressedFile);
+        }
+        catch (FileNotFoundException e) {
             throw new RuntimeException(e);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new RuntimeException(e);
         }
         return compressedUri;
     }
+
     private static File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
