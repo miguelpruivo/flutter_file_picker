@@ -94,9 +94,9 @@ public class FileUtils {
 
     public static Uri compressImage(Uri originalImageUri, int compressionQuality, Context context) {
         Uri compressedUri;
-        try {
+        try (InputStream imageStream = context.getContentResolver().openInputStream(originalImageUri)) {
             File compressedFile = createImageFile();
-            Bitmap originalBitmap = BitmapFactory.decodeStream(context.getContentResolver().openInputStream(originalImageUri));
+            Bitmap originalBitmap = BitmapFactory.decodeStream(imageStream);
             // Compress and save the image
             FileOutputStream fos = new FileOutputStream(compressedFile);
             originalBitmap.compress(Bitmap.CompressFormat.JPEG, compressionQuality, fos);
