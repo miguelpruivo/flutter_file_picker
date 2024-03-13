@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -98,6 +100,12 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
       );
+
+      // Test to secure a path
+      if (path != null) {
+        await FilePicker.platform.startAccessingPath(path!);
+      }
+
       setState(() {
         _directoryPath = path;
         _userAborted = path == null;
@@ -423,10 +431,16 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                               ],
                             )
                           : _directoryPath != null
-                              ? ListTile(
-                                  title: const Text('Directory path'),
-                                  subtitle: Text(_directoryPath!),
-                                )
+                              ? Column(children: [
+                                  ListTile(
+                                    title: const Text('Directory path'),
+                                    subtitle: Text(_directoryPath!),
+                                  ),
+                                  ...Directory(_directoryPath!)
+                                      .listSync()
+                                      .map((f) => Text(f.path))
+                                      .toList()
+                                ])
                               : _paths != null
                                   ? Container(
                                       padding: const EdgeInsets.symmetric(

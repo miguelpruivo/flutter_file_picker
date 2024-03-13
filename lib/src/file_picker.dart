@@ -195,4 +195,14 @@ abstract class FilePicker extends PlatformInterface {
     bool lockParentWindow = false,
   }) async =>
       throw UnimplementedError('saveFile() has not been implemented.');
+
+  Future<bool?> startAccessingPath(String path) async =>
+      throw UnimplementedError(
+          'startAccessingPath() has not been implemented.');
+
+  Future<void> stopAccessingPath(String path) async =>
+      throw UnimplementedError('stopAccessingPath() has not been implemented.');
+
+  Future<void> freeAllSecuredPaths() async => throw UnimplementedError(
+      'freeAllSecuredPaths() has not been implemented.');
 }

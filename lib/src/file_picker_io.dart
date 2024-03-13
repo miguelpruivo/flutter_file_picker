@@ -66,6 +66,20 @@ class FilePickerIO extends FilePicker {
     return null;
   }
 
+  Future<bool?> startAccessingPath(String path) async {
+    return _channel.invokeMethod<bool>(
+        'startAccessingPath', <String, dynamic>{'filePath': path});
+  }
+
+  Future<void> stopAccessingPath(String path) async {
+    _channel.invokeMethod<void>(
+        'stopAccessingPath', <String, dynamic>{'filePath': path});
+  }
+
+  Future<void> freeAllSecuredPaths() async {
+    _channel.invokeMethod<void>('freeAllSecuredPaths');
+  }
+
   Future<FilePickerResult?> _getPath(
     FileType fileType,
     bool allowMultipleSelection,

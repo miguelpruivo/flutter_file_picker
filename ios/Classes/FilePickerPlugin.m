@@ -17,6 +17,7 @@
 #ifdef PICKER_DOCUMENT
 @property (nonatomic) UIDocumentPickerViewController *documentPickerController;
 @property (nonatomic) UIDocumentInteractionController *interactionController;
+@property (nonatomic) NSMutableArray<NSString*> *securedPaths;
 #endif
 @property (nonatomic) MPMediaPickerController *audioPickerController;
 @property (nonatomic) NSArray<NSString *> * allowedExtensions;
@@ -44,7 +45,9 @@
 
 - (instancetype)init {
     self = [super init];
-    
+    #ifdef PICKER_DOCUMENT
+    self.securedPaths = [NSMutableArray new];
+    #endif
     return self;
 }
 
@@ -108,6 +111,30 @@
         }
         return;
     }
+    
+#ifdef PICKER_DOCUMENT
+    if([call.method isEqualToString:@"startAccessingPath"]){
+        NSString *path = call.arguments[@"filePath"];
+        BOOL result = [self startAccessingResource:path];
+        _result([NSNumber numberWithBool:result]);
+        _result = nil;
+        return;
+    }
+    
+    if([call.method isEqualToString:@"stopAccessingPath"]){
+        NSString *path = call.arguments[@"filePath"];
+        [self stopAccessingResource:path];
+        _result(Nil);
+        return;
+    }
+    
+    if([call.method isEqualToString:@"freeAllSecuredPaths"]){
+        [self freeAllSecuredPaths];
+        _result(Nil);
+        return;
+    }
+    
+#endif
     
     NSDictionary * arguments = call.arguments;
     BOOL isMultiplePick = ((NSNumber*)[arguments valueForKey:@"allowMultipleSelection"]).boolValue;
@@ -349,7 +376,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     if(_result == nil) {
         return;
     }
-    NSMutableArray<NSURL *> *newUrls = [NSMutableArray new];
+    /*NSMutableArray<NSURL *> *newUrls = [NSMutableArray new];
     for (NSURL *url in urls) {
         // Create file URL to temporary folder
         NSURL *tempURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
@@ -370,17 +397,17 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         } else {
             [newUrls addObject:tempURL];
         }
-    }
+    }*/
     
     [self.documentPickerController dismissViewControllerAnimated:YES completion:nil];
     
     if(controller.documentPickerMode == UIDocumentPickerModeOpen) {
-        _result([newUrls objectAtIndex:0].path);
+        _result([urls objectAtIndex:0].path);
         _result = nil;
         return;
     }
     
-    [self handleResult: newUrls];
+    [self handleResult: urls];
 }
 #endif // PICKER_DOCUMENT
 
@@ -629,6 +656,31 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     _result(nil);
     _result = nil;
     [picker dismissViewControllerAnimated:YES completion:NULL];
+}
+#endif
+
+
+#ifdef PICKER_DOCUMENT
+- (BOOL) startAccessingResource:(NSString*) resourcePath {
+    NSURL *securedRes = [NSURL fileURLWithPath:resourcePath];
+    BOOL result = [securedRes startAccessingSecurityScopedResource];
+    if(result) {
+        [self.securedPaths addObject:resourcePath];
+    }
+    return result;
+}
+
+- (void) stopAccessingResource:(NSString*) resourcePath {
+    NSURL *securedRes = [NSURL fileURLWithPath:resourcePath];
+    [securedRes stopAccessingSecurityScopedResource];
+    [self.securedPaths removeObject:resourcePath];
+}
+
+-(void) freeAllSecuredPaths {
+    for(NSString *path in self.securedPaths){
+        NSURL *url = [NSURL fileURLWithPath:path];
+        [url stopAccessingSecurityScopedResource];
+    }
 }
 #endif
 
