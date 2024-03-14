@@ -176,6 +176,7 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
                        allowedExtensions.add(customMimeTypeMap.get(ext));
                     }
                 }
+            }
         }
 
         if (call.method != null && call.method.equals("custom") && (allowedExtensions == null || allowedExtensions.length == 0)) {
