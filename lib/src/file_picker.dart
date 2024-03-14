@@ -113,6 +113,7 @@ abstract class FilePicker extends PlatformInterface {
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
+    Map<String, String>? customMimeTypeMap,
   }) async =>
       throw UnimplementedError('pickFiles() has not been implemented.');
 

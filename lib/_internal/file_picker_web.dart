@@ -48,6 +48,7 @@ class FilePickerWeb extends FilePicker {
     bool lockParentWindow = false,
     bool readSequential = false,
     int compressionQuality = 20,
+    Map<String, String>? customMimeTypeMap,
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(

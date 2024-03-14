@@ -33,6 +33,7 @@ class FilePickerIO extends FilePicker {
     bool? withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
+    Map<String, String>? customMimeTypeMap,
   }) =>
       _getPath(
         type,
@@ -43,6 +44,7 @@ class FilePickerIO extends FilePicker {
         withData,
         withReadStream,
         compressionQuality,
+        customMimeTypeMap,
       );
 
   @override
@@ -75,6 +77,7 @@ class FilePickerIO extends FilePicker {
     bool? withData,
     bool? withReadStream,
     int? compressionQuality,
+    Map<String, String>? customMimeTypeMap,
   ) async {
     final String type = fileType.name;
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -102,6 +105,7 @@ class FilePickerIO extends FilePicker {
         'allowCompression': allowCompression,
         'withData': withData,
         'compressionQuality': compressionQuality,
+        'customMimeTypeMap': customMimeTypeMap,
       });
 
       if (result == null) {
