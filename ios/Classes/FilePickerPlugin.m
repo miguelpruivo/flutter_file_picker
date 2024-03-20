@@ -23,6 +23,7 @@
 @property (nonatomic) BOOL loadDataToMemory;
 @property (nonatomic) BOOL allowCompression;
 @property (nonatomic) dispatch_group_t group;
+@property (nonatomic) BOOL isSaveFile;
 @end
 
 @implementation FilePickerPlugin
@@ -147,6 +148,12 @@
                                     message:@"Support for the Audio picker is not compiled in. Remove the Pod::PICKER_AUDIO=false statement from your Podfile."
                                     details:nil]);
 #endif      
+    } else if([call.method isEqualToString:@"save"]) {
+        NSString *fileName = [arguments valueForKey:@"fileName"];
+        NSString *fileType = [arguments valueForKey:@"fileType"];
+        NSString *initialDirectory = [arguments valueForKey:@"initialDirectory"];
+        FlutterStandardTypedData *bytes = [arguments valueForKey:@"bytes"];
+        [self saveFileWithName:fileName fileType:fileType initialDirectory:initialDirectory bytes: bytes];
     } else {
         result(FlutterMethodNotImplemented);
         _result = nil;
@@ -160,9 +167,40 @@
 
 #pragma mark - Resolvers
 
+- (void)saveFileWithName:(NSString*)fileName fileType:(NSString *)fileType initialDirectory:(NSString*)initialDirectory bytes:(FlutterStandardTypedData*)bytes{
+    self.isSaveFile = YES;
+    NSFileManager* fm = [NSFileManager defaultManager];
+    NSURL* documentsDirectory = [fm URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask][0];
+    NSURL* destinationPath = [documentsDirectory URLByAppendingPathComponent:fileName];
+    NSError* error;
+    if ([fm fileExistsAtPath:destinationPath.path]) {
+        [fm removeItemAtURL:destinationPath error:&error];
+        if (error != nil) {
+            _result([FlutterError errorWithCode:@"Failed to remove file" message:[error debugDescription] details:nil]);
+            error = nil;
+        }
+    }
+    if(bytes != nil){
+        [bytes.data writeToURL:destinationPath options:NSDataWritingAtomic error:&error];
+        if (error != nil) {
+            _result([FlutterError errorWithCode:@"Failed to write file" message:[error debugDescription] details:nil]);
+            error = nil;
+        }
+    }
+    self.documentPickerController = [[UIDocumentPickerViewController alloc] initWithURL:destinationPath inMode:UIDocumentPickerModeExportToService];
+    self.documentPickerController.delegate = self;
+    self.documentPickerController.presentationController.delegate = self;
+    if(@available(iOS 13, *)){
+       if(![[NSNull null] isEqual:initialDirectory] && ![@"" isEqualToString:initialDirectory]){
+            self.documentPickerController.directoryURL = [NSURL URLWithString:initialDirectory];
+        }
+    }
+    [[self viewControllerWithWindow:nil] presentViewController:self.documentPickerController animated:YES completion:nil];
+}
+
 #ifdef PICKER_DOCUMENT
 - (void)resolvePickDocumentWithMultiPick:(BOOL)allowsMultipleSelection pickDirectory:(BOOL)isDirectory {
-    
+    self.isSaveFile = NO;
     @try{
         self.documentPickerController = [[UIDocumentPickerViewController alloc]
                                          initWithDocumentTypes: isDirectory ? @[@"public.folder"] : self.allowedExtensions
@@ -347,6 +385,11 @@
 didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
     if(_result == nil) {
+        return;
+    }
+    if(self.isSaveFile){
+        _result(urls[0].path);
+        _result = nil;
         return;
     }
     NSMutableArray<NSURL *> *newUrls = [NSMutableArray new];

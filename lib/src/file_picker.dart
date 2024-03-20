@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/src/file_picker_io.dart';
 import 'package:file_picker/src/file_picker_macos.dart';
@@ -159,12 +160,11 @@ abstract class FilePicker extends PlatformInterface {
   /// Opens a save file dialog which lets the user select a file path and a file
   /// name to save a file.
   ///
-  /// This function does not actually save a file. It only opens the dialog to
-  /// let the user choose a location and file name. This function only returns
-  /// the **path** to this (non-existing) file.
+  /// For mobile platforms, this function will save file with [bytes] to return a path.
   ///
-  /// This method is only available on desktop platforms (Linux, macOS &
-  /// Windows).
+  /// For desktop platforms (Linux, macOS & Windows),This function does not actually
+  /// save a file. It only opens the dialog to let the user choose a location and
+  /// file name. This function only returns the **path** to this (non-existing) file.
   ///
   /// [dialogTitle] can be set to display a custom title on desktop platforms.
   ///
@@ -192,6 +192,7 @@ abstract class FilePicker extends PlatformInterface {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
+    Uint8List? bytes,
     bool lockParentWindow = false,
   }) async =>
       throw UnimplementedError('saveFile() has not been implemented.');

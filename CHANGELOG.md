@@ -1,7 +1,12 @@
+
 ## 7.0.2
 ### Desktop (Linux)
 File picker extensions for Linux Zenity are case insensitive now
 Fixes [#1322](https://github.com/miguelpruivo/flutter_file_picker/issues/1322)
+
+## 7.0.0
+### Mobile (Android, iOS)
+Save file to mobile platforms with `bytes`.
 
 ## 6.2.1
 ### Desktop (Windows)

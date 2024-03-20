@@ -1,3 +1,6 @@
+import 'dart:ffi';
+import 'dart:typed_data';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/utils.dart';
 
@@ -81,6 +84,7 @@ class FilePickerMacOS extends FilePicker {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
+    Uint8List? bytes,
     bool lockParentWindow = false,
   }) async {
     final String executable = await isExecutableOnPath('osascript');
