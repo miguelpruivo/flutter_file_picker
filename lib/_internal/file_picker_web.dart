@@ -83,12 +83,26 @@ class FilePickerWeb extends FilePicker {
         File file,
         Uint8List? bytes,
         String? path,
-        Stream<List<int>>? readStream,
+        Stream<Uint8List> Function([int? start, int? end])? readStream,
       ) {
+        late DateTime lastModified;
+        try {
+          // log
+          print('Getting last modified date');
+
+          lastModified = file.lastModifiedDate;
+        } catch (e) {
+          print(
+              'An error occured getting the last modified. Using datetime.now() instead');
+
+          lastModified = DateTime.now();
+        }
+
         pickedFiles.add(PlatformFile(
           name: file.name,
           path: path,
           size: bytes != null ? bytes.length : file.size,
+          lastModified: lastModified,
           bytes: bytes,
           readStream: readStream,
         ));
@@ -103,7 +117,8 @@ class FilePickerWeb extends FilePicker {
 
       for (File file in files) {
         if (withReadStream) {
-          addPickedFile(file, null, null, _openFileReadStream(file));
+          addPickedFile(file, null, null,
+              ([int? s, int? e]) => _openFileReadStream(file, s, e));
           continue;
         }
 
@@ -183,19 +198,21 @@ class FilePickerWeb extends FilePicker {
     }
   }
 
-  Stream<List<int>> _openFileReadStream(File file) async* {
+  Stream<Uint8List> _openFileReadStream(File file,
+      [int? start, int? end]) async* {
     final reader = FileReader();
 
-    int start = 0;
-    while (start < file.size) {
-      final end = start + _readStreamChunkSize > file.size
-          ? file.size
-          : start + _readStreamChunkSize;
-      final blob = file.slice(start, end);
+    int globalOffset = start ?? 0;
+    int globalEnd = end ?? file.size;
+    while (globalOffset < globalEnd) {
+      final chunkEnd = globalOffset + _readStreamChunkSize > globalEnd
+          ? globalEnd
+          : globalOffset + _readStreamChunkSize;
+      final blob = file.slice(globalOffset, chunkEnd);
       reader.readAsArrayBuffer(blob);
       await reader.onLoad.first;
-      yield reader.result as List<int>;
-      start += _readStreamChunkSize;
+      yield reader.result as Uint8List;
+      globalOffset += _readStreamChunkSize;
     }
   }
 }

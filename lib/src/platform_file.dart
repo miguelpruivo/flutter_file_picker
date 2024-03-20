@@ -10,17 +10,19 @@ class PlatformFile {
     String? path,
     required this.name,
     required this.size,
+    this.lastModified,
     this.bytes,
     this.readStream,
     this.identifier,
   }) : _path = path;
 
-  factory PlatformFile.fromMap(Map data, {Stream<List<int>>? readStream}) {
+  factory PlatformFile.fromMap(Map data, {Stream<Uint8List> Function([int? start, int? end])? readStream}) {
     return PlatformFile(
       name: data['name'],
       path: data['path'],
       bytes: data['bytes'],
       size: data['size'],
+      lastModified: data['lastModified'],
       identifier: data['identifier'],
       readStream: readStream,
     );
@@ -56,11 +58,14 @@ class PlatformFile {
   final Uint8List? bytes;
 
   /// File content as stream
-  final Stream<List<int>>? readStream;
+  final Stream<Uint8List> Function([int? start, int? end])? readStream;
 
   /// The file size in bytes. Defaults to `0` if the file size could not be
   /// determined.
   final int size;
+
+  /// Last modified for this file.
+  final DateTime? lastModified;
 
   /// The platform identifier for the original file, refers to an [Uri](https://developer.android.com/reference/android/net/Uri) on Android and
   /// to a [NSURL](https://developer.apple.com/documentation/foundation/nsurl) on iOS.
@@ -94,7 +99,8 @@ class PlatformFile {
         other.bytes == bytes &&
         other.readStream == readStream &&
         other.identifier == identifier &&
-        other.size == size;
+        other.size == size &&
+        other.lastModified == lastModified;
   }
 
   @override
@@ -106,11 +112,12 @@ class PlatformFile {
             bytes.hashCode ^
             readStream.hashCode ^
             identifier.hashCode ^
-            size.hashCode;
+            size.hashCode ^
+            lastModified.hashCode;
   }
 
   @override
   String toString() {
-    return 'PlatformFile(${kIsWeb ? '' : 'path $path'}, name: $name, bytes: $bytes, readStream: $readStream, size: $size)';
+    return 'PlatformFile(${kIsWeb ? '' : 'path $path'}, name: $name, lastModified: $lastModified, bytes: $bytes, readStream: $readStream, size: $size)';
   }
 }

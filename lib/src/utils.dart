@@ -16,7 +16,7 @@ Future<List<PlatformFile>> filePathsToPlatformFiles(
       final file = File(filePath);
 
       if (withReadStream) {
-        return createPlatformFile(file, null, file.openRead());
+        return createPlatformFile(file, null, ([int? s, int? e]) => file.openRead(s, e).map((c) => c as Uint8List));
       }
 
       if (!withData) {
@@ -32,15 +32,23 @@ Future<List<PlatformFile>> filePathsToPlatformFiles(
 Future<PlatformFile> createPlatformFile(
   File file,
   Uint8List? bytes,
-  Stream<List<int>>? readStream,
-) async =>
-    PlatformFile(
-      bytes: bytes,
-      name: basename(file.path),
-      path: file.path,
-      readStream: readStream,
-      size: file.existsSync() ? file.lengthSync() : 0,
-    );
+  Stream<Uint8List> Function([int?, int?])? readStream,
+) async {
+  DateTime? lastModified;
+  try {
+    lastModified = file.lastModifiedSync();
+  } catch (e) {
+    // ignore
+  }
+  return PlatformFile(
+    bytes: bytes,
+    name: basename(file.path),
+    lastModified: lastModified,
+    path: file.path,
+    readStream: readStream,
+    size: file.existsSync() ? file.lengthSync() : 0,
+  );
+}
 
 Future<String?> runExecutableWithArguments(
   String executable,
