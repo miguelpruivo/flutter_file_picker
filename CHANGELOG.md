@@ -1,3 +1,7 @@
+## 6.2.1
+### Android
+Fix [#872](https://github.com/miguelpruivo/flutter_file_picker/issues/872)
+
 ## 6.2.0
 ### Android
 Add ability to compress images on android by specifying a compression quality value ([#735]
