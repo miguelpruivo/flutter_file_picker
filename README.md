@@ -26,6 +26,7 @@ A package that allows you to use the native file explorer to pick single or mult
 * Pick files using  **custom format** filtering — you can provide a list of file extensions (pdf, svg, zip, etc.)
 * Pick files from **cloud files** (GDrive, Dropbox, iCloud)
 * Single or multiple file picks
+* Supports retrieving as XFile (cross_file) for easy manipulation with other libraries
 * Different default type filtering (media, image, video, audio or any)
 * Picking directories
 * Load file data immediately into memory (`Uint8List`) if needed; 
@@ -124,6 +125,20 @@ if (result != null) {
   print(file.size);
   print(file.extension);
   print(file.path);
+} else {
+  // User canceled the picker
+}
+```
+### Retrieve all files as XFiles or individually
+```dart
+FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+if (result != null) {
+  // All files
+  List<XFile> xFiles = result.xFiles;
+
+  // Individually
+  XFile xFile = result.files.first.xFile;
 } else {
   // User canceled the picker
 }

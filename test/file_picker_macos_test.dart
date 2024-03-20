@@ -27,7 +27,7 @@ void main() {
       expect(
         picker.fileTypeToFileFilter(FileType.media, null),
         equals(
-          '"avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv", "bmp", "gif", "jpeg", "jpg", "png"',
+          '"avi", "flv", "m4v", "mkv", "mov", "mp4", "mpeg", "webm", "wmv", "bmp", "gif", "jpeg", "jpg", "png"',
         ),
       );
 
@@ -37,9 +37,7 @@ void main() {
       );
     });
 
-    test(
-        'should return the file filter when given a list of custom file extensions',
-        () {
+    test('should return the file filter when given a list of custom file extensions', () {
       final picker = FilePickerMacOS();
 
       // TODO: the first empty file type ("", ) is required in some cases, e.g.
@@ -119,8 +117,7 @@ void main() {
       );
 
       expect(filePaths.length, equals(1));
-      expect(filePaths[0],
-          equals('/Volumes/macOS/Users/john/Downloads/config.yml'));
+      expect(filePaths[0], equals('/Volumes/macOS/Users/john/Downloads/config.yml'));
     });
 
     test('should interpret the result of picking two files', () {
@@ -143,13 +140,10 @@ void main() {
       );
 
       expect(filePaths.length, equals(1));
-      expect(filePaths[0],
-          equals('/Volumes/macOS/System/iOSSupport/usr/lib/swift'));
+      expect(filePaths[0], equals('/Volumes/macOS/System/iOSSupport/usr/lib/swift'));
     });
 
-    test(
-        'should interpret the result of picking a file from an external hard drive',
-        () {
+    test('should interpret the result of picking a file from an external hard drive', () {
       final picker = FilePickerMacOS();
 
       final filePaths = picker.resultStringToFilePaths(
@@ -164,9 +158,7 @@ void main() {
         ),
       );
     });
-    test(
-        'should interpret the result of picking multiple files from an external hard drive',
-        () {
+    test('should interpret the result of picking multiple files from an external hard drive', () {
       final picker = FilePickerMacOS();
 
       final filePaths = picker.resultStringToFilePaths(
@@ -174,15 +166,12 @@ void main() {
       );
 
       expect(filePaths.length, equals(3));
-      expect(
-          filePaths[0], equals('/Volumes/WD Backup/photos/my screenshot.jpg'));
+      expect(filePaths[0], equals('/Volumes/WD Backup/photos/my screenshot.jpg'));
       expect(filePaths[1], equals('/Volumes/WD Backup/photos/christmas.png'));
       expect(filePaths[2], equals('/Volumes/WD Backup/photos/image33.png'));
     });
 
-    test(
-        'should interpret the result of picking a directory from an external hard drive',
-        () {
+    test('should interpret the result of picking a directory from an external hard drive', () {
       final picker = FilePickerMacOS();
 
       final filePaths = picker.resultStringToFilePaths(
@@ -196,9 +185,7 @@ void main() {
       );
     });
 
-    test(
-        'should interpret the result of picking filenames that contain blanks and commas',
-        () {
+    test('should interpret the result of picking filenames that contain blanks and commas', () {
       final picker = FilePickerMacOS();
 
       final filePaths = picker.resultStringToFilePaths(
@@ -260,8 +247,7 @@ void main() {
 
       expect(
         cliArguments.join(' '),
-        equals(
-            '-e choose file name default name "test.out" with prompt "Select output file:"'),
+        equals('-e choose file name default name "test.out" with prompt "Select output file:"'),
       );
     });
 
@@ -282,9 +268,7 @@ void main() {
       );
     });
 
-    test(
-        'should generate the arguments for picking a single file with a custom file filter',
-        () {
+    test('should generate the arguments for picking a single file with a custom file filter', () {
       final picker = FilePickerMacOS();
 
       final cliArguments = picker.generateCommandLineArguments(
@@ -296,14 +280,11 @@ void main() {
 
       expect(
         cliArguments.join(' '),
-        equals(
-            '-e choose file of type {"dart", "yml"} with prompt "Select a file:"'),
+        equals('-e choose file of type {"dart", "yml"} with prompt "Select a file:"'),
       );
     });
 
-    test(
-        'should generate the arguments for picking multiple files with a custom file filter',
-        () {
+    test('should generate the arguments for picking multiple files with a custom file filter', () {
       final picker = FilePickerMacOS();
 
       final cliArguments = picker.generateCommandLineArguments(
@@ -335,9 +316,7 @@ void main() {
       );
     });
 
-    test(
-        'should generate the arguments for picking a file when an initial directory is given',
-        () {
+    test('should generate the arguments for picking a file when an initial directory is given', () {
       final picker = FilePickerMacOS();
 
       final cliArguments = picker.generateCommandLineArguments(
@@ -347,14 +326,11 @@ void main() {
 
       expect(
         cliArguments.join(' '),
-        equals(
-            '-e choose file default location "/Users/john/Desktop" with prompt "Pick a file:"'),
+        equals('-e choose file default location "/Users/john/Desktop" with prompt "Pick a file:"'),
       );
     });
 
-    test(
-        'should generate the arguments for picking a directory when an initial directory is given',
-        () {
+    test('should generate the arguments for picking a directory when an initial directory is given', () {
       final picker = FilePickerMacOS();
 
       final cliArguments = picker.generateCommandLineArguments(
@@ -366,14 +342,11 @@ void main() {
 
       expect(
         cliArguments.join(' '),
-        equals(
-            '-e choose folder default location "/Users/john/workspace" with prompt "Pick directory:"'),
+        equals('-e choose folder default location "/Users/john/workspace" with prompt "Pick directory:"'),
       );
     });
 
-    test(
-        'should generate the arguments for saving a file when an initial directory is given',
-        () {
+    test('should generate the arguments for saving a file when an initial directory is given', () {
       final picker = FilePickerMacOS();
 
       final cliArguments = picker.generateCommandLineArguments(
@@ -385,8 +358,7 @@ void main() {
 
       expect(
         cliArguments.join(' '),
-        equals(
-            '-e choose file name default name "output.pdf" default location "/Users/john/Downloads" with prompt "Save as:"'),
+        equals('-e choose file name default name "output.pdf" default location "/Users/john/Downloads" with prompt "Save as:"'),
       );
     });
   });

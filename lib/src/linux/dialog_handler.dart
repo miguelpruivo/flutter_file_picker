@@ -2,7 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/linux/kdialog_handler.dart';
 import 'package:file_picker/src/linux/qarma_and_zenity_handler.dart';
 
-import '../utils.dart';
+import 'package:file_picker/src/utils.dart';
 
 abstract class DialogHandler {
   factory DialogHandler(String pathToExecutable) {
@@ -46,8 +46,7 @@ abstract class DialogHandler {
   static String toCaseInsensitive(String filter) {
     return filter
         .split("")
-        .map((e) =>
-            isAlpha(e) ? "[" + e.toLowerCase() + e.toUpperCase() + "]" : e)
+        .map((e) => isAlpha(e) ? "[${e.toLowerCase()}${e.toUpperCase()}]" : e)
         .join();
   }
 }

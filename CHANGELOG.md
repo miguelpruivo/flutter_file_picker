@@ -1,8 +1,22 @@
+## 7.1.0
+### General
+- Adds `xFiles` getter to [FilePickerResult] and `XFile` to `PlatformFile` to retrieve a `List<XFile>` or single `XFile` accordingly.
+- Bumps win32, flutter_plugin_android_lifecycle, plugin_platform_interface and lints versions.
+- Fixes NPE when compressing images from gallery on Android 14 [#1455](https://github.com/miguelpruivo/flutter_file_picker/pull/1458). Thanks @mauriziopinotti.
+- Other minor bugs & fixes.
 
 ## 7.0.2
 ### Desktop (Linux)
-File picker extensions for Linux Zenity are case insensitive now
-Fixes [#1322](https://github.com/miguelpruivo/flutter_file_picker/issues/1322)
+- File picker extensions for Linux Zenity are case insensitive now
+- Fixes [#1322](https://github.com/miguelpruivo/flutter_file_picker/issues/1322)
+
+## 7.0.1
+### Android
+Fixes an issue where sequencial picks could replace the previous file [#1466](https://github.com/miguelpruivo/flutter_file_picker/pull/1466). Thanks @Arsanjuan87.
+
+## 7.0.0
+### iOS & Android
+Adds possibility to save files on mobile platforms as well [#1452](https://github.com/miguelpruivo/flutter_file_picker/pull/1452). Thanks @Samoy. 
 
 ## 7.0.0
 ### Mobile (Android, iOS)
@@ -26,26 +40,26 @@ on Android devices.
 
 ## 6.1.0
 ### Web
-Fixed endless loop on ios safari when canceling picking. ([#1364](https://github.com/miguelpruivo/flutter_file_picker/issues/1364)). Thank you @test0terter0n!
-Add `readSequential` flag for web. If `readSequential` is true, order of picked files will be preserved. If flag is false, files will be read parallel. Thank you @test0terter0n!
+- Fixed endless loop on ios safari when canceling picking. ([#1364](https://github.com/miguelpruivo/flutter_file_picker/issues/1364)). Thank you @test0terter0n!
+- Add `readSequential` flag for web. If `readSequential` is true, order of picked files will be preserved. If flag is false, files will be read parallel. Thank you @test0terter0n!
 
 ## 6.0.0
 Update minimum Flutter version to 3.7.0.
 
 ### iOS
-Update minimum iOS version to 11.0.
-Fix several warnings in the iOS plugin implementation.
+- Update minimum iOS version to 11.0.
+- Fix several warnings in the iOS plugin implementation.
 
 ## 5.5.0
 ### iOS
-Fix if selecting from gallery multiple files from remote sources (eg GoPro, Drone) imported to the device gallery and uploaded to iCloud they would have the same file name and it shows only one image repeated
-Fix returned images are in different onder from the gallery selection
+- Fix if selecting from gallery multiple files from remote sources (eg GoPro, Drone) imported to the device gallery and uploaded to iCloud they would have the same file name and it shows only one image repeated
+- Fix returned images are in different onder from the gallery selection
 
 ## 5.3.4
-fix [#1317](https://github.com/miguelpruivo/flutter_file_picker/issues/1317)
+Fix [#1317](https://github.com/miguelpruivo/flutter_file_picker/issues/1317)
 
 ## 5.3.3
-fix [#1312](https://github.com/miguelpruivo/flutter_file_picker/issues/1312)
+Fix [#1312](https://github.com/miguelpruivo/flutter_file_picker/issues/1312)
 
 ## 5.3.2
 ### Desktop (Windows)

@@ -3,7 +3,7 @@ description: A package that allows you to use a native file explorer to pick sin
 homepage: https://github.com/miguelpruivo/plugins_flutter_file_picker
 repository: https://github.com/miguelpruivo/flutter_file_picker
 issue_tracker: https://github.com/miguelpruivo/flutter_file_picker/issues
-version: 7.0.2
+version: 7.1.0
 
 dependencies:
   flutter:
@@ -11,14 +11,15 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
 
-  flutter_plugin_android_lifecycle: ^2.0.9
-  plugin_platform_interface: ^2.1.4
+  flutter_plugin_android_lifecycle: ^2.0.17
+  plugin_platform_interface: ^2.1.8
   ffi: ^2.0.1
   path: ^1.8.2
-  win32: '^5.0.2'
+  win32: ^5.1.1
+  cross_file: ^0.3.3+7
 
 dev_dependencies:
-  lints: ^2.0.1
+  lints: ^3.0.0
   flutter_test:
     sdk: flutter
 
