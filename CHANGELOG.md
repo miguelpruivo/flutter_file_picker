@@ -1,10 +1,47 @@
-## 5.3.4
+## 7.0.2
 ### Desktop (Linux)
 File picker extensions for Linux Zenity are case insensitive now
 Fixes [#1322](https://github.com/miguelpruivo/flutter_file_picker/issues/1322)
 
+## 6.2.1
+### Desktop (Windows)
+The `initialDirectory` parameter of `getDirectoryPath()` now works ([#970](https://github.com/miguelpruivo/flutter_file_picker/issues/970)).
+
+## 6.2.0
+### Android
+Add ability to compress images on android by specifying a compression quality value ([#735]
+(https://github.com/miguelpruivo/flutter_file_picker/issues/735)).
+
+
+## 6.1.1
+### Android
+Android's CSV mime type is `text/comma-separated-values`. Added standard `text/csv` when the
+CSV extension is specified which fixes issues when picking CSV files from Google Drive
+on Android devices.
+
+## 6.1.0
+### Web
+Fixed endless loop on ios safari when canceling picking. ([#1364](https://github.com/miguelpruivo/flutter_file_picker/issues/1364)). Thank you @test0terter0n!
+Add `readSequential` flag for web. If `readSequential` is true, order of picked files will be preserved. If flag is false, files will be read parallel. Thank you @test0terter0n!
+
+## 6.0.0
+Update minimum Flutter version to 3.7.0.
+
+### iOS
+Update minimum iOS version to 11.0.
+Fix several warnings in the iOS plugin implementation.
+
+## 5.5.0
+### iOS
+Fix if selecting from gallery multiple files from remote sources (eg GoPro, Drone) imported to the device gallery and uploaded to iCloud they would have the same file name and it shows only one image repeated
+Fix returned images are in different onder from the gallery selection
+
+## 5.3.4
+fix [#1317](https://github.com/miguelpruivo/flutter_file_picker/issues/1317)
+
 ## 5.3.3
 fix [#1312](https://github.com/miguelpruivo/flutter_file_picker/issues/1312)
+
 ## 5.3.2
 ### Desktop (Windows)
 Bumps the dependency `win32` to 5.0.2 ([#1281](https://github.com/miguelpruivo/flutter_file_picker/pull/1281)). Thank you @frg2089!
@@ -37,7 +74,7 @@ Fixes the bug that the current directory sometimes changed after the user picked
 
 ### Desktop (Linux)
 Fixes the behavior of the `saveFile()` dialog on Ubuntu/Kubuntu. This fix should have been committed in the previous version _5.2.7_ but was forgotten. Now, when the user selects an already existing file, then Ubuntu prompts the user to confirm overwriting this file. This change finally makes the dialog behave the same on all desktop platforms (macOS, Linux, and Windows) ([#989](https://github.com/miguelpruivo/flutter_file_picker/issues/989)).
-    
+
 ## 5.2.7
 ### Desktop (Windows)
 Fixes the behavior of the `saveFile()` dialog on Windows. Now, when the user selects an already existing file, then Windows prompts the user to confirm overwriting this file. This change makes the dialog behave the same on all desktop platforms (macOS, Linux, and Windows). Previously, Windows would not have asked the user for confirmation ([#989](https://github.com/miguelpruivo/flutter_file_picker/issues/989)).

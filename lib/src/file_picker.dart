@@ -92,6 +92,8 @@ abstract class FilePicker extends PlatformInterface {
   /// [initialDirectory] can be optionally set to an absolute path to specify
   /// where the dialog should open. Only supported on Linux, macOS, and Windows.
   ///
+  /// [readSequential] can be optionally set on web to keep the import file order during import.
+  ///
   /// The result is wrapped in a [FilePickerResult] which contains helper getters
   /// with useful information regarding the picked [List<PlatformFile>].
   ///
@@ -105,10 +107,12 @@ abstract class FilePicker extends PlatformInterface {
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
     bool allowCompression = true,
+    int compressionQuality = 30,
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
+    bool readSequential = false,
   }) async =>
       throw UnimplementedError('pickFiles() has not been implemented.');
 
@@ -136,7 +140,7 @@ abstract class FilePicker extends PlatformInterface {
   /// window). This parameter works only on Windows desktop.
   ///
   /// [initialDirectory] can be optionally set to an absolute path to specify
-  /// where the dialog should open. Only supported on Linux and macOS.
+  /// where the dialog should open. Only supported on Linux, macOS, and Windows.
   ///
   /// Returns a [Future<String?>] which resolves to  the absolute path of the selected directory,
   /// if the user selected a directory. Returns `null` if the user aborted the dialog or if the

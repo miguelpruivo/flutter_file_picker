@@ -26,6 +26,8 @@ class FilePickerWindows extends FilePicker {
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
+    bool readSequential = false,
+    int compressionQuality = 30,
   }) async {
     final port = ReceivePort();
     await Isolate.spawn(
@@ -114,24 +116,22 @@ class FilePickerWindows extends FilePicker {
     if (!SUCCEEDED(hr)) throw WindowsException(hr);
     free(title);
 
-    // TODO: figure out how to set the initial directory via SetDefaultFolder / SetFolder
-    // if (initialDirectory != null) {
-    //   final folder = TEXT(initialDirectory);
-    //   final riid = calloc<COMObject>();
-    //   final item = IShellItem(riid);
-    //   final location = item.ptr;
-    //   SHCreateItemFromParsingName(folder, nullptr, riid.cast(), item.ptr.cast());
-    //   hr = fileDialog.AddPlace(item.ptr, FDAP.FDAP_TOP);
-    //   if (!SUCCEEDED(hr)) throw WindowsException(hr);
-    //   hr = fileDialog.SetFolder(location);
-    //   if (!SUCCEEDED(hr)) throw WindowsException(hr);
-    //   free(folder);
-    // }
+    if (initialDirectory != null) {
+      final folder = TEXT(initialDirectory);
+      final riid = convertToIID(IID_IShellItem);
+      final ppv = calloc<Pointer>();
+      hr = SHCreateItemFromParsingName(folder, nullptr, riid, ppv);
+      final item = IShellItem(ppv.cast());
+      free(riid);
+      free(folder);
+      if (!SUCCEEDED(hr)) throw WindowsException(hr);
+      hr = fileDialog.setFolder(item.ptr.cast<Pointer<COMObject>>().value);
+      if (!SUCCEEDED(hr)) throw WindowsException(hr);
+    }
 
     final hwndOwner = lockParentWindow ? GetForegroundWindow() : NULL;
     hr = fileDialog.show(hwndOwner);
     if (!SUCCEEDED(hr)) {
-      fileDialog.release();
       CoUninitialize();
 
       if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED)) {
@@ -154,7 +154,6 @@ class FilePickerWindows extends FilePicker {
     hr = item.release();
     if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
-    hr = fileDialog.release();
     CoUninitialize();
 
     return Future.value(path);

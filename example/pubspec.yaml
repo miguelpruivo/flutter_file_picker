@@ -3,7 +3,7 @@ description: An example of how to use the file_picker plugin.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.12.0 <4.0.0"
+  sdk: ">=2.19.0 <4.0.0"
 
 dependencies:
   flutter:

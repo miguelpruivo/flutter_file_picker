@@ -173,12 +173,7 @@
         return;
     }
     
-    if (@available(iOS 11.0, *)) {
-        self.documentPickerController.allowsMultipleSelection = allowsMultipleSelection;
-    } else if(allowsMultipleSelection) {
-        Log(@"Multiple file selection is only supported on iOS 11 and above. Single selection will be used.");
-    }
-    
+    self.documentPickerController.allowsMultipleSelection = allowsMultipleSelection;    
     self.documentPickerController.delegate = self;
     self.documentPickerController.presentationController.delegate = self;
     
@@ -223,16 +218,12 @@
     switch (type) {
         case IMAGE:
             self.galleryPickerController.mediaTypes = imageTypes;
-            if (@available(iOS 11.0, *)) {
-                self.galleryPickerController.imageExportPreset = allowCompression ? UIImagePickerControllerImageURLExportPresetCompatible : UIImagePickerControllerImageURLExportPresetCurrent;
-            }
+            self.galleryPickerController.imageExportPreset = allowCompression ? UIImagePickerControllerImageURLExportPresetCompatible : UIImagePickerControllerImageURLExportPresetCurrent;
             break;
             
         case VIDEO:
             self.galleryPickerController.mediaTypes = videoTypes;
-            if (@available(iOS 11.0, *)) {
-                self.galleryPickerController.videoExportPreset = allowCompression ? AVAssetExportPresetHighestQuality : AVAssetExportPresetPassthrough;
-            }
+            self.galleryPickerController.videoExportPreset = allowCompression ? AVAssetExportPresetHighestQuality : AVAssetExportPresetPassthrough;
             break;
             
         default:
@@ -264,12 +255,10 @@
         [alert.view addSubview: indicator];
     }
     
-    if (@available(iOS 11.0, *)) {
-        DKImageAssetExporterConfiguration * exportConfiguration = [[DKImageAssetExporterConfiguration alloc] init];
-        exportConfiguration.imageExportPreset = allowCompression ? DKImageExportPresentCompatible : DKImageExportPresentCurrent;
-        exportConfiguration.videoExportPreset = allowCompression ? AVAssetExportPresetHighestQuality : AVAssetExportPresetPassthrough;
-        dkImagePickerController.exporter = [dkImagePickerController.exporter initWithConfiguration:exportConfiguration];
-    }
+    DKImageAssetExporterConfiguration * exportConfiguration = [[DKImageAssetExporterConfiguration alloc] init];
+    exportConfiguration.imageExportPreset = allowCompression ? DKImageExportPresentCompatible : DKImageExportPresentCurrent;
+    exportConfiguration.videoExportPreset = allowCompression ? AVAssetExportPresetHighestQuality : AVAssetExportPresetPassthrough;
+    dkImagePickerController.exporter = [dkImagePickerController.exporter initWithConfiguration:exportConfiguration];
     
     dkImagePickerController.exportsWhenCompleted = YES;
     dkImagePickerController.showsCancelButton = YES;
@@ -353,12 +342,6 @@
 #pragma mark - Delegates
 
 #ifdef PICKER_DOCUMENT
-// DocumentPicker delegate - iOS 10 only
-- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url{
-    [self.documentPickerController dismissViewControllerAnimated:YES completion:nil];
-    [self handleResult:url];
-}
-
 // DocumentPicker delegate
 - (void)documentPicker:(UIDocumentPickerViewController *)controller
 didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
@@ -426,15 +409,8 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
             pickedImageUrl = [info objectForKey:UIImagePickerControllerImageURL];
         }
         
-    } else if (@available(iOS 11.0, *)) {
-        pickedImageUrl = [info objectForKey:UIImagePickerControllerImageURL];
     } else {
-        UIImage *pickedImage  = [info objectForKey:UIImagePickerControllerEditedImage];
-        
-        if(pickedImage == nil) {
-            pickedImage = [info objectForKey:UIImagePickerControllerOriginalImage];
-        }
-        pickedImageUrl = [ImageUtils saveTmpImage:pickedImage];
+        pickedImageUrl = [info objectForKey:UIImagePickerControllerImageURL];
     }
     
     [picker dismissViewControllerAnimated:YES completion:NULL];
@@ -473,7 +449,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         return;
     }
     
-    NSMutableArray<NSURL *> * urls = [[NSMutableArray alloc] initWithCapacity:results.count];
+    NSMutableArray<NSURL *> * urls = [[NSMutableArray alloc] initWithCapacity: results.count];
     
     self.group = dispatch_group_create();
     
@@ -483,8 +459,13 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
     __block NSError * blockError;
     
-    for (PHPickerResult *result in results) {
+    for (NSInteger index = 0; index < results.count; ++index) {
+        [urls addObject:[NSURL URLWithString:@""]];
+
         dispatch_group_enter(_group);
+
+        PHPickerResult * result = [results objectAtIndex: index];
+
         [result.itemProvider loadFileRepresentationForTypeIdentifier:@"public.item" completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
             
             if(url == nil) {
@@ -494,7 +475,10 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
                 return;
             }
             
-            NSString * filename = url.lastPathComponent;
+            long timestamp = (long)([[NSDate date] timeIntervalSince1970] * 1000);
+            NSString * filenameWithoutExtension = [url.lastPathComponent stringByDeletingPathExtension];
+            NSString * fileExtension = url.pathExtension;
+            NSString * filename = [NSString stringWithFormat:@"%@-%ld.%@", filenameWithoutExtension, timestamp, fileExtension];
             NSString * extension = [filename pathExtension];
             NSFileManager * fileManager = [[NSFileManager alloc] init];
             NSURL * cachedUrl;
@@ -551,7 +535,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
             }
             
             
-            [urls addObject:cachedUrl];
+            [urls replaceObjectAtIndex:index withObject:cachedUrl];
             dispatch_group_leave(self->_group);
         }];
     }
