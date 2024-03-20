@@ -1,3 +1,8 @@
+## 7.0.2
+### Desktop (Linux)
+File picker extensions for Linux Zenity are case insensitive now
+Fixes [#1322](https://github.com/miguelpruivo/flutter_file_picker/issues/1322)
+
 ## 6.2.1
 ### Desktop (Windows)
 The `initialDirectory` parameter of `getDirectoryPath()` now works ([#970](https://github.com/miguelpruivo/flutter_file_picker/issues/970)).
@@ -30,10 +35,13 @@ Fix several warnings in the iOS plugin implementation.
 ### iOS
 Fix if selecting from gallery multiple files from remote sources (eg GoPro, Drone) imported to the device gallery and uploaded to iCloud they would have the same file name and it shows only one image repeated
 Fix returned images are in different onder from the gallery selection
+
 ## 5.3.4
 fix [#1317](https://github.com/miguelpruivo/flutter_file_picker/issues/1317)
+
 ## 5.3.3
 fix [#1312](https://github.com/miguelpruivo/flutter_file_picker/issues/1312)
+
 ## 5.3.2
 ### Desktop (Windows)
 Bumps the dependency `win32` to 5.0.2 ([#1281](https://github.com/miguelpruivo/flutter_file_picker/pull/1281)). Thank you @frg2089!
