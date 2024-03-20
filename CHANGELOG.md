@@ -1,3 +1,7 @@
+## 6.2.1
+### Desktop (Windows)
+The `initialDirectory` parameter of `getDirectoryPath()` now works ([#970](https://github.com/miguelpruivo/flutter_file_picker/issues/970)).
+
 ## 6.2.0
 ### Android
 Add ability to compress images on android by specifying a compression quality value ([#735]
