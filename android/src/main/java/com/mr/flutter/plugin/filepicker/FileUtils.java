@@ -296,7 +296,7 @@ public class FileUtils {
         FileOutputStream fos = null;
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
         final String fileName = FileUtils.getFileName(uri, context);
-        final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/" + (fileName != null ? fileName : System.currentTimeMillis());
+        final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/"+System.currentTimeMillis() +"/"+ (fileName != null ? fileName : "unamed");
 
         final File file = new File(path);
 
