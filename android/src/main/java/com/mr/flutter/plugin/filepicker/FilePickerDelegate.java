@@ -10,8 +10,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Parcelable;
 import android.os.Message;
+import android.os.Parcelable;
 import android.provider.DocumentsContract;
 import android.util.Log;
 
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
@@ -118,7 +119,6 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         }
 
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-
             this.dispatchEventStatus(true);
 
             new Thread(new Runnable() {
@@ -127,16 +127,14 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                     if (data != null) {
                         final ArrayList<FileInfo> files = new ArrayList<>();
 
-
                         if (data.getClipData() != null) {
                             final int count = data.getClipData().getItemCount();
                             int currentItem = 0;
                             while (currentItem < count) {
                                  Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
 
-                                if(type=="image/*" && compressionQuality>0) {
-
-                                    currentUri=FileUtils.compressImage(currentUri,compressionQuality,activity.getApplicationContext());
+                                if (Objects.equals(type, "image/*") && compressionQuality > 0) {
+                                    currentUri = FileUtils.compressImage(currentUri, compressionQuality, activity.getApplicationContext());
                                 }
                                 final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
                                 if(file != null) {
@@ -150,8 +148,8 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                         } else if (data.getData() != null) {
                             Uri uri = data.getData();
 
-                            if(type=="image/*" && compressionQuality>0) {
-                                uri=FileUtils.compressImage(uri,compressionQuality,activity.getApplicationContext());
+                            if (Objects.equals(type, "image/*") && compressionQuality > 0) {
+                                uri = FileUtils.compressImage(uri, compressionQuality, activity.getApplicationContext());
                             }
 
                             if (type.equals("dir") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -265,7 +263,6 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         return bundle.getParcelableArrayList("selectedItems");
     }
 
-    @SuppressWarnings("deprecation")
     private void startFileExplorer() {
         final Intent intent;
 
@@ -300,7 +297,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         }
 
         if (intent.resolveActivity(this.activity.getPackageManager()) != null) {
-            this.activity.startActivityForResult(intent, REQUEST_CODE);
+            this.activity.startActivityForResult(Intent.createChooser(intent, null), REQUEST_CODE);
         } else {
             Log.e(TAG, "Can't find a valid activity to handle the request. Make sure you've a file explorer installed.");
             finishWithError("invalid_format_type", "Can't handle the provided file type.");
