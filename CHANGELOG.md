@@ -1,3 +1,6 @@
+## 7.1.0+1
+Fixes typo on docs (there was some refernces to `FileType.all` instead of the correct `FileType.any`).
+
 ## 7.1.0
 ### General
 - Adds `xFiles` getter to [FilePickerResult] and `XFile` to `PlatformFile` to retrieve a `List<XFile>` or single `XFile` accordingly.
@@ -558,7 +561,7 @@ Adds temporary workaround for (#49365)(https://github.com/flutter/flutter/issues
 
 ## 1.5.0
 
-* **Breaking change:** Refactored `FileType` to match lower camelCase Dart guideline (eg. `FileType.ALL` now is `FileType.all`);
+* **Breaking change:** Refactored `FileType` to match lower camelCase Dart guideline (eg. `FileType.ALL` now is `FileType.any`);
 * Added support for new [Android plugins APIs](https://flutter.dev/docs/development/packages-and-plugins/plugin-api-migration) (Android V2 embedding);
 
 ## 1.4.3+2
