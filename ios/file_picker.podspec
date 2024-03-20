@@ -31,6 +31,7 @@ A flutter plugin to show native file picker dialogs.
     preprocess_definitions << "PICKER_DOCUMENT=1"
   end
   s.pod_target_xcconfig = { "GCC_PREPROCESSOR_DEFINITIONS" => preprocess_definitions.join(' ') }
+  s.resource_bundles = {'file_picker_ios_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
 
 end
 

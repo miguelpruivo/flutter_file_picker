@@ -1,3 +1,10 @@
+## 8.0.0
+### Desktop
+Removes Flutter GO support.
+
+### iOS
+Adds privacy manifest [#1418](https://github.com/miguelpruivo/flutter_file_picker/issues/1418).
+
 ## 7.1.0+1
 Fixes typo on docs (there was some refernces to `FileType.all` instead of the correct `FileType.any`).
 

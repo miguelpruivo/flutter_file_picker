@@ -22,7 +22,7 @@ A package that allows you to use the native file explorer to pick single or mult
 
 ## Currently supported features
 * Uses OS default native pickers
-* Supports multiple platforms (Mobile, Web, Desktop and Flutter GO)
+* Supports multiple platforms (Mobile, Web, Desktop)
 * Pick files using  **custom format** filtering — you can provide a list of file extensions (pdf, svg, zip, etc.)
 * Pick files from **cloud files** (GDrive, Dropbox, iCloud)
 * Single or multiple file picks
@@ -56,7 +56,7 @@ See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker
    * [Android](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup#android)
    * [iOS](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup#ios)
    * [Web](https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#--web)
-   * [Desktop (go-flutter)](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup/_edit#desktop-go-flutter)
+   * [Desktop](https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#--desktop)
 3. [API](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/api)
    * [Filters](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/API#filters)
    * [Parameters](https://github.com/miguelpruivo/flutter_file_picker/wiki/API#parameters)
