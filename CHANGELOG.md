@@ -1,3 +1,6 @@
+## 8.0.0+1
+Removes linter warnings and fixes CI/CD.
+
 ## 8.0.0
 ### Desktop
 Removes Flutter GO support.

@@ -263,7 +263,7 @@ class FilePickerWindows extends FilePicker {
     bool lastCharWasNull = false;
     // ignore: literal_only_boolean_expressions
     while (true) {
-      final char = openFileNameW.lpstrFile.cast<Uint16>().elementAt(i).value;
+      final char = openFileNameW.lpstrFile.cast<Uint16>()[i];
       final currentCharIsNull = char == 0;
       if (currentCharIsNull && lastCharWasNull) {
         break;
