@@ -24,6 +24,7 @@
 @property (nonatomic) BOOL allowCompression;
 @property (nonatomic) dispatch_group_t group;
 @property (nonatomic) BOOL isSaveFile;
+@property (nonatomic) MediaType type;
 @end
 
 @implementation FilePickerPlugin
@@ -221,7 +222,9 @@
 
 #ifdef PICKER_MEDIA
 - (void) resolvePickMedia:(MediaType)type withMultiPick:(BOOL)multiPick withCompressionAllowed:(BOOL)allowCompression  {
-    
+
+    self.type = type;
+
 #ifdef PHPicker
     if (@available(iOS 14, *)) {
         PHPickerConfiguration *config = [[PHPickerConfiguration alloc] init];
@@ -501,7 +504,10 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     }
     
     __block NSError * blockError;
-    
+
+    bool isImageSelection = self.type == IMAGE;
+    NSString * utiType = isImageSelection ? @"public.image" : @"public.audiovisual-content";
+
     for (NSInteger index = 0; index < results.count; ++index) {
         [urls addObject:[NSURL URLWithString:@""]];
 
@@ -509,8 +515,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 
         PHPickerResult * result = [results objectAtIndex: index];
 
-        [result.itemProvider loadFileRepresentationForTypeIdentifier:@"public.item" completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
-            
+        [result.itemProvider loadFileRepresentationForTypeIdentifier:utiType completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
             if(url == nil) {
                 blockError = error;
                 Log("Could not load the picked given file: %@", blockError);

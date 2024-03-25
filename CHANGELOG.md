@@ -1,3 +1,7 @@
+## 8.0.1
+### iOS
+- fix [1367](https://github.com/miguelpruivo/flutter_file_picker/issues/1367)
+
 ## 8.0.0+1
 Removes linter warnings and fixes CI/CD.
 
