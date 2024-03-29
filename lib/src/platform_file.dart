@@ -11,6 +11,7 @@ class PlatformFile {
     this.bytes,
     this.readStream,
     this.identifier,
+    this.lastModifiedMs
   });
 
   factory PlatformFile.fromMap(Map data, {Stream<List<int>>? readStream}) {
@@ -20,6 +21,7 @@ class PlatformFile {
       bytes: data['bytes'],
       size: data['size'],
       identifier: data['identifier'],
+      lastModifiedMs: data['lastModifiedMs'],
       readStream: readStream,
     );
   }
@@ -56,6 +58,8 @@ class PlatformFile {
   /// that the [path] property should be used instead.
   final String? identifier;
 
+  final int? lastModifiedMs;
+
   /// File extension for this file.
   String? get extension => name.split('.').last;
 
@@ -80,6 +84,7 @@ class PlatformFile {
         other.bytes == bytes &&
         other.readStream == readStream &&
         other.identifier == identifier &&
+        other.lastModifiedMs == lastModifiedMs &&
         other.size == size;
   }
 
@@ -92,11 +97,12 @@ class PlatformFile {
             bytes.hashCode ^
             readStream.hashCode ^
             identifier.hashCode ^
+            lastModifiedMs.hashCode ^
             size.hashCode;
   }
 
   @override
   String toString() {
-    return 'PlatformFile(${kIsWeb ? '' : 'path $path'}, name: $name, bytes: $bytes, readStream: $readStream, size: $size)';
+    return 'PlatformFile(${kIsWeb ? '' : 'path $path'}, name: $name, bytes: $bytes, readStream: $readStream, size: $size, lastModifiedMs: $lastModifiedMs)';
   }
 }
