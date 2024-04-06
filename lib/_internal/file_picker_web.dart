@@ -74,7 +74,7 @@ class FilePickerWeb extends FilePicker {
       onFileLoading(FilePickerStatus.picking);
     }
 
-    void changeEventListener(e) async {
+    void changeEventListener(Event e) async {
       if (changeEventTriggered) {
         return;
       }
@@ -138,7 +138,7 @@ class FilePickerWeb extends FilePicker {
       }
     }
 
-    void cancelledEventListener(_) {
+    void cancelledEventListener(Event _) {
       window.removeEventListener('focus', cancelledEventListener.toJS);
 
       // This listener is called before the input changed event,
