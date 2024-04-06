@@ -160,7 +160,11 @@ class FilePickerWeb extends FilePicker {
     window.addEventListener('focus', cancelledEventListener.toJS);
 
     //Add input element to the page body
-    _target.children.clear();
+    var firstChild = _target.firstChild;
+    while (firstChild != null) {
+      _target.removeChild(firstChild);
+      firstChild = _target.firstChild;
+    }
     _target.children.add(uploadInput);
     uploadInput.click();
 
@@ -202,7 +206,7 @@ class FilePickerWeb extends FilePicker {
           : start + _readStreamChunkSize;
       final blob = file.slice(start, end);
       reader.readAsArrayBuffer(blob);
-      await reader.onLoad.first;
+      await EventStreamProviders.loadEvent.forTarget(reader).first;
       yield reader.result as List<int>;
       start += _readStreamChunkSize;
     }
