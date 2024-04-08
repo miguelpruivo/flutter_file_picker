@@ -22,10 +22,11 @@ A package that allows you to use the native file explorer to pick single or mult
 
 ## Currently supported features
 * Uses OS default native pickers
-* Supports multiple platforms (Mobile, Web, Desktop and Flutter GO)
+* Supports multiple platforms (Mobile, Web, Desktop)
 * Pick files using  **custom format** filtering — you can provide a list of file extensions (pdf, svg, zip, etc.)
 * Pick files from **cloud files** (GDrive, Dropbox, iCloud)
 * Single or multiple file picks
+* Supports retrieving as XFile (cross_file) for easy manipulation with other libraries
 * Different default type filtering (media, image, video, audio or any)
 * Picking directories
 * Load file data immediately into memory (`Uint8List`) if needed; 
@@ -40,7 +41,7 @@ If you have any feature that you want to see in this package, please feel free t
 | clearTemporaryFiles() | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x:                | :x:                | :x:                |
 | getDirectoryPath()    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:                |
 | pickFiles()           | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| saveFile()            | :x:                | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:                |
+| saveFile()            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:                |
 
 See the [API section of the File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api) or the [official API reference on pub.dev](https://pub.dev/documentation/file_picker/latest/file_picker/FilePicker-class.html) for further details.
 
@@ -55,7 +56,7 @@ See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker
    * [Android](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup#android)
    * [iOS](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup#ios)
    * [Web](https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#--web)
-   * [Desktop (go-flutter)](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup/_edit#desktop-go-flutter)
+   * [Desktop](https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#--desktop)
 3. [API](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/api)
    * [Filters](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/API#filters)
    * [Parameters](https://github.com/miguelpruivo/flutter_file_picker/wiki/API#parameters)
@@ -124,6 +125,20 @@ if (result != null) {
   print(file.size);
   print(file.extension);
   print(file.path);
+} else {
+  // User canceled the picker
+}
+```
+### Retrieve all files as XFiles or individually
+```dart
+FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+if (result != null) {
+  // All files
+  List<XFile> xFiles = result.xFiles;
+
+  // Individually
+  XFile xFile = result.files.first.xFile;
 } else {
   // User canceled the picker
 }
