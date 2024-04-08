@@ -17,7 +17,6 @@ dependencies:
   path: ^1.8.2
   win32: ^5.1.1
   cross_file: ^0.3.3+7
-  js: ^0.7.1
   web: ^0.5.1
 
 dev_dependencies:
