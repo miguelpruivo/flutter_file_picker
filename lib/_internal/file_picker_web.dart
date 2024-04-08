@@ -128,7 +128,8 @@ class FilePickerWeb extends FilePicker {
         final syncCompleter = Completer<void>();
         final FileReader reader = FileReader();
         reader.onLoadEnd.listen((e) {
-          addPickedFile(file, reader.result as Uint8List?, null, null);
+          ByteBuffer? byteBuffer = reader.result as ByteBuffer?;
+          addPickedFile(file, byteBuffer?.asUint8List(), null, null);
           syncCompleter.complete();
         });
         reader.readAsArrayBuffer(file);
