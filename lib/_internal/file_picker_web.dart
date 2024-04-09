@@ -119,7 +119,8 @@ class FilePickerWeb extends FilePicker {
         if (!withData) {
           final FileReader reader = FileReader();
           reader.onLoadEnd.listen((e) {
-            addPickedFile(file, null, reader.result as String?, null);
+            String? result = (reader.result as JSString?)?.toDart;
+            addPickedFile(file, null, result, null);
           });
           reader.readAsDataURL(file);
           continue;
@@ -128,7 +129,7 @@ class FilePickerWeb extends FilePicker {
         final syncCompleter = Completer<void>();
         final FileReader reader = FileReader();
         reader.onLoadEnd.listen((e) {
-          ByteBuffer? byteBuffer = reader.result as ByteBuffer?;
+          ByteBuffer? byteBuffer = (reader.result as JSArrayBuffer?)?.toDart;
           addPickedFile(file, byteBuffer?.asUint8List(), null, null);
           syncCompleter.complete();
         });
