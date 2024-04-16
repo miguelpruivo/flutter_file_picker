@@ -1,3 +1,7 @@
+## 8.0.1
+### iOS
+Fixes an issue preventing compilation on iOS when using Pod::PICKER_DOCUMENT = false.
+
 ## 8.0.0+1
 Removes linter warnings and fixes CI/CD.
 
