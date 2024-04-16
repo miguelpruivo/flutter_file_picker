@@ -149,11 +149,17 @@
                                     details:nil]);
 #endif      
     } else if([call.method isEqualToString:@"save"]) {
+#ifdef PICKER_DOCUMENT
         NSString *fileName = [arguments valueForKey:@"fileName"];
         NSString *fileType = [arguments valueForKey:@"fileType"];
         NSString *initialDirectory = [arguments valueForKey:@"initialDirectory"];
         FlutterStandardTypedData *bytes = [arguments valueForKey:@"bytes"];
         [self saveFileWithName:fileName fileType:fileType initialDirectory:initialDirectory bytes: bytes];
+#else
+        _result([FlutterError errorWithCode:@"Unsupported function"
+                                    message:@"The save function requires the document picker to be compiled in. Remove the Pod::PICKER_DOCUMENT=false statement from your Podfile."
+                                    details:nil]);
+#endif
     } else {
         result(FlutterMethodNotImplemented);
         _result = nil;
@@ -167,6 +173,7 @@
 
 #pragma mark - Resolvers
 
+#ifdef PICKER_DOCUMENT
 - (void)saveFileWithName:(NSString*)fileName fileType:(NSString *)fileType initialDirectory:(NSString*)initialDirectory bytes:(FlutterStandardTypedData*)bytes{
     self.isSaveFile = YES;
     NSFileManager* fm = [NSFileManager defaultManager];
@@ -197,6 +204,7 @@
     }
     [[self viewControllerWithWindow:nil] presentViewController:self.documentPickerController animated:YES completion:nil];
 }
+#endif // PICKER_DOCUMENT
 
 #ifdef PICKER_DOCUMENT
 - (void)resolvePickDocumentWithMultiPick:(BOOL)allowsMultipleSelection pickDirectory:(BOOL)isDirectory {
