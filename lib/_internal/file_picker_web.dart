@@ -60,8 +60,7 @@ class FilePickerWeb extends FilePicker {
         Completer<List<PlatformFile>?>();
 
     String accept = _fileType(type, allowedExtensions);
-    HTMLInputElement uploadInput =
-        document.createElement('input') as HTMLInputElement;
+    HTMLInputElement uploadInput = HTMLInputElement();
     uploadInput.type = 'file';
     uploadInput.draggable = true;
     uploadInput.multiple = allowMultiple;
@@ -105,7 +104,7 @@ class FilePickerWeb extends FilePicker {
         }
       }
 
-      for (var i = 0; i < files.length; i++) {
+      for (int i = 0; i < files.length; i++) {
         final File? file = files.item(i);
         if (file == null) {
           continue;
@@ -162,7 +161,7 @@ class FilePickerWeb extends FilePicker {
     window.addEventListener('focus', cancelledEventListener.toJS);
 
     //Add input element to the page body
-    var firstChild = _target.firstChild;
+    Node? firstChild = _target.firstChild;
     while (firstChild != null) {
       _target.removeChild(firstChild);
       firstChild = _target.firstChild;
