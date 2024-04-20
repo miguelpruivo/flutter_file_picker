@@ -208,6 +208,15 @@ class FilePickerWeb extends FilePicker {
       final blob = file.slice(start, end);
       reader.readAsArrayBuffer(blob);
       await EventStreamProviders.loadEvent.forTarget(reader).first;
+      if (reader.result is ByteBuffer){
+        // When built in the html web-renderer, an error may occur:
+        // TypeError: Instance of 'NativeByteBuffer': type 'NativeByteBuffer' is not a subtype of type 'List<int>'.
+        // Therefore, we need to make a type discrimination of the reader.result.
+        yield  (reader.result as ByteBuffer).asUint8List();
+        start += _readStreamChunkSize;
+        continue;
+      }
+      
       yield reader.result as List<int>;
       start += _readStreamChunkSize;
     }
