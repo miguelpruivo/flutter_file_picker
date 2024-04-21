@@ -1,3 +1,48 @@
+## 8.0.1
+### iOS
+Fixes an issue preventing compilation on iOS when using Pod::PICKER_DOCUMENT = false.
+
+## 8.0.0+1
+Removes linter warnings and fixes CI/CD.
+
+## 8.0.0
+### Desktop
+Removes Flutter GO support.
+
+### iOS
+Adds privacy manifest [#1418](https://github.com/miguelpruivo/flutter_file_picker/issues/1418).
+
+## 7.1.0+1
+Fixes typo on docs (there was some refernces to `FileType.all` instead of the correct `FileType.any`).
+
+## 7.1.0
+### General
+- Adds `xFiles` getter to [FilePickerResult] and `XFile` to `PlatformFile` to retrieve a `List<XFile>` or single `XFile` accordingly.
+- Bumps win32, flutter_plugin_android_lifecycle, plugin_platform_interface and lints versions.
+- Fixes NPE when compressing images from gallery on Android 14 [#1455](https://github.com/miguelpruivo/flutter_file_picker/pull/1458). Thanks @mauriziopinotti.
+- Other minor bugs & fixes.
+
+## 7.0.2
+### Desktop (Linux)
+- File picker extensions for Linux Zenity are case insensitive now
+- Fixes [#1322](https://github.com/miguelpruivo/flutter_file_picker/issues/1322)
+
+## 7.0.1
+### Android
+Fixes an issue where sequencial picks could replace the previous file [#1466](https://github.com/miguelpruivo/flutter_file_picker/pull/1466). Thanks @Arsanjuan87.
+
+## 7.0.0
+### iOS & Android
+Adds possibility to save files on mobile platforms as well [#1452](https://github.com/miguelpruivo/flutter_file_picker/pull/1452). Thanks @Samoy. 
+
+## 7.0.0
+### Mobile (Android, iOS)
+Save file to mobile platforms with `bytes`.
+
+## 6.2.1
+### Desktop (Windows)
+The `initialDirectory` parameter of `getDirectoryPath()` now works ([#970](https://github.com/miguelpruivo/flutter_file_picker/issues/970)).
+
 ## 6.2.0
 ### Android
 Add ability to compress images on android by specifying a compression quality value ([#735]
@@ -12,24 +57,27 @@ on Android devices.
 
 ## 6.1.0
 ### Web
-Fixed endless loop on ios safari when canceling picking. ([#1364](https://github.com/miguelpruivo/flutter_file_picker/issues/1364)). Thank you @test0terter0n!
-Add `readSequential` flag for web. If `readSequential` is true, order of picked files will be preserved. If flag is false, files will be read parallel. Thank you @test0terter0n!
+- Fixed endless loop on ios safari when canceling picking. ([#1364](https://github.com/miguelpruivo/flutter_file_picker/issues/1364)). Thank you @test0terter0n!
+- Add `readSequential` flag for web. If `readSequential` is true, order of picked files will be preserved. If flag is false, files will be read parallel. Thank you @test0terter0n!
 
 ## 6.0.0
 Update minimum Flutter version to 3.7.0.
 
 ### iOS
-Update minimum iOS version to 11.0.
-Fix several warnings in the iOS plugin implementation.
+- Update minimum iOS version to 11.0.
+- Fix several warnings in the iOS plugin implementation.
 
 ## 5.5.0
 ### iOS
-Fix if selecting from gallery multiple files from remote sources (eg GoPro, Drone) imported to the device gallery and uploaded to iCloud they would have the same file name and it shows only one image repeated
-Fix returned images are in different onder from the gallery selection
+- Fix if selecting from gallery multiple files from remote sources (eg GoPro, Drone) imported to the device gallery and uploaded to iCloud they would have the same file name and it shows only one image repeated
+- Fix returned images are in different onder from the gallery selection
+
 ## 5.3.4
-fix [#1317](https://github.com/miguelpruivo/flutter_file_picker/issues/1317)
+Fix [#1317](https://github.com/miguelpruivo/flutter_file_picker/issues/1317)
+
 ## 5.3.3
-fix [#1312](https://github.com/miguelpruivo/flutter_file_picker/issues/1312)
+Fix [#1312](https://github.com/miguelpruivo/flutter_file_picker/issues/1312)
+
 ## 5.3.2
 ### Desktop (Windows)
 Bumps the dependency `win32` to 5.0.2 ([#1281](https://github.com/miguelpruivo/flutter_file_picker/pull/1281)). Thank you @frg2089!
@@ -527,7 +575,7 @@ Adds temporary workaround for (#49365)(https://github.com/flutter/flutter/issues
 
 ## 1.5.0
 
-* **Breaking change:** Refactored `FileType` to match lower camelCase Dart guideline (eg. `FileType.ALL` now is `FileType.all`);
+* **Breaking change:** Refactored `FileType` to match lower camelCase Dart guideline (eg. `FileType.ALL` now is `FileType.any`);
 * Added support for new [Android plugins APIs](https://flutter.dev/docs/development/packages-and-plugins/plugin-api-migration) (Android V2 embedding);
 
 ## 1.4.3+2
