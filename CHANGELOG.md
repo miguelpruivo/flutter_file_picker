@@ -1,3 +1,7 @@
+## 8.0.2
+### iOS
+Fixes the bug [#1412](https://github.com/miguelpruivo/flutter_file_picker/issues/1412) that picking a folder in iOS causes the original folder to be deleted.
+
 ## 8.0.1
 ### iOS
 Fixes an issue preventing compilation on iOS when using Pod::PICKER_DOCUMENT = false.
