@@ -216,7 +216,7 @@ class FilePickerWeb extends FilePicker {
         // An error may occur:
         // TypeError: Instance of 'NativeByteBuffer': type 'NativeByteBuffer' is not a subtype of type 'List<int>'.
         // Therefore, we need to make a type discrimination of the reader.result.
-        yield (reader.result as ByteBuffer).asUint8List();
+        yield (readerResult as ByteBuffer).asUint8List();
         start += _readStreamChunkSize;
         continue;
       }
