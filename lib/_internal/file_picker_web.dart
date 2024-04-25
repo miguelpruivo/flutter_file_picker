@@ -220,22 +220,23 @@ class FilePickerWeb extends FilePicker {
         start += _readStreamChunkSize;
         continue;
       }
+      // Defensive programming: maybe the code can not reach here. ByteBuffer can cover most cases.
       // Handle byte buffers.
       if (readerResult.instanceOfString('JSArrayBuffer')) {
         yield (readerResult as JSArrayBuffer).toDart.asUint8List();
         start += _readStreamChunkSize;
-        continue;
       }
       // Handle JS Array type.
       if (readerResult.instanceOfString('Array')) {
         // Assume this is a List<int>.
         yield (readerResult as JSArray).toDart.cast<int>();
         start += _readStreamChunkSize;
-        continue;
       }
-      // Default this is a List<int>
-      yield readerResult as List<int>;
-      start += _readStreamChunkSize;
+      // Handle JS ArrayBuffer type.
+      if (readerResult.instanceOfString('ArrayBuffer')) {
+        yield (readerResult as JSArrayBuffer).toDart.asUint8List();
+        start += _readStreamChunkSize;
+      }
     }
   }
 }
