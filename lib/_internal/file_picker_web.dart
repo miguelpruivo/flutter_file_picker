@@ -212,29 +212,18 @@ class FilePickerWeb extends FilePicker {
       if (readerResult == null) {
         continue;
       }
-      if (readerResult is ByteBuffer) {
-        // An error may occur:
-        // TypeError: Instance of 'NativeByteBuffer': type 'NativeByteBuffer' is not a subtype of type 'List<int>'.
-        // Therefore, we need to make a type discrimination of the reader.result.
-        yield (readerResult as ByteBuffer).asUint8List();
+      // TODO: use `isA<JSArrayBuffer>()` when switching to Dart 3.4
+      // Handle the ArrayBuffer type. This maps to a `ByteBuffer` in Dart.
+      if (readerResult.instanceOfString('ArrayBuffer')) {
+        yield (readerResult as JSArrayBuffer).toDart.asUint8List();
         start += _readStreamChunkSize;
         continue;
       }
-      // Defensive programming: maybe the code can not reach here. ByteBuffer can cover most cases.
-      // Handle byte buffers.
-      if (readerResult.instanceOfString('JSArrayBuffer')) {
-        yield (readerResult as JSArrayBuffer).toDart.asUint8List();
-        start += _readStreamChunkSize;
-      }
-      // Handle JS Array type.
+      // TODO: use `isA<JSArray>()` when switching to Dart 3.4
+      // Handle the Array type.
       if (readerResult.instanceOfString('Array')) {
         // Assume this is a List<int>.
         yield (readerResult as JSArray).toDart.cast<int>();
-        start += _readStreamChunkSize;
-      }
-      // Handle JS ArrayBuffer type.
-      if (readerResult.instanceOfString('ArrayBuffer')) {
-        yield (readerResult as JSArrayBuffer).toDart.asUint8List();
         start += _readStreamChunkSize;
       }
     }
