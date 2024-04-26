@@ -1,3 +1,7 @@
+## 8.0.3
+### Web
+Fixes a issue of "TypeError" about `_openFileReadStream`[#1322](https://github.com/miguelpruivo/flutter_file_picker/pull/1496).
+
 ## 8.0.2
 ### iOS
 Fixes the bug [#1412](https://github.com/miguelpruivo/flutter_file_picker/issues/1412) that picking a folder in iOS causes the original folder to be deleted.
