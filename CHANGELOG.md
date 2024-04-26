@@ -1,6 +1,6 @@
 ## 8.0.3
 ### Web
-Fixes a issue of "TypeError" about `_openFileReadStream`[#1322](https://github.com/miguelpruivo/flutter_file_picker/pull/1496).
+Fixes a issue of "TypeError" about `_openFileReadStream`[#1496](https://github.com/miguelpruivo/flutter_file_picker/pull/1496).
 
 ## 8.0.2
 ### iOS
