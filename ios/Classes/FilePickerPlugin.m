@@ -400,26 +400,32 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         _result = nil;
         return;
     }
-    NSMutableArray<NSURL *> *newUrls = [NSMutableArray new];
-    for (NSURL *url in urls) {
-        // Create file URL to temporary folder
-        NSURL *tempURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
-        // Append filename (name+extension) to URL
-        tempURL = [tempURL URLByAppendingPathComponent:url.lastPathComponent];
-        NSError *error;
-        // If file with same name exists remove it (replace file with new one)
-        if ([[NSFileManager defaultManager] fileExistsAtPath:tempURL.path]) {
-            [[NSFileManager defaultManager] removeItemAtPath:tempURL.path error:&error];
+    NSMutableArray<NSURL *> *newUrls;
+    if(controller.documentPickerMode == UIDocumentPickerModeOpen) {
+        newUrls = urls;
+    }
+    if(controller.documentPickerMode == UIDocumentPickerModeImport) {
+        newUrls = [NSMutableArray new];
+        for (NSURL *url in urls) {
+            // Create file URL to temporary folder
+            NSURL *tempURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
+            // Append filename (name+extension) to URL
+            tempURL = [tempURL URLByAppendingPathComponent:url.lastPathComponent];
+            NSError *error;
+            // If file with same name exists remove it (replace file with new one)
+            if ([[NSFileManager defaultManager] fileExistsAtPath:tempURL.path]) {
+                [[NSFileManager defaultManager] removeItemAtPath:tempURL.path error:&error];
+                if (error) {
+                    NSLog(@"%@", error.localizedDescription);
+                }
+            }
+            // Move file from app_id-Inbox to tmp/filename
+            [[NSFileManager defaultManager] moveItemAtPath:url.path toPath:tempURL.path error:&error];
             if (error) {
                 NSLog(@"%@", error.localizedDescription);
+            } else {
+                [newUrls addObject:tempURL];
             }
-        }
-        // Move file from app_id-Inbox to tmp/filename
-        [[NSFileManager defaultManager] moveItemAtPath:url.path toPath:tempURL.path error:&error];
-        if (error) {
-            NSLog(@"%@", error.localizedDescription);
-        } else {
-            [newUrls addObject:tempURL];
         }
     }
     
