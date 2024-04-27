@@ -208,8 +208,24 @@ class FilePickerWeb extends FilePicker {
       final blob = file.slice(start, end);
       reader.readAsArrayBuffer(blob);
       await EventStreamProviders.loadEvent.forTarget(reader).first;
-      yield reader.result as List<int>;
-      start += _readStreamChunkSize;
+      final JSAny? readerResult = reader.result;
+      if (readerResult == null) {
+        continue;
+      }
+      // TODO: use `isA<JSArrayBuffer>()` when switching to Dart 3.4
+      // Handle the ArrayBuffer type. This maps to a `ByteBuffer` in Dart.
+      if (readerResult.instanceOfString('ArrayBuffer')) {
+        yield (readerResult as JSArrayBuffer).toDart.asUint8List();
+        start += _readStreamChunkSize;
+        continue;
+      }
+      // TODO: use `isA<JSArray>()` when switching to Dart 3.4
+      // Handle the Array type.
+      if (readerResult.instanceOfString('Array')) {
+        // Assume this is a List<int>.
+        yield (readerResult as JSArray).toDart.cast<int>();
+        start += _readStreamChunkSize;
+      }
     }
   }
 }
