@@ -140,12 +140,17 @@ class FilePickerWeb extends FilePicker {
     }
 
     void cancelledEventListener(Event _) {
-      window.removeEventListener('focus', cancelledEventListener.toJS);
+      changeEventTriggered = true;
+      filesCompleter.complete(null);
+    }
+
+    void focusedEventListener(Event _) {
+      window.removeEventListener('focus', focusedEventListener.toJS);
 
       // This listener is called before the input changed event,
       // and the `uploadInput.files` value is still null
       // Wait for results from js to dart
-      Future.delayed(Duration(seconds: 1)).then((value) {
+      Future.delayed(Duration(seconds: 3)).then((value) {
         if (!changeEventTriggered) {
           changeEventTriggered = true;
           filesCompleter.complete(null);
@@ -158,7 +163,7 @@ class FilePickerWeb extends FilePicker {
     uploadInput.addEventListener('cancel', cancelledEventListener.toJS);
 
     // Listen focus event for cancelled
-    window.addEventListener('focus', cancelledEventListener.toJS);
+    window.addEventListener('focus', focusedEventListener.toJS);
 
     //Add input element to the page body
     Node? firstChild = _target.firstChild;
