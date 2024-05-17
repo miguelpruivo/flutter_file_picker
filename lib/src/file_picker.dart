@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:file_picker/_internal/file_picker_web.dart';
 import 'package:file_picker/src/file_picker_io.dart';
 import 'package:file_picker/src/file_picker_macos.dart';
 import 'package:file_picker/src/file_picker_result.dart';
 import 'package:file_picker/src/linux/file_picker_linux.dart';
 import 'package:file_picker/src/windows/stub.dart'
     if (dart.library.io) 'package:file_picker/src/windows/file_picker_windows.dart';
+import 'package:flutter/foundation.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 const String defaultDialogTitle = '';
@@ -48,7 +50,9 @@ abstract class FilePicker extends PlatformInterface {
   }
 
   factory FilePicker._setPlatform() {
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (kIsWeb) {
+      return FilePickerWeb.platform;
+    } else if (Platform.isAndroid || Platform.isIOS) {
       return FilePickerIO();
     } else if (Platform.isLinux) {
       return FilePickerLinux();
@@ -126,8 +130,8 @@ abstract class FilePicker extends PlatformInterface {
   /// This method is only available on mobile platforms (Android & iOS).
   ///
   /// Returns `true` if the files were removed with success, `false` otherwise.
-  Future<bool?> clearTemporaryFiles() async => throw UnimplementedError(
-      'clearTemporaryFiles() has not been implemented.');
+  Future<bool?> clearTemporaryFiles() async =>
+      throw UnimplementedError('clearTemporaryFiles() has not been implemented.');
 
   /// Selects a directory and returns its absolute path.
   ///
