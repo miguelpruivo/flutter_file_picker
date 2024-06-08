@@ -2,6 +2,25 @@
 #import "FileUtils.h"
 #import "ImageUtils.h"
 
+@interface CustomDocumentPickerViewController : UIDocumentPickerViewController
+@property (nonatomic, weak) id<UIDocumentPickerDelegate> customDelegate;
+@property (nonatomic, assign) BOOL wasDocumentPicked;
+@end
+
+@implementation CustomDocumentPickerViewController
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    // Delay for waiting wasDocumentPicked to update
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (!self.wasDocumentPicked) {
+            [self.customDelegate documentPickerWasCancelled:self];
+        }
+    });
+}
+
+@end
+
 #ifdef PICKER_MEDIA
 @import DKImagePickerController;
 
@@ -15,7 +34,7 @@
 @property (nonatomic) UIImagePickerController *galleryPickerController;
 #endif
 #ifdef PICKER_DOCUMENT
-@property (nonatomic) UIDocumentPickerViewController *documentPickerController;
+@property (nonatomic) CustomDocumentPickerViewController *documentPickerController;
 @property (nonatomic) UIDocumentInteractionController *interactionController;
 #endif
 @property (nonatomic) MPMediaPickerController *audioPickerController;
@@ -194,7 +213,7 @@
             error = nil;
         }
     }
-    self.documentPickerController = [[UIDocumentPickerViewController alloc] initWithURL:destinationPath inMode:UIDocumentPickerModeExportToService];
+    self.documentPickerController = [[CustomDocumentPickerViewController alloc] initWithURL:destinationPath inMode:UIDocumentPickerModeExportToService];
     self.documentPickerController.delegate = self;
     self.documentPickerController.presentationController.delegate = self;
     if(@available(iOS 13, *)){
@@ -210,9 +229,10 @@
 - (void)resolvePickDocumentWithMultiPick:(BOOL)allowsMultipleSelection pickDirectory:(BOOL)isDirectory {
     self.isSaveFile = NO;
     @try{
-        self.documentPickerController = [[UIDocumentPickerViewController alloc]
+        self.documentPickerController = [[CustomDocumentPickerViewController alloc]
                                          initWithDocumentTypes: isDirectory ? @[@"public.folder"] : self.allowedExtensions
                                          inMode: isDirectory ? UIDocumentPickerModeOpen : UIDocumentPickerModeImport];
+        ((CustomDocumentPickerViewController *)self.documentPickerController).customDelegate = self;
     } @catch (NSException * e) {
         Log(@"Couldn't launch documents file picker. Probably due to iOS version being below 11.0 and not having the iCloud entitlement. If so, just make sure to enable it for your app in Xcode. Exception was: %@", e);
         _result = nil;
@@ -389,9 +409,9 @@
 
 #ifdef PICKER_DOCUMENT
 // DocumentPicker delegate
-- (void)documentPicker:(UIDocumentPickerViewController *)controller
+- (void)documentPicker:(CustomDocumentPickerViewController *)controller
 didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
-    
+    ((CustomDocumentPickerViewController *)controller).wasDocumentPicked = YES;
     if(_result == nil) {
         return;
     }
@@ -672,11 +692,15 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 #endif // PICKER_AUDIO
 
 #ifdef PICKER_DOCUMENT
-- (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller {
+- (void)documentPickerWasCancelled:(CustomDocumentPickerViewController *)controller {
     Log(@"FilePicker canceled");
-    _result(nil);
-    _result = nil;
-    [controller dismissViewControllerAnimated:YES completion:NULL];
+    if (_result) {
+        _result(nil);
+        _result = nil;
+    }
+    if (controller.presentingViewController) {
+        [controller dismissViewControllerAnimated:YES completion:NULL];
+    }
 }
 #endif // PICKER_DOCUMENT
 
