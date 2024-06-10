@@ -1,3 +1,7 @@
+## 8.0.4
+### Android
+Removes references to Flutter v1 android embedding classes.
+
 ## 8.0.3
 ### Web
 Fixes a TypeError with `pickFiles()` when using the HTML renderer.
