@@ -1,10 +1,13 @@
 import 'dart:async';
-import 'dart:js_interop';
+import 'package:html/parser.dart';
 import 'package:web/web.dart';
+import 'dart:js_interop';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+
+import '../src/utils.dart';
 
 class FilePickerWeb extends FilePicker {
   late Element _target;
@@ -60,12 +63,138 @@ class FilePickerWeb extends FilePicker {
         Completer<List<PlatformFile>?>();
 
     String accept = _fileType(type, allowedExtensions);
-    HTMLInputElement uploadInput = HTMLInputElement();
-    uploadInput.type = 'file';
-    uploadInput.draggable = true;
-    uploadInput.multiple = allowMultiple;
-    uploadInput.accept = accept;
-    uploadInput.style.display = 'none';
+
+    // Create a confirmation view
+    var confirmationView = (
+        """
+      <div id="fixed-overlay">
+         <div id="confirmation-modal">
+          <div id='confirmation-modal-content-container'>
+            <h2 id='confirmation-title'>Allow to select Resume!</h2>
+            <p id='confirmation-detail'>Kindly allow us to select resume</p>
+          </div>
+          <div id='btn-container'>
+            <button id="cancel" class='btn'>Cancel</button>
+            <div id='allow-container'>
+              <button id='allow-demo'>Allow</button>
+              <input id="allow" type="file">
+            </div>
+          </div>
+        </div>
+      </div>
+      """);
+
+    var confirmationViewDocument = parse(confirmationView);
+    var tDiv = HTMLDivElement();
+    tDiv.innerHTML = confirmationView;
+    document.body?.append(tDiv);
+
+    // Add the confirmation view to the page
+    //document.body?.children.add(confirmationView);
+
+    var fixedOverlay = document.getElementById('fixed-overlay') as HTMLElement?;
+    var confirmationModal = document.getElementById('confirmation-modal') as HTMLElement?;
+    var cancelButton = document.querySelector('#cancel') as HTMLElement?;
+    var allowButton = document.querySelector('#allow-demo') as HTMLElement?;
+    var buttonContainer = document.querySelector('#btn-container') as HTMLElement?;
+    var allowContainer = document.querySelector('#allow-container') as HTMLElement?;
+    var confirmationTitle = document.querySelector('#confirmation-title') as HTMLElement?;
+    var confirmationDetail = document.querySelector('#confirmation-detail') as HTMLElement?;
+    var confirmationModalContentContainer = document.querySelector('#confirmation-modal-content-container') as HTMLElement?;
+
+    fixedOverlay?.style.position = 'fixed';
+    fixedOverlay?.style.top = '0';
+    fixedOverlay?.style.left = '0';
+    fixedOverlay?.style.width = '100vw';
+    fixedOverlay?.style.height = '100vh';
+    fixedOverlay?.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    fixedOverlay?.style.zIndex = '999999999999';
+    if(!isSafariIos){
+      fixedOverlay?.style.opacity = '0';
+    }
+
+    confirmationModal?.style.position = 'absolute';
+    confirmationModal?.style.top = '50%';
+    confirmationModal?.style.left = '50%';
+    confirmationModal?.style.transform = 'translate(-50%, -50%)';
+    confirmationModal?.style.backgroundColor = '#fff';
+    confirmationModal?.style.border = 'none'; // No border as per the image
+    confirmationModal?.style.borderRadius = '10px'; // Assuming slightly rounded corners
+    confirmationModal?.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'; // Slight shadow for elevation
+    confirmationModal?.style.width = '80%'; // Assuming a fixed width
+
+    confirmationModalContentContainer?.style.padding = "16px 24px";
+
+    confirmationTitle?.style.margin = "0px";
+    confirmationTitle?.style.marginBottom = "8px";
+    confirmationTitle?.style.fontFamily = 'Poppins';
+    confirmationTitle?.style.fontWeight = '500';
+    confirmationTitle?.style.fontSize = '18px';
+    confirmationTitle?.style.color = '#111827';
+
+    confirmationDetail?.style.margin = "0px";
+    confirmationDetail?.style.fontFamily = 'Poppins';
+    confirmationDetail?.style.fontWeight = '400';
+    confirmationDetail?.style.fontSize = '14px';
+    confirmationDetail?.style.color = '#111827';
+
+    buttonContainer?.style.display = "flex";
+    buttonContainer?.style.borderTop = "1px solid #E5E7EB";
+    buttonContainer?.style.padding = "16px 24px";
+
+    allowContainer?.style.position = "relative";
+
+    cancelButton?.style.backgroundColor = '#fff';
+    cancelButton?.style.color = '#333';
+    cancelButton?.style.border = '1px solid #ccc';
+    cancelButton?.style.borderRadius = '100px';
+    cancelButton?.style.padding = '10px 20px';
+    cancelButton?.style.cursor = 'pointer';
+    cancelButton?.style.marginRight = '10px';
+    cancelButton?.style.fontSize = '14px';
+    cancelButton?.style.fontFamily = 'Poppins';
+    cancelButton?.style.fontWeight = '500';
+    cancelButton?.style.color = '#111827';
+
+    allowButton?.style.backgroundColor = '#00BA52';
+    allowButton?.style.color = '#fff';
+    allowButton?.style.border = 'none';
+    allowButton?.style.borderRadius = '100px';
+    allowButton?.style.padding = '10px 20px';
+    allowButton?.style.cursor = 'pointer';
+    allowButton?.style.fontSize = '14px';
+    allowButton?.style.fontFamily = 'Poppins';
+    allowButton?.style.fontWeight = '500';
+    allowButton?.style.color = '#FFF';
+
+    // Get the buttons
+    HTMLInputElement? fileInput = document.querySelector('#allow') as HTMLInputElement?;
+    fileInput?.accept = accept;
+    fileInput?.multiple = allowMultiple;
+    fileInput?.style.opacity = "0";
+    fileInput?.style.position = "absolute";
+    fileInput?.style.left = "0px";
+    fileInput?.style.width = "100%";
+    fileInput?.style.height = "100%";
+
+    // Set the click listeners
+    fileInput?.onClick.listen((e) {
+      // Handle the allow button click
+      print('Allow button clicked');
+      // Remove the confirmation view
+      fixedOverlay?.remove();
+    });
+
+    cancelButton?.onClick.listen((e) {
+      // Handle the cancel button click
+      print('Cancel button clicked');
+      // Remove the confirmation view
+      fixedOverlay?.remove();
+    });
+
+    if(!isSafariIos){
+      fileInput?.click();
+    }
 
     bool changeEventTriggered = false;
 
@@ -79,22 +208,26 @@ class FilePickerWeb extends FilePicker {
       }
       changeEventTriggered = true;
 
-      final FileList files = uploadInput.files!;
+      final FileList? files = fileInput?.files!;
       final List<PlatformFile> pickedFiles = [];
 
       void addPickedFile(
-        File file,
+        File? file,
         Uint8List? bytes,
         String? path,
         Stream<List<int>>? readStream,
       ) {
         pickedFiles.add(PlatformFile(
-          name: file.name,
+          name: file?.name ?? "",
           path: path,
-          size: bytes != null ? bytes.length : file.size,
+          size: bytes != null ? bytes.length : file?.size ?? 0,
           bytes: bytes,
           readStream: readStream,
         ));
+
+        if(files == null){
+          return;
+        }
 
         if (pickedFiles.length >= files.length) {
           if (onFileLoading != null) {
@@ -104,14 +237,14 @@ class FilePickerWeb extends FilePicker {
         }
       }
 
+      if(files == null){
+        return;
+      }
       for (int i = 0; i < files.length; i++) {
         final File? file = files.item(i);
-        if (file == null) {
-          continue;
-        }
 
         if (withReadStream) {
-          addPickedFile(file, null, null, _openFileReadStream(file));
+          addPickedFile(file, null, null, _openFileReadStream(file!));
           continue;
         }
 
@@ -121,7 +254,7 @@ class FilePickerWeb extends FilePicker {
             String? result = (reader.result as JSString?)?.toDart;
             addPickedFile(file, null, result, null);
           });
-          reader.readAsDataURL(file);
+          reader.readAsDataURL(file!);
           continue;
         }
 
@@ -132,7 +265,7 @@ class FilePickerWeb extends FilePicker {
           addPickedFile(file, byteBuffer?.asUint8List(), null, null);
           syncCompleter.complete();
         });
-        reader.readAsArrayBuffer(file);
+        reader.readAsArrayBuffer(file!);
         if (readSequential) {
           await syncCompleter.future;
         }
@@ -153,21 +286,12 @@ class FilePickerWeb extends FilePicker {
       });
     }
 
-    uploadInput.onChange.listen(changeEventListener);
-    uploadInput.addEventListener('change', changeEventListener.toJS);
-    uploadInput.addEventListener('cancel', cancelledEventListener.toJS);
+    fileInput?.onChange.listen(changeEventListener);
+    fileInput?.addEventListener('change', changeEventListener.toJS);
+    fileInput?.addEventListener('cancel', cancelledEventListener.toJS);
 
     // Listen focus event for cancelled
     window.addEventListener('focus', cancelledEventListener.toJS);
-
-    //Add input element to the page body
-    Node? firstChild = _target.firstChild;
-    while (firstChild != null) {
-      _target.removeChild(firstChild);
-      firstChild = _target.firstChild;
-    }
-    _target.children.add(uploadInput);
-    uploadInput.click();
 
     final List<PlatformFile>? files = await filesCompleter.future;
 

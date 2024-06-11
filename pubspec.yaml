@@ -18,6 +18,8 @@ dependencies:
   win32: ^5.1.1
   cross_file: ^0.3.3+7
   web: ^0.5.1
+  html: ^0.15.4
+
 
 dev_dependencies:
   lints: ^3.0.0

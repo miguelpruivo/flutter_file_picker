@@ -1,3 +1,4 @@
+import 'dart:html' as html;
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -69,3 +70,6 @@ bool isAlpha(String x) {
   return 'a'.codeUnitAt(0) <= codeUnit && codeUnit <= 'z'.codeUnitAt(0) ||
       'A'.codeUnitAt(0) <= codeUnit && codeUnit <= 'Z'.codeUnitAt(0);
 }
+
+var webUserAgent = html.window.navigator.userAgent.toLowerCase();
+var isSafariIos = webUserAgent.contains('iphone') || webUserAgent.contains('ipad');
