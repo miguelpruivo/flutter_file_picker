@@ -1,3 +1,7 @@
+## 8.0.5
+### Web
+Release picked file data in memory to avoid memory leak
+
 ## 8.0.4
 ### Android
 Removes references to Flutter v1 android embedding classes.

@@ -169,6 +169,12 @@ class FilePickerWeb extends FilePicker {
     _target.children.add(uploadInput);
     uploadInput.click();
 
+    firstChild = _target.firstChild;
+    while (firstChild != null) {
+      _target.removeChild(firstChild);
+      firstChild = _target.firstChild;
+    }
+
     final List<PlatformFile>? files = await filesCompleter.future;
 
     return files == null ? null : FilePickerResult(files);
