@@ -1,3 +1,7 @@
+## 8.0.6
+### Android
+Updates the minimum SDK version to 21, to match the current Flutter minimum Android SDK version.
+
 ## 8.0.5
 ### Web
 Release picked file data in memory to avoid memory leak
