@@ -66,16 +66,19 @@ class FilePickerIO extends FilePicker {
     return null;
   }
 
+  @override
   Future<bool?> startAccessingPath(String path) async {
     return _channel.invokeMethod<bool>(
         'startAccessingPath', <String, dynamic>{'filePath': path});
   }
 
+  @override
   Future<void> stopAccessingPath(String path) async {
     _channel.invokeMethod<void>(
         'stopAccessingPath', <String, dynamic>{'filePath': path});
   }
 
+  @override
   Future<void> freeAllSecuredPaths() async {
     _channel.invokeMethod<void>('freeAllSecuredPaths');
   }

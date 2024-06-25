@@ -94,7 +94,7 @@ class FilePickerWindows extends FilePicker {
     String? initialDirectory,
   }) {
     int hr = CoInitializeEx(
-        nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+        nullptr, COINIT.COINIT_APARTMENTTHREADED | COINIT.COINIT_DISABLE_OLE1DDE);
 
     if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
@@ -135,7 +135,7 @@ class FilePickerWindows extends FilePicker {
     if (!SUCCEEDED(hr)) {
       CoUninitialize();
 
-      if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED)) {
+      if (hr == HRESULT_FROM_WIN32(WIN32_ERROR.ERROR_CANCELLED)) {
         return Future.value(null);
       }
       throw WindowsException(hr);
@@ -263,7 +263,7 @@ class FilePickerWindows extends FilePicker {
     bool lastCharWasNull = false;
     // ignore: literal_only_boolean_expressions
     while (true) {
-      final char = openFileNameW.lpstrFile.cast<Uint16>().elementAt(i).value;
+      final char = openFileNameW.lpstrFile.cast<Uint16>()[i];
       final currentCharIsNull = char == 0;
       if (currentCharIsNull && lastCharWasNull) {
         break;
