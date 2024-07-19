@@ -86,7 +86,7 @@ class FilePickerWeb extends FilePicker {
 
     var confirmationViewDocument = parse(confirmationView);
     var tDiv = HTMLDivElement();
-    tDiv.innerHTML = confirmationView;
+    tDiv.innerHTML = confirmationView.toJS;
     document.body?.append(tDiv);
 
     // Add the confirmation view to the page
