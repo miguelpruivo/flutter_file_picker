@@ -1,3 +1,11 @@
+## 8.0.6
+### Android
+Updates the minimum Android SDK version to 21, to match the current Flutter minimum Android SDK version. Fixes [#1522](https://github.com/miguelpruivo/flutter_file_picker/issues/1522), [#1528](https://github.com/miguelpruivo/flutter_file_picker/issues/1528), and [#1531](https://github.com/miguelpruivo/flutter_file_picker/issues/1531). Thanks @navaronbracke.
+
+## 8.0.5
+### Web
+Release picked file data in memory to avoid memory leak
+
 ## 8.0.4
 ### Android
 Removes references to Flutter v1 android embedding classes.
