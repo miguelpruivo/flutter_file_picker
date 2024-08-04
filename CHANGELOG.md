@@ -1,3 +1,8 @@
+## 8.0.7
+### General
+- Updates `flutter:plugins:` section in `pubspec.yaml` to remove warnings caused by incorrect usage of non-existent endorsement plugins. Fixes [#1555](https://github.com/miguelpruivo/flutter_file_picker/issues/1555).
+- Refactors the platform-specific implementation selection logic. Each platform-specific class now includes a static `registerWith` method, allowing the framework to decide which implementation to register based on the current platform.
+
 ## 8.0.6
 ### Android
 Updates the minimum Android SDK version to 21, to match the current Flutter minimum Android SDK version. Fixes [#1522](https://github.com/miguelpruivo/flutter_file_picker/issues/1522), [#1528](https://github.com/miguelpruivo/flutter_file_picker/issues/1528), and [#1531](https://github.com/miguelpruivo/flutter_file_picker/issues/1531). Thanks @navaronbracke.
