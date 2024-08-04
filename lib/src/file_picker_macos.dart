@@ -4,6 +4,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/utils.dart';
 
 class FilePickerMacOS extends FilePicker {
+  static void registerWith() {
+    FilePicker.platform = FilePickerMacOS();
+  }
+
   @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,

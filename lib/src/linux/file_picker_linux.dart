@@ -7,6 +7,10 @@ import 'package:file_picker/src/platform_file.dart';
 import 'package:file_picker/src/utils.dart';
 
 class FilePickerLinux extends FilePicker {
+  static void registerWith() {
+    FilePicker.platform = FilePickerLinux();
+  }
+
   @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
