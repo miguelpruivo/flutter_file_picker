@@ -2,8 +2,6 @@
 ### General
 - Fixes an issue relating to incorrect registration of platform-specific implementations. [#1555](https://github.com/miguelpruivo/flutter_file_picker/issues/1555).
 - Fixes an issue that required users to use `kIsWeb` and `FilePickerWeb` when running on the web.
-- Updates `flutter:plugins:` section in `pubspec.yaml` to remove warnings caused by incorrect usage of non-existent endorsement plugins. Fixes [#1555](https://github.com/miguelpruivo/flutter_file_picker/issues/1555).
-- Refactors the platform-specific implementation selection logic. Each platform-specific class now includes a static `registerWith` method, allowing the framework to decide which implementation to register based on the current platform.
 
 ## 8.0.6
 ### Android
