@@ -33,7 +33,7 @@ void main() {
 
       expect(
         picker.fileTypeToFileFilter(FileType.video, null),
-        equals('"avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv"'),
+        equals('"avi", "flv", "mkv", "mov", "mp4", "m4v", "mpeg", "webm", "wmv"'),
       );
     });
 
