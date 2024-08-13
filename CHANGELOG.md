@@ -4,6 +4,7 @@
 
 ### Web
 - Updates the `package:web` dependency to 1.0.0.
+- Removes a redundant `FilePickerWeb.platform` static field. Use `FilePicker.platform` instead.
 
 ## 8.0.7
 ### General
