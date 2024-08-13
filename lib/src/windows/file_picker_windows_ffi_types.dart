@@ -71,7 +71,7 @@ typedef GetSaveFileNameWDart = int Function(
 ///
 /// Reference:
 /// https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/ns-shlobj_core-browseinfoa
-class BROWSEINFOA extends Struct {
+final class BROWSEINFOA extends Struct {
   /// A handle to the owner window for the dialog box.
   external Pointer hwndOwner;
 
@@ -112,7 +112,7 @@ class BROWSEINFOA extends Struct {
 ///
 /// Reference:
 /// https://docs.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamew
-class OPENFILENAMEW extends Struct {
+final class OPENFILENAMEW extends Struct {
   /// The length, in bytes, of the structure. Use sizeof [OPENFILENAMEW] for this parameter.
   @Uint32()
   external int lStructSize;
