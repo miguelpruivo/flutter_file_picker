@@ -1,3 +1,7 @@
+## 8.1.1
+### Web
+- Migrate the web example to use the new web bootstrapping, introduced in Flutter 3.22.
+
 ## 8.1.0
 ### General
 - Updates the minimum Flutter version to 3.22.0, to support Dart 3.4.
