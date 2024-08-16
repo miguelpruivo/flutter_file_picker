@@ -255,13 +255,7 @@ public class FileUtils {
     public static boolean clearCache(final Context context) {
         try {
             final File cacheDir = new File(context.getCacheDir() + "/file_picker/");
-            final File[] files = cacheDir.listFiles();
-
-            if (files != null) {
-                for (final File file : files) {
-                    file.delete();
-                }
-            }
+            recursiveDeleteFile(cacheDir);
         } catch (final Exception ex) {
             Log.e(TAG, "There was an error while clearing cached files: " + ex.toString());
             return false;
@@ -469,6 +463,20 @@ public class FileUtils {
         final String[] split = docId.split(":");
         if ((split.length >= 2) && (split[1] != null)) return split[1];
         else return File.separator;
+    }
+
+    private static void recursiveDeleteFile(final File file) throws Exception {
+        if (file == null || !file.exists()) {
+            return;
+        }
+
+        if (file.isDirectory()) {
+            for (File child : file.listFiles()) {
+                recursiveDeleteFile(child);
+            }
+        }
+
+        file.delete();
     }
 
 }

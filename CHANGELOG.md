@@ -1,3 +1,7 @@
+## 8.1.2
+### Android
+- Fixes a cache deletion issue [#1505](https://github.com/miguelpruivo/flutter_file_picker/issues/1505)
+
 ## 8.1.1
 ### Web
 - Migrate the web example to use the new web bootstrapping, introduced in Flutter 3.22.
