@@ -466,7 +466,7 @@ public class FileUtils {
     }
 
     private static void recursiveDeleteFile(final File file) throws Exception {
-        if (!file.exists()) {
+        if (file == null || !file.exists()) {
             return;
         }
 
