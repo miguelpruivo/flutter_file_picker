@@ -1,9 +1,9 @@
-import 'dart:html' as html;
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart';
+import 'package:universal_html/html.dart' as html;
 
 Future<List<PlatformFile>> filePathsToPlatformFiles(
   List<String> filePaths,
@@ -11,9 +11,7 @@ Future<List<PlatformFile>> filePathsToPlatformFiles(
   bool withData,
 ) {
   return Future.wait(
-    filePaths
-        .where((String filePath) => filePath.isNotEmpty)
-        .map((String filePath) async {
+    filePaths.where((String filePath) => filePath.isNotEmpty).map((String filePath) async {
       final file = File(filePath);
 
       if (withReadStream) {
@@ -67,8 +65,7 @@ Future<String> isExecutableOnPath(String executable) async {
 
 bool isAlpha(String x) {
   int codeUnit = x.codeUnitAt(0);
-  return 'a'.codeUnitAt(0) <= codeUnit && codeUnit <= 'z'.codeUnitAt(0) ||
-      'A'.codeUnitAt(0) <= codeUnit && codeUnit <= 'Z'.codeUnitAt(0);
+  return 'a'.codeUnitAt(0) <= codeUnit && codeUnit <= 'z'.codeUnitAt(0) || 'A'.codeUnitAt(0) <= codeUnit && codeUnit <= 'Z'.codeUnitAt(0);
 }
 
 var webUserAgent = html.window.navigator.userAgent.toLowerCase();
