@@ -1,3 +1,7 @@
+## 6.2.1
+### Android
+Fix [#872](https://github.com/miguelpruivo/flutter_file_picker/issues/872)
+
 ## 8.1.2
 ### Android
 - Fixes a cache deletion issue [#1505](https://github.com/miguelpruivo/flutter_file_picker/issues/1505)
