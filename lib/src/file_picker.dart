@@ -1,12 +1,7 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:typed_data';
 
-import 'package:file_picker/src/file_picker_io.dart';
-import 'package:file_picker/src/file_picker_macos.dart';
 import 'package:file_picker/src/file_picker_result.dart';
-import 'package:file_picker/src/linux/file_picker_linux.dart';
-import 'package:file_picker/src/windows/stub.dart'
-    if (dart.library.io) 'package:file_picker/src/windows/file_picker_windows.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 const String defaultDialogTitle = '';
@@ -37,29 +32,13 @@ abstract class FilePicker extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static FilePicker _instance = FilePicker._setPlatform();
+  static late FilePicker _instance;
 
   static FilePicker get platform => _instance;
 
   static set platform(FilePicker instance) {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
-  }
-
-  factory FilePicker._setPlatform() {
-    if (Platform.isAndroid || Platform.isIOS) {
-      return FilePickerIO();
-    } else if (Platform.isLinux) {
-      return FilePickerLinux();
-    } else if (Platform.isWindows) {
-      return filePickerWithFFI();
-    } else if (Platform.isMacOS) {
-      return FilePickerMacOS();
-    } else {
-      throw UnimplementedError(
-        'The current platform "${Platform.operatingSystem}" is not supported by this plugin.',
-      );
-    }
   }
 
   /// Retrieves the file(s) from the underlying platform
@@ -140,7 +119,7 @@ abstract class FilePicker extends PlatformInterface {
   /// window). This parameter works only on Windows desktop.
   ///
   /// [initialDirectory] can be optionally set to an absolute path to specify
-  /// where the dialog should open. Only supported on Linux and macOS.
+  /// where the dialog should open. Only supported on Linux, macOS, and Windows.
   ///
   /// Returns a [Future<String?>] which resolves to  the absolute path of the selected directory,
   /// if the user selected a directory. Returns `null` if the user aborted the dialog or if the
@@ -159,12 +138,11 @@ abstract class FilePicker extends PlatformInterface {
   /// Opens a save file dialog which lets the user select a file path and a file
   /// name to save a file.
   ///
-  /// This function does not actually save a file. It only opens the dialog to
-  /// let the user choose a location and file name. This function only returns
-  /// the **path** to this (non-existing) file.
+  /// For mobile platforms, this function will save file with [bytes] to return a path.
   ///
-  /// This method is only available on desktop platforms (Linux, macOS &
-  /// Windows).
+  /// For desktop platforms (Linux, macOS & Windows),This function does not actually
+  /// save a file. It only opens the dialog to let the user choose a location and
+  /// file name. This function only returns the **path** to this (non-existing) file.
   ///
   /// [dialogTitle] can be set to display a custom title on desktop platforms.
   ///
@@ -192,6 +170,7 @@ abstract class FilePicker extends PlatformInterface {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
+    Uint8List? bytes,
     bool lockParentWindow = false,
   }) async =>
       throw UnimplementedError('saveFile() has not been implemented.');

@@ -1,4 +1,5 @@
 @TestOn('mac-os')
+library;
 
 import 'package:file_picker/src/file_picker.dart';
 import 'package:file_picker/src/file_picker_macos.dart';
@@ -27,13 +28,15 @@ void main() {
       expect(
         picker.fileTypeToFileFilter(FileType.media, null),
         equals(
-          '"avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv", "bmp", "gif", "jpeg", "jpg", "png"',
+          '"avi", "flv", "m4v", "mkv", "mov", "mp4", "mpeg", "webm", "wmv", "bmp", "gif", "jpeg", "jpg", "png"',
         ),
       );
 
       expect(
         picker.fileTypeToFileFilter(FileType.video, null),
-        equals('"avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv"'),
+        equals(
+          '"avi", "flv", "mkv", "mov", "mp4", "m4v", "mpeg", "webm", "wmv"',
+        ),
       );
     });
 

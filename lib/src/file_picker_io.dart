@@ -16,6 +16,10 @@ const EventChannel _eventChannel =
 
 /// An implementation of [FilePicker] that uses method channels.
 class FilePickerIO extends FilePicker {
+  static void registerWith() {
+    FilePicker.platform = FilePickerIO();
+  }
+
   static const String _tag = 'MethodChannelFilePicker';
   static StreamSubscription? _eventSubscription;
 
@@ -130,5 +134,34 @@ class FilePickerIO extends FilePicker {
           '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
       rethrow;
     }
+  }
+
+  @override
+  Future<String?> saveFile(
+      {String? dialogTitle,
+      String? fileName,
+      String? initialDirectory,
+      FileType type = FileType.any,
+      List<String>? allowedExtensions,
+      Uint8List? bytes,
+      bool lockParentWindow = false}) {
+    if (Platform.isIOS || Platform.isAndroid) {
+      return _channel.invokeMethod("save", {
+        "fileName": fileName,
+        "fileType": type.name,
+        "initialDirectory": initialDirectory,
+        "allowedExtensions": allowedExtensions,
+        "bytes": bytes,
+      });
+    }
+    return super.saveFile(
+      dialogTitle: dialogTitle,
+      fileName: fileName,
+      initialDirectory: initialDirectory,
+      type: type,
+      allowedExtensions: allowedExtensions,
+      bytes: bytes,
+      lockParentWindow: lockParentWindow,
+    );
   }
 }

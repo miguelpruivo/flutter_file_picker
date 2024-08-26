@@ -23,6 +23,7 @@
 @property (nonatomic) BOOL loadDataToMemory;
 @property (nonatomic) BOOL allowCompression;
 @property (nonatomic) dispatch_group_t group;
+@property (nonatomic) BOOL isSaveFile;
 @end
 
 @implementation FilePickerPlugin
@@ -119,7 +120,7 @@
         self.allowedExtensions = [FileUtils resolveType:call.method withAllowedExtensions: [arguments valueForKey:@"allowedExtensions"]];
         if(self.allowedExtensions == nil) {
             _result([FlutterError errorWithCode:@"Unsupported file extension"
-                                        message:@"If you are providing extension filters make sure that you are only using FileType.custom and the extension are provided without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension. If the problem persists, you may want to consider using FileType.all instead."
+                                        message:@"If you are providing extension filters make sure that you are only using FileType.custom and the extension are provided without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension. If the problem persists, you may want to consider using FileType.any instead."
                                         details:nil]);
             _result = nil;
         } else if(self.allowedExtensions != nil) {
@@ -147,6 +148,18 @@
                                     message:@"Support for the Audio picker is not compiled in. Remove the Pod::PICKER_AUDIO=false statement from your Podfile."
                                     details:nil]);
 #endif      
+    } else if([call.method isEqualToString:@"save"]) {
+#ifdef PICKER_DOCUMENT
+        NSString *fileName = [arguments valueForKey:@"fileName"];
+        NSString *fileType = [arguments valueForKey:@"fileType"];
+        NSString *initialDirectory = [arguments valueForKey:@"initialDirectory"];
+        FlutterStandardTypedData *bytes = [arguments valueForKey:@"bytes"];
+        [self saveFileWithName:fileName fileType:fileType initialDirectory:initialDirectory bytes: bytes];
+#else
+        _result([FlutterError errorWithCode:@"Unsupported function"
+                                    message:@"The save function requires the document picker to be compiled in. Remove the Pod::PICKER_DOCUMENT=false statement from your Podfile."
+                                    details:nil]);
+#endif
     } else {
         result(FlutterMethodNotImplemented);
         _result = nil;
@@ -161,8 +174,41 @@
 #pragma mark - Resolvers
 
 #ifdef PICKER_DOCUMENT
+- (void)saveFileWithName:(NSString*)fileName fileType:(NSString *)fileType initialDirectory:(NSString*)initialDirectory bytes:(FlutterStandardTypedData*)bytes{
+    self.isSaveFile = YES;
+    NSFileManager* fm = [NSFileManager defaultManager];
+    NSURL* documentsDirectory = [fm URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask][0];
+    NSURL* destinationPath = [documentsDirectory URLByAppendingPathComponent:fileName];
+    NSError* error;
+    if ([fm fileExistsAtPath:destinationPath.path]) {
+        [fm removeItemAtURL:destinationPath error:&error];
+        if (error != nil) {
+            _result([FlutterError errorWithCode:@"Failed to remove file" message:[error debugDescription] details:nil]);
+            error = nil;
+        }
+    }
+    if(bytes != nil){
+        [bytes.data writeToURL:destinationPath options:NSDataWritingAtomic error:&error];
+        if (error != nil) {
+            _result([FlutterError errorWithCode:@"Failed to write file" message:[error debugDescription] details:nil]);
+            error = nil;
+        }
+    }
+    self.documentPickerController = [[UIDocumentPickerViewController alloc] initWithURL:destinationPath inMode:UIDocumentPickerModeExportToService];
+    self.documentPickerController.delegate = self;
+    self.documentPickerController.presentationController.delegate = self;
+    if(@available(iOS 13, *)){
+       if(![[NSNull null] isEqual:initialDirectory] && ![@"" isEqualToString:initialDirectory]){
+            self.documentPickerController.directoryURL = [NSURL URLWithString:initialDirectory];
+        }
+    }
+    [[self viewControllerWithWindow:nil] presentViewController:self.documentPickerController animated:YES completion:nil];
+}
+#endif // PICKER_DOCUMENT
+
+#ifdef PICKER_DOCUMENT
 - (void)resolvePickDocumentWithMultiPick:(BOOL)allowsMultipleSelection pickDirectory:(BOOL)isDirectory {
-    
+    self.isSaveFile = NO;
     @try{
         self.documentPickerController = [[UIDocumentPickerViewController alloc]
                                          initWithDocumentTypes: isDirectory ? @[@"public.folder"] : self.allowedExtensions
@@ -349,26 +395,37 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     if(_result == nil) {
         return;
     }
-    NSMutableArray<NSURL *> *newUrls = [NSMutableArray new];
-    for (NSURL *url in urls) {
-        // Create file URL to temporary folder
-        NSURL *tempURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
-        // Append filename (name+extension) to URL
-        tempURL = [tempURL URLByAppendingPathComponent:url.lastPathComponent];
-        NSError *error;
-        // If file with same name exists remove it (replace file with new one)
-        if ([[NSFileManager defaultManager] fileExistsAtPath:tempURL.path]) {
-            [[NSFileManager defaultManager] removeItemAtPath:tempURL.path error:&error];
+    if(self.isSaveFile){
+        _result(urls[0].path);
+        _result = nil;
+        return;
+    }
+    NSMutableArray<NSURL *> *newUrls;
+    if(controller.documentPickerMode == UIDocumentPickerModeOpen) {
+        newUrls = urls;
+    }
+    if(controller.documentPickerMode == UIDocumentPickerModeImport) {
+        newUrls = [NSMutableArray new];
+        for (NSURL *url in urls) {
+            // Create file URL to temporary folder
+            NSURL *tempURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
+            // Append filename (name+extension) to URL
+            tempURL = [tempURL URLByAppendingPathComponent:url.lastPathComponent];
+            NSError *error;
+            // If file with same name exists remove it (replace file with new one)
+            if ([[NSFileManager defaultManager] fileExistsAtPath:tempURL.path]) {
+                [[NSFileManager defaultManager] removeItemAtPath:tempURL.path error:&error];
+                if (error) {
+                    NSLog(@"%@", error.localizedDescription);
+                }
+            }
+            // Move file from app_id-Inbox to tmp/filename
+            [[NSFileManager defaultManager] moveItemAtPath:url.path toPath:tempURL.path error:&error];
             if (error) {
                 NSLog(@"%@", error.localizedDescription);
+            } else {
+                [newUrls addObject:tempURL];
             }
-        }
-        // Move file from app_id-Inbox to tmp/filename
-        [[NSFileManager defaultManager] moveItemAtPath:url.path toPath:tempURL.path error:&error];
-        if (error) {
-            NSLog(@"%@", error.localizedDescription);
-        } else {
-            [newUrls addObject:tempURL];
         }
     }
     
