@@ -10,17 +10,21 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Parcelable;
 import android.os.Message;
+import android.os.Parcelable;
 import android.provider.DocumentsContract;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.app.ActivityCompat;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
@@ -30,6 +34,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
     private static final String TAG = "FilePickerDelegate";
     private static final int REQUEST_CODE = (FilePickerPlugin.class.hashCode() + 43) & 0x0000ffff;
+    private static final int SAVE_FILE_CODE = (FilePickerPlugin.class.hashCode() + 83) & 0x0000ffff;
 
     private final Activity activity;
     private final PermissionManager permissionManager;
@@ -37,8 +42,11 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private boolean isMultipleSelection = false;
     private boolean loadDataToMemory = false;
     private String type;
+    private int compressionQuality=20;
     private String[] allowedExtensions;
     private EventChannel.EventSink eventSink;
+
+    private byte[] bytes;
 
     public FilePickerDelegate(final Activity activity) {
         this(
@@ -74,13 +82,43 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
     @Override
     public boolean onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        // Save file
+        if (requestCode == SAVE_FILE_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                this.dispatchEventStatus(true);
+                final Uri uri = data.getData();
+                if (uri != null) {
+                  String  path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                            .getAbsolutePath() + File.separator + FileUtils.getFileName(uri, this.activity);
+                    try {
+                        OutputStream outputStream = this.activity.getContentResolver().openOutputStream(uri);
+                        if(outputStream != null){
+                            outputStream.write(bytes);
+                            outputStream.flush();
+                            outputStream.close();
+                        }
+                        finishWithSuccess(path);
+                        return true;
+                    } catch (IOException e) {
+                        Log.i(TAG, "Error while saving file", e);
+                        finishWithError("Error while saving file", e.getMessage());
+                    }
+                }
 
-        if(type == null) {
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                Log.i(TAG, "User cancelled the save request");
+                finishWithSuccess(null);
+            }
+            return false;
+        }
+
+        // Pick files
+        if (type == null) {
             return false;
         }
 
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-
             this.dispatchEventStatus(true);
 
             new Thread(new Runnable() {
@@ -93,9 +131,12 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             final int count = data.getClipData().getItemCount();
                             int currentItem = 0;
                             while (currentItem < count) {
-                                final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
-                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
+                                 Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
 
+                                if (Objects.equals(type, "image/*") && compressionQuality > 0) {
+                                    currentUri = FileUtils.compressImage(currentUri, compressionQuality, activity.getApplicationContext());
+                                }
+                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
                                 if(file != null) {
                                     files.add(file);
                                     Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
@@ -106,6 +147,10 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             finishWithSuccess(files);
                         } else if (data.getData() != null) {
                             Uri uri = data.getData();
+
+                            if (Objects.equals(type, "image/*") && compressionQuality > 0) {
+                                uri = FileUtils.compressImage(uri, compressionQuality, activity.getApplicationContext());
+                            }
 
                             if (type.equals("dir") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                 uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
@@ -218,7 +263,6 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         return bundle.getParcelableArrayList("selectedItems");
     }
 
-    @SuppressWarnings("deprecation")
     private void startFileExplorer() {
         final Intent intent;
 
@@ -253,7 +297,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         }
 
         if (intent.resolveActivity(this.activity.getPackageManager()) != null) {
-            this.activity.startActivityForResult(intent, REQUEST_CODE);
+            this.activity.startActivityForResult(Intent.createChooser(intent, null), REQUEST_CODE);
         } else {
             Log.e(TAG, "Can't find a valid activity to handle the request. Make sure you've a file explorer installed.");
             finishWithError("invalid_format_type", "Can't handle the provided file type.");
@@ -261,17 +305,17 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     @SuppressWarnings("deprecation")
-    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final MethodChannel.Result result) {
+    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final int compressionQuality, final MethodChannel.Result result) {
 
         if (!this.setPendingMethodCallAndResult(result)) {
             finishWithAlreadyActiveError(result);
             return;
         }
-
         this.type = type;
         this.isMultipleSelection = isMultipleSelection;
         this.loadDataToMemory = withData;
         this.allowedExtensions = allowedExtensions;
+        this.compressionQuality=compressionQuality;
         // `READ_EXTERNAL_STORAGE` permission is not needed since SDK 33 (Android 13 or higher).
         // `READ_EXTERNAL_STORAGE` & `WRITE_EXTERNAL_STORAGE` are no longer meant to be used, but classified into granular types.
         // Reference: https://developer.android.com/about/versions/13/behavior-changes-13
@@ -284,15 +328,46 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         this.startFileExplorer();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public void saveFile(String fileName, String type, String initialDirectory, String[] allowedExtensions, byte[] bytes, MethodChannel.Result result) {
+        if (!this.setPendingMethodCallAndResult(result)) {
+            finishWithAlreadyActiveError(result);
+            return;
+        }
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        if (fileName != null && !fileName.isEmpty()) {
+            intent.putExtra(Intent.EXTRA_TITLE, fileName);
+        }
+        this.bytes = bytes;
+        if (type != null && !"dir".equals(type) && type.split(",").length == 1) {
+            intent.setType(type);
+        } else {
+            intent.setType("*/*");
+        }
+        if (initialDirectory != null && !initialDirectory.isEmpty()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(initialDirectory));
+            }
+        }
+        if (allowedExtensions != null && allowedExtensions.length > 0) {
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions);
+        }
+        if (intent.resolveActivity(this.activity.getPackageManager()) != null) {
+            this.activity.startActivityForResult(intent, SAVE_FILE_CODE);
+        } else {
+            Log.e(TAG, "Can't find a valid activity to handle the request. Make sure you've a file explorer installed.");
+            finishWithError("invalid_format_type", "Can't handle the provided file type.");
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private void finishWithSuccess(Object data) {
-
         this.dispatchEventStatus(false);
 
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (this.pendingResult != null) {
-
-            if(data != null && !(data instanceof String)) {
+            if (data != null && !(data instanceof String)) {
                 final ArrayList<HashMap<String, Object>> files = new ArrayList<>();
 
                 for (FileInfo file : (ArrayList<FileInfo>)data) {

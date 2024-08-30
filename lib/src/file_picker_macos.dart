@@ -1,7 +1,13 @@
+import 'dart:typed_data';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/utils.dart';
 
 class FilePickerMacOS extends FilePicker {
+  static void registerWith() {
+    FilePicker.platform = FilePickerMacOS();
+  }
+
   @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
@@ -10,10 +16,12 @@ class FilePickerMacOS extends FilePicker {
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
     bool allowCompression = true,
+    int compressionQuality = 30,
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
+    bool readSequential = false,
   }) async {
     final String executable = await isExecutableOnPath('osascript');
     final String fileFilter = fileTypeToFileFilter(
@@ -79,6 +87,7 @@ class FilePickerMacOS extends FilePicker {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
+    Uint8List? bytes,
     bool lockParentWindow = false,
   }) async {
     final String executable = await isExecutableOnPath('osascript');
@@ -106,6 +115,14 @@ class FilePickerMacOS extends FilePicker {
   }
 
   String fileTypeToFileFilter(FileType type, List<String>? allowedExtensions) {
+    if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
+      throw ArgumentError.value(
+        allowedExtensions,
+        'allowedExtensions',
+        'Custom extension filters are only allowed with FileType.custom. '
+            'Remove the extension filter or change the FileType to FileType.custom.',
+      );
+    }
     switch (type) {
       case FileType.any:
         return '';
@@ -116,9 +133,9 @@ class FilePickerMacOS extends FilePicker {
       case FileType.image:
         return '"bmp", "gif", "jpeg", "jpg", "png"';
       case FileType.media:
-        return '"avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv", "bmp", "gif", "jpeg", "jpg", "png"';
+        return '"avi", "flv", "m4v", "mkv", "mov", "mp4", "mpeg", "webm", "wmv", "bmp", "gif", "jpeg", "jpg", "png"';
       case FileType.video:
-        return '"avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv"';
+        return '"avi", "flv", "mkv", "mov", "mp4", "m4v", "mpeg", "webm", "wmv"';
       default:
         throw Exception('unknown file type');
     }

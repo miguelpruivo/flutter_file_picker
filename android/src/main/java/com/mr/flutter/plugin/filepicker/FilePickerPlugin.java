@@ -5,6 +5,7 @@ import android.app.Application;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -22,7 +23,6 @@ import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.PluginRegistry;
 
 /**
  * FilePickerPlugin
@@ -113,29 +113,7 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
     private static String fileType;
     private static boolean isMultipleSelection = false;
     private static boolean withData = false;
-
-    /**
-     * Plugin registration.
-     */
-    public static void registerWith(final io.flutter.plugin.common.PluginRegistry.Registrar registrar) {
-
-        if (registrar.activity() == null) {
-            // If a background flutter view tries to register the plugin, there will be no activity from the registrar,
-            // we stop the registering process immediately because the ImagePicker requires an activity.
-            return;
-        }
-
-        final Activity activity = registrar.activity();
-        Application application = null;
-        if (registrar.context() != null) {
-            application = (Application) (registrar.context().getApplicationContext());
-        }
-
-        final FilePickerPlugin plugin = new FilePickerPlugin();
-        plugin.setup(registrar.messenger(), application, activity, registrar, null);
-
-    }
-
+    private static int compressionQuality;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -154,6 +132,16 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
             return;
         }
 
+        if (call.method != null && call.method.equals("save")) {
+            String fileName = (String) arguments.get("fileName");
+            String type = resolveType((String) arguments.get("fileType"));
+            String initialDirectory = (String) arguments.get("initialDirectory");
+            String[] allowedExtensions = FileUtils.getMimeTypes((ArrayList<String>) arguments.get("allowedExtensions"));
+            byte[] bytes = (byte[]) arguments.get("bytes");
+            this.delegate.saveFile(fileName, type, initialDirectory, allowedExtensions, bytes,result);
+            return;
+        }
+
         fileType = FilePickerPlugin.resolveType(call.method);
         String[] allowedExtensions = null;
 
@@ -162,13 +150,14 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
         } else if (fileType != "dir") {
             isMultipleSelection = (boolean) arguments.get("allowMultipleSelection");
             withData = (boolean) arguments.get("withData");
+            compressionQuality=(int) arguments.get("compressionQuality");
             allowedExtensions = FileUtils.getMimeTypes((ArrayList<String>) arguments.get("allowedExtensions"));
         }
 
         if (call.method != null && call.method.equals("custom") && (allowedExtensions == null || allowedExtensions.length == 0)) {
-            result.error(TAG, "Unsupported filter. Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.all instead.", null);
+            result.error(TAG, "Unsupported filter. Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.any instead.", null);
         } else {
-            this.delegate.startFileExplorer(fileType, isMultipleSelection, withData, allowedExtensions, result);
+            this.delegate.startFileExplorer(fileType, isMultipleSelection, withData, allowedExtensions, compressionQuality,result);
         }
 
     }
@@ -245,7 +234,6 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
             final BinaryMessenger messenger,
             final Application application,
             final Activity activity,
-            final PluginRegistry.Registrar registrar,
             final ActivityPluginBinding activityBinding) {
 
         this.activity = activity;
@@ -265,18 +253,11 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
             }
         });
         this.observer = new LifeCycleObserver(activity);
-        if (registrar != null) {
-            // V1 embedding setup for activity listeners.
-            application.registerActivityLifecycleCallbacks(this.observer);
-            registrar.addActivityResultListener(this.delegate);
-            registrar.addRequestPermissionsResultListener(this.delegate);
-        } else {
-            // V2 embedding setup for activity listeners.
-            activityBinding.addActivityResultListener(this.delegate);
-            activityBinding.addRequestPermissionsResultListener(this.delegate);
-            this.lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding);
-            this.lifecycle.addObserver(this.observer);
-        }
+        // V2 embedding setup for activity listeners.
+        activityBinding.addActivityResultListener(this.delegate);
+        activityBinding.addRequestPermissionsResultListener(this.delegate);
+        this.lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding);
+        this.lifecycle.addObserver(this.observer);
     }
 
     private void tearDown() {
@@ -312,7 +293,6 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
                 this.pluginBinding.getBinaryMessenger(),
                 (Application) this.pluginBinding.getApplicationContext(),
                 this.activityBinding.getActivity(),
-                null,
                 this.activityBinding);
     }
 
