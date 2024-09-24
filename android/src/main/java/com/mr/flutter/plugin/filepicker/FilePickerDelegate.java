@@ -21,6 +21,7 @@ import androidx.core.app.ActivityCompat;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.io.IOException;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
