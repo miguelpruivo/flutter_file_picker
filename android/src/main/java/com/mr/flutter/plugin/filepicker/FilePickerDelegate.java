@@ -30,10 +30,6 @@ import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.webkit.MimeTypeMap;
-
 public class FilePickerDelegate implements PluginRegistry.ActivityResultListener, PluginRegistry.RequestPermissionsResultListener {
 
     private static final String TAG = "FilePickerDelegate";

@@ -119,8 +119,6 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
     @Override
     public void onMethodCall(final MethodCall call, final MethodChannel.Result rawResult) {
 
-      Log.d(TAG, "onMethodCall: " + call.method);
-
         if (this.activity == null) {
             rawResult.error("no_activity", "file picker plugin requires a foreground activity", null);
             return;

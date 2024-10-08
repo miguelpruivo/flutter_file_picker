@@ -101,10 +101,6 @@ class FilePickerIO extends FilePicker {
             );
       }
 
-      debugPrint(
-        '[$_tag] Allowed extensions: $allowedExtensions | method: $type',
-      );
-
       final List<Map>? result = await _channel.invokeListMethod(type, {
         'allowMultipleSelection': allowMultipleSelection,
         'allowedExtensions': allowedExtensions,
@@ -120,8 +116,6 @@ class FilePickerIO extends FilePicker {
       final List<PlatformFile> platformFiles = <PlatformFile>[];
 
       for (final Map platformFileMap in result) {
-        debugPrint('[$_tag] Platform file: $platformFileMap');
-
         platformFiles.add(
           PlatformFile.fromMap(
             platformFileMap,
