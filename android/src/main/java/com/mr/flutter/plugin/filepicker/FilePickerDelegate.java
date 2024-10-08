@@ -135,14 +135,12 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             final int count = data.getClipData().getItemCount();
                             int currentItem = 0;
                             while (currentItem < count) {
-                              Log.d(FilePickerDelegate.TAG, " teste [MultiFilePick] File #" + currentItem + " - URI: " + data.getClipData().getItemAt(currentItem).getUri().getPath());
                                  Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
-                                 Log.d(FilePickerDelegate.TAG, " teste [MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
 
                                 if (Objects.equals(type, "image/*") && compressionQuality > 0) {
                                     currentUri = FileUtils.compressImage(currentUri, compressionQuality, activity.getApplicationContext());
                                 }
-                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory, "139");
+                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
                                 if(file != null) {
                                     files.add(file);
                                     Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
@@ -172,21 +170,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                 return;
                             }
 
-                            Log.e(FilePickerDelegate.TAG, " teste [SingleFilePick] File URI:" + uri.toString());
-                            Log.e(FilePickerDelegate.TAG, " teste [SingleFilePick] File URI full content: uri.getPath():" + uri.getPath());
-
-                            // ContentResolver contentResolver = context.getContentResolver();
-                            ContentResolver contentResolver = activity.getContentResolver();
-                            String mimeType = contentResolver.getType(uri);
-                            String extension = "";
-
-                            if (mimeType != null) {
-                                extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
-                            }
-
-                            Log.e(FilePickerDelegate.TAG, " teste [SingleFilePick] File URI extension:" + extension);
-
-                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri, loadDataToMemory, "169");
+                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri, loadDataToMemory);
 
                             if(file != null) {
                                 files.add(file);
@@ -209,7 +193,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                                     for (Parcelable fileUri : fileUris) {
                                         if (fileUri instanceof Uri) {
                                             Uri currentUri = (Uri) fileUri;
-                                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory, "192");
+                                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
 
                                             if (file != null) {
                                                 files.add(file);
