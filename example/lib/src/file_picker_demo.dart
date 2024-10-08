@@ -37,6 +37,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _resetState();
     try {
       _directoryPath = null;
+      debugPrint('Picking files... e is $_extension');
       _paths = (await FilePicker.platform.pickFiles(
         compressionQuality: 30,
         type: _pickingType,

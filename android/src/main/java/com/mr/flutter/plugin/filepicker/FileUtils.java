@@ -284,15 +284,48 @@ public class FileUtils {
         }
     }
 
-    public static FileInfo openFileStream(final Context context, final Uri uri, boolean withData) {
+    public static FileInfo openFileStream(final Context context, final Uri uri, boolean withData, String from) {
 
         Log.i(TAG, "Caching from URI: " + uri.toString());
         FileOutputStream fos = null;
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
+        Log.e(TAG, from + " teste uri " + uri);
         final String fileName = FileUtils.getFileName(uri, context);
-        final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/"+System.currentTimeMillis() +"/"+ (fileName != null ? fileName : "unamed");
+        String path = context.getCacheDir().getAbsolutePath() + "/file_picker/"+System.currentTimeMillis() +"/"+ (fileName != null ? fileName : "unamed");
 
-        final File file = new File(path);
+        final boolean pathHasExtension = fileName != null && fileName.contains(".");
+        Log.e(TAG, from + " teste File 00 path: " + path);
+        File tempFile = new File(path); // Declare and initialize the file variable
+
+        Log.e(TAG, from + " teste File 00: " + tempFile);
+
+        if(!pathHasExtension) {
+            Log.e(TAG, from + " teste File name does not contain an extension. Retrieving from URI.");
+            // final String extension = MimeTypeMap.getFileExtensionFromUrl(uri.toString());
+            // final String extension = MimeTypeMap.getExtensionFromMimeType(uri.toString());
+            // ContentResolver contentResolver = context.getContentResolver();
+            String mimeType = context.getContentResolver().getType(uri);
+            String extension = "";
+
+            if (mimeType != null) {
+                extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+            }
+            Log.e(TAG, from + " teste Extension retrieved: " + extension);
+            Log.e(TAG, from + " teste sentence is: " + (extension != null && !extension.isEmpty()));
+            if(extension != null && !extension.isEmpty()) {
+                tempFile = new File(path + "." + extension);
+                Log.e(TAG, from + " teste Extension added to file info: " + extension);
+                path = path + "." + extension;
+            }
+        }
+
+        Log.e(TAG, from + " teste File 01 path: " + path);
+        // The rest of your code...
+
+        // final File file = new File(path);
+
+        final File file = tempFile;
+        Log.e(TAG, from + " teste File 01: " + tempFile);
 
         if(!file.exists()) {
             file.getParentFile().mkdirs();
