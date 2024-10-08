@@ -290,11 +290,12 @@ public class FileUtils {
         FileOutputStream fos = null;
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
         Log.e(TAG, from + " teste uri " + uri);
-        final String fileName = FileUtils.getFileName(uri, context);
+        String fileName = FileUtils.getFileName(uri, context);
         String path = context.getCacheDir().getAbsolutePath() + "/file_picker/"+System.currentTimeMillis() +"/"+ (fileName != null ? fileName : "unamed");
 
         final boolean pathHasExtension = fileName != null && fileName.contains(".");
         Log.e(TAG, from + " teste File 00 path: " + path);
+        Log.e(TAG, from + " teste File 00 fileName: " + fileName);
         File tempFile = new File(path); // Declare and initialize the file variable
 
         Log.e(TAG, from + " teste File 00: " + tempFile);
@@ -316,6 +317,7 @@ public class FileUtils {
                 tempFile = new File(path + "." + extension);
                 Log.e(TAG, from + " teste Extension added to file info: " + extension);
                 path = path + "." + extension;
+                fileName = fileName + "." + extension;
             }
         }
 
