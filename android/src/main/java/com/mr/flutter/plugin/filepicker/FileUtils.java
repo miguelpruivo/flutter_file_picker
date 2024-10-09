@@ -291,8 +291,10 @@ public class FileUtils {
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
         String fileName = FileUtils.getFileName(uri, context);
         String path = context.getCacheDir().getAbsolutePath() + "/file_picker/"+System.currentTimeMillis() +"/"+ (fileName != null ? fileName : "unamed");
-        String regexToCheckIfHasExtension = "\\.(\\w{3,4}|\\.\\.\\.)$";
-        final boolean fileHasExtension = fileName != null && fileName.matches(regexToCheckIfHasExtension);
+        final boolean fileHasExtension = fileName != null && 
+            fileName.contains(".") && 
+            (fileName.substring(fileName.lastIndexOf(".") + 1).length() >= 2 && 
+            fileName.substring(fileName.lastIndexOf(".") + 1).length() <= 4);
 
         File tempFile = new File(path);
 
