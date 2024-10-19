@@ -85,6 +85,9 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         // Save file
         if (requestCode == SAVE_FILE_CODE) {
             if (resultCode == Activity.RESULT_OK) {
+                if (data == null) {
+                    return false;
+                }
                 this.dispatchEventStatus(true);
                 final Uri uri = data.getData();
                 if (uri != null) {
