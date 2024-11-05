@@ -518,10 +518,9 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     }
     
     __block NSError * blockError;
-
-    bool isImageSelection = self.type == IMAGE;
-    NSString * utiType = isImageSelection ? @"public.image" : @"public.audiovisual-content";
+    __block NSString * utiErrorValues;
     
+    bool isImageSelection = self.type == IMAGE;
     for (NSInteger index = 0; index < results.count; ++index) {
         [urls addObject:[NSURL URLWithString:@""]];
 
@@ -529,9 +528,17 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 
         PHPickerResult * result = [results objectAtIndex: index];
 
-        [result.itemProvider loadFileRepresentationForTypeIdentifier:utiType completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
-            
+        NSString *typeIdentifier;
+        if (isImageSelection && [result.itemProvider hasItemConformingToTypeIdentifier:@"public.image"]) {
+            typeIdentifier = @"public.image";
+        } else {
+            typeIdentifier = @"public.audiovisual-content";
+        }
+
+        
+        [result.itemProvider loadFileRepresentationForTypeIdentifier:typeIdentifier completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
             if(url == nil) {
+                utiErrorValues = [result.itemProvider.registeredTypeIdentifiers componentsJoinedByString:@", "];
                 blockError = error;
                 Log("Could not load the picked given file: %@", blockError);
                 dispatch_group_leave(self->_group);
@@ -609,9 +616,10 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
             self->_eventSink([NSNumber numberWithBool:NO]);
         }
         
+        NSString *errorMsg = [NSString stringWithFormat:@"Temporary file could not be created for types: [ %@ ]", utiErrorValues];
         if(blockError) {
             self->_result([FlutterError errorWithCode:@"file_picker_error"
-                                        message:@"Temporary file could not be created"
+                                        message: errorMsg
                                         details:blockError.description]);
             self->_result = nil;
             return;
