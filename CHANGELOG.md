@@ -1,3 +1,7 @@
+## 8.1.5
+### Android
+- Fixes allowCompression not working on Android. [1633](https://github.com/miguelpruivo/flutter_file_picker/issues/1633)
+
 ## 8.1.4
 ### iOS
 - Fixes a crash when sometimes user swipe the modal down and call it again. [1357](https://github.com/miguelpruivo/flutter_file_picker/issues/1357)
