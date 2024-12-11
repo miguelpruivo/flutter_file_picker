@@ -70,6 +70,9 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         // Save file
         if (requestCode == SAVE_FILE_CODE) {
             if (resultCode == Activity.RESULT_OK) {
+                if (data == null) {
+                    return false;
+                }
                 this.dispatchEventStatus(true);
                 final Uri uri = data.getData();
                 if (uri != null) {
@@ -263,7 +266,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         }
 
         if (intent.resolveActivity(this.activity.getPackageManager()) != null) {
-            this.activity.startActivityForResult(Intent.createChooser(intent, null), REQUEST_CODE);
+            this.activity.startActivityForResult(intent, REQUEST_CODE);
         } else {
             Log.e(TAG, "Can't find a valid activity to handle the request. Make sure you've a file explorer installed.");
             finishWithError("invalid_format_type", "Can't handle the provided file type.");
