@@ -23,6 +23,7 @@ import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /**
  * FilePickerPlugin
@@ -110,6 +111,7 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
     private LifeCycleObserver observer;
     private Activity activity;
     private MethodChannel channel;
+    private Registrar registrar;
     private static String fileType;
     private static boolean isMultipleSelection = false;
     private static boolean withData = false;
