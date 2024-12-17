@@ -1,6 +1,7 @@
 ## 8.1.6
 ### Android
 Fix [#1647](https://github.com/miguelpruivo/flutter_file_picker/issues/1647)
+Fix [#1643](https://github.com/miguelpruivo/flutter_file_picker/issues/1643)
 
 
 ## 8.1.5
