@@ -1,3 +1,7 @@
+## 8.1.7
+### iOS 
+Fix Image Picker to Handle Partial Failures Gracefully [#1554](https://github.com/miguelpruivo/flutter_file_picker/issues/1554)
+
 ## 8.1.6
 ### Android
 Fix [#1643](https://github.com/miguelpruivo/flutter_file_picker/issues/1643)
