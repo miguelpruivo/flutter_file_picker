@@ -151,7 +151,7 @@ class FilePickerIO extends FilePicker {
         "fileType": type.name,
         "initialDirectory": initialDirectory,
         "allowedExtensions": allowedExtensions,
-        "bytes": bytes,
+        "bytes": bytes ?? Uint8List(0),
       });
     }
     return super.saveFile(
