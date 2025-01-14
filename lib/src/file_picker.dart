@@ -162,6 +162,9 @@ abstract class FilePicker extends PlatformInterface {
   /// stay in front of the Flutter window until it is closed (like a modal
   /// window). This parameter works only on Windows desktop.
   ///
+  /// [mimeType] can be optionally set to provide a mime type for the file.
+  /// It only work for iOS and Android.
+  ///
   /// Returns `null` if aborted. Returns a [Future<String?>] which resolves to
   /// the absolute path of the selected file, if the user selected a file.
   Future<String?> saveFile({
@@ -172,6 +175,7 @@ abstract class FilePicker extends PlatformInterface {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     bool lockParentWindow = false,
+    String? mimeType,
   }) async =>
       throw UnimplementedError('saveFile() has not been implemented.');
 }

@@ -87,6 +87,7 @@ class FilePickerLinux extends FilePicker {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     bool lockParentWindow = false,
+    String? mimeType,
   }) async {
     final executable = await _getPathToExecutable();
     final dialogHandler = DialogHandler(executable);

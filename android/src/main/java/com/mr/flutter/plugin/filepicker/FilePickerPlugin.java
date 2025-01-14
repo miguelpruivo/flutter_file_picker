@@ -135,10 +135,11 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
         if (call.method != null && call.method.equals("save")) {
             String fileName = (String) arguments.get("fileName");
             String type = resolveType((String) arguments.get("fileType"));
+            String mimeType = (String) arguments.get("mimeType");
             String initialDirectory = (String) arguments.get("initialDirectory");
             String[] allowedExtensions = FileUtils.getMimeTypes((ArrayList<String>) arguments.get("allowedExtensions"));
             byte[] bytes = (byte[]) arguments.get("bytes");
-            this.delegate.saveFile(fileName, type, initialDirectory, allowedExtensions, bytes,result);
+            this.delegate.saveFile(fileName, type, mimeType, initialDirectory, allowedExtensions, bytes,result);
             return;
         }
 

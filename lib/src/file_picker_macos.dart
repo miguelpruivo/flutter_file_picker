@@ -89,6 +89,7 @@ class FilePickerMacOS extends FilePicker {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     bool lockParentWindow = false,
+    String? mimeType,
   }) async {
     final String executable = await isExecutableOnPath('osascript');
     final String fileFilter = fileTypeToFileFilter(
