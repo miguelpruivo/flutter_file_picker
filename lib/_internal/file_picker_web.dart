@@ -87,7 +87,7 @@ class FilePickerWeb extends FilePicker {
         String? path,
         Stream<List<int>>? readStream,
       ) {
-        String mimeType = file.type.isNotEmpty ? file.type : 'application/octet-stream'; // Valor por defecto si no tiene type
+        String mimeType = file.type.isNotEmpty ? file.type : 'application/octet-stream'; // default value if mimetye is null
         final blob = html.Blob([bytes ?? Uint8List(0)],mimeType);
         final blobUrl = html.Url.createObjectUrlFromBlob(blob);
 
