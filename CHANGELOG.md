@@ -1,3 +1,7 @@
+## 8.1.8
+### iOS
+Adds support for Swift Package Manager for compatibility with new projects [#1582](https://github.com/miguelpruivo/flutter_file_picker/issues/1582)
+
 ## 8.1.7
 ### iOS 
 Fix Image Picker to Handle Partial Failures Gracefully [#1554](https://github.com/miguelpruivo/flutter_file_picker/issues/1554)
