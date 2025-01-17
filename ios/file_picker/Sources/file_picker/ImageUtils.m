@@ -5,7 +5,13 @@
 //  Created by Miguel Ruivo on 05/03/2019.
 //
 
+#if __has_include(<file_picker/ImageUtils.h>)
+#import <file_picker/ImageUtils.h>
+#else
 #import "ImageUtils.h"
+#endif
+
+#import <UIKit/UIKit.h>
 
 @implementation ImageUtils
 

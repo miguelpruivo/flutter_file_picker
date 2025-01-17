@@ -5,7 +5,11 @@
 //  Created by Miguel Ruivo on 11/09/2020.
 //
 
+#if __has_include(<file_picker/FileInfo.h>)
+#import <file_picker/FileInfo.h>
+#else
 #import "FileInfo.h"
+#endif
 
 @implementation FileInfo
 
