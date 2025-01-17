@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "file_picker",
     platforms: [
-        .iOS("13.0")
+        .iOS("11.0")
     ],
     products: [
         .library(name: "file-picker", targets: ["file_picker"])
