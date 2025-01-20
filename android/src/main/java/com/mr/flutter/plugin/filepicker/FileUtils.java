@@ -118,7 +118,7 @@ public class FileUtils {
         try {
             int size = (int) file.length();
             if (size > 10000000) {
-                throw RuntimeException("loadData: file size too large");
+                throw new RuntimeException("loadData: file size too large");
             }
             byte[] bytes = new byte[size];
 
