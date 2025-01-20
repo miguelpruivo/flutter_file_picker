@@ -5,17 +5,8 @@
 //  Created by Miguel Ruivo on 05/12/2018.
 //
 
-#if __has_include(<file_picker/FileUtils.h>)
-#import <file_picker/FileUtils.h>
-#else
 #import "FileUtils.h"
-#endif
-
-#if __has_include(<file_picker/FileInfo.h>)
-#import <file_picker/FileInfo.h>
-#else
 #import "FileInfo.h"
-#endif
 
 @implementation FileUtils
 
