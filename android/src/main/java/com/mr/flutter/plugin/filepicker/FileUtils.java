@@ -266,6 +266,9 @@ public class FileUtils {
     public static void loadData(final File file, FileInfo.Builder fileInfo) {
         try {
             int size = (int) file.length();
+            if (size > 10000000) {
+                throw new RuntimeException("loadData: file size too large");
+            }
             byte[] bytes = new byte[size];
 
             try {
