@@ -34,7 +34,6 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     let dialog = NSOpenPanel()
     let args = call.arguments as! [String: Any]
 
-    dialog.showsResizeIndicator = true
     dialog.directoryURL = URL(
       fileURLWithPath: args["initialDirectory"] as? String ?? ""
     )
@@ -77,7 +76,6 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     let dialog = NSOpenPanel()
     let args = call.arguments as! [String: Any]
 
-    dialog.showsResizeIndicator = true
     dialog.directoryURL = URL(
       fileURLWithPath: args["initialDirectory"] as? String ?? ""
     )
