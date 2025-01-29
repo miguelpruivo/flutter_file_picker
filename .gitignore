@@ -18,6 +18,7 @@ Pods/
 ServiceDefinitions.json
 xcuserdata/
 **/.swiftpm/
+**/swiftpm/
 **/.build/
 
 local.properties
