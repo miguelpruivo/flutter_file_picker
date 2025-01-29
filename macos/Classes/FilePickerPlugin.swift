@@ -4,12 +4,14 @@ import FlutterMacOS
 public class FilePickerPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(
-      name: "file_picker", binaryMessenger: registrar.messenger)
+      name: "miguelruivo.flutter.plugins.filepicker",
+      binaryMessenger: registrar.messenger)
     let instance = FilePickerPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult)
+  {
     switch call.method {
     case "pickFiles":
       handleFileSelection(call, result: result)

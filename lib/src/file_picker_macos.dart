@@ -9,7 +9,8 @@ class FilePickerMacOS extends FilePicker {
   }
 
   @visibleForTesting
-  final methodChannel = const MethodChannel('file_picker');
+  final methodChannel =
+      const MethodChannel('miguelruivo.flutter.plugins.filepicker');
 
   @override
   Future<FilePickerResult?> pickFiles({
