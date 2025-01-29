@@ -532,19 +532,36 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     NSInteger totalCount = results.count;
 
     bool isImageSelection = self.type == IMAGE;
+    bool isMediaSelection = self.type == MEDIA;
     for (NSInteger index = 0; index < results.count; ++index) {
         dispatch_group_enter(_group);
         PHPickerResult * result = [results objectAtIndex:index];
         
         dispatch_async(processQueue, ^{
             @autoreleasepool {
+            if (isMediaSelection) {
+                if (![result.itemProvider hasItemConformingToTypeIdentifier:@"public.image"] &&
+                    ![result.itemProvider hasItemConformingToTypeIdentifier:@"public.movie"]) {
+                    [errors addObject:[NSString stringWithFormat:@"Item at index %ld is not an image or video", (long)index]];
+                    dispatch_group_leave(self->_group);
+                    return;
+                }
+            } else if (isImageSelection) {
                 if (![result.itemProvider hasItemConformingToTypeIdentifier:@"public.image"]) {
                     [errors addObject:[NSString stringWithFormat:@"Item at index %ld is not an image", (long)index]];
                     dispatch_group_leave(self->_group);
                     return;
                 }
+            }
 
-                [result.itemProvider loadFileRepresentationForTypeIdentifier:@"public.image" completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
+            NSString *typeIdentifier;
+            if ([result.itemProvider hasItemConformingToTypeIdentifier:@"public.image"]) {
+                typeIdentifier = @"public.image";
+            } else {
+                typeIdentifier = @"public.movie";
+            }
+               
+               [result.itemProvider loadFileRepresentationForTypeIdentifier:typeIdentifier completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
                     @autoreleasepool {
                         if (error != nil || url == nil) {
                             [errors addObject:[NSString stringWithFormat:@"Failed to load image at index %ld: %@",
