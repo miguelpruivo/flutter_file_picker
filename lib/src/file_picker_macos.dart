@@ -79,7 +79,9 @@ class FilePickerMacOS extends FilePicker {
     Uint8List? bytes,
     bool lockParentWindow = false,
   }) async {
-    assert(bytes == null, "Passing bytes is not supported on macOS.");
+    if (bytes != null) {
+      throw UnsupportedError('Bytes are not supported on macOS');
+    }
     final fileFilter = fileTypeToFileFilter(
       type,
       allowedExtensions,

@@ -151,6 +151,7 @@ abstract class FilePicker extends PlatformInterface {
   /// name to save a file.
   ///
   /// For mobile platforms, this function will save file with [bytes] to return a path.
+  /// Throws UnsupportedError on macOS if bytes are provided.
   ///
   /// For desktop platforms (Linux, macOS & Windows) this function does not actually
   /// save a file. It only opens the dialog to let the user choose a location and
