@@ -1,5 +1,6 @@
 import Cocoa
 import FlutterMacOS
+import UniformTypeIdentifiers
 
 public class FilePickerPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -38,29 +39,36 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
       fileURLWithPath: args["initialDirectory"] as? String ?? ""
     )
     dialog.showsHiddenFiles = false
-    dialog.allowsMultipleSelection = args["allowMultiple"] as? Bool ?? false
+    let allowMultiple = args["allowMultiple"] as? Bool ?? false
+    dialog.allowsMultipleSelection = allowMultiple
     dialog.canChooseDirectories = false
-    dialog.allowedFileTypes = args["allowedExtensions"] as? [String] ?? []
+    dialog.canChooseFiles = true
+    let extensions = args["allowedExtensions"] as? [String] ?? []
+    applyExtensions(dialog, extensions)
 
     if dialog.runModal() == NSApplication.ModalResponse.OK {
-      let pathResult = dialog.url
-
-      if pathResult != nil {
-        if dialog.allowsMultipleSelection {
-          let paths = dialog.urls.map { $0.path }
+      if allowMultiple {
+        let pathResult = dialog.urls
+        if pathResult.isEmpty {
+          result(nil)
+        } else {
+          let paths = pathResult.map { $0.path }
           result(paths)
-          return
+        }
+      } else {
+        let pathResult = dialog.url
+        if pathResult == nil {
+          result(nil)
         } else {
           result([pathResult!.path])
-          return
         }
       }
+      return
     } else {
       // User dismissed the dialog
       result(nil)
       return
     }
-    result(nil)
   }
 
   private func handleDirectorySelection(
@@ -106,10 +114,8 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
       dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
     }
 
-    let allowedExtensions = args["allowedExtensions"] as? [String] ?? []
-    if !allowedExtensions.isEmpty {
-      dialog.allowedFileTypes = allowedExtensions
-    }
+    let extensions = args["allowedExtensions"] as? [String] ?? []
+    applyExtensions(dialog, extensions)
 
     if dialog.runModal() == NSApplication.ModalResponse.OK {
       if let url = dialog.url {
@@ -119,5 +125,19 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     }
     // User dismissed the dialog
     result(nil)
+  }
+
+  /// Applies extensions to dialog using appropriate API
+  private func applyExtensions(_ dialog: NSSavePanel, _ extensions: [String]) {
+    if !extensions.isEmpty {
+      if #available(macOS 11.0, *) {
+        let contentTypes = extensions.compactMap { ext in
+          UTType(filenameExtension: ext)
+        }
+        dialog.allowedContentTypes = contentTypes
+      } else {
+        dialog.allowedFileTypes = extensions
+      }
+    }
   }
 }
