@@ -113,7 +113,7 @@ class FilePickerMacOS extends FilePicker {
       case FileType.audio:
         return ["aac", "midi", "mp3", "ogg", "wav"];
       case FileType.custom:
-        return ["", ...?allowedExtensions];
+        return [...?allowedExtensions];
       case FileType.image:
         return ["bmp", "gif", "jpeg", "jpg", "png"];
       case FileType.media:
