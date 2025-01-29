@@ -6,13 +6,13 @@ import PackageDescription
 let package = Package(
     name: "file_picker",
     platforms: [
-        .iOS("11.0")
+        .iOS("12.0")
     ],
     products: [
         .library(name: "file-picker", targets: ["file_picker"])
     ],
     dependencies: [
-        .package(url: "https://github.com/zhangao0086/DKImagePickerController", branch: "develop"),
+        .package(url: "https://github.com/zhangao0086/DKImagePickerController", branch: "4.3.9")
     ],
     targets: [
         .target(

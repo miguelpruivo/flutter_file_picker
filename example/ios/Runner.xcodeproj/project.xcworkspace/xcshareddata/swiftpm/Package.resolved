@@ -15,7 +15,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/zhangao0086/DKImagePickerController",
       "state" : {
-        "branch" : "develop",
+        "branch" : "4.3.9",
         "revision" : "0bdfeacefa308545adde07bef86e349186335915"
       }
     },
