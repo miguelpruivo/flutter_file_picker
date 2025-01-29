@@ -13,9 +13,9 @@ A flutter plugin to show native file picker dialogs
   s.license          = { :file => '../LICENSE' }
   s.author           = 'Miguel Ruivo, Dominik Roszkowski'
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'file_picker/Sources/file_picker/**/*'
 
-  s.resource_bundles = {'file_picker_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
+  s.resource_bundles = {'file_picker_privacy' => ['file_picker/PrivacyInfo.xcprivacy']}
 
   s.dependency 'FlutterMacOS'
 
