@@ -1,6 +1,6 @@
 ## 8.3.0
 ### Desktop (macOS) && iOS
-Adds support for Swift Package Manager for compatibility with new projects [#1582](https://github.com/miguelpruivo/flutter_file_picker/issues/1582)
+- Adds support for Swift Package Manager for compatibility with new projects [#1582](https://github.com/miguelpruivo/flutter_file_picker/issues/1582)
 
 ## 8.2.0
 ### Desktop (macOS)
