@@ -67,7 +67,7 @@ abstract class FilePicker extends PlatformInterface {
   /// If [lockParentWindow] is set, the child window (file picker window) will
   /// stay in front of the Flutter window until it is closed (like a modal
   /// window). This parameter works only on Windows desktop.
-  /// On macOS parent window will be locked and this parameter is ignored.
+  /// On macOS the parent window will be locked and this parameter is ignored.
   ///
   /// [dialogTitle] can be optionally set on desktop platforms to set the modal window title.
   /// Not supported on macOS. It will be ignored on other platforms.
