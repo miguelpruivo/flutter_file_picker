@@ -1,6 +1,7 @@
 #import "FilePickerPlugin.h"
 #import "FileUtils.h"
 #import "ImageUtils.h"
+#import <Flutter/Flutter.h>
 
 #ifdef PICKER_MEDIA
 @import DKImagePickerController;
