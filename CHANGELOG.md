@@ -1,6 +1,6 @@
 ## 8.3.1
 ### iOS
-- fix [1367](https://github.com/miguelpruivo/flutter_file_picker/issues/1367)
+- Fix [1367](https://github.com/miguelpruivo/flutter_file_picker/issues/1367)
 
 ## 8.3.0
 ### Desktop (macOS) && iOS
