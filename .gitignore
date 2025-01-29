@@ -17,7 +17,8 @@ Pods/
 **/Flutter/flutter_assets/
 ServiceDefinitions.json
 xcuserdata/
-**/.swiftpm
+**/.swiftpm/
+**/.build/
 
 local.properties
 .gradle/
