@@ -290,7 +290,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public void saveFile(String fileName, String type, String initialDirectory, String[] allowedExtensions, byte[] bytes, MethodChannel.Result result) {
+    public void saveFile(String fileName, String type, String mimeType, String initialDirectory, String[] allowedExtensions, byte[] bytes, MethodChannel.Result result) {
         if (!this.setPendingMethodCallAndResult(result)) {
             finishWithAlreadyActiveError(result);
             return;
@@ -301,7 +301,9 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             intent.putExtra(Intent.EXTRA_TITLE, fileName);
         }
         this.bytes = bytes;
-        if (type != null && !"dir".equals(type) && type.split(",").length == 1) {
+        if (mimeType != null) {
+            intent.setType(mimeType);
+        } else if (type != null && !"dir".equals(type) && type.split(",").length == 1) {
             intent.setType(type);
         } else {
             intent.setType("*/*");

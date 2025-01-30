@@ -172,6 +172,7 @@ class FilePickerWindows extends FilePicker {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     bool lockParentWindow = false,
+    String? mimeType,
   }) async {
     final port = ReceivePort();
     await Isolate.spawn(
