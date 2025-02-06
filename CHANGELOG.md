@@ -1,3 +1,7 @@
+## 8.3.2
+### Android
+- Fixes allowCompression not working on Android. [1633](https://github.com/miguelpruivo/flutter_file_picker/issues/1633)
+
 ## 8.3.1
 ### iOS
 - Fix [1367](https://github.com/miguelpruivo/flutter_file_picker/issues/1367)
