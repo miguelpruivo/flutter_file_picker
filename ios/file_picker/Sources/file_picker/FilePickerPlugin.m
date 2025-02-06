@@ -1,6 +1,7 @@
 #import "FilePickerPlugin.h"
 #import "FileUtils.h"
 #import "ImageUtils.h"
+#import <Flutter/Flutter.h>
 
 #ifdef PICKER_MEDIA
 @import DKImagePickerController;
@@ -23,6 +24,7 @@
 @property (nonatomic) BOOL loadDataToMemory;
 @property (nonatomic) BOOL allowCompression;
 @property (nonatomic) dispatch_group_t group;
+@property (nonatomic) MediaType type;
 @property (nonatomic) BOOL isSaveFile;
 @end
 
@@ -229,6 +231,8 @@
 
 #ifdef PICKER_MEDIA
 - (void) resolvePickMedia:(MediaType)type withMultiPick:(BOOL)multiPick withCompressionAllowed:(BOOL)allowCompression  {
+
+    self.type = type;
     
 #ifdef PHPicker
     if (@available(iOS 14, *)) {
@@ -450,13 +454,13 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     
     NSURL *pickedVideoUrl = [info objectForKey:UIImagePickerControllerMediaURL];
     NSURL *pickedImageUrl;
-    
+
     if(@available(iOS 13.0, *)) {
-        
+
         if(pickedVideoUrl != nil) {
             NSString * fileName = [pickedVideoUrl lastPathComponent];
             NSURL * destination = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:fileName]];
-            
+
             if([[NSFileManager defaultManager] isReadableFileAtPath: [pickedVideoUrl path]]) {
                 Log(@"Caching video file for iOS 13 or above...");
                 [[NSFileManager defaultManager] copyItemAtURL:pickedVideoUrl toURL:destination error:nil];
@@ -465,13 +469,13 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         } else {
             pickedImageUrl = [info objectForKey:UIImagePickerControllerImageURL];
         }
-        
+
     } else {
         pickedImageUrl = [info objectForKey:UIImagePickerControllerImageURL];
     }
-    
+
     [picker dismissViewControllerAnimated:YES completion:NULL];
-    
+
     if(pickedImageUrl == nil && pickedVideoUrl == nil) {
         _result([FlutterError errorWithCode:@"file_picker_error"
                                     message:@"Temporary file could not be created"
@@ -479,138 +483,168 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         _result = nil;
         return;
     }
-    
+
     [self handleResult: pickedVideoUrl != nil ? pickedVideoUrl : pickedImageUrl];
 }
 
 #ifdef PHPicker
 
 -(void)picker:(PHPickerViewController *)picker didFinishPicking:(NSArray<PHPickerResult *> *)results API_AVAILABLE(ios(14)){
-    
     if(_result == nil) {
         return;
     }
-    
-    if(self.group != nil) {
-        return;
-    }
-    
+
     Log(@"Picker:%@ didFinishPicking:%@", picker, results);
-    
     [picker dismissViewControllerAnimated:YES completion:nil];
-    
+
     if(results.count == 0) {
         Log(@"FilePicker canceled");
         _result(nil);
         _result = nil;
         return;
     }
-    
-    NSMutableArray<NSURL *> * urls = [[NSMutableArray alloc] initWithCapacity: results.count];
+
+    NSMutableArray<NSURL *> * urls = [[NSMutableArray alloc] init];
+    NSMutableArray<NSString *> * errors = [[NSMutableArray alloc] init];
     
     self.group = dispatch_group_create();
     
+    // Create image directory if it doesn't exist
+    NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *imagesDir = [documentsPath stringByAppendingPathComponent:@"picked_images"];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    if (![fileManager fileExistsAtPath:imagesDir]) {
+        NSError *dirError;
+        [fileManager createDirectoryAtPath:imagesDir withIntermediateDirectories:YES attributes:nil error:&dirError];
+        if (dirError) {
+            Log(@"Failed to create image directory: %@", dirError);
+        }
+    }
+
     if(self->_eventSink != nil) {
         self->_eventSink([NSNumber numberWithBool:YES]);
     }
-    
-    __block NSError * blockError;
-    
+
+    // Process images sequentially to avoid memory spikes
+    dispatch_queue_t processQueue = dispatch_queue_create("com.filepicker.imageprocessing", DISPATCH_QUEUE_SERIAL);
+    __block NSInteger completedCount = 0;
+    NSInteger totalCount = results.count;
+
+    bool isImageSelection = self.type == IMAGE;
+    bool isMediaSelection = self.type == MEDIA;
     for (NSInteger index = 0; index < results.count; ++index) {
-        [urls addObject:[NSURL URLWithString:@""]];
-
         dispatch_group_enter(_group);
-
-        PHPickerResult * result = [results objectAtIndex: index];
-
-        [result.itemProvider loadFileRepresentationForTypeIdentifier:@"public.item" completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
-            
-            if(url == nil) {
-                blockError = error;
-                Log("Could not load the picked given file: %@", blockError);
-                dispatch_group_leave(self->_group);
-                return;
-            }
-            
-            long timestamp = (long)([[NSDate date] timeIntervalSince1970] * 1000);
-            NSString * filenameWithoutExtension = [url.lastPathComponent stringByDeletingPathExtension];
-            NSString * fileExtension = url.pathExtension;
-            NSString * filename = [NSString stringWithFormat:@"%@-%ld.%@", filenameWithoutExtension, timestamp, fileExtension];
-            NSString * extension = [filename pathExtension];
-            NSFileManager * fileManager = [[NSFileManager alloc] init];
-            NSURL * cachedUrl;
-            
-            // Check for live photos
-            if(self.allowCompression && [extension isEqualToString:@"pvt"]) {
-                NSArray * files = [fileManager contentsOfDirectoryAtURL:url includingPropertiesForKeys:@[] options:NSDirectoryEnumerationSkipsHiddenFiles error:nil];
-                
-                for (NSURL * item in files) {
-                    
-                    if (UTTypeConformsTo(UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, CFBridgingRetain([item pathExtension]), NULL), kUTTypeImage)) {
-                        NSData *assetData = [NSData dataWithContentsOfURL:item];
-                        //Convert any type of image to jpeg
-                        NSData *convertedImageData = UIImageJPEGRepresentation([UIImage imageWithData:assetData], 1.0);
-                        //Get meta data from asset
-                        NSDictionary *metaData = [ImageUtils getMetaDataFromImageData:assetData];
-                        //Append meta data into jpeg of live photo
-                        NSData *data = [ImageUtils imageFromImage:convertedImageData withMetaData:metaData];
-                        //Save jpeg
-                        NSString * filenameWithoutExtension = [filename stringByDeletingPathExtension];
-                        NSString * tmpFile = [NSTemporaryDirectory() stringByAppendingPathComponent:[filenameWithoutExtension stringByAppendingString:@".jpeg"]];
-                        cachedUrl = [NSURL fileURLWithPath: tmpFile];
-
-                        if([fileManager fileExistsAtPath:tmpFile]) {
-                            [fileManager removeItemAtPath:tmpFile error:nil];
-                        }
-                        
-                        if([fileManager createFileAtPath:tmpFile contents:data attributes:nil]) {
-                            filename = tmpFile;
-                        } else {
-                            Log("%@ Error while caching picked Live photo", self);
-                        }
-                        break;
-                    }
+        PHPickerResult * result = [results objectAtIndex:index];
+        
+        dispatch_async(processQueue, ^{
+            @autoreleasepool {
+            if (isMediaSelection) {
+                if (![result.itemProvider hasItemConformingToTypeIdentifier:@"public.image"] &&
+                    ![result.itemProvider hasItemConformingToTypeIdentifier:@"public.movie"]) {
+                    [errors addObject:[NSString stringWithFormat:@"Item at index %ld is not an image or video", (long)index]];
+                    dispatch_group_leave(self->_group);
+                    return;
                 }
-            } else {
-                NSString * cachedFile = [NSTemporaryDirectory() stringByAppendingPathComponent:filename];
-                
-                if([fileManager fileExistsAtPath:cachedFile]) {
-                    [fileManager removeItemAtPath:cachedFile error:NULL];
-                }
-                
-                cachedUrl = [NSURL fileURLWithPath: cachedFile];
-                
-                NSError *copyError;
-                [fileManager copyItemAtURL: url
-                                     toURL: cachedUrl
-                                     error: &copyError];
-                
-                if (copyError) {
-                    Log("%@ Error while caching picked file: %@", self, copyError);
+            } else if (isImageSelection) {
+                if (![result.itemProvider hasItemConformingToTypeIdentifier:@"public.image"]) {
+                    [errors addObject:[NSString stringWithFormat:@"Item at index %ld is not an image", (long)index]];
+                    dispatch_group_leave(self->_group);
                     return;
                 }
             }
-            
-            
-            [urls replaceObjectAtIndex:index withObject:cachedUrl];
-            dispatch_group_leave(self->_group);
-        }];
+
+            NSString *typeIdentifier;
+            if ([result.itemProvider hasItemConformingToTypeIdentifier:@"public.image"]) {
+                typeIdentifier = @"public.image";
+            } else {
+                typeIdentifier = @"public.movie";
+            }
+               
+               [result.itemProvider loadFileRepresentationForTypeIdentifier:typeIdentifier completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
+                    @autoreleasepool {
+                        if (error != nil || url == nil) {
+                            [errors addObject:[NSString stringWithFormat:@"Failed to load image at index %ld: %@",
+                                (long)index, error ? error.localizedDescription : @"Unknown error"]];
+                            dispatch_group_leave(self->_group);
+                            return;
+                        }
+
+                        @try {
+                            // Create unique filename in app_images directory
+                            NSString *filename = [NSString stringWithFormat:@"image_%@_%ld.%@",
+                                [[NSUUID UUID] UUIDString],
+                                (long)[[NSDate date] timeIntervalSince1970],
+                                url.pathExtension.length > 0 ? url.pathExtension : @"jpg"];
+                            
+                            NSString *destinationPath = [imagesDir stringByAppendingPathComponent:filename];
+                            NSURL *destinationUrl = [NSURL fileURLWithPath:destinationPath];
+                            
+                            // Load image data with options to reduce memory usage
+                            NSError *loadError = nil;
+                            NSData *imageData = [NSData dataWithContentsOfURL:url options:NSDataReadingMappedIfSafe error:&loadError];
+                            
+                            if (loadError || !imageData) {
+                                [errors addObject:[NSString stringWithFormat:@"Failed to load image data at index %ld: %@",
+                                    (long)index, loadError.localizedDescription ?: @"Unknown error"]];
+                            } else {
+                                // Write to destination
+                                if ([imageData writeToURL:destinationUrl options:NSDataWritingAtomic error:&loadError]) {
+                                    [urls addObject:destinationUrl];
+                                } else {
+                                    [errors addObject:[NSString stringWithFormat:@"Failed to save image at index %ld: %@",
+                                        (long)index, loadError.localizedDescription]];
+                                }
+                            }
+                            
+                            // Clean up
+                            imageData = nil;
+                            
+                        } @catch (NSException *exception) {
+                            [errors addObject:[NSString stringWithFormat:@"Exception processing image at index %ld: %@",
+                                (long)index, exception.description]];
+                        }
+                        
+                        // Update progress
+                        completedCount++;
+                        if(self->_eventSink != nil) {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                self->_eventSink(@{
+                                    @"type": @"progress",
+                                    @"count": @(completedCount),
+                                    @"total": @(totalCount)
+                                });
+                            });
+                        }
+                        
+                        dispatch_group_leave(self->_group);
+                    }
+                }];
+            }
+        });
     }
-    
+
     dispatch_group_notify(_group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),^{
         self->_group = nil;
+        
         if(self->_eventSink != nil) {
             self->_eventSink([NSNumber numberWithBool:NO]);
         }
-        
-        if(blockError) {
+
+        if (urls.count > 0) {
+            // If we have at least one successful image, return the results
+            if (errors.count > 0) {
+                // Log errors but don't fail the operation
+                Log(@"Some images failed to process: %@", [errors componentsJoinedByString:@", "]);
+            }
+            [self handleResult:urls];
+        } else {
+            // Only if all images failed, return an error
             self->_result([FlutterError errorWithCode:@"file_picker_error"
-                                        message:@"Temporary file could not be created"
-                                        details:blockError.description]);
-            self->_result = nil;
-            return;
+                                            message:@"Failed to process any images"
+                                            details:[errors componentsJoinedByString:@"\n"]]);
         }
-        [self handleResult:urls];
+        self->_result = nil;
     });
 }
 
@@ -665,10 +699,8 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 #ifdef PICKER_AUDIO
 - (void)mediaPickerDidCancel:(MPMediaPickerController *)controller {
     Log(@"FilePicker canceled");
-    if (self.result != nil) {
-        self.result(nil);
-        self.result = nil;
-    }
+    _result(nil);
+    _result = nil;
     [controller dismissViewControllerAnimated:YES completion:NULL];
 }
 #endif // PICKER_AUDIO
@@ -676,10 +708,8 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 #ifdef PICKER_DOCUMENT
 - (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller {
     Log(@"FilePicker canceled");
-    if (self.result != nil) {
-        self.result(nil);
-        self.result = nil;
-    }
+    _result(nil);
+    _result = nil;
     [controller dismissViewControllerAnimated:YES completion:NULL];
 }
 #endif // PICKER_DOCUMENT
@@ -687,10 +717,8 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
 #ifdef PICKER_MEDIA
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
     Log(@"FilePicker canceled");
-    if (self.result != nil) {
-        self.result(nil);
-        self.result = nil;
-    }
+    _result(nil);
+    _result = nil;
     [picker dismissViewControllerAnimated:YES completion:NULL];
 }
 #endif
