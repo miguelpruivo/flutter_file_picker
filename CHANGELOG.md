@@ -1,14 +1,26 @@
+## 8.3.1
+### iOS
+- Fix [1367](https://github.com/miguelpruivo/flutter_file_picker/issues/1367)
+
+## 8.3.0
+### Desktop (macOS) && iOS
+- Adds support for Swift Package Manager for compatibility with new projects [#1582](https://github.com/miguelpruivo/flutter_file_picker/issues/1582)
+
+## 8.2.0
+### Desktop (macOS)
+- Reimplement macOS file picker using method channels (fixes [#1492](https://github.com/miguelpruivo/flutter_file_picker/issues/1492), [#1445](https://github.com/miguelpruivo/flutter_file_picker/issues/1445), [#1674](https://github.com/miguelpruivo/flutter_file_picker/issues/1674), [#1685](https://github.com/miguelpruivo/flutter_file_picker/issues/1685))
+
 ## 8.1.7
 ### iOS 
-Fix Image Picker to Handle Partial Failures Gracefully [#1554](https://github.com/miguelpruivo/flutter_file_picker/issues/1554)
+- Fix Image Picker to Handle Partial Failures Gracefully [#1554](https://github.com/miguelpruivo/flutter_file_picker/issues/1554)
 
 ## 8.1.6
 ### Android
-Fix [#1643](https://github.com/miguelpruivo/flutter_file_picker/issues/1643)
+- Fix Android compile error [#1643](https://github.com/miguelpruivo/flutter_file_picker/issues/1643)
 
 ## 8.1.5
 ### Android
-Fix [#872](https://github.com/miguelpruivo/flutter_file_picker/issues/872)
+- Fix [#872](https://github.com/miguelpruivo/flutter_file_picker/issues/872) by removing unnecessary external storage permission
 
 ## 8.1.4
 ### iOS
