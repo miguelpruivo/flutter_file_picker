@@ -1,3 +1,7 @@
+## 8.3.2
+### Android
+- Fix pickFiles for Android with launchMode=singleInstance [#1700](https://github.com/miguelpruivo/flutter_file_picker/issues/1700), [#1404](https://github.com/miguelpruivo/flutter_file_picker/issues/1404)
+
 ## 8.3.1
 ### iOS
 - Fix [1367](https://github.com/miguelpruivo/flutter_file_picker/issues/1367)
