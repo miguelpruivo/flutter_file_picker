@@ -1,3 +1,8 @@
+## 8.3.2
+### General
+- Updates flutter_plugin_android_lifecycle, ffi, path, win32, cross_file and web dependencies.
+- Updates CI/CD with new dependencies.
+
 ## 8.3.1
 ### iOS
 - Fix [1367](https://github.com/miguelpruivo/flutter_file_picker/issues/1367)
