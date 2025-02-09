@@ -1,3 +1,8 @@
+## 8.3.3
+### General
+- Updates flutter_plugin_android_lifecycle, ffi, path, win32, cross_file and web dependencies [@vicajilau].
+- Updates CI/CD with new dependencies [@vicajilau].
+
 ## 8.3.2
 ### Android
 - Fix pickFiles for Android with launchMode=singleInstance [#1700](https://github.com/miguelpruivo/flutter_file_picker/issues/1700), [#1404](https://github.com/miguelpruivo/flutter_file_picker/issues/1404)
