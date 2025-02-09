@@ -1,7 +1,7 @@
 ## 8.3.3
 ### General
-- Updates flutter_plugin_android_lifecycle, ffi, path, win32, cross_file and web dependencies.
-- Updates CI/CD with new dependencies.
+- Updates flutter_plugin_android_lifecycle, ffi, path, win32, cross_file and web dependencies [@vicajilau].
+- Updates CI/CD with new dependencies [@vicajilau].
 
 ## 8.3.2
 ### Android
