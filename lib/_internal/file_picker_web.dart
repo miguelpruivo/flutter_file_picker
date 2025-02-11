@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:html' as html;
 import 'dart:js_interop';
-import 'package:web/web.dart';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:web/web.dart';
 
 class FilePickerWeb extends FilePicker {
   late Element _target;
@@ -87,8 +87,7 @@ class FilePickerWeb extends FilePicker {
         String? path,
         Stream<List<int>>? readStream,
       ) {
-        String mimeType = file.type.isNotEmpty ? file.type : 'application/octet-stream'; // default value if mimetye is null
-        final blob = html.Blob([bytes ?? Uint8List(0)],mimeType);
+        final blob = html.Blob([bytes ?? Uint8List(0)], file.type);
         final blobUrl = html.Url.createObjectUrlFromBlob(blob);
 
         pickedFiles.add(PlatformFile(
