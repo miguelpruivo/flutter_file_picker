@@ -1,6 +1,19 @@
-## 8.3.2
+## 8.3.5
 ### Android
 - Fixes allowCompression not working on Android. [1633](https://github.com/miguelpruivo/flutter_file_picker/issues/1633)
+
+## 8.3.4
+### Android
+- Fix: Handle Null Byte Array in saveFile Method [#1662](https://github.com/miguelpruivo/flutter_file_picker/issues/1662) [@vicajilau](https://github.com/vicajilau).
+
+## 8.3.3
+### General
+- Updates flutter_plugin_android_lifecycle, ffi, path, win32, cross_file and web dependencies [@vicajilau](https://github.com/vicajilau).
+- Updates CI/CD with new dependencies [@vicajilau](https://github.com/vicajilau).
+
+## 8.3.2
+### Android
+- Fix pickFiles for Android with launchMode=singleInstance [#1700](https://github.com/miguelpruivo/flutter_file_picker/issues/1700), [#1404](https://github.com/miguelpruivo/flutter_file_picker/issues/1404)
 
 ## 8.3.1
 ### iOS
