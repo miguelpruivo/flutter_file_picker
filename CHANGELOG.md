@@ -1,3 +1,7 @@
+## 8.3.5
+### Android
+- Fixes allowCompression not working on Android. [1633](https://github.com/miguelpruivo/flutter_file_picker/issues/1633)
+
 ## 8.3.4
 ### Android
 - Fix: Handle Null Byte Array in saveFile Method [#1662](https://github.com/miguelpruivo/flutter_file_picker/issues/1662) [@vicajilau](https://github.com/vicajilau).
