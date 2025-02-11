@@ -5,6 +5,8 @@
 //  Created by Miguel Ruivo on 11/09/2020.
 //
 
+#import <Foundation/Foundation.h>
+
 @interface FileInfo : NSObject
 
 @property (nonatomic, strong) NSString * path;
@@ -19,4 +21,3 @@
 - (NSDictionary *) toData;
 
 @end
-
