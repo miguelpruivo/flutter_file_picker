@@ -41,7 +41,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private boolean isMultipleSelection = false;
     private boolean loadDataToMemory = false;
     private String type;
-    private boolean allowCompression=true;
+    private boolean allowCompression = true;
     private int compressionQuality=20;
     private String[] allowedExtensions;
     private EventChannel.EventSink eventSink;
