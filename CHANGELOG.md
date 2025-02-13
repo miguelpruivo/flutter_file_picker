@@ -1,3 +1,7 @@
+## 8.3.6
+### Desktop (Windows)
+-- Fixes the issue under Windows that could be raised when another plugin uses `CoInitializeEx` and the File Explorer windows doesn't popup. [#1708](https://github.com/miguelpruivo/flutter_file_picker/pull/1708)
+
 ## 8.3.5
 ### Android
 - Fixes allowCompression not working on Android. [1633](https://github.com/miguelpruivo/flutter_file_picker/issues/1633)
