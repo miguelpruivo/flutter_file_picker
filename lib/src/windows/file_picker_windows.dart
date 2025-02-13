@@ -100,7 +100,12 @@ class FilePickerWindows extends FilePicker {
       COINIT.COINIT_APARTMENTTHREADED | COINIT.COINIT_DISABLE_OLE1DDE,
     );
 
-    if (!SUCCEEDED(hr)) throw WindowsException(hr);
+    // Ignore the error if COM is already initialized.
+    // If this is the case, CoInitializeEx will return
+    // RPC_E_CHANGED_MODE (0x80010106 = -2147417850).
+    if (!SUCCEEDED(hr) && hr != -2147417850) {
+      throw WindowsException(hr);
+    }
 
     final fileDialog = FileOpenDialog.createInstance();
 
