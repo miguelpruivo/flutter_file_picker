@@ -32,7 +32,6 @@
 - Reimplement macOS file picker using method channels (fixes [#1492](https://github.com/miguelpruivo/flutter_file_picker/issues/1492), [#1445](https://github.com/miguelpruivo/flutter_file_picker/issues/1445), [#1674](https://github.com/miguelpruivo/flutter_file_picker/issues/1674), [#1685](https://github.com/miguelpruivo/flutter_file_picker/issues/1685))
 - **BREAKING CHANGE:** `pickFiles()` now requires the `com.apple.security.files.user-selected.read-only` entitlement on macOS. Without this entitlement, the file picker will not open, and the method will return `null`. See the note in the updated [wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#macos)
 
-
 ## 8.1.7
 ### iOS 
 - Fix Image Picker to Handle Partial Failures Gracefully [#1554](https://github.com/miguelpruivo/flutter_file_picker/issues/1554)
