@@ -1,3 +1,7 @@
+## 8.3.6
+### General
+- Added compatibility with Flutter 3.29. [@vicajilau](https://github.com/vicajilau).
+
 ## 8.3.5
 ### Android
 - Fixes allowCompression not working on Android. [1633](https://github.com/miguelpruivo/flutter_file_picker/issues/1633)
