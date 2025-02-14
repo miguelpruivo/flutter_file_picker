@@ -102,8 +102,8 @@ class FilePickerWindows extends FilePicker {
 
     // Ignore the error if COM is already initialized.
     // If this is the case, CoInitializeEx will return
-    // RPC_E_CHANGED_MODE (0x80010106 = -2147417850).
-    if (!SUCCEEDED(hr) && hr != -2147417850) {
+    // RPC_E_CHANGED_MODE.
+    if (!SUCCEEDED(hr) && hr != RPC_E_CHANGED_MODE) {
       throw WindowsException(hr);
     }
 
