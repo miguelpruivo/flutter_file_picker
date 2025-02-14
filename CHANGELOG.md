@@ -23,7 +23,7 @@
 ### Desktop (macOS) && iOS
 - Adds support for Swift Package Manager for compatibility with new projects [#1582](https://github.com/miguelpruivo/flutter_file_picker/issues/1582)
 ### macOS
-- BREAKING CHANGE: `pickFiles()` now requires the `com.apple.security.files.user-selected.read-only` entitlement on macOS. Without this entitlement, the file picker will not open, and the method will return `null`. [#1706](https://github.com/miguelpruivo/flutter_file_picker/issues/1706)
+- BREAKING CHANGE: `pickFiles()` now requires the `com.apple.security.files.user-selected.read-only` entitlement on macOS. Without this entitlement, the file picker will not open, and the method will return `null`. [WIKI](https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#macos)
 
 ## 8.2.0
 ### Desktop (macOS)
