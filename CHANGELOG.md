@@ -1,6 +1,6 @@
 ## 8.3.6
 ### General
-- Updates to flutter 3.29. [@vicajilau](https://github.com/vicajilau).
+- Added compatibility with Flutter 3.29. [@vicajilau](https://github.com/vicajilau).
 
 ## 8.3.5
 ### Android
