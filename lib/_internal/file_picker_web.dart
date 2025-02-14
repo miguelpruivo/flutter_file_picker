@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:html' as html;
 import 'dart:js_interop';
 import 'dart:typed_data';
 
@@ -87,8 +86,11 @@ class FilePickerWeb extends FilePicker {
         String? path,
         Stream<List<int>>? readStream,
       ) {
-        final blob = html.Blob([bytes ?? Uint8List(0)], file.type);
-        final blobUrl = html.Url.createObjectUrlFromBlob(blob);
+        final blobParts = bytes ?? Uint8List(0);
+        final blob =
+            Blob([blobParts.toJS].toJS, BlobPropertyBag(type: file.type));
+
+        final blobUrl = URL.createObjectURL(blob);
 
         pickedFiles.add(PlatformFile(
           name: file.name,
