@@ -1,10 +1,9 @@
-## 8.3.7
-### Desktop (Windows)
-- Fixes the issue under Windows that could be raised when another plugin uses `CoInitializeEx` and the File Explorer windows doesn't popup. [#1708](https://github.com/miguelpruivo/flutter_file_picker/pull/1708)
-
 ## 8.3.6
 ### General
 - Added compatibility with Flutter 3.29. [@vicajilau](https://github.com/vicajilau).
+
+### Desktop (Windows)
+- Fixes the issue under Windows that could be raised when another plugin uses `CoInitializeEx` and the File Explorer windows doesn't popup. [#1708](https://github.com/miguelpruivo/flutter_file_picker/pull/1708)
 
 ## 8.3.5
 ### Android
