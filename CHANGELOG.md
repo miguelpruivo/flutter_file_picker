@@ -1,3 +1,7 @@
+## 8.3.6
+### Android
+- Recreate android folder in example project. [@vicajilau](https://github.com/vicajilau)
+
 ## 8.3.5
 ### Android
 - Fixes allowCompression not working on Android. [1633](https://github.com/miguelpruivo/flutter_file_picker/issues/1633)
