@@ -41,6 +41,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private boolean isMultipleSelection = false;
     private boolean loadDataToMemory = false;
     private String type;
+    private boolean allowCompression = true;
     private int compressionQuality=20;
     private String[] allowedExtensions;
     private EventChannel.EventSink eventSink;
@@ -121,7 +122,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             while (currentItem < count) {
                                  Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
 
-                                if (Objects.equals(type, "image/*") && compressionQuality > 0) {
+                                if (Objects.equals(type, "image/*") && allowCompression && compressionQuality > 0) {
                                     currentUri = FileUtils.compressImage(currentUri, compressionQuality, activity.getApplicationContext());
                                 }
                                 final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
@@ -136,7 +137,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                         } else if (data.getData() != null) {
                             Uri uri = data.getData();
 
-                            if (Objects.equals(type, "image/*") && compressionQuality > 0) {
+                            if (Objects.equals(type, "image/*") && allowCompression && compressionQuality > 0) {
                                 uri = FileUtils.compressImage(uri, compressionQuality, activity.getApplicationContext());
                             }
 
@@ -246,7 +247,11 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             if (type.equals("image/*")) {
                 intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             } else {
-                intent = new Intent(Intent.ACTION_GET_CONTENT);
+                if(Build.VERSION.SDK_INT >= 19) {
+                    intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                } else {
+                    intent = new Intent(Intent.ACTION_GET_CONTENT);
+                }
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
             }
             final Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
@@ -274,7 +279,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     @SuppressWarnings("deprecation")
-    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final int compressionQuality, final MethodChannel.Result result) {
+    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final boolean allowCompression, final int compressionQuality, final MethodChannel.Result result) {
 
         if (!this.setPendingMethodCallAndResult(result)) {
             finishWithAlreadyActiveError(result);
@@ -284,7 +289,8 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         this.isMultipleSelection = isMultipleSelection;
         this.loadDataToMemory = withData;
         this.allowedExtensions = allowedExtensions;
-		this.compressionQuality=compressionQuality;
+		this.compressionQuality = compressionQuality;
+        this.allowCompression = allowCompression;
      
         this.startFileExplorer();
     }

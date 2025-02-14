@@ -6,6 +6,7 @@
 //
 
 #import "ImageUtils.h"
+#import <UIKit/UIKit.h>
 
 @implementation ImageUtils
 
