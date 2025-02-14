@@ -1,3 +1,7 @@
+## 8.3.7
+### Android
+- Updated example project Android sources. [@vicajilau](https://github.com/vicajilau)
+
 ## 8.3.6
 ### General
 - Added compatibility with Flutter 3.29. [@vicajilau](https://github.com/vicajilau).
