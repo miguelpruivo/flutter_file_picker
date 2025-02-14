@@ -1,6 +1,6 @@
 ## 8.3.7
 ### Android
-- Recreate android folder in example project. [@vicajilau](https://github.com/vicajilau)
+- Updated example project Android sources. [@vicajilau](https://github.com/vicajilau)
 
 ## 8.3.6
 ### General
