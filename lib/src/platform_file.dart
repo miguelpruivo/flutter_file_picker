@@ -31,7 +31,7 @@ class PlatformFile {
   /// ```
   /// final File myFile = File(platformFile.path);
   /// ```
-  /// On web this is always `null`. You should access `bytes` property instead.
+  /// On web this will return a blob.
   /// Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
   final String? path;
 
