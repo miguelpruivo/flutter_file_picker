@@ -86,12 +86,13 @@ class FilePickerWeb extends FilePicker {
         String? path,
         Stream<List<int>>? readStream,
       ) {
-        final blobParts = bytes ?? Uint8List(0);
-        final blob =
-            Blob([blobParts.toJS].toJS, BlobPropertyBag(type: file.type));
+        String? blobUrl;
+        if (bytes != null) {
+          final blob =
+              Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
 
-        final blobUrl = URL.createObjectURL(blob);
-
+          blobUrl = URL.createObjectURL(blob);
+        }
         pickedFiles.add(PlatformFile(
           name: file.name,
           path: path ?? blobUrl,
