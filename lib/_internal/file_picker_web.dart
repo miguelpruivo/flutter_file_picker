@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:js_interop';
-import 'package:web/web.dart';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:web/web.dart';
 
 class FilePickerWeb extends FilePicker {
   late Element _target;
@@ -86,9 +86,16 @@ class FilePickerWeb extends FilePicker {
         String? path,
         Stream<List<int>>? readStream,
       ) {
+        String? blobUrl;
+        if (bytes != null && bytes.isNotEmpty) {
+          final blob =
+              Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
+
+          blobUrl = URL.createObjectURL(blob);
+        }
         pickedFiles.add(PlatformFile(
           name: file.name,
-          path: path,
+          path: path ?? blobUrl,
           size: bytes != null ? bytes.length : file.size,
           bytes: bytes,
           readStream: readStream,

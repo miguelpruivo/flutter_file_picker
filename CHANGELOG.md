@@ -1,3 +1,7 @@
+## 9.0.0
+### Web
+- **BREAKING CHANGE:** `pickFiles()` now loads files as blobs. See the note in the updated [wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api#-pickfiles)
+
 ## 8.3.7
 ### Android
 - Updated example project Android sources. [@vicajilau](https://github.com/vicajilau)
