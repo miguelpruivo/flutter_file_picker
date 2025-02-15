@@ -87,7 +87,7 @@ class FilePickerWeb extends FilePicker {
         Stream<List<int>>? readStream,
       ) {
         String? blobUrl;
-        if (bytes != null) {
+        if (bytes != null && bytes.isNotEmpty) {
           final blob =
               Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
 
