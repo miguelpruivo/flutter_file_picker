@@ -1,3 +1,7 @@
+## 9.0.1
+### Android
+- Fixes an issue where `saveFiles()` would return an incorrect path. [#1636](https://github.com/miguelpruivo/flutter_file_picker/issues/1636)
+
 ## 9.0.0
 ### Web
 - **BREAKING CHANGE:** `pickFiles()` now loads files as blobs. See the note in the updated [wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api#-pickfiles)
