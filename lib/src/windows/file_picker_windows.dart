@@ -5,9 +5,10 @@ import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:file_picker/src/utils.dart';
 import 'package:file_picker/src/exceptions.dart';
+import 'package:file_picker/src/utils.dart';
 import 'package:file_picker/src/windows/file_picker_windows_ffi_types.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:win32/win32.dart';
 
@@ -94,78 +95,94 @@ class FilePickerWindows extends FilePicker {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-  }) {
+  }) async {
+    return compute(_getDirectoryPathIsolate, {
+      'dialogTitle': dialogTitle,
+      'initialDirectory': initialDirectory,
+    });
+  }
+
+  String? _getDirectoryPathIsolate(Map<String, dynamic> args) {
+    String? dialogTitle = args['dialogTitle'];
+    String? initialDirectory = args['initialDirectory'];
+
     int hr = CoInitializeEx(
       nullptr,
       COINIT.COINIT_APARTMENTTHREADED | COINIT.COINIT_DISABLE_OLE1DDE,
     );
 
-    // Ignore the error if COM is already initialized.
-    // If this is the case, CoInitializeEx will return
-    // RPC_E_CHANGED_MODE.
-    if (!SUCCEEDED(hr) && hr != RPC_E_CHANGED_MODE) {
+    if (!SUCCEEDED(hr)) {
       throw WindowsException(hr);
     }
 
     final fileDialog = FileOpenDialog.createInstance();
 
     final optionsPointer = calloc<Uint32>();
-    hr = fileDialog.getOptions(optionsPointer);
-    if (!SUCCEEDED(hr)) throw WindowsException(hr);
+    try {
+      hr = fileDialog.getOptions(optionsPointer);
+      if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
-    final options = optionsPointer.value |
-        FILEOPENDIALOGOPTIONS.FOS_PICKFOLDERS |
-        FILEOPENDIALOGOPTIONS.FOS_FORCEFILESYSTEM |
-        FILEOPENDIALOGOPTIONS.FOS_NOCHANGEDIR;
-    hr = fileDialog.setOptions(options);
-    if (!SUCCEEDED(hr)) throw WindowsException(hr);
+      final options = optionsPointer.value |
+          FILEOPENDIALOGOPTIONS.FOS_PICKFOLDERS |
+          FILEOPENDIALOGOPTIONS.FOS_FORCEFILESYSTEM |
+          FILEOPENDIALOGOPTIONS.FOS_NOCHANGEDIR;
+      hr = fileDialog.setOptions(options);
+      if (!SUCCEEDED(hr)) throw WindowsException(hr);
+    } finally {
+      free(optionsPointer);
+    }
 
-    final title = TEXT(dialogTitle ?? defaultDialogTitle);
-    hr = fileDialog.setTitle(title);
-    if (!SUCCEEDED(hr)) throw WindowsException(hr);
-    free(title);
+    final title = TEXT(dialogTitle ?? 'Select a Folder');
+    try {
+      hr = fileDialog.setTitle(title);
+      if (!SUCCEEDED(hr)) throw WindowsException(hr);
+    } finally {
+      free(title);
+    }
 
     if (initialDirectory != null) {
       final folder = TEXT(initialDirectory);
       final riid = convertToIID(IID_IShellItem);
       final ppv = calloc<Pointer>();
-      hr = SHCreateItemFromParsingName(folder, nullptr, riid, ppv);
-      final item = IShellItem(ppv.cast());
-      free(riid);
-      free(folder);
-      if (!SUCCEEDED(hr)) throw WindowsException(hr);
-      hr = fileDialog.setFolder(item.ptr.cast<Pointer<COMObject>>().value);
-      if (!SUCCEEDED(hr)) throw WindowsException(hr);
-    }
 
-    final hwndOwner = lockParentWindow ? GetForegroundWindow() : NULL;
-    hr = fileDialog.show(hwndOwner);
-    if (!SUCCEEDED(hr)) {
-      CoUninitialize();
+      try {
+        hr = SHCreateItemFromParsingName(folder, nullptr, riid, ppv);
+        if (!SUCCEEDED(hr) || ppv.value == nullptr) {
+          throw WindowsException(hr);
+        }
 
-      if (hr == HRESULT_FROM_WIN32(WIN32_ERROR.ERROR_CANCELLED)) {
-        return Future.value(null);
+        final item = IShellItem(ppv.cast());
+        hr = fileDialog.setFolder(item.ptr.cast<Pointer<COMObject>>().value);
+        if (!SUCCEEDED(hr)) throw WindowsException(hr);
+      } finally {
+        free(riid);
+        free(folder);
+        free(ppv);
       }
-      throw WindowsException(hr);
     }
 
-    final ppsi = calloc<COMObject>();
-    hr = fileDialog.getResult(ppsi.cast());
-    if (!SUCCEEDED(hr)) throw WindowsException(hr);
+    hr = fileDialog.show(NULL);
+    if (!SUCCEEDED(hr)) return null;
 
-    final item = IShellItem(ppsi);
-    final pathPtr = calloc<Pointer<Utf16>>();
-    hr = item.getDisplayName(SIGDN.SIGDN_FILESYSPATH, pathPtr);
-    if (!SUCCEEDED(hr)) throw WindowsException(hr);
+    final ppv = calloc<Pointer<COMObject>>();
+    String? selectedPath;
+    try {
+      hr = fileDialog.getResult(ppv);
+      if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
-    final path = pathPtr.value.toDartString();
-
-    hr = item.release();
-    if (!SUCCEEDED(hr)) throw WindowsException(hr);
+      final item = IShellItem(ppv.cast());
+      final pathPtr = calloc<Pointer<Utf16>>();
+      hr = item.getDisplayName(SIGDN.SIGDN_FILESYSPATH, pathPtr);
+      if (SUCCEEDED(hr)) {
+        selectedPath = pathPtr.value.toDartString();
+      }
+      free(pathPtr);
+    } finally {
+      free(ppv);
+    }
 
     CoUninitialize();
-
-    return Future.value(path);
+    return selectedPath;
   }
 
   @override
