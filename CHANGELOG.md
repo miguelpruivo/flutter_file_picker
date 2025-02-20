@@ -1,3 +1,7 @@
+## 9.1.0
+### Web
+- `saveFile()` now downloads the file. See the note in the updated [wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api#-savefile)
+
 ## 9.0.0
 ### Web
 - **BREAKING CHANGE:** `pickFiles()` now loads files as blobs. See the note in the updated [wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api#-pickfiles)
