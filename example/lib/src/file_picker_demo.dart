@@ -112,7 +112,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   Future<void> _saveFile() async {
-    _resetState();
     try {
       String? fileName = await FilePicker.platform.saveFile(
         allowedExtensions: (_extension?.isNotEmpty ?? false)
@@ -123,6 +122,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         fileName: _defaultFileNameController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
+        bytes: _paths?.single.bytes,
       );
       setState(() {
         _saveAsFileName = fileName;
@@ -133,6 +133,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     } catch (e) {
       _logException(e.toString());
     } finally {
+      _resetState();
       setState(() => _isLoading = false);
     }
   }

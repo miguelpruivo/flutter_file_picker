@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:path/path.dart' as p;
 import 'package:web/web.dart';
 
 class FilePickerWeb extends FilePicker {
@@ -183,6 +184,45 @@ class FilePickerWeb extends FilePicker {
     final List<PlatformFile>? files = await filesCompleter.future;
 
     return files == null ? null : FilePickerResult(files);
+  }
+
+  @override
+  Future<String?> saveFile({
+    String? dialogTitle,
+    String? fileName,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Uint8List? bytes,
+    bool lockParentWindow = false,
+  }) async {
+    if (bytes == null) {
+      throw ArgumentError(
+          'The "bytes" parameter is required for saveFile on web');
+    }
+
+    if (fileName == null || p.extension(fileName).isEmpty) {
+      throw ArgumentError(
+          'The "fileName" parameter is required and must include a valid file extension (e.g., ".txt", ".pdf") when using saveFile on web.');
+    }
+
+    // Open a save dialog for the user to select a file path
+    // Create a new Blob containing the bytes
+    final blob = Blob([bytes.toJS].toJS);
+
+    // Generate a URL for the Blob, allowing it to be downloaded
+    final url = URL.createObjectURL(blob);
+
+    // Create an anchor element for triggering the download
+    HTMLAnchorElement()
+      ..href = url // Set the URL to download
+      ..target = 'blank' // Open the file in a new tab (if supported)
+      ..download = fileName // Set the file name for the download
+      ..click(); // Simulate a click to start the download
+
+    // Release the Blob URL to free up memory after the download
+    URL.revokeObjectURL(url);
+    return null; // Cleans up the URL to release memory.
   }
 
   static String _fileType(FileType type, List<String>? allowedExtensions) {
