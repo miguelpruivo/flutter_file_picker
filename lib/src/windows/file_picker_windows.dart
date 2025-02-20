@@ -106,7 +106,7 @@ class FilePickerWindows extends FilePicker {
   String? _getDirectoryPathIsolate(Map<String, Object?> args) {
     String? dialogTitle = args['dialogTitle'] as String?;
     String? initialDirectory = args['initialDirectory'] as String?;
-    bool? lockParentWindow = args['lockParentWindow'] as bool? ?? false;
+    bool lockParentWindow = args['lockParentWindow'] as bool? ?? false;
 
     int hr = CoInitializeEx(
       nullptr,
