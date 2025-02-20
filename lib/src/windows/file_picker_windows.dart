@@ -102,7 +102,7 @@ class FilePickerWindows extends FilePicker {
     });
   }
 
-  String? _getDirectoryPathIsolate(Map<String, dynamic> args) {
+  String? _getDirectoryPathIsolate(Map<String, String?> args) {
     String? dialogTitle = args['dialogTitle'];
     String? initialDirectory = args['initialDirectory'];
 
@@ -115,74 +115,76 @@ class FilePickerWindows extends FilePicker {
       throw WindowsException(hr);
     }
 
-    final fileDialog = FileOpenDialog.createInstance();
-
-    final optionsPointer = calloc<Uint32>();
     try {
-      hr = fileDialog.getOptions(optionsPointer);
-      if (!SUCCEEDED(hr)) throw WindowsException(hr);
+      final fileDialog = FileOpenDialog.createInstance();
 
-      final options = optionsPointer.value |
-          FILEOPENDIALOGOPTIONS.FOS_PICKFOLDERS |
-          FILEOPENDIALOGOPTIONS.FOS_FORCEFILESYSTEM |
-          FILEOPENDIALOGOPTIONS.FOS_NOCHANGEDIR;
-      hr = fileDialog.setOptions(options);
-      if (!SUCCEEDED(hr)) throw WindowsException(hr);
-    } finally {
-      free(optionsPointer);
-    }
-
-    final title = TEXT(dialogTitle ?? 'Select a Folder');
-    try {
-      hr = fileDialog.setTitle(title);
-      if (!SUCCEEDED(hr)) throw WindowsException(hr);
-    } finally {
-      free(title);
-    }
-
-    if (initialDirectory != null) {
-      final folder = TEXT(initialDirectory);
-      final riid = convertToIID(IID_IShellItem);
-      final ppv = calloc<Pointer>();
-
+      final optionsPointer = calloc<Uint32>();
       try {
-        hr = SHCreateItemFromParsingName(folder, nullptr, riid, ppv);
-        if (!SUCCEEDED(hr) || ppv.value == nullptr) {
-          throw WindowsException(hr);
-        }
+        hr = fileDialog.getOptions(optionsPointer);
+        if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
-        final item = IShellItem(ppv.cast());
-        hr = fileDialog.setFolder(item.ptr.cast<Pointer<COMObject>>().value);
+        final options = optionsPointer.value |
+            FILEOPENDIALOGOPTIONS.FOS_PICKFOLDERS |
+            FILEOPENDIALOGOPTIONS.FOS_FORCEFILESYSTEM |
+            FILEOPENDIALOGOPTIONS.FOS_NOCHANGEDIR;
+        hr = fileDialog.setOptions(options);
         if (!SUCCEEDED(hr)) throw WindowsException(hr);
       } finally {
-        free(riid);
-        free(folder);
+        free(optionsPointer);
+      }
+
+      final title = TEXT(dialogTitle ?? defaultDialogTitle);
+      try {
+        hr = fileDialog.setTitle(title);
+        if (!SUCCEEDED(hr)) throw WindowsException(hr);
+      } finally {
+        free(title);
+      }
+
+      if (initialDirectory != null) {
+        final folder = TEXT(initialDirectory);
+        final riid = convertToIID(IID_IShellItem);
+        final ppv = calloc<Pointer>();
+
+        try {
+          hr = SHCreateItemFromParsingName(folder, nullptr, riid, ppv);
+          if (!SUCCEEDED(hr) || ppv.value == nullptr) {
+            throw WindowsException(hr);
+          }
+
+          final item = IShellItem(ppv.cast());
+          hr = fileDialog.setFolder(item.ptr.cast<Pointer<COMObject>>().value);
+          if (!SUCCEEDED(hr)) throw WindowsException(hr);
+        } finally {
+          free(folder);
+          free(riid);
+          free(ppv);
+        }
+      }
+
+      hr = fileDialog.show(NULL);
+      if (!SUCCEEDED(hr)) return null;
+
+      final ppv = calloc<Pointer<COMObject>>();
+      String? selectedPath;
+      try {
+        hr = fileDialog.getResult(ppv);
+        if (!SUCCEEDED(hr)) throw WindowsException(hr);
+
+        final item = IShellItem(ppv.cast());
+        final pathPtr = calloc<Pointer<Utf16>>();
+        hr = item.getDisplayName(SIGDN.SIGDN_FILESYSPATH, pathPtr);
+        if (SUCCEEDED(hr)) {
+          selectedPath = pathPtr.value.toDartString();
+        }
+        free(pathPtr);
+      } finally {
         free(ppv);
       }
-    }
-
-    hr = fileDialog.show(NULL);
-    if (!SUCCEEDED(hr)) return null;
-
-    final ppv = calloc<Pointer<COMObject>>();
-    String? selectedPath;
-    try {
-      hr = fileDialog.getResult(ppv);
-      if (!SUCCEEDED(hr)) throw WindowsException(hr);
-
-      final item = IShellItem(ppv.cast());
-      final pathPtr = calloc<Pointer<Utf16>>();
-      hr = item.getDisplayName(SIGDN.SIGDN_FILESYSPATH, pathPtr);
-      if (SUCCEEDED(hr)) {
-        selectedPath = pathPtr.value.toDartString();
-      }
-      free(pathPtr);
+      return selectedPath;
     } finally {
-      free(ppv);
+      CoUninitialize();
     }
-
-    CoUninitialize();
-    return selectedPath;
   }
 
   @override
