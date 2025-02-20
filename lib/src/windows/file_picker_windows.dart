@@ -99,12 +99,14 @@ class FilePickerWindows extends FilePicker {
     return compute(_getDirectoryPathIsolate, {
       'dialogTitle': dialogTitle,
       'initialDirectory': initialDirectory,
+      'lockParentWindow': lockParentWindow,
     });
   }
 
-  String? _getDirectoryPathIsolate(Map<String, String?> args) {
-    String? dialogTitle = args['dialogTitle'];
-    String? initialDirectory = args['initialDirectory'];
+  String? _getDirectoryPathIsolate(Map<String, Object?> args) {
+    String? dialogTitle = args['dialogTitle'] as String?;
+    String? initialDirectory = args['initialDirectory'] as String?;
+    bool? lockParentWindow = args['lockParentWindow'] as bool? ?? false;
 
     int hr = CoInitializeEx(
       nullptr,
@@ -162,7 +164,8 @@ class FilePickerWindows extends FilePicker {
         }
       }
 
-      hr = fileDialog.show(NULL);
+      final hwndOwner = lockParentWindow ? GetForegroundWindow() : NULL;
+      hr = fileDialog.show(hwndOwner);
       if (!SUCCEEDED(hr)) return null;
 
       final ppv = calloc<Pointer<COMObject>>();
