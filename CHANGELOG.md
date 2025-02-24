@@ -1,3 +1,7 @@
+## 9.0.1
+### Windows
+- Move `getDirectoryPath()` to its own isolate to avoid COM initialization conflicts with other plugins [#1713](https://github.com/miguelpruivo/flutter_file_picker/pull/1713) [@tguerin](https://github.com/tguerin). 
+
 ## 9.0.0
 ### Web
 - **BREAKING CHANGE:** `pickFiles()` now loads files as blobs. See the note in the updated [wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api#-pickfiles)
