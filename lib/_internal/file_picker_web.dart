@@ -200,7 +200,6 @@ class FilePickerWeb extends FilePicker {
       throw ArgumentError(
         'The bytes are required when saving a file on the web.',
       );
-          'The "bytes" parameter is required for saveFile on web');
     }
 
     if (fileName == null || p.extension(fileName).isEmpty) {
@@ -208,10 +207,7 @@ class FilePickerWeb extends FilePicker {
           'The "fileName" parameter is required and must include a valid file extension (e.g., ".txt", ".pdf") when using saveFile on web.');
     }
 
-    // Open a save dialog for the user to select a file path
-    // Create a new Blob containing the bytes
     final blob = Blob([bytes.toJS].toJS);
-
     final url = URL.createObjectURL(blob);
 
     // Start a download by using a click event on an anchor element that contains the Blob.
@@ -220,9 +216,6 @@ class FilePickerWeb extends FilePicker {
       ..target = 'blank' // Always open the file in a new tab.
       ..download = fileName
       ..click();
-      ..target = 'blank' // Open the file in a new tab (if supported)
-      ..download = fileName // Set the file name for the download
-      ..click(); // Simulate a click to start the download
 
     // Release the Blob URL after the download started.
     URL.revokeObjectURL(url);
