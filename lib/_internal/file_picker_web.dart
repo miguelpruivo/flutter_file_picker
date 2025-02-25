@@ -221,7 +221,7 @@ class FilePickerWeb extends FilePicker {
       ..download = fileName // Set the file name for the download
       ..click(); // Simulate a click to start the download
 
-    // Release the Blob URL to free up memory after the download
+    // Release the Blob URL after the download started.
     URL.revokeObjectURL(url);
     return null;
   }
