@@ -212,7 +212,6 @@ class FilePickerWeb extends FilePicker {
     // Create a new Blob containing the bytes
     final blob = Blob([bytes.toJS].toJS);
 
-    // Generate a URL for the Blob, allowing it to be downloaded
     final url = URL.createObjectURL(blob);
 
     // Create an anchor element for triggering the download
