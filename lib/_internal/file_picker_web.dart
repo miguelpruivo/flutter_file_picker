@@ -214,7 +214,7 @@ class FilePickerWeb extends FilePicker {
 
     final url = URL.createObjectURL(blob);
 
-    // Create an anchor element for triggering the download
+    // Start a download by using a click event on an anchor element that contains the Blob.
     HTMLAnchorElement()
       ..href = url // Set the URL to download
       ..target = 'blank' // Open the file in a new tab (if supported)
