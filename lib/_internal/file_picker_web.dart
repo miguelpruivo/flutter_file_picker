@@ -198,6 +198,8 @@ class FilePickerWeb extends FilePicker {
   }) async {
     if (bytes == null) {
       throw ArgumentError(
+        'The bytes are required when saving a file on the web.',
+      );
           'The "bytes" parameter is required for saveFile on web');
     }
 
