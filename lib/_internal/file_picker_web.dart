@@ -224,7 +224,7 @@ class FilePickerWeb extends FilePicker {
 
     // Release the Blob URL to free up memory after the download
     URL.revokeObjectURL(url);
-    return null; // Cleans up the URL to release memory.
+    return null;
   }
 
   static String _fileType(FileType type, List<String>? allowedExtensions) {
