@@ -122,7 +122,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         fileName: _defaultFileNameController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
-        bytes: _paths?.single.bytes,
       );
       setState(() {
         _saveAsFileName = fileName;
