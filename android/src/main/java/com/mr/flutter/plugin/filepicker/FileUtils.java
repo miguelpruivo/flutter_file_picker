@@ -318,12 +318,13 @@ public class FileUtils {
                 Log.e(TAG, "Failed to retrieve path: " + e.getMessage(), null);
                 return null;
             } finally {
+                boolean closeFailed = false;
                 if (fos != null) {
                     try {
                         fos.close();
                     } catch (final IOException ex) {
                         Log.e(TAG, "Failed to close file streams: " + ex.getMessage(), null);
-                        return null;
+                        closeFailed = true;
                     }
                 }
                 if (in != null) {
@@ -331,8 +332,11 @@ public class FileUtils {
                         in.close();
                     } catch (final IOException ex) {
                         Log.e(TAG, "Failed to close file streams: " + ex.getMessage(), null);
-                        return null;
+                        closeFailed = true;
                     }
+                }
+                if (closeFailed) {
+                    return null;
                 }
             }
         }
