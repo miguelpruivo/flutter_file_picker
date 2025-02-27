@@ -40,6 +40,8 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private String[] allowedExtensions;
     private EventChannel.EventSink eventSink;
 
+    private int limitSelect = 0;
+    private int selected = 0;
     public FilePickerDelegate(final Activity activity) {
         this(
                 activity,
@@ -90,7 +92,10 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                         final ArrayList<FileInfo> files = new ArrayList<>();
 
                         if (data.getClipData() != null) {
-                            final int count = data.getClipData().getItemCount();
+                            int count = data.getClipData().getItemCount();
+                            if (limitSelect > 0) {
+                                count = Math.min(count, limitSelect);
+                            }
                             int currentItem = 0;
                             while (currentItem < count) {
                                 final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
@@ -230,6 +235,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         if (type.equals("dir")) {
             intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         } else {
+            Log.d(TAG, "startFileExplorer: XXXXXXXXXXXXXXX");
             if (type.equals("image/*")) {
                 intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             } else {
@@ -260,14 +266,16 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         }
     }
 
+
     @SuppressWarnings("deprecation")
-    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final MethodChannel.Result result) {
+    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final int limitSelect, final MethodChannel.Result result) {
 
         if (!this.setPendingMethodCallAndResult(result)) {
             finishWithAlreadyActiveError(result);
             return;
         }
 
+        this.limitSelect = limitSelect;
         this.type = type;
         this.isMultipleSelection = isMultipleSelection;
         this.loadDataToMemory = withData;
