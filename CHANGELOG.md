@@ -1,6 +1,6 @@
 ## 9.0.2
 ### Android
-- Fix: File streams not getting closed.
+- Fixes: File streams not getting closed.
 
 ## 9.0.1
 ### Windows
