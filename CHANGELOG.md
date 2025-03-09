@@ -2,6 +2,10 @@
 ### Web
 - Added an implementation for `saveFile()` on the web. See the updated [wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api#-savefile)
 
+## 9.0.2
+### Android
+- Fixes: File streams not getting closed.
+
 ## 9.0.1
 ### Windows
 - Move `getDirectoryPath()` to its own isolate to avoid COM initialization conflicts with other plugins [#1713](https://github.com/miguelpruivo/flutter_file_picker/pull/1713) [@tguerin](https://github.com/tguerin). 
