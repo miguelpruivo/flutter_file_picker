@@ -210,7 +210,8 @@ class FilePickerWeb extends FilePicker {
 
     if (p.extension(fileName).isEmpty) {
       throw ArgumentError(
-          'The file name should include a valid file extension.');
+          'The file name should include a valid file extension.',
+        );
     }
 
     final blob = Blob([bytes.toJS].toJS);
