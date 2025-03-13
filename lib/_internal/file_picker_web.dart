@@ -196,7 +196,7 @@ class FilePickerWeb extends FilePicker {
     Uint8List? bytes,
     bool lockParentWindow = false,
   }) async {
-    if (bytes == null) {
+    if (bytes == null || bytes.isEmpty) {
       throw ArgumentError(
         'The bytes are required when saving a file on the web.',
       );
