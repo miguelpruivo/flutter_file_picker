@@ -204,14 +204,14 @@ class FilePickerWeb extends FilePicker {
 
     if (fileName == null || fileName.isEmpty) {
       throw ArgumentError(
-          'A file name is required when saving a file on the web.',
-       );
+        'A file name is required when saving a file on the web.',
+      );
     }
 
     if (p.extension(fileName).isEmpty) {
       throw ArgumentError(
-          'The file name should include a valid file extension.',
-        );
+        'The file name should include a valid file extension.',
+      );
     }
 
     final blob = Blob([bytes.toJS].toJS);
