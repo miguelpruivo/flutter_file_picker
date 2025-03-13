@@ -1,3 +1,7 @@
+## 9.1.0
+### Android
+- Added ProGuard consumer rules to automatically exclude `androidx.lifecycle.DefaultLifecycleObserver` from obfuscation.
+
 ## 9.0.2
 ### Android
 - Fixes: File streams not getting closed.
