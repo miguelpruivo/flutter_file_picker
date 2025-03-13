@@ -1,6 +1,6 @@
 ## 9.1.0
 ### Web
-- Added an implementation for `saveFile()` on the web. See the updated [wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api#-savefile)
+- Added an implementation for `saveFile()` on the web.
 
 ## 9.0.2
 ### Android
