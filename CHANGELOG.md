@@ -1,3 +1,7 @@
+## 9.1.0
+### Web
+- Added an implementation for `saveFile()` on the web.
+
 ## 9.0.3
 ### Android
 - Added ProGuard consumer rules to automatically exclude `androidx.lifecycle.DefaultLifecycleObserver` from obfuscation.
