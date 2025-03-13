@@ -160,9 +160,6 @@ abstract class FilePicker extends PlatformInterface {
   /// On the web, this function will start a download for the file with [bytes] and [fileName].
   /// If the [bytes] or [fileName] are omitted, this will throw an [ArgumentError].
   ///
-  /// If the bytes or filename are omitted, this will throw an ArgumentError.
-  /// Throws ArgumentError on web if bytes or fileName are not provided.
-  ///
   /// For desktop platforms (Linux, macOS & Windows) this function does not actually
   /// save a file. It only opens the dialog to let the user choose a location and
   /// file name. This function only returns the **path** to this (non-existing) file.
