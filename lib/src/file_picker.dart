@@ -158,6 +158,8 @@ abstract class FilePicker extends PlatformInterface {
   /// Throws UnsupportedError on macOS if bytes are provided.
   ///
   /// On the web, this function will start a download for the file with [bytes] and [fileName].
+  /// If the [bytes] or [fileName] are omitted, this will throw an [ArgumentError].
+  ///
   /// If the bytes or filename are omitted, this will throw an ArgumentError.
   /// Throws ArgumentError on web if bytes or fileName are not provided.
   ///
