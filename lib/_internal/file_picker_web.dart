@@ -200,10 +200,6 @@ class FilePickerWeb extends FilePicker {
       throw ArgumentError(
         'The bytes are required when saving a file on the web.',
       );
-        'The bytes are required when saving a file on the web.',
-      );
-        'The bytes are required when saving a file on the web.',
-      );
     }
 
     if (fileName == null || fileName.isEmpty) {
