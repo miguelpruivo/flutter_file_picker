@@ -204,7 +204,8 @@ class FilePickerWeb extends FilePicker {
 
     if (fileName == null || fileName.isEmpty) {
       throw ArgumentError(
-          'A file name is required when saving a file on the web.');
+          'A file name is required when saving a file on the web.',
+       );
     }
 
     if (p.extension(fileName).isEmpty) {
