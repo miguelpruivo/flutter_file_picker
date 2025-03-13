@@ -1,4 +1,4 @@
-## 9.1.0
+## 9.0.3
 ### Android
 - Added ProGuard consumer rules to automatically exclude `androidx.lifecycle.DefaultLifecycleObserver` from obfuscation.
 
