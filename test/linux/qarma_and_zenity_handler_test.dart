@@ -1,4 +1,5 @@
 @TestOn('linux')
+library;
 
 import 'package:file_picker/src/file_picker.dart';
 import 'package:file_picker/src/linux/qarma_and_zenity_handler.dart';
@@ -20,24 +21,27 @@ void main() {
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.audio, null),
-        equals('*.aac *.midi *.mp3 *.ogg *.wav'),
+        equals(
+            'Audio Files | *.[aA][aA][cC] *.[mM][iI][dD][iI] *.[mM][pP]3 *.[oO][gG][gG] *.[wW][aA][vV] *.[mM]4[aA]'),
       );
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.image, null),
-        equals('*.bmp *.gif *.jpeg *.jpg *.png'),
+        equals(
+            'Image Files | *.[bB][mM][pP] *.[gG][iI][fF] *.[jJ][pP][eE][gG] *.[jJ][pP][gG] *.[pP][nN][gG]'),
       );
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.media, null),
         equals(
-          '*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv *.bmp *.gif *.jpeg *.jpg *.png',
+          'Media Files | *.[aA][vV][iI] *.[fF][lL][vV] *.[mM][kK][vV] *.[mM][oO][vV] *.[mM][pP]4 *.[mM][pP][eE][gG] *.[wW][eE][bB][mM] *.[wW][mM][vV] *.[bB][mM][pP] *.[gG][iI][fF] *.[jJ][pP][eE][gG] *.[jJ][pP][gG] *.[pP][nN][gG]',
         ),
       );
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.video, null),
-        equals('*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv'),
+        equals(
+            'Video Files | *.[aA][vV][iI] *.[fF][lL][vV] *.[mM][kK][vV] *.[mM][oO][vV] *.[mM][pP]4 *.[mM][pP][eE][gG] *.[wW][eE][bB][mM] *.[wW][mM][vV]'),
       );
     });
 
@@ -46,12 +50,12 @@ void main() {
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.custom, ['dart']),
-        equals('*.dart'),
+        equals('Custom Files | *.[dD][aA][rR][tT]'),
       );
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.custom, ['dart', 'html']),
-        equals('*.dart *.html'),
+        equals('Custom Files | *.[dD][aA][rR][tT] *.[hH][tT][mM][lL]'),
       );
     });
   });

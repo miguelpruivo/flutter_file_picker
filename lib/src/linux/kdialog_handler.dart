@@ -56,17 +56,15 @@ class KDialogHandler implements DialogHandler {
       case FileType.any:
         return '';
       case FileType.audio:
-        return 'Audio File (*.aac *.midi *.mp3 *.ogg *.wav)';
+        return 'Audio File (${DialogHandler.toCaseInsensitive("*.aac *.midi *.mp3 *.ogg *.wav *.m4a")})';
       case FileType.custom:
-        return '${allowedExtensions!.map((ext) => ext.toUpperCase()).join(' File, ')} File (*.${allowedExtensions.join(' *.')})';
+        return '${allowedExtensions!.map((ext) => ext.toUpperCase()).join(' File, ')} File (${DialogHandler.toCaseInsensitive("*.${allowedExtensions.join(' *.')}")})';
       case FileType.image:
-        return 'Image File (*.bmp *.gif *.jpeg *.jpg *.png)';
+        return 'Image File (${DialogHandler.toCaseInsensitive("*.bmp *.gif *.jpeg *.jpg *.png")})';
       case FileType.media:
-        return 'Media File (*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv *.bmp *.gif *.jpeg *.jpg *.png)';
+        return 'Media File (${DialogHandler.toCaseInsensitive("*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv *.bmp *.gif *.jpeg *.jpg *.png")})';
       case FileType.video:
-        return 'Video File (*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv)';
-      default:
-        throw Exception('unknown file type');
+        return 'Video File (${DialogHandler.toCaseInsensitive("*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv")})';
     }
   }
 

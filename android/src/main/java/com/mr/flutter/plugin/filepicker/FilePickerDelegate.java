@@ -10,54 +10,49 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Parcelable;
 import android.os.Message;
+import android.os.Parcelable;
 import android.provider.DocumentsContract;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.app.ActivityCompat;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.IOException;
+import java.util.Objects;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 
-public class FilePickerDelegate implements PluginRegistry.ActivityResultListener, PluginRegistry.RequestPermissionsResultListener {
+public class FilePickerDelegate implements PluginRegistry.ActivityResultListener {
 
     private static final String TAG = "FilePickerDelegate";
     private static final int REQUEST_CODE = (FilePickerPlugin.class.hashCode() + 43) & 0x0000ffff;
+    private static final int SAVE_FILE_CODE = (FilePickerPlugin.class.hashCode() + 83) & 0x0000ffff;
 
     private final Activity activity;
-    private final PermissionManager permissionManager;
     private MethodChannel.Result pendingResult;
     private boolean isMultipleSelection = false;
     private boolean loadDataToMemory = false;
     private String type;
+    private boolean allowCompression = true;
+    private int compressionQuality=20;
     private String[] allowedExtensions;
     private EventChannel.EventSink eventSink;
+
+    private byte[] bytes;
 
     public FilePickerDelegate(final Activity activity) {
         this(
                 activity,
-                null,
-                new PermissionManager() {
-                    @Override
-                    public boolean isPermissionGranted(final String permissionName) {
-                        return ActivityCompat.checkSelfPermission(activity, permissionName)
-                                == PackageManager.PERMISSION_GRANTED;
-                    }
-
-                    @Override
-                    public void askForPermission(final String permissionName, final int requestCode) {
-                        ActivityCompat.requestPermissions(activity, new String[]{permissionName}, requestCode);
-                    }
-
-                }
+                null
         );
     }
 
@@ -66,19 +61,48 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     @VisibleForTesting
-    FilePickerDelegate(final Activity activity, final MethodChannel.Result result, final PermissionManager permissionManager) {
+    FilePickerDelegate(final Activity activity, final MethodChannel.Result result) {
         this.activity = activity;
         this.pendingResult = result;
-        this.permissionManager = permissionManager;
     }
 
 
     @Override
     public boolean onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        // Save file
+        if (requestCode == SAVE_FILE_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                if (data == null) {
+                    return false;
+                }
+                this.dispatchEventStatus(true);
+                final Uri uri = data.getData();
+                if (uri != null) {
+                  String  path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                            .getAbsolutePath() + File.separator + FileUtils.getFileName(uri, this.activity);
+                    try {
+                        OutputStream outputStream = this.activity.getContentResolver().openOutputStream(uri);
+                        if(outputStream != null){
+                            outputStream.write(bytes);
+                            outputStream.flush();
+                            outputStream.close();
+                        }
+                        finishWithSuccess(path);
+                        return true;
+                    } catch (IOException e) {
+                        Log.i(TAG, "Error while saving file", e);
+                        finishWithError("Error while saving file", e.getMessage());
+                    }
+                }
 
-        if(type == null) {
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                Log.i(TAG, "User cancelled the save request");
+                finishWithSuccess(null);
+            }
             return false;
         }
+
 
         if (data != null && data.getData() != null) {
             final Uri intentData = data.getData();
@@ -105,8 +129,13 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             }
         }
 
-        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+        // Pick files
+        if (type == null) {
+            return false;
+        }
 
+
+        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             this.dispatchEventStatus(true);
 
             new Thread(new Runnable() {
@@ -119,9 +148,12 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             final int count = data.getClipData().getItemCount();
                             int currentItem = 0;
                             while (currentItem < count) {
-                                final Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
-                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
+                                 Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
 
+                                if (Objects.equals(type, "image/*") && allowCompression && compressionQuality > 0) {
+                                    currentUri = FileUtils.compressImage(currentUri, compressionQuality, activity.getApplicationContext());
+                                }
+                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
                                 if(file != null) {
                                     files.add(file);
                                     Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
@@ -132,6 +164,10 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             finishWithSuccess(files);
                         } else if (data.getData() != null) {
                             Uri uri = data.getData();
+
+                            if (Objects.equals(type, "image/*") && allowCompression && compressionQuality > 0) {
+                                uri = FileUtils.compressImage(uri, compressionQuality, activity.getApplicationContext());
+                            }
 
                             if (type.equals("dir") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                 uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
@@ -204,25 +240,6 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         return false;
     }
 
-    @Override
-    public boolean onRequestPermissionsResult(final int requestCode, final String[] permissions, final int[] grantResults) {
-
-        if (REQUEST_CODE != requestCode) {
-            return false;
-        }
-
-        final boolean permissionGranted =
-                grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
-
-        if (permissionGranted) {
-            this.startFileExplorer();
-        } else {
-            finishWithError("read_external_storage_denied", "User did not allow reading external storage");
-        }
-
-        return true;
-    }
-
     private boolean setPendingMethodCallAndResult(final MethodChannel.Result result) {
         if (this.pendingResult != null) {
             return false;
@@ -244,7 +261,6 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         return bundle.getParcelableArrayList("selectedItems");
     }
 
-    @SuppressWarnings("deprecation")
     private void startFileExplorer() {
         final Intent intent;
 
@@ -259,7 +275,11 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             if (type.equals("image/*")) {
                 intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             } else {
-                intent = new Intent(Intent.ACTION_GET_CONTENT);
+                if(Build.VERSION.SDK_INT >= 19) {
+                    intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                } else {
+                    intent = new Intent(Intent.ACTION_GET_CONTENT);
+                }
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
             }
             final Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
@@ -287,38 +307,62 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     @SuppressWarnings("deprecation")
-    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final MethodChannel.Result result) {
+    public void startFileExplorer(final String type, final boolean isMultipleSelection, final boolean withData, final String[] allowedExtensions, final boolean allowCompression, final int compressionQuality, final MethodChannel.Result result) {
 
         if (!this.setPendingMethodCallAndResult(result)) {
             finishWithAlreadyActiveError(result);
             return;
         }
-
         this.type = type;
         this.isMultipleSelection = isMultipleSelection;
         this.loadDataToMemory = withData;
         this.allowedExtensions = allowedExtensions;
-        // `READ_EXTERNAL_STORAGE` permission is not needed since SDK 33 (Android 13 or higher).
-        // `READ_EXTERNAL_STORAGE` & `WRITE_EXTERNAL_STORAGE` are no longer meant to be used, but classified into granular types.
-        // Reference: https://developer.android.com/about/versions/13/behavior-changes-13
-        if (Build.VERSION.SDK_INT < 33) {
-            if (!this.permissionManager.isPermissionGranted(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                this.permissionManager.askForPermission(Manifest.permission.READ_EXTERNAL_STORAGE, REQUEST_CODE);
-                return;
+		this.compressionQuality = compressionQuality;
+        this.allowCompression = allowCompression;
+     
+        this.startFileExplorer();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public void saveFile(String fileName, String type, String initialDirectory, String[] allowedExtensions, byte[] bytes, MethodChannel.Result result) {
+        if (!this.setPendingMethodCallAndResult(result)) {
+            finishWithAlreadyActiveError(result);
+            return;
+        }
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        if (fileName != null && !fileName.isEmpty()) {
+            intent.putExtra(Intent.EXTRA_TITLE, fileName);
+        }
+        this.bytes = bytes;
+        if (type != null && !"dir".equals(type) && type.split(",").length == 1) {
+            intent.setType(type);
+        } else {
+            intent.setType("*/*");
+        }
+        if (initialDirectory != null && !initialDirectory.isEmpty()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(initialDirectory));
             }
         }
-        this.startFileExplorer();
+        if (allowedExtensions != null && allowedExtensions.length > 0) {
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions);
+        }
+        if (intent.resolveActivity(this.activity.getPackageManager()) != null) {
+            this.activity.startActivityForResult(intent, SAVE_FILE_CODE);
+        } else {
+            Log.e(TAG, "Can't find a valid activity to handle the request. Make sure you've a file explorer installed.");
+            finishWithError("invalid_format_type", "Can't handle the provided file type.");
+        }
     }
 
     @SuppressWarnings("unchecked")
     private void finishWithSuccess(Object data) {
-
         this.dispatchEventStatus(false);
 
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (this.pendingResult != null) {
-
-            if(data != null && !(data instanceof String)) {
+            if (data != null && !(data instanceof String)) {
                 final ArrayList<HashMap<String, Object>> files = new ArrayList<>();
 
                 for (FileInfo file : (ArrayList<FileInfo>)data) {
@@ -360,11 +404,4 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private void clearPendingResult() {
         this.pendingResult = null;
     }
-
-    interface PermissionManager {
-        boolean isPermissionGranted(String permissionName);
-
-        void askForPermission(String permissionName, int requestCode);
-    }
-
 }
