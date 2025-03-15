@@ -159,6 +159,60 @@ if (result != null) {
   await FirebaseStorage.instance.ref('uploads/$fileName').putData(fileBytes);
 }
 ```
+#### Pick a folder using file_picker and put its path in a text-box
+```dart
+// pubspec.yaml file's code:
+// ====
+dev_dependencies:
+  file_picker: ^9.1.0
+// ====
+// main.dart file's code:
+// ====
+import 'package:file_picker/file_picker.dart';
+// ====
+TextEditingController ztes = TextEditingController();
+// ====
+children: <Widget>[                    
+  Padding(
+    padding: const EdgeInsets.symmetric(vertical: 16.0),
+    child: ElevatedButton(
+      onPressed: () async {
+        String? path = await FilePicker.platform.getDirectoryPath();
+        if (path == null) {
+          // User canceled the picker
+        } else {
+          setState ( (ztes.text = path) as VoidCallback );
+        }
+      },
+      child: const Text('Select path of source folder.'),
+    ),
+  ),
+  Padding(
+    padding: const EdgeInsets.symmetric(vertical: 16.0),
+    child: TextFormField(
+      controller: ztes,
+      decoration: InputDecoration(
+        fillColor: Colors.greenAccent,
+        filled: true,
+        contentPadding: new EdgeInsets.fromLTRB(
+          10.0, 30.0, 10.0, 10.0
+        ),
+        border: new OutlineInputBorder(
+          borderRadius: new BorderRadius.circular(12.0),
+        ),
+        hintText: 'Give path of source folder.',                                
+      ),
+      validator: (String? value) {
+        if (value == null || value.isEmpty) {
+          return null;
+        }
+        return value;
+      },
+    ),
+  ),
+]
+// ====
+```
 
 For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** above.
 
