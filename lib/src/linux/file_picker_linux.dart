@@ -104,7 +104,9 @@ class FilePickerLinux extends FilePicker {
       saveFile: true,
     );
 
-    return await runExecutableWithArguments(executable, arguments);
+    final savedFilePath = await runExecutableWithArguments(executable, arguments);
+    saveBytesSyncToFile(bytes, savedFilePath);
+    return savedFilePath;
   }
 
   /// Returns the path to the executables `qarma`, `zenity` or `kdialog` as a

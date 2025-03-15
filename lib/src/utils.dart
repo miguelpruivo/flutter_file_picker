@@ -64,6 +64,13 @@ Future<String> isExecutableOnPath(String executable) async {
   return path;
 }
 
+void saveBytesSyncToFile(Uint8List? bytes, String? path) {
+  if (path != null && bytes != null && bytes.isNotEmpty) {
+    final file = File(path);
+    file.writeAsBytesSync(bytes);
+  }
+}
+
 bool isAlpha(String x) {
   int codeUnit = x.codeUnitAt(0);
   return 'a'.codeUnitAt(0) <= codeUnit && codeUnit <= 'z'.codeUnitAt(0) ||
