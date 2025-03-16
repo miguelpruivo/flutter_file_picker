@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+
 import 'package:file_picker/src/file_picker.dart';
 import 'package:file_picker/src/file_picker_result.dart';
 import 'package:file_picker/src/linux/dialog_handler.dart';
@@ -104,7 +105,8 @@ class FilePickerLinux extends FilePicker {
       saveFile: true,
     );
 
-    final savedFilePath = await runExecutableWithArguments(executable, arguments);
+    final savedFilePath =
+        await runExecutableWithArguments(executable, arguments);
     saveBytesSyncToFile(bytes, savedFilePath);
     return savedFilePath;
   }
