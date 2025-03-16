@@ -1,6 +1,6 @@
 ## 9.2.0
 ### Desktop (macOS, Windows, Linux)
-- `saveFile` now writes the provided `bytes` to the selected file, ensuring consistency with mobile behavior. [@vicajilau](https://github.com/vicajilau).
+- Fixes an inconsistency for saveFile that did not save the file, when bytes are provided on desktop platforms. [@vicajilau](https://github.com/vicajilau).
 
 ## 9.1.0
 ### Web
