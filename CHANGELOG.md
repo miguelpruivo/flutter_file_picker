@@ -1,6 +1,10 @@
+## 9.2.0
+### Desktop (macOS, Windows, Linux)
+- `saveFile` now writes the provided `bytes` to the selected file, ensuring consistency with mobile behavior. [@vicajilau](https://github.com/vicajilau).
+
 ## 9.1.0
 ### Web
-- Added an implementation for `saveFile()` on the web.
+- Added an implementation for `saveFile()` on the web. [@vicajilau](https://github.com/vicajilau).
 
 ## 9.0.3
 ### Android
