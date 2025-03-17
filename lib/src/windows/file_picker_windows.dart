@@ -213,7 +213,9 @@ class FilePickerWindows extends FilePicker {
           lockParentWindow: lockParentWindow,
           confirmOverwrite: true,
         ));
-    return (await port.first) as String?;
+    final savedFilePath = (await port.first) as String?;
+    await saveBytesToFile(bytes, savedFilePath);
+    return savedFilePath;
   }
 
   String? _saveFile(_OpenSaveFileArgs args) {

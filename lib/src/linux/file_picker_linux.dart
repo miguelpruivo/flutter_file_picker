@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+
 import 'package:file_picker/src/file_picker.dart';
 import 'package:file_picker/src/file_picker_result.dart';
 import 'package:file_picker/src/linux/dialog_handler.dart';
@@ -104,7 +105,10 @@ class FilePickerLinux extends FilePicker {
       saveFile: true,
     );
 
-    return await runExecutableWithArguments(executable, arguments);
+    final savedFilePath =
+        await runExecutableWithArguments(executable, arguments);
+    await saveBytesToFile(bytes, savedFilePath);
+    return savedFilePath;
   }
 
   /// Returns the path to the executables `qarma`, `zenity` or `kdialog` as a

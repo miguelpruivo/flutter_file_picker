@@ -1,6 +1,10 @@
+## 9.2.0
+### Desktop (macOS, Windows, Linux)
+- Fixes an inconsistency for saveFile that did not save the file, when bytes are provided on desktop platforms. [@vicajilau](https://github.com/vicajilau).
+
 ## 9.1.0
 ### Web
-- Added an implementation for `saveFile()` on the web.
+- Added an implementation for `saveFile()` on the web. [@vicajilau](https://github.com/vicajilau).
 
 ## 9.0.3
 ### Android
