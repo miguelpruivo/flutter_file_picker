@@ -64,7 +64,7 @@ Future<String> isExecutableOnPath(String executable) async {
   return path;
 }
 
-Future<void> saveBytesSyncToFile(Uint8List? bytes, String? path) async {
+Future<void> saveBytesToFile(Uint8List? bytes, String? path) async {
   if (path != null && bytes != null && bytes.isNotEmpty) {
     final file = File(path);
     await file.writeAsBytes(bytes);

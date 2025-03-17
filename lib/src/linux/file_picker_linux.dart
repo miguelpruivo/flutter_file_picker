@@ -107,7 +107,7 @@ class FilePickerLinux extends FilePicker {
 
     final savedFilePath =
         await runExecutableWithArguments(executable, arguments);
-    saveBytesSyncToFile(bytes, savedFilePath);
+    await saveBytesToFile(bytes, savedFilePath);
     return savedFilePath;
   }
 

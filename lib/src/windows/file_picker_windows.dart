@@ -214,7 +214,7 @@ class FilePickerWindows extends FilePicker {
           confirmOverwrite: true,
         ));
     final savedFilePath = (await port.first) as String?;
-    saveBytesSyncToFile(bytes, savedFilePath);
+    await saveBytesToFile(bytes, savedFilePath);
     return savedFilePath;
   }
 

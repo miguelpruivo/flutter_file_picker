@@ -94,7 +94,7 @@ class FilePickerMacOS extends FilePicker {
       },
     );
 
-    saveBytesSyncToFile(bytes, savedFilePath);
+    await saveBytesToFile(bytes, savedFilePath);
     return savedFilePath;
   }
 
