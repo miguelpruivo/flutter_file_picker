@@ -58,28 +58,30 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     }
 
     dialog.beginSheetModal(for: appWindow) { response in
-      if (response == .OK) {
-        if allowMultiple {
-          let pathResult = dialog.urls
-          if pathResult.isEmpty {
-            result(nil)
-          } else {
-            let paths = pathResult.map { $0.path }
-            result(paths)
-          }
+      // User dismissed the dialog
+      if (response != .OK) {
+        result(nil)
+        return
+      }
+
+      if allowMultiple {
+        let pathResult = dialog.urls
+
+        if pathResult.isEmpty {
+          result(nil)
         } else {
-          let pathResult = dialog.url
-          if pathResult == nil {
-            result(nil)
-          } else {
-            result([pathResult!.path])
-          }
+          let paths = pathResult.map { $0.path }
+          result(paths)
         }
         return
-      } else {
-        // User dismissed the dialog
-        result(nil)
       }
+
+      if let pathResult = dialog.url {
+        result([pathResult.path])
+        return
+      }
+
+      result(nil)
     }
   }
 
@@ -102,13 +104,17 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
       return
     }
     dialog.beginSheetModal(for: appWindow) { response in
-      if (response == .OK) {
-        if let url = dialog.url {
-          result(url.path)
-          return
-        }
-      }
       // User dismissed the dialog
+      if (response != .OK) {
+        result(nil)
+        return
+      }
+
+      if let url = dialog.url {
+        result(url.path)
+        return
+      }
+
       result(nil)
     }
   }
@@ -139,13 +145,17 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
       return
     }
     dialog.beginSheetModal(for: appWindow) { response in
-      if (response == .OK) {
-        if let url = dialog.url {
-          result(url.path)
-          return
-        }
-      }
       // User dismissed the dialog
+      if (response != .OK) {
+        result(nil)
+        return
+      }
+
+      if let url = dialog.url {
+        result(url.path)
+        return
+      }
+
       result(nil)
     }
   }
