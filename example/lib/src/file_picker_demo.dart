@@ -115,16 +115,16 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   Future<void> _saveFile() async {
     try {
       String? fileName = await FilePicker.platform.saveFile(
-          allowedExtensions: (_extension?.isNotEmpty ?? false)
-              ? _extension?.replaceAll(' ', '').split(',')
-              : null,
-          type: _pickingType,
-          dialogTitle: _dialogTitleController.text,
-          fileName: _defaultFileNameController.text,
-          initialDirectory: _initialDirectoryController.text,
-          lockParentWindow: _lockParentWindow,
-          bytes: _paths?.first.bytes);
-
+        allowedExtensions: (_extension?.isNotEmpty ?? false)
+            ? _extension?.replaceAll(' ', '').split(',')
+            : null,
+        type: _pickingType,
+        dialogTitle: _dialogTitleController.text,
+        fileName: _defaultFileNameController.text,
+        initialDirectory: _initialDirectoryController.text,
+        lockParentWindow: _lockParentWindow,
+        bytes: _paths?.first.bytes,
+      );
       setState(() {
         _saveAsFileName = fileName;
         _userAborted = fileName == null;
