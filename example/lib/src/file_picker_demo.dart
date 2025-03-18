@@ -48,6 +48,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         dialogTitle: _dialogTitleController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
+        withData: true,
       ))
           ?.files;
     } on PlatformException catch (e) {
@@ -122,6 +123,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         fileName: _defaultFileNameController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
+        bytes: _paths?.first.bytes,
       );
       setState(() {
         _saveAsFileName = fileName;
