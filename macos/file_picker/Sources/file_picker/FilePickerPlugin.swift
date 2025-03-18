@@ -7,7 +7,7 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     let channel = FlutterMethodChannel(
       name: "miguelruivo.flutter.plugins.filepicker",
       binaryMessenger: registrar.messenger)
-    let instance = FilePickerPlugin(registrar:registrar)
+    let instance = FilePickerPlugin(registrar: registrar)
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
@@ -52,32 +52,33 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     let extensions = args["allowedExtensions"] as? [String] ?? []
     applyExtensions(dialog, extensions)
 
-    if let appWindow = getFlutterWindow() {
-      dialog.beginSheetModal(for:appWindow) { response in
-        if (response == .OK) {
-          if allowMultiple {
-            let pathResult = dialog.urls
-            if pathResult.isEmpty {
-              result(nil)
-            } else {
-              let paths = pathResult.map { $0.path }
-              result(paths)
-            }
+    guard let appWindow = getFlutterWindow() else {
+      result(nil)
+      return
+    }
+
+    dialog.beginSheetModal(for: appWindow) { response in
+      if (response == .OK) {
+        if allowMultiple {
+          let pathResult = dialog.urls
+          if pathResult.isEmpty {
+            result(nil)
           } else {
-            let pathResult = dialog.url
-            if pathResult == nil {
-              result(nil)
-            } else {
-              result([pathResult!.path])
-            }
+            let paths = pathResult.map { $0.path }
+            result(paths)
           }
         } else {
-          // User dismissed the dialog
-          result(nil)
+          let pathResult = dialog.url
+          if pathResult == nil {
+            result(nil)
+          } else {
+            result([pathResult!.path])
+          }
         }
+      } else {
+        // User dismissed the dialog
+        result(nil)
       }
-    } else {
-      result(nil)
     }
   }
 
@@ -86,7 +87,7 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
   ) {
     let dialog = NSOpenPanel()
     let args = call.arguments as! [String: Any]
-
+    
     dialog.directoryURL = URL(
       fileURLWithPath: args["initialDirectory"] as? String ?? ""
     )
@@ -94,20 +95,20 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     dialog.allowsMultipleSelection = false
     dialog.canChooseDirectories = true
     dialog.canChooseFiles = false
-
-    if let appWindow = getFlutterWindow() {
-      dialog.beginSheetModal(for: appWindow) { response in
-        if (response == .OK) {
-          if let url = dialog.url {
-            result(url.path)
-          }
-        } else {
-          // User dismissed the dialog
-          result(nil)
-        }
-      }
-    } else {
+    
+    guard let appWindow = getFlutterWindow()  else {
       result(nil)
+      return
+    }
+    dialog.beginSheetModal(for: appWindow) { response in
+      if (response == .OK) {
+        if let url = dialog.url {
+          result(url.path)
+        }
+      } else {
+        // User dismissed the dialog
+        result(nil)
+      }
     }
   }
 
@@ -132,19 +133,19 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     let extensions = args["allowedExtensions"] as? [String] ?? []
     applyExtensions(dialog, extensions)
 
-    if let appWindow = getFlutterWindow() {
-      dialog.beginSheetModal(for: appWindow) { response in
-        if (response == .OK) {
-          if let url = dialog.url {
-            result(url.path)
-          }
-        } else {
-          // User dismissed the dialog
-          result(nil)
-        }
-      }
-    } else {
+    guard let appWindow = getFlutterWindow() else {
       result(nil)
+      return
+    }
+    dialog.beginSheetModal(for: appWindow) { response in
+      if (response == .OK) {
+        if let url = dialog.url {
+          result(url.path)
+        }
+      } else {
+        // User dismissed the dialog
+        result(nil)
+      }
     }
   }
 
@@ -164,10 +165,7 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
 
   /// Gets the parent NSWindow
   private func getFlutterWindow() -> NSWindow? {
-    if let flutterViewController =
-        registrar.view?.window?.contentViewController as? FlutterViewController {
-      return flutterViewController.view.window
-    }
-    return nil
+    let viewController = registrar.view?.window?.contentViewController
+    return (viewController as? FlutterViewController)?.view.window
   }
 }
