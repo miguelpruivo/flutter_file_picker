@@ -29,7 +29,7 @@ class PlatformFile {
   /// ```
   /// final File myFile = File(platformFile.path);
   /// ```
-  /// On web the path points to a Blob URL, if present, which can be cleaned up using `URL.revokeObjectURL`.
+  /// On web the path points to a Blob URL, if present, which can be cleaned up using [URL.revokeObjectURL](https://pub.dev/documentation/web/latest/web/URL/revokeObjectURL.html).
   /// Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
   final String? path;
 
