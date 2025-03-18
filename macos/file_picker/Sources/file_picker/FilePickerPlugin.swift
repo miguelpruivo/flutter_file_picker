@@ -75,6 +75,7 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
             result([pathResult!.path])
           }
         }
+        return
       } else {
         // User dismissed the dialog
         result(nil)
@@ -87,7 +88,7 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
   ) {
     let dialog = NSOpenPanel()
     let args = call.arguments as! [String: Any]
-    
+
     dialog.directoryURL = URL(
       fileURLWithPath: args["initialDirectory"] as? String ?? ""
     )
@@ -104,11 +105,11 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
       if (response == .OK) {
         if let url = dialog.url {
           result(url.path)
+          return
         }
-      } else {
-        // User dismissed the dialog
-        result(nil)
       }
+      // User dismissed the dialog
+      result(nil)
     }
   }
 
@@ -141,11 +142,11 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
       if (response == .OK) {
         if let url = dialog.url {
           result(url.path)
+          return
         }
-      } else {
-        // User dismissed the dialog
-        result(nil)
       }
+      // User dismissed the dialog
+      result(nil)
     }
   }
 
