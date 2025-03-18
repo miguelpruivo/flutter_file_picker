@@ -154,12 +154,13 @@ abstract class FilePicker extends PlatformInterface {
   /// Opens a save file dialog which lets the user select a file path and a file
   /// name to save a file.
   ///
-  /// For mobile platforms, this function will save file with [bytes] to return a path.
-  /// Throws UnsupportedError on macOS if bytes are provided.
+  /// For mobile, this function will save a file with the given [fileName] and [bytes] and return the path where the file was saved.
   ///
-  /// For desktop platforms (Linux, macOS & Windows) this function does not actually
-  /// save a file. It only opens the dialog to let the user choose a location and
-  /// file name. This function only returns the **path** to this (non-existing) file.
+  /// For desktop platforms, this function opens a dialog to let the user choose a location for the file and returns the selected path.
+  /// If the bytes are provided, then the bytes are written to a file at the chosen path.
+  ///
+  /// On the web, this function will start a download for the file with [bytes] and [fileName].
+  /// If the [bytes] or [fileName] are omitted, this will throw an [ArgumentError].
   ///
   /// The User Selected File Read/Write entitlement is required on macOS.
   ///

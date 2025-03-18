@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:path/path.dart' as p;
 import 'package:web/web.dart';
 
 class FilePickerWeb extends FilePicker {
@@ -183,6 +184,49 @@ class FilePickerWeb extends FilePicker {
     final List<PlatformFile>? files = await filesCompleter.future;
 
     return files == null ? null : FilePickerResult(files);
+  }
+
+  @override
+  Future<String?> saveFile({
+    String? dialogTitle,
+    String? fileName,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Uint8List? bytes,
+    bool lockParentWindow = false,
+  }) async {
+    if (bytes == null || bytes.isEmpty) {
+      throw ArgumentError(
+        'The bytes are required when saving a file on the web.',
+      );
+    }
+
+    if (fileName == null || fileName.isEmpty) {
+      throw ArgumentError(
+        'A file name is required when saving a file on the web.',
+      );
+    }
+
+    if (p.extension(fileName).isEmpty) {
+      throw ArgumentError(
+        'The file name should include a valid file extension.',
+      );
+    }
+
+    final blob = Blob([bytes.toJS].toJS);
+    final url = URL.createObjectURL(blob);
+
+    // Start a download by using a click event on an anchor element that contains the Blob.
+    HTMLAnchorElement()
+      ..href = url
+      ..target = 'blank' // Always open the file in a new tab.
+      ..download = fileName
+      ..click();
+
+    // Release the Blob URL after the download started.
+    URL.revokeObjectURL(url);
+    return null;
   }
 
   static String _fileType(FileType type, List<String>? allowedExtensions) {

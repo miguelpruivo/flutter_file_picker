@@ -1,6 +1,26 @@
-## 9.0.1
+## 9.2.1
 ### Android
 - Fixes an issue where `saveFiles()` would return an incorrect path. [#1636](https://github.com/miguelpruivo/flutter_file_picker/issues/1636)
+
+## 9.2.0
+### Desktop (macOS, Windows, Linux)
+- Fixes an inconsistency for saveFile that did not save the file, when bytes are provided on desktop platforms. [@vicajilau](https://github.com/vicajilau).
+
+## 9.1.0
+### Web
+- Added an implementation for `saveFile()` on the web. [@vicajilau](https://github.com/vicajilau).
+
+## 9.0.3
+### Android
+- Added ProGuard consumer rules to automatically exclude `androidx.lifecycle.DefaultLifecycleObserver` from obfuscation.
+
+## 9.0.2
+### Android
+- Fixes: File streams not getting closed.
+
+## 9.0.1
+### Windows
+- Move `getDirectoryPath()` to its own isolate to avoid COM initialization conflicts with other plugins [#1713](https://github.com/miguelpruivo/flutter_file_picker/pull/1713) [@tguerin](https://github.com/tguerin). 
 
 ## 9.0.0
 ### Web
