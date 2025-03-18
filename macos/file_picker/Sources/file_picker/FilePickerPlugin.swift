@@ -7,8 +7,15 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     let channel = FlutterMethodChannel(
       name: "miguelruivo.flutter.plugins.filepicker",
       binaryMessenger: registrar.messenger)
-    let instance = FilePickerPlugin()
+    let instance = FilePickerPlugin(registrar: registrar)
     registrar.addMethodCallDelegate(instance, channel: channel)
+  }
+
+  private let registrar: FlutterPluginRegistrar
+
+  init(registrar: FlutterPluginRegistrar) {
+    self.registrar = registrar
+    super.init()
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult)
@@ -45,28 +52,36 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     let extensions = args["allowedExtensions"] as? [String] ?? []
     applyExtensions(dialog, extensions)
 
-    if dialog.runModal() == NSApplication.ModalResponse.OK {
+    guard let appWindow = getFlutterWindow() else {
+      result(nil)
+      return
+    }
+
+    dialog.beginSheetModal(for: appWindow) { response in
+      // User dismissed the dialog
+      if (response != .OK) {
+        result(nil)
+        return
+      }
+
       if allowMultiple {
         let pathResult = dialog.urls
+
         if pathResult.isEmpty {
           result(nil)
         } else {
           let paths = pathResult.map { $0.path }
           result(paths)
         }
-      } else {
-        let pathResult = dialog.url
-        if pathResult == nil {
-          result(nil)
-        } else {
-          result([pathResult!.path])
-        }
+        return
       }
-      return
-    } else {
-      // User dismissed the dialog
+
+      if let pathResult = dialog.url {
+        result([pathResult.path])
+        return
+      }
+
       result(nil)
-      return
     }
   }
 
@@ -83,15 +98,25 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     dialog.allowsMultipleSelection = false
     dialog.canChooseDirectories = true
     dialog.canChooseFiles = false
+    
+    guard let appWindow = getFlutterWindow()  else {
+      result(nil)
+      return
+    }
+    dialog.beginSheetModal(for: appWindow) { response in
+      // User dismissed the dialog
+      if (response != .OK) {
+        result(nil)
+        return
+      }
 
-    if dialog.runModal() == NSApplication.ModalResponse.OK {
       if let url = dialog.url {
         result(url.path)
         return
       }
+
+      result(nil)
     }
-    // User dismissed the dialog
-    result(nil)
   }
 
   private func handleSaveFile(
@@ -115,14 +140,24 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     let extensions = args["allowedExtensions"] as? [String] ?? []
     applyExtensions(dialog, extensions)
 
-    if dialog.runModal() == NSApplication.ModalResponse.OK {
+    guard let appWindow = getFlutterWindow() else {
+      result(nil)
+      return
+    }
+    dialog.beginSheetModal(for: appWindow) { response in
+      // User dismissed the dialog
+      if (response != .OK) {
+        result(nil)
+        return
+      }
+
       if let url = dialog.url {
         result(url.path)
         return
       }
+
+      result(nil)
     }
-    // User dismissed the dialog
-    result(nil)
   }
 
   /// Applies extensions to dialog using appropriate API
@@ -137,5 +172,11 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
         dialog.allowedFileTypes = extensions
       }
     }
+  }
+
+  /// Gets the parent NSWindow
+  private func getFlutterWindow() -> NSWindow? {
+    let viewController = registrar.view?.window?.contentViewController
+    return (viewController as? FlutterViewController)?.view.window
   }
 }

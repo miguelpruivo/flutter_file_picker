@@ -165,6 +165,7 @@ abstract class FilePicker extends PlatformInterface {
   /// The User Selected File Read/Write entitlement is required on macOS.
   ///
   /// [dialogTitle] can be set to display a custom title on desktop platforms.
+  /// Not supported on macOS.
   ///
   /// [fileName] can be set to a non-empty string to provide a default file
   /// name. Throws an `IllegalCharacterInFileNameException` under Windows if the
