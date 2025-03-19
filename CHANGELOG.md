@@ -1,8 +1,6 @@
 ## 9.2.1
-### General
-- Some minor improvements. [@vicajilau](https://github.com/vicajilau).
-### macOS
-- Use sheet modal for panels pause the parent app's run loop. [#1734](https://github.com/miguelpruivo/flutter_file_picker/pull/1734) [@AdamVe](https://github.com/AdamVe).
+### Desktop (macOS)
+- Present file picker panel as a sheet modal to the Flutter application window. [#1734](https://github.com/miguelpruivo/flutter_file_picker/pull/1734)
 
 ## 9.2.0
 ### Desktop (macOS, Windows, Linux)

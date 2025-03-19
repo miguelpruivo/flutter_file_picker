@@ -161,8 +161,6 @@ abstract class FilePicker extends PlatformInterface {
   ///
   /// On the web, this function will start a download for the file with [bytes] and [fileName].
   /// If the [bytes] or [fileName] are omitted, this will throw an [ArgumentError].
-  /// On the web, this function will start a download for the file with [bytes] and [fileName].
-  /// If the [bytes] or [fileName] are omitted, this will throw an [ArgumentError].
   /// The returned path for the downloaded file will always be `null`.
   /// provide access to the file system paths. The temporary blob URL used for the download
   /// is revoked after the download starts to conserve memory.
