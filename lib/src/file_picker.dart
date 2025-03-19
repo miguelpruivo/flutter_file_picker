@@ -182,7 +182,7 @@ abstract class FilePicker extends PlatformInterface {
   /// will be used.
   ///
   /// The file type filter [type] defaults to [FileType.any]. Optionally,
-  /// [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`)ccd. Both
+  /// [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`). Both
   /// parameters are just a proposal to the user as the save file dialog does
   /// not enforce these restrictions.
   ///
