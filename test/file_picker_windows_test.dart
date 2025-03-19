@@ -1,4 +1,5 @@
 @TestOn('windows')
+library;
 
 import 'dart:ffi';
 
@@ -22,7 +23,7 @@ void main() {
       expect(
         picker.fileTypeToFileFilter(FileType.audio, null),
         equals(
-            'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav\x00\x00'),
+            'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav,*.m4a)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav;*.m4a\x00\x00'),
       );
 
       expect(

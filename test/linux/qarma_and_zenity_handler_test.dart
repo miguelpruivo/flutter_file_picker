@@ -1,4 +1,6 @@
 @TestOn('linux')
+library;
+
 import 'package:file_picker/src/file_picker.dart';
 import 'package:file_picker/src/linux/qarma_and_zenity_handler.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,7 +22,7 @@ void main() {
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.audio, null),
         equals(
-            'Audio Files | *.[aA][aA][cC] *.[mM][iI][dD][iI] *.[mM][pP]3 *.[oO][gG][gG] *.[wW][aA][vV]'),
+            'Audio Files | *.[aA][aA][cC] *.[mM][iI][dD][iI] *.[mM][pP]3 *.[oO][gG][gG] *.[wW][aA][vV] *.[mM]4[aA]'),
       );
 
       expect(

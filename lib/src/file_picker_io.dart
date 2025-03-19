@@ -16,6 +16,10 @@ const EventChannel _eventChannel =
 
 /// An implementation of [FilePicker] that uses method channels.
 class FilePickerIO extends FilePicker {
+  static void registerWith() {
+    FilePicker.platform = FilePickerIO();
+  }
+
   static const String _tag = 'MethodChannelFilePicker';
   static StreamSubscription? _eventSubscription;
 
@@ -142,6 +146,11 @@ class FilePickerIO extends FilePicker {
       Uint8List? bytes,
       bool lockParentWindow = false}) {
     if (Platform.isIOS || Platform.isAndroid) {
+      if (bytes == null) {
+        throw ArgumentError(
+            'Bytes are required on Android & iOS when saving a file.');
+      }
+
       return _channel.invokeMethod("save", {
         "fileName": fileName,
         "fileType": type.name,

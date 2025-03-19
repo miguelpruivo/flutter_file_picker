@@ -255,13 +255,7 @@ public class FileUtils {
     public static boolean clearCache(final Context context) {
         try {
             final File cacheDir = new File(context.getCacheDir() + "/file_picker/");
-            final File[] files = cacheDir.listFiles();
-
-            if (files != null) {
-                for (final File file : files) {
-                    file.delete();
-                }
-            }
+            recursiveDeleteFile(cacheDir);
         } catch (final Exception ex) {
             Log.e(TAG, "There was an error while clearing cached files: " + ex.toString());
             return false;
@@ -294,6 +288,7 @@ public class FileUtils {
 
         Log.i(TAG, "Caching from URI: " + uri.toString());
         FileOutputStream fos = null;
+        InputStream in = null;
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
         final String fileName = FileUtils.getFileName(uri, context);
         final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/"+System.currentTimeMillis() +"/"+ (fileName != null ? fileName : "unamed");
@@ -301,12 +296,12 @@ public class FileUtils {
         final File file = new File(path);
 
         if(!file.exists()) {
-            file.getParentFile().mkdirs();
             try {
+                file.getParentFile().mkdirs();
                 fos = new FileOutputStream(path);
                 try {
                     final BufferedOutputStream out = new BufferedOutputStream(fos);
-                    final InputStream in = context.getContentResolver().openInputStream(uri);
+                    in = context.getContentResolver().openInputStream(uri);
 
                     final byte[] buffer = new byte[8192];
                     int len = 0;
@@ -320,14 +315,23 @@ public class FileUtils {
                     fos.getFD().sync();
                 }
             } catch (final Exception e) {
-                try {
-                    fos.close();
-                } catch (final IOException | NullPointerException ex) {
-                    Log.e(TAG, "Failed to close file streams: " + e.getMessage(), null);
-                    return null;
-                }
                 Log.e(TAG, "Failed to retrieve path: " + e.getMessage(), null);
                 return null;
+            } finally {
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (final IOException ex) {
+                        Log.e(TAG, "Failed to close file streams: " + ex.getMessage(), null);
+                    }
+                }
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (final IOException ex) {
+                        Log.e(TAG, "Failed to close file streams: " + ex.getMessage(), null);
+                    }
+                }
             }
         }
 
@@ -469,6 +473,20 @@ public class FileUtils {
         final String[] split = docId.split(":");
         if ((split.length >= 2) && (split[1] != null)) return split[1];
         else return File.separator;
+    }
+
+    private static void recursiveDeleteFile(final File file) throws Exception {
+        if (file == null || !file.exists()) {
+            return;
+        }
+
+        if (file.isDirectory()) {
+            for (File child : file.listFiles()) {
+                recursiveDeleteFile(child);
+            }
+        }
+
+        file.delete();
     }
 
 }

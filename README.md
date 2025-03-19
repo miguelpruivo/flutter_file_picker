@@ -1,17 +1,20 @@
 ![fluter_file_picker](https://user-images.githubusercontent.com/27860743/64064695-b88dab00-cbfc-11e9-814f-30921b66035f.png)
 <p align="center">
- <a href="https://pub.dartlang.org/packages/file_picker">
+  <a href="https://pub.dartlang.org/packages/file_picker">
     <img alt="File Picker" src="https://img.shields.io/pub/v/file_picker.svg">
   </a>
- <a href="https://github.com/Solido/awesome-flutter">
+  <a href="https://github.com/Solido/awesome-flutter">
     <img alt="Awesome Flutter" src="https://img.shields.io/badge/Awesome-Flutter-blue.svg?longCache=true&style=flat-square">
   </a>
- <a href="https://www.buymeacoffee.com/gQyz2MR">
+  <a href="https://www.buymeacoffee.com/gQyz2MR">
     <img alt="Buy me a coffee" src="https://img.shields.io/badge/Donate-Buy%20Me%20A%20Coffee-yellow.svg">
   </a>
-  <a href="https://github.com/miguelpruivo/flutter_file_picker/issues"><img src="https://img.shields.io/github/issues/miguelpruivo/flutter_file_picker">
+  <a href="https://github.com/miguelpruivo/flutter_file_picker/issues">
+    <img src="https://img.shields.io/github/issues/miguelpruivo/flutter_file_picker" alt="GitHub issues badge">
   </a>
-  <img src="https://img.shields.io/github/license/miguelpruivo/flutter_file_picker">
+  <a href="https://github.com/miguelpruivo/flutter_file_picker?tab=MIT-1-ov-file">
+    <img src="https://img.shields.io/github/license/miguelpruivo/flutter_file_picker" alt="GitHub license badge">
+  </a>
   <a href="https://github.com/miguelpruivo/flutter_file_picker/actions/workflows/main.yml">
     <img alt="CI pipeline status" src="https://github.com/miguelpruivo/flutter_file_picker/actions/workflows/main.yml/badge.svg">
   </a>
@@ -37,11 +40,11 @@ If you have any feature that you want to see in this package, please feel free t
 ## Compatibility Chart
 
 | API                   | Android            | iOS                | Linux              | macOS              | Windows            | Web                |
-| --------------------- | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ |
+|-----------------------|--------------------|--------------------|--------------------|--------------------|--------------------|--------------------|
 | clearTemporaryFiles() | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x:                | :x:                | :x:                |
 | getDirectoryPath()    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:                |
 | pickFiles()           | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| saveFile()            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:                |
+| saveFile()            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
 See the [API section of the File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api) or the [official API reference on pub.dev](https://pub.dev/documentation/file_picker/latest/file_picker/FilePicker-class.html) for further details.
 
@@ -90,6 +93,7 @@ if (result != null) {
 #### Multiple files with extension filter
 ```dart
 FilePickerResult? result = await FilePicker.platform.pickFiles(
+  allowMultiple: true,
   type: FileType.custom,
   allowedExtensions: ['jpg', 'pdf', 'doc'],
 );
