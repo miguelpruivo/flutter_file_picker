@@ -40,7 +40,7 @@ class FilePickerWeb extends FilePicker {
     }
 
     final Completer<List<PlatformFile>?> filesCompleter =
-        Completer<List<PlatformFile>?>();
+    Completer<List<PlatformFile>?>();
 
     String accept = _fileType(type, allowedExtensions);
 
@@ -72,17 +72,17 @@ class FilePickerWeb extends FilePicker {
 
     var fixedOverlay = document.getElementById('fixed-overlay') as HTMLElement?;
     var confirmationModal =
-        document.getElementById('confirmation-modal') as HTMLElement?;
+    document.getElementById('confirmation-modal') as HTMLElement?;
     var cancelButton = document.querySelector('#cancel') as HTMLElement?;
     var allowButton = document.querySelector('#allow-demo') as HTMLElement?;
     var buttonContainer =
-        document.querySelector('#btn-container') as HTMLElement?;
+    document.querySelector('#btn-container') as HTMLElement?;
     var allowContainer =
-        document.querySelector('#allow-container') as HTMLElement?;
+    document.querySelector('#allow-container') as HTMLElement?;
     var confirmationTitle =
-        document.querySelector('#confirmation-title') as HTMLElement?;
+    document.querySelector('#confirmation-title') as HTMLElement?;
     var confirmationDetail =
-        document.querySelector('#confirmation-detail') as HTMLElement?;
+    document.querySelector('#confirmation-detail') as HTMLElement?;
     var confirmationModalContentContainer = document
         .querySelector('#confirmation-modal-content-container') as HTMLElement?;
 
@@ -97,65 +97,91 @@ class FilePickerWeb extends FilePicker {
       fixedOverlay?.style.opacity = '0';
     }
 
+    // Updated styles to match the ios style dialog
     confirmationModal?.style.position = 'absolute';
     confirmationModal?.style.top = '50%';
     confirmationModal?.style.left = '50%';
     confirmationModal?.style.transform = 'translate(-50%, -50%)';
     confirmationModal?.style.backgroundColor = '#fff';
-    confirmationModal?.style.border = 'none'; // No border as per the image
-    confirmationModal?.style.borderRadius =
-        '10px'; // Assuming slightly rounded corners
-    confirmationModal?.style.boxShadow =
-        '0 4px 6px rgba(0, 0, 0, 0.1)'; // Slight shadow for elevation
-    confirmationModal?.style.width = '80%'; // Assuming a fixed width
+    confirmationModal?.style.border = 'none';
+    confirmationModal?.style.borderRadius = '12px';
+    confirmationModal?.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.15)';
+    confirmationModal?.style.width = '320px';
+    confirmationModal?.style.maxWidth = '90%';
 
-    confirmationModalContentContainer?.style.padding = "16px 24px";
+    // Content container styling updated
+    confirmationModalContentContainer?.style.padding = "20px 24px";
+    confirmationModalContentContainer?.style.textAlign = "center";
 
+    // Updated title styling
     confirmationTitle?.style.margin = "0px";
     confirmationTitle?.style.marginBottom = "8px";
-    confirmationTitle?.style.fontFamily = 'Poppins';
-    confirmationTitle?.style.fontWeight = '500';
-    confirmationTitle?.style.fontSize = '18px';
-    confirmationTitle?.style.color = '#111827';
+    confirmationTitle?.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    confirmationTitle?.style.fontWeight = '600';
+    confirmationTitle?.style.fontSize = '17px';
+    confirmationTitle?.style.color = '#000';
+    confirmationTitle?.style.textAlign = "center";
 
+    // Updated detail text styling
     confirmationDetail?.style.margin = "0px";
-    confirmationDetail?.style.fontFamily = 'Poppins';
+    confirmationDetail?.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
     confirmationDetail?.style.fontWeight = '400';
-    confirmationDetail?.style.fontSize = '14px';
-    confirmationDetail?.style.color = '#111827';
+    confirmationDetail?.style.fontSize = '13px';
+    confirmationDetail?.style.color = '#666';
+    confirmationDetail?.style.textAlign = "center";
+    confirmationDetail?.style.lineHeight = "1.4";
 
+    // Updated button container styling
     buttonContainer?.style.display = "flex";
     buttonContainer?.style.borderTop = "1px solid #E5E7EB";
-    buttonContainer?.style.padding = "16px 24px";
+    buttonContainer?.style.padding = "0";
+    buttonContainer?.style.marginTop = "20px";
+    buttonContainer?.style.flexDirection = "row"; // Ensure horizontal layout
+    buttonContainer?.style.width = "100%";
 
-    allowContainer?.style.position = "relative";
-
-    cancelButton?.style.backgroundColor = '#fff';
-    cancelButton?.style.color = '#333';
-    cancelButton?.style.border = '1px solid #ccc';
-    cancelButton?.style.borderRadius = '100px';
-    cancelButton?.style.padding = '10px 20px';
+    // Updated cancel button styling
+    cancelButton?.style.backgroundColor = 'transparent';
+    cancelButton?.style.color = '#007AFF';
+    cancelButton?.style.border = 'none';
+    cancelButton?.style.borderRadius = '0';
+    cancelButton?.style.borderRight = '1px solid #E5E7EB'; // Add divider line
+    cancelButton?.style.padding = '12px 0';
     cancelButton?.style.cursor = 'pointer';
-    cancelButton?.style.marginRight = '10px';
-    cancelButton?.style.fontSize = '14px';
-    cancelButton?.style.fontFamily = 'Poppins';
-    cancelButton?.style.fontWeight = '500';
-    cancelButton?.style.color = '#111827';
+    cancelButton?.style.fontSize = '16px';
+    cancelButton?.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    cancelButton?.style.fontWeight = '400';
+    cancelButton?.style.flex = '1'; // Make it take up half the width
+    cancelButton?.style.textAlign = 'center';
+    cancelButton?.style.margin = '0';
 
-    allowButton?.style.backgroundColor = '#00BA52';
-    allowButton?.style.color = '#fff';
+    // Make the allow container take up the right half
+    allowContainer?.style.position = "relative";
+    allowContainer?.style.flex = "1"; // Make it take up half the width
+
+    // Update allow button to span full width of its container
+    allowButton?.style.backgroundColor = 'transparent';
+    allowButton?.style.color = '#007AFF';
     allowButton?.style.border = 'none';
-    allowButton?.style.borderRadius = '100px';
-    allowButton?.style.padding = '10px 20px';
+    allowButton?.style.borderRadius = '0';
+    allowButton?.style.padding = '12px 0';
     allowButton?.style.cursor = 'pointer';
-    allowButton?.style.fontSize = '14px';
-    allowButton?.style.fontFamily = 'Poppins';
-    allowButton?.style.fontWeight = '500';
-    allowButton?.style.color = '#FFF';
+    allowButton?.style.fontSize = '16px';
+    allowButton?.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    allowButton?.style.fontWeight = '600';
+    allowButton?.style.width = '100%'; // Full width of container
+    allowButton?.style.textAlign = 'center';
+
+    if (cancelButton != null) {
+      cancelButton.innerText = "Don't Allow";
+    }
+
+    if (allowButton != null) {
+      allowButton.innerText = "Allow";
+    }
 
     // Get the buttons
     HTMLInputElement? fileInput =
-        document.querySelector('#allow') as HTMLInputElement?;
+    document.querySelector('#allow') as HTMLInputElement?;
     fileInput?.accept = accept;
     fileInput?.multiple = allowMultiple;
     fileInput?.style.opacity = "0";
@@ -199,15 +225,15 @@ class FilePickerWeb extends FilePicker {
       final List<PlatformFile> pickedFiles = [];
 
       void addPickedFile(
-        File? file,
-        Uint8List? bytes,
-        String? path,
-        Stream<List<int>>? readStream,
-      ) {
+          File? file,
+          Uint8List? bytes,
+          String? path,
+          Stream<List<int>>? readStream,
+          ) {
         String? blobUrl;
         if (file != null && bytes != null && bytes.isNotEmpty) {
           final blob =
-              Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
+          Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
 
           blobUrl = URL.createObjectURL(blob);
         }
