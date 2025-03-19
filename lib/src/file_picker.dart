@@ -161,6 +161,9 @@ abstract class FilePicker extends PlatformInterface {
   ///
   /// On the web, this function will start a download for the file with [bytes] and [fileName].
   /// If the [bytes] or [fileName] are omitted, this will throw an [ArgumentError].
+  /// Note: [saveFile] will always return null on the web. This is because the web does not
+  /// provide access to the file system paths. The temporary blob URL used for the download
+  /// is revoked after the download starts to conserve memory.
   ///
   /// The User Selected File Read/Write entitlement is required on macOS.
   ///
@@ -177,7 +180,7 @@ abstract class FilePicker extends PlatformInterface {
   /// will be used.
   ///
   /// The file type filter [type] defaults to [FileType.any]. Optionally,
-  /// [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`.). Both
+  /// [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`)ccd. Both
   /// parameters are just a proposal to the user as the save file dialog does
   /// not enforce these restrictions.
   ///
