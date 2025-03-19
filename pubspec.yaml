@@ -13,6 +13,9 @@ dependencies:
 
   flutter_plugin_android_lifecycle: ^2.0.22
   plugin_platform_interface: ^2.1.8
+
+  html: ^0.15.4
+  universal_html: ^2.2.4
   ffi: ^2.1.3
   path: ^1.9.0
   win32: ^5.9.0
