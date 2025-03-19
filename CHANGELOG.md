@@ -2,6 +2,9 @@
 ### Android
 - Fixes an issue where `saveFiles()` would return an incorrect path. [#1636](https://github.com/miguelpruivo/flutter_file_picker/issues/1636)
 
+### Desktop (macOS)
+- Present file picker panel as a sheet modal to the Flutter application window. [#1734](https://github.com/miguelpruivo/flutter_file_picker/pull/1734)
+
 ## 9.2.0
 ### Desktop (macOS, Windows, Linux)
 - Fixes an inconsistency for saveFile that did not save the file, when bytes are provided on desktop platforms. [@vicajilau](https://github.com/vicajilau).
