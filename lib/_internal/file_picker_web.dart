@@ -49,8 +49,8 @@ class FilePickerWeb extends FilePicker {
       <div id="fixed-overlay">
          <div id="confirmation-modal">
           <div id='confirmation-modal-content-container'>
-            <h2 id='confirmation-title'>Allow to select Resume!</h2>
-            <p id='confirmation-detail'>Kindly allow us to select resume</p>
+            <h2 id='confirmation-title'>Allow to select File${allowMultiple ? 's' : ''}!</h2>
+            <p id='confirmation-detail'>Kindly allow us to select File${allowMultiple ? 's' : ''} from library</p>
           </div>
           <div id='btn-container'>
             <button id="cancel" class='btn'>Cancel</button>
