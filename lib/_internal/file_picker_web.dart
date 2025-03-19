@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'package:html/parser.dart';
-import 'package:web/web.dart';
 import 'dart:js_interop';
 import 'dart:typed_data';
 
@@ -12,31 +10,13 @@ import 'package:web/web.dart';
 import '../src/utils.dart';
 
 class FilePickerWeb extends FilePicker {
-  late Element _target;
-  final String _kFilePickerInputsDomId = '__file_picker_web-file-input';
 
   final int _readStreamChunkSize = 1000 * 1000; // 1 MB
 
-  FilePickerWeb._() {
-    _target = _ensureInitialized(_kFilePickerInputsDomId);
-  }
+  FilePickerWeb._();
 
   static void registerWith(Registrar registrar) {
     FilePicker.platform = FilePickerWeb._();
-  }
-
-  /// Initializes a DOM container where we can host input elements.
-  Element _ensureInitialized(String id) {
-    Element? target = document.querySelector('#$id');
-    if (target == null) {
-      final Element targetElement = document.createElement(
-        'flt-file-picker-inputs',
-      )..id = id;
-
-      document.querySelector('body')!.children.add(targetElement);
-      target = targetElement;
-    }
-    return target;
   }
 
   @override
@@ -65,8 +45,7 @@ class FilePickerWeb extends FilePicker {
     String accept = _fileType(type, allowedExtensions);
 
     // Create a confirmation view
-    var confirmationView = (
-        """
+    var confirmationView = ("""
       <div id="fixed-overlay">
          <div id="confirmation-modal">
           <div id='confirmation-modal-content-container'>
@@ -84,7 +63,6 @@ class FilePickerWeb extends FilePicker {
       </div>
       """);
 
-    var confirmationViewDocument = parse(confirmationView);
     var tDiv = HTMLDivElement();
     tDiv.innerHTML = confirmationView.toJS;
     document.body?.append(tDiv);
@@ -93,14 +71,20 @@ class FilePickerWeb extends FilePicker {
     //document.body?.children.add(confirmationView);
 
     var fixedOverlay = document.getElementById('fixed-overlay') as HTMLElement?;
-    var confirmationModal = document.getElementById('confirmation-modal') as HTMLElement?;
+    var confirmationModal =
+        document.getElementById('confirmation-modal') as HTMLElement?;
     var cancelButton = document.querySelector('#cancel') as HTMLElement?;
     var allowButton = document.querySelector('#allow-demo') as HTMLElement?;
-    var buttonContainer = document.querySelector('#btn-container') as HTMLElement?;
-    var allowContainer = document.querySelector('#allow-container') as HTMLElement?;
-    var confirmationTitle = document.querySelector('#confirmation-title') as HTMLElement?;
-    var confirmationDetail = document.querySelector('#confirmation-detail') as HTMLElement?;
-    var confirmationModalContentContainer = document.querySelector('#confirmation-modal-content-container') as HTMLElement?;
+    var buttonContainer =
+        document.querySelector('#btn-container') as HTMLElement?;
+    var allowContainer =
+        document.querySelector('#allow-container') as HTMLElement?;
+    var confirmationTitle =
+        document.querySelector('#confirmation-title') as HTMLElement?;
+    var confirmationDetail =
+        document.querySelector('#confirmation-detail') as HTMLElement?;
+    var confirmationModalContentContainer = document
+        .querySelector('#confirmation-modal-content-container') as HTMLElement?;
 
     fixedOverlay?.style.position = 'fixed';
     fixedOverlay?.style.top = '0';
@@ -109,7 +93,7 @@ class FilePickerWeb extends FilePicker {
     fixedOverlay?.style.height = '100vh';
     fixedOverlay?.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
     fixedOverlay?.style.zIndex = '999999999999';
-    if(!isSafariIos){
+    if (!isSafariIos) {
       fixedOverlay?.style.opacity = '0';
     }
 
@@ -119,8 +103,10 @@ class FilePickerWeb extends FilePicker {
     confirmationModal?.style.transform = 'translate(-50%, -50%)';
     confirmationModal?.style.backgroundColor = '#fff';
     confirmationModal?.style.border = 'none'; // No border as per the image
-    confirmationModal?.style.borderRadius = '10px'; // Assuming slightly rounded corners
-    confirmationModal?.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'; // Slight shadow for elevation
+    confirmationModal?.style.borderRadius =
+        '10px'; // Assuming slightly rounded corners
+    confirmationModal?.style.boxShadow =
+        '0 4px 6px rgba(0, 0, 0, 0.1)'; // Slight shadow for elevation
     confirmationModal?.style.width = '80%'; // Assuming a fixed width
 
     confirmationModalContentContainer?.style.padding = "16px 24px";
@@ -168,7 +154,8 @@ class FilePickerWeb extends FilePicker {
     allowButton?.style.color = '#FFF';
 
     // Get the buttons
-    HTMLInputElement? fileInput = document.querySelector('#allow') as HTMLInputElement?;
+    HTMLInputElement? fileInput =
+        document.querySelector('#allow') as HTMLInputElement?;
     fileInput?.accept = accept;
     fileInput?.multiple = allowMultiple;
     fileInput?.style.opacity = "0";
@@ -192,7 +179,7 @@ class FilePickerWeb extends FilePicker {
       fixedOverlay?.remove();
     });
 
-    if(!isSafariIos){
+    if (!isSafariIos) {
       fileInput?.click();
     }
 
@@ -218,23 +205,25 @@ class FilePickerWeb extends FilePicker {
         Stream<List<int>>? readStream,
       ) {
         String? blobUrl;
-        if (bytes != null && bytes.isNotEmpty) {
+        if (file != null && bytes != null && bytes.isNotEmpty) {
           final blob =
               Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
 
           blobUrl = URL.createObjectURL(blob);
         }
-        pickedFiles.add(PlatformFile(
+        if (file != null) {
+          pickedFiles.add(
+            PlatformFile(
+              name: file.name,
+              path: path ?? blobUrl,
+              size: bytes != null ? bytes.length : file.size,
+              bytes: bytes,
+              readStream: readStream,
+            ),
+          );
+        }
 
-          name: file.name,
-          path: path ?? blobUrl,
-          size: bytes != null ? bytes.length : file.size,
-
-          bytes: bytes,
-          readStream: readStream,
-        ));
-
-        if(files == null){
+        if (files == null) {
           return;
         }
 
@@ -246,7 +235,7 @@ class FilePickerWeb extends FilePicker {
         }
       }
 
-      if(files == null){
+      if (files == null) {
         return;
       }
       for (int i = 0; i < files.length; i++) {
