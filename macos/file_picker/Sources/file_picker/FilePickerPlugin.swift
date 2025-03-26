@@ -7,6 +7,11 @@ enum EntitlementMode {
     case readOrWrite
 }
 
+private extension CFString {
+    static let securityFilesUserSelectedReadOnly = "com.apple.security.files.user-selected.read-only" as CFString
+    static let securityFilesUserSelectedReadWrite = "com.apple.security.files.user-selected.read-write" as CFString
+}
+
 public class FilePickerPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
@@ -176,8 +181,8 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
             return FlutterError(code: "ENTITLEMENT_CHECK_FAILED", message: "Failed to verify file_picker entitlements.", details: nil)
         }
         
-        let readWriteEntitlement = SecTaskCopyValueForEntitlement(task, "com.apple.security.files.user-selected.read-write" as CFString, nil) as? Bool
-        let readOnlyEntitlement = SecTaskCopyValueForEntitlement(task, "com.apple.security.files.user-selected.read-only" as CFString, nil) as? Bool
+        let readWriteEntitlement = SecTaskCopyValueForEntitlement(task, .securityFilesUserSelectedReadWrite, nil) as? Bool
+        let readOnlyEntitlement = SecTaskCopyValueForEntitlement(task, .securityFilesUserSelectedReadOnly, nil) as? Bool
         
         switch requiredMode {
         case .requireWrite:
