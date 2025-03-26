@@ -182,12 +182,12 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
         switch requiredMode {
         case .requireWrite:
             if readWriteEntitlement != true {
-                return FlutterError(code: "ENTITLEMENT_REQUIRED_WRITE", message: "Read-write entitlement is required but not found.", details: nil)
+                return FlutterError(code: "ENTITLEMENT_REQUIRED_WRITE", message: "The Read-Write entitlement is required for this action.", details: nil)
             }
             
         case .readOrWrite:
             if readWriteEntitlement != true && readOnlyEntitlement != true {
-                return FlutterError(code: "ENTITLEMENT_NOT_FOUND", message: "Neither read-write nor read-only entitlements found.", details: nil)
+                return FlutterError(code: "ENTITLEMENT_NOT_FOUND", message: "Either the Read-Only or Read-Write entitlement is required for this action.", details: nil)
             }
         }
         return nil
