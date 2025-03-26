@@ -1,3 +1,7 @@
+## 9.2.2
+### Desktop (macOS)
+- Returns a clear FlutterError if the required entitlements are missing, instead of failing silently.
+
 ## 9.2.1
 ### Desktop (macOS)
 - Present file picker panel as a sheet modal to the Flutter application window. [#1734](https://github.com/miguelpruivo/flutter_file_picker/pull/1734)
