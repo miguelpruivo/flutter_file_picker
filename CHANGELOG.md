@@ -1,6 +1,6 @@
 ## 9.2.2
 ### Desktop (macOS)
-- Returns a clear FlutterError if the required entitlements are missing, instead of failing silently.
+- Updated the file picker to check for missing entitlements, instead of failing silently.
 
 ## 9.2.1
 ### Desktop (macOS)
