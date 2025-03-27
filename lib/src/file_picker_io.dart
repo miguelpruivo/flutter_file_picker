@@ -33,7 +33,7 @@ class FilePickerIO extends FilePicker {
     bool? allowCompression = true,
     bool allowMultiple = false,
     bool? withData = false,
-    int compressionQuality = 30,
+    int compressionQuality = 0,
     bool? withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,

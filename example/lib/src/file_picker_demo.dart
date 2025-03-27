@@ -38,7 +38,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     try {
       _directoryPath = null;
       _paths = (await FilePicker.platform.pickFiles(
-        compressionQuality: 30,
         type: _pickingType,
         allowMultiple: _multiPick,
         onFileLoading: (FilePickerStatus status) => print(status),
