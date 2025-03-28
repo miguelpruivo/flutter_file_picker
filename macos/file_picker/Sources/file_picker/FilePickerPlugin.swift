@@ -214,7 +214,6 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     
     /// Gets the parent NSWindow
     private func getFlutterWindow() -> NSWindow? {
-        let viewController = registrar.view?.window?.contentViewController
-        return (viewController as? FlutterViewController)?.view.window
+        return registrar.view?.window
     }
 }
