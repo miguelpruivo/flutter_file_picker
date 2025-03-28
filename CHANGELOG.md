@@ -1,6 +1,14 @@
+## 9.3.0
+### General
+- The `compressionQuality` property in the `pickFiles` method now defaults to `0`, and `allowCompression` is set to `false`.
+- The `allowCompression` property has been deprecated in favor of `compressionQuality`.
+### Android
+- **Fixed:** *Permission denied* exception on Android 11 or lower when `compressionQuality` is not `0` ([#1742](https://github.com/miguelpruivo/flutter_file_picker/issues/1742)).
+- **Fixed:** Image duplication issue in the "Pictures" folder on Android ([#1743](https://github.com/miguelpruivo/flutter_file_picker/issues/1743)).
+
 ## 9.2.2
 ### Desktop (macOS)
-- Updated the file picker to check for missing entitlements, instead of failing silently.
+- Updated the file picker to check for missing entitlements, instead of failing silently. [@vicajilau](https://github.com/vicajilau).
 
 ## 9.2.1
 ### Desktop (macOS)
