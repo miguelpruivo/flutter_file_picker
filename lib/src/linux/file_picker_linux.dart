@@ -19,6 +19,7 @@ class FilePickerLinux extends FilePicker {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
+    @Deprecated('allowCompression is deprecated and has no effect. Use compressionQuality instead.')
     bool allowCompression = true,
     bool allowMultiple = false,
     bool withData = false,

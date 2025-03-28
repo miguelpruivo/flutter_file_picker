@@ -47,6 +47,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         dialogTitle: _dialogTitleController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
+        allowCompression: true,
         withData: true,
       ))
           ?.files;
