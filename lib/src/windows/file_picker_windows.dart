@@ -24,7 +24,8 @@ class FilePickerWindows extends FilePicker {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
-    @Deprecated('allowCompression is deprecated and has no effect. Use compressionQuality instead.')
+    @Deprecated(
+        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
     bool allowCompression = false,
     bool allowMultiple = false,
     bool withData = false,
