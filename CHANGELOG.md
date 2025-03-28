@@ -1,3 +1,7 @@
+## 9.2.3
+### Desktop (macOS)
+- Fixed an issue when the active viewController is not a FlutterViewController.
+
 ## 9.2.2
 ### Desktop (macOS)
 - Updated the file picker to check for missing entitlements, instead of failing silently.
