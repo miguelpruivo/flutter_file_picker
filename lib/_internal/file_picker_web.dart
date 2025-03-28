@@ -44,7 +44,7 @@ class FilePickerWeb extends FilePicker {
     bool allowMultiple = false,
     Function(FilePickerStatus)? onFileLoading,
     @Deprecated('allowCompression is deprecated and has no effect. Use compressionQuality instead.')
-    bool allowCompression = true,
+    bool allowCompression = false,
     bool withData = true,
     bool withReadStream = false,
     bool lockParentWindow = false,

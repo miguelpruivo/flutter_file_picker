@@ -20,7 +20,7 @@ class FilePickerMacOS extends FilePicker {
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
     @Deprecated('allowCompression is deprecated and has no effect. Use compressionQuality instead.')
-    bool allowCompression = true,
+    bool allowCompression = false,
     int compressionQuality = 0,
     bool allowMultiple = false,
     bool withData = false,

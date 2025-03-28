@@ -31,7 +31,7 @@ class FilePickerIO extends FilePicker {
     String? initialDirectory,
     Function(FilePickerStatus)? onFileLoading,
     @Deprecated('allowCompression is deprecated and has no effect. Use compressionQuality instead.')
-    bool? allowCompression = true,
+    bool? allowCompression = false,
     bool allowMultiple = false,
     bool? withData = false,
     int compressionQuality = 0,
