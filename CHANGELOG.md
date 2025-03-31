@@ -6,6 +6,10 @@
 - **Fixed:** *Permission denied* exception on Android 11 or lower when `compressionQuality` is not `0` ([#1742](https://github.com/miguelpruivo/flutter_file_picker/issues/1742)).
 - **Fixed:** Image duplication issue in the "Pictures" folder on Android ([#1743](https://github.com/miguelpruivo/flutter_file_picker/issues/1743)).
 
+## 9.2.3
+### Desktop (macOS)
+- Fixed an issue when the active viewController is not a FlutterViewController.
+
 ## 9.2.2
 ### Desktop (macOS)
 - Updated the file picker to check for missing entitlements, instead of failing silently. [@vicajilau](https://github.com/vicajilau).
