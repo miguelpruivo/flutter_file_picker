@@ -20,6 +20,8 @@ import android.webkit.MimeTypeMap;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.mr.flutter.plugin.filepicker.utils.CompressFormatUtils;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -34,7 +36,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Random;
 
 public class FileUtils {
 
@@ -99,7 +100,7 @@ public class FileUtils {
             Bitmap originalBitmap = BitmapFactory.decodeStream(imageStream);
             // Compress and save the image
             FileOutputStream fos = new FileOutputStream(compressedFile);
-            originalBitmap.compress(Bitmap.CompressFormat.JPEG, compressionQuality, fos);
+            originalBitmap.compress(CompressFormatUtils.getFileExtension(MimeTypeMap.getFileExtensionFromUrl(compressedFile.toString())), compressionQuality, fos);
             fos.flush();
             fos.close();
             compressedUri = Uri.fromFile(compressedFile);
