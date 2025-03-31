@@ -1,6 +1,5 @@
 ## 10.0.0
 ### General
-
 - **BREAKING CHANGE:** The `compressionQuality` property in the `pickFiles` method now defaults to `0`.
 - **BREAKING CHANGE:** The `allowCompression` property has been deprecated in favor of `compressionQuality`, and now defaults to `false`.
 
