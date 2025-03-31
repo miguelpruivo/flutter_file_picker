@@ -17,7 +17,7 @@
             alpha == kCGImageAlphaPremultipliedFirst || alpha == kCGImageAlphaPremultipliedLast);
 }
 
-// Save the image temporarly in the app's tmp directory
+// Temporarily save the image in the app's tmp directory.
 + (NSURL *)saveTmpImage:(UIImage *)image {
     BOOL hasAlpha = [ImageUtils hasAlpha:image];
     NSData *data = hasAlpha ? UIImagePNGRepresentation(image) : UIImageJPEGRepresentation(image, 1.0);

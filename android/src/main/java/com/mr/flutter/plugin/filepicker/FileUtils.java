@@ -34,6 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Random;
 
 public class FileUtils {
@@ -95,7 +96,7 @@ public class FileUtils {
     public static Uri compressImage(Uri originalImageUri, int compressionQuality, Context context) {
         Uri compressedUri;
         try (InputStream imageStream = context.getContentResolver().openInputStream(originalImageUri)) {
-            File compressedFile = createImageFile();
+            File compressedFile = createImageFile(context);
             Bitmap originalBitmap = BitmapFactory.decodeStream(imageStream);
             // Compress and save the image
             FileOutputStream fos = new FileOutputStream(compressedFile);
@@ -113,10 +114,10 @@ public class FileUtils {
         return compressedUri;
     }
 
-    private static File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+    private static File createImageFile(Context context) throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File storageDir = context.getCacheDir();
         return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 

@@ -22,6 +22,7 @@
 @property (nonatomic) MPMediaPickerController *audioPickerController;
 @property (nonatomic) NSArray<NSString *> * allowedExtensions;
 @property (nonatomic) BOOL loadDataToMemory;
+@property (nonatomic) int compressionQuality;
 @property (nonatomic) BOOL allowCompression;
 @property (nonatomic) dispatch_group_t group;
 @property (nonatomic) MediaType type;
@@ -114,8 +115,9 @@
     
     NSDictionary * arguments = call.arguments;
     BOOL isMultiplePick = ((NSNumber*)[arguments valueForKey:@"allowMultipleSelection"]).boolValue;
-    
-    self.allowCompression = ((NSNumber*)[arguments valueForKey:@"allowCompression"]).boolValue;
+
+    int compressionQuality = [[arguments valueForKey:@"compressionQuality"] intValue];
+    self.allowCompression = self.compressionQuality > 0;
     self.loadDataToMemory = ((NSNumber*)[arguments valueForKey:@"withData"]).boolValue;
     
     if([call.method isEqualToString:@"any"] || [call.method containsString:@"custom"]) {
