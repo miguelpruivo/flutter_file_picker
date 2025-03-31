@@ -1,313 +1,279 @@
-package com.mr.flutter.plugin.filepicker;
+package com.mr.flutter.plugin.filepicker
 
-import android.app.Activity;
-import android.app.Application;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import io.flutter.embedding.engine.plugins.FlutterPlugin;
-import io.flutter.embedding.engine.plugins.activity.ActivityAware;
-import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
-import io.flutter.embedding.engine.plugins.lifecycle.FlutterLifecycleAdapter;
-import io.flutter.plugin.common.BinaryMessenger;
-import io.flutter.plugin.common.EventChannel;
-import io.flutter.plugin.common.MethodCall;
-import io.flutter.plugin.common.MethodChannel;
+import android.app.Activity
+import android.app.Application
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import com.mr.flutter.plugin.filepicker.FileUtils.clearCache
+import com.mr.flutter.plugin.filepicker.FileUtils.getMimeTypes
+import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.embedding.engine.plugins.lifecycle.FlutterLifecycleAdapter
+import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.EventChannel.EventSink
+import io.flutter.plugin.common.MethodCall
+import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 
 /**
  * FilePickerPlugin
  */
-@SuppressWarnings("deprecation")
-public class FilePickerPlugin implements MethodChannel.MethodCallHandler, FlutterPlugin, ActivityAware {
-
-    private static final String TAG = "FilePicker";
-    private static final String CHANNEL = "miguelruivo.flutter.plugins.filepicker";
-    private static final String EVENT_CHANNEL = "miguelruivo.flutter.plugins.filepickerevent";
-
-    private class LifeCycleObserver
-            implements Application.ActivityLifecycleCallbacks, DefaultLifecycleObserver {
-        private final Activity thisActivity;
-
-        LifeCycleObserver(final Activity activity) {
-            this.thisActivity = activity;
+@Suppress("deprecation")
+class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
+    ActivityAware {
+    private inner class LifeCycleObserver
+        (private val thisActivity: Activity) : Application.ActivityLifecycleCallbacks,
+        DefaultLifecycleObserver {
+        override fun onCreate(owner: LifecycleOwner) {
         }
 
-        @Override
-        public void onCreate(@NonNull final LifecycleOwner owner) {
+        override fun onStart(owner: LifecycleOwner) {
         }
 
-        @Override
-        public void onStart(@NonNull final LifecycleOwner owner) {
+        override fun onResume(owner: LifecycleOwner) {
         }
 
-        @Override
-        public void onResume(@NonNull final LifecycleOwner owner) {
+        override fun onPause(owner: LifecycleOwner) {
         }
 
-        @Override
-        public void onPause(@NonNull final LifecycleOwner owner) {
+        override fun onStop(owner: LifecycleOwner) {
+            this.onActivityStopped(this.thisActivity)
         }
 
-        @Override
-        public void onStop(@NonNull final LifecycleOwner owner) {
-            this.onActivityStopped(this.thisActivity);
+        override fun onDestroy(owner: LifecycleOwner) {
+            this.onActivityDestroyed(this.thisActivity)
         }
 
-        @Override
-        public void onDestroy(@NonNull final LifecycleOwner owner) {
-            this.onActivityDestroyed(this.thisActivity);
+        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         }
 
-        @Override
-        public void onActivityCreated(final Activity activity, final Bundle savedInstanceState) {
+        override fun onActivityStarted(activity: Activity) {
         }
 
-        @Override
-        public void onActivityStarted(final Activity activity) {
+        override fun onActivityResumed(activity: Activity) {
         }
 
-        @Override
-        public void onActivityResumed(final Activity activity) {
+        override fun onActivityPaused(activity: Activity) {
         }
 
-        @Override
-        public void onActivityPaused(final Activity activity) {
+        override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
         }
 
-        @Override
-        public void onActivitySaveInstanceState(final Activity activity, final Bundle outState) {
-        }
-
-        @Override
-        public void onActivityDestroyed(final Activity activity) {
-            if (this.thisActivity == activity && activity.getApplicationContext() != null) {
-                ((Application) activity.getApplicationContext()).unregisterActivityLifecycleCallbacks(this); // Use getApplicationContext() to avoid casting failures
+        override fun onActivityDestroyed(activity: Activity) {
+            if (this.thisActivity === activity && activity.applicationContext != null) {
+                (activity.applicationContext as Application).unregisterActivityLifecycleCallbacks(
+                    this
+                ) // Use getApplicationContext() to avoid casting failures
             }
         }
 
-        @Override
-        public void onActivityStopped(final Activity activity) {
+        override fun onActivityStopped(activity: Activity) {
         }
     }
 
-    private ActivityPluginBinding activityBinding;
-    private FilePickerDelegate delegate;
-    private Application application;
-    private FlutterPluginBinding pluginBinding;
+    private var activityBinding: ActivityPluginBinding? = null
+    private var delegate: FilePickerDelegate? = null
+    private var application: Application? = null
+    private var pluginBinding: FlutterPluginBinding? = null
 
     // This is null when not using v2 embedding;
-    private Lifecycle lifecycle;
-    private LifeCycleObserver observer;
-    private Activity activity;
-    private MethodChannel channel;
-    private static String fileType;
-    private static boolean isMultipleSelection = false;
-    private static boolean withData = false;
-    private static int compressionQuality;
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void onMethodCall(final MethodCall call, final MethodChannel.Result rawResult) {
-
+    private var lifecycle: Lifecycle? = null
+    private var observer: LifeCycleObserver? = null
+    private var activity: Activity? = null
+    private var channel: MethodChannel? = null
+    override fun onMethodCall(call: MethodCall, rawResult: MethodChannel.Result) {
         if (this.activity == null) {
-            rawResult.error("no_activity", "file picker plugin requires a foreground activity", null);
-            return;
+            rawResult.error(
+                "no_activity",
+                "file picker plugin requires a foreground activity",
+                null
+            )
+            return
         }
 
-        final MethodChannel.Result result = new MethodResultWrapper(rawResult);
-        final HashMap arguments = (HashMap) call.arguments;
+        val result: MethodChannel.Result = MethodResultWrapper(rawResult)
+        val arguments = call.arguments as HashMap<*, *>
 
-        if (call.method != null && call.method.equals("clear")) {
-            result.success(FileUtils.clearCache(activity.getApplicationContext()));
-            return;
+        if (call.method != null && call.method == "clear") {
+            result.success(clearCache(activity!!.applicationContext))
+            return
         }
 
-        if (call.method != null && call.method.equals("save")) {
-            String fileName = (String) arguments.get("fileName");
-            String type = resolveType((String) arguments.get("fileType"));
-            String initialDirectory = (String) arguments.get("initialDirectory");
-            String[] allowedExtensions = FileUtils.getMimeTypes((ArrayList<String>) arguments.get("allowedExtensions"));
-            byte[] bytes = (byte[]) arguments.get("bytes");
-            this.delegate.saveFile(fileName, type, initialDirectory, allowedExtensions, bytes,result);
-            return;
+        if (call.method != null && call.method == "save") {
+            val fileName = arguments["fileName"] as String?
+            val type = resolveType((arguments["fileType"] as String?)!!)
+            val initialDirectory = arguments["initialDirectory"] as String?
+            val allowedExtensions = getMimeTypes(
+                arguments["allowedExtensions"] as ArrayList<String>?
+            )
+            val bytes = arguments["bytes"] as ByteArray?
+            delegate!!.saveFile(fileName, type, initialDirectory, allowedExtensions, bytes, result)
+            return
         }
 
-        fileType = FilePickerPlugin.resolveType(call.method);
-        String[] allowedExtensions = null;
+        fileType = resolveType(call.method)
+        var allowedExtensions: ArrayList<String?>? = null
 
         if (fileType == null) {
-            result.notImplemented();
-        } else if (fileType != "dir") {
-            isMultipleSelection = (boolean) arguments.get("allowMultipleSelection");
-            withData = (boolean) arguments.get("withData");
-            compressionQuality=(int) arguments.get("compressionQuality");
-            allowedExtensions = FileUtils.getMimeTypes((ArrayList<String>) arguments.get("allowedExtensions"));
+            result.notImplemented()
+        } else if (fileType !== "dir") {
+            isMultipleSelection = arguments["allowMultipleSelection"] as Boolean
+            withData = arguments["withData"] as Boolean
+            compressionQuality = arguments["compressionQuality"] as Int
+            allowedExtensions = getMimeTypes(arguments["allowedExtensions"] as ArrayList<String>?)
         }
 
-        if (call.method != null && call.method.equals("custom") && (allowedExtensions == null || allowedExtensions.length == 0)) {
-            result.error(TAG, "Unsupported filter. Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.any instead.", null);
+        if (call.method != null && call.method == "custom" && (allowedExtensions == null || allowedExtensions.size == 0)) {
+            result.error(
+                TAG,
+                "Unsupported filter. Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.any instead.",
+                null
+            )
         } else {
-            this.delegate.startFileExplorer(fileType, isMultipleSelection, withData, allowedExtensions, compressionQuality, result);
-        }
-
-    }
-
-    private static String resolveType(final String type) {
-
-        switch (type) {
-            case "audio":
-                return "audio/*";
-            case "image":
-                return "image/*";
-            case "video":
-                return "video/*";
-            case "media":
-                return "image/*,video/*";
-            case "any":
-            case "custom":
-                return "*/*";
-            case "dir":
-                return "dir";
-            default:
-                return null;
+            delegate!!.startFileExplorer(
+                fileType,
+                isMultipleSelection,
+                withData,
+                allowedExtensions,
+                compressionQuality,
+                result
+            )
         }
     }
-
 
     // MethodChannel.Result wrapper that responds on the platform thread.
-    private static class MethodResultWrapper implements MethodChannel.Result {
-        private final MethodChannel.Result methodResult;
-        private final Handler handler;
+    private class MethodResultWrapper(private val methodResult: MethodChannel.Result) :
+        MethodChannel.Result {
+        private val handler =
+            Handler(Looper.getMainLooper())
 
-        MethodResultWrapper(final MethodChannel.Result result) {
-            this.methodResult = result;
-            this.handler = new Handler(Looper.getMainLooper());
+        override fun success(result: Any?) {
+            handler.post {
+                methodResult.success(
+                    result
+                )
+            }
         }
 
-        @Override
-        public void success(final Object result) {
-            this.handler.post(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            MethodResultWrapper.this.methodResult.success(result);
-                        }
-                    });
+        override fun error(
+            errorCode: String, errorMessage: String?, errorDetails: Any?
+        ) {
+            handler.post {
+                methodResult.error(
+                    errorCode,
+                    errorMessage,
+                    errorDetails
+                )
+            }
         }
 
-        @Override
-        public void error(
-                final String errorCode, final String errorMessage, final Object errorDetails) {
-            this.handler.post(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            MethodResultWrapper.this.methodResult.error(errorCode, errorMessage, errorDetails);
-                        }
-                    });
-        }
-
-        @Override
-        public void notImplemented() {
-            this.handler.post(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            MethodResultWrapper.this.methodResult.notImplemented();
-                        }
-                    });
+        override fun notImplemented() {
+            handler.post { methodResult.notImplemented() }
         }
     }
 
 
-    private void setup(
-            final BinaryMessenger messenger,
-            final Application application,
-            final Activity activity,
-            final ActivityPluginBinding activityBinding) {
-
-        this.activity = activity;
-        this.application = application;
-        this.delegate = new FilePickerDelegate(activity);
-        this.channel = new MethodChannel(messenger, CHANNEL);
-        this.channel.setMethodCallHandler(this);
-        new EventChannel(messenger, EVENT_CHANNEL).setStreamHandler(new EventChannel.StreamHandler() {
-            @Override
-            public void onListen(final Object arguments, final EventChannel.EventSink events) {
-                delegate.setEventHandler(events);
+    private fun setup(
+        messenger: BinaryMessenger,
+        application: Application,
+        activity: Activity,
+        activityBinding: ActivityPluginBinding
+    ) {
+        this.activity = activity
+        this.application = application
+        this.delegate = FilePickerDelegate(activity)
+        this.channel = MethodChannel(messenger, CHANNEL)
+        channel!!.setMethodCallHandler(this)
+        EventChannel(messenger, EVENT_CHANNEL).setStreamHandler(object :
+            EventChannel.StreamHandler {
+            override fun onListen(arguments: Any, events: EventSink) {
+                delegate!!.setEventHandler(events)
             }
 
-            @Override
-            public void onCancel(final Object arguments) {
-                delegate.setEventHandler(null);
+            override fun onCancel(arguments: Any) {
+                delegate!!.setEventHandler(null)
             }
-        });
-        this.observer = new LifeCycleObserver(activity);
+        })
+        this.observer = LifeCycleObserver(activity)
 
         // V2 embedding setup for activity listeners.
-        activityBinding.addActivityResultListener(this.delegate);
-        this.lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding);
-        this.lifecycle.addObserver(this.observer);
-    
+        activityBinding.addActivityResultListener(delegate!!)
+        this.lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding)
+        lifecycle!!.addObserver(observer!!)
     }
 
-    private void tearDown() {
-        this.activityBinding.removeActivityResultListener(this.delegate);
-        this.activityBinding = null;
-        if(this.observer != null) {
-            this.lifecycle.removeObserver(this.observer);
-            this.application.unregisterActivityLifecycleCallbacks(this.observer);
+    private fun tearDown() {
+        activityBinding!!.removeActivityResultListener(delegate!!)
+        this.activityBinding = null
+        if (this.observer != null) {
+            lifecycle!!.removeObserver(observer!!)
+            application!!.unregisterActivityLifecycleCallbacks(this.observer)
         }
-        this.lifecycle = null;
-        this.delegate.setEventHandler(null);
-        this.delegate = null;
-        this.channel.setMethodCallHandler(null);
-        this.channel = null;
-        this.application = null;
+        this.lifecycle = null
+        delegate!!.setEventHandler(null)
+        this.delegate = null
+        channel!!.setMethodCallHandler(null)
+        this.channel = null
+        this.application = null
     }
 
-    @Override
-    public void onAttachedToEngine(final FlutterPluginBinding binding) {
-        this.pluginBinding = binding;
+    override fun onAttachedToEngine(binding: FlutterPluginBinding) {
+        this.pluginBinding = binding
     }
 
-    @Override
-    public void onDetachedFromEngine(final FlutterPluginBinding binding) {
-        this.pluginBinding = null;
+    override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
+        this.pluginBinding = null
     }
 
-    @Override
-    public void onAttachedToActivity(final ActivityPluginBinding binding) {
-        this.activityBinding = binding;
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        this.activityBinding = binding
         this.setup(
-                this.pluginBinding.getBinaryMessenger(),
-                (Application) this.pluginBinding.getApplicationContext(),
-                this.activityBinding.getActivity(),
-                this.activityBinding);
+            pluginBinding!!.binaryMessenger,
+            pluginBinding!!.applicationContext as Application,
+            activityBinding!!.activity,
+            activityBinding!!
+        )
     }
 
-    @Override
-    public void onDetachedFromActivityForConfigChanges() {
-        this.onDetachedFromActivity();
+    override fun onDetachedFromActivityForConfigChanges() {
+        this.onDetachedFromActivity()
     }
 
-    @Override
-    public void onReattachedToActivityForConfigChanges(final ActivityPluginBinding binding) {
-        this.onAttachedToActivity(binding);
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        this.onAttachedToActivity(binding)
     }
 
-    @Override
-    public void onDetachedFromActivity() {
-        this.tearDown();
+    override fun onDetachedFromActivity() {
+        this.tearDown()
+    }
+
+    companion object {
+        private const val TAG = "FilePicker"
+        private const val CHANNEL = "miguelruivo.flutter.plugins.filepicker"
+        private const val EVENT_CHANNEL = "miguelruivo.flutter.plugins.filepickerevent"
+
+        private var fileType: String? = null
+        private var isMultipleSelection = false
+        private var withData = false
+        private var compressionQuality = 0
+
+        private fun resolveType(type: String): String? {
+            return when (type) {
+                "audio" -> "audio/*"
+                "image" -> "image/*"
+                "video" -> "video/*"
+                "media" -> "image/*,video/*"
+                "any", "custom" -> "*/*"
+                "dir" -> "dir"
+                else -> null
+            }
+        }
     }
 }

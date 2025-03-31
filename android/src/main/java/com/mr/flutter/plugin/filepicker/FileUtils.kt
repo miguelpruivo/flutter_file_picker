@@ -1,369 +1,396 @@
-package com.mr.flutter.plugin.filepicker;
+package com.mr.flutter.plugin.filepicker
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
-import android.os.storage.StorageManager;
-import android.provider.DocumentsContract;
-import android.provider.OpenableColumns;
-import android.util.Log;
-import android.webkit.MimeTypeMap;
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.os.storage.StorageManager
+import android.provider.DocumentsContract
+import android.provider.OpenableColumns
+import android.util.Log
+import android.webkit.MimeTypeMap
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
-import androidx.annotation.Nullable;
+object FileUtils {
+    private const val TAG = "FilePickerUtils"
+    private const val PRIMARY_VOLUME_NAME = "primary"
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-
-public class FileUtils {
-
-    private static final String TAG = "FilePickerUtils";
-    private static final String PRIMARY_VOLUME_NAME = "primary";
-
-    public static String[] getMimeTypes(final ArrayList<String> allowedExtensions) {
-
+    fun getMimeTypes(allowedExtensions: ArrayList<String>?): ArrayList<String?>? {
         if (allowedExtensions == null || allowedExtensions.isEmpty()) {
-            return null;
+            return null
         }
 
-        final ArrayList<String> mimes = new ArrayList<>();
+        val mimes = ArrayList<String?>()
 
-        for (int i = 0; i < allowedExtensions.size(); i++) {
-            final String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(allowedExtensions.get(i));
+        for (i in allowedExtensions.indices) {
+            val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                allowedExtensions[i]
+            )
             if (mime == null) {
-                Log.w(TAG, "Custom file type " + allowedExtensions.get(i) + " is unsupported and will be ignored.");
-                continue;
+                Log.w(
+                    TAG,
+                    "Custom file type " + allowedExtensions[i] + " is unsupported and will be ignored."
+                )
+                continue
             }
 
-            mimes.add(mime);
+            mimes.add(mime)
         }
-        Log.d(TAG, "Allowed file extensions mimes: " + mimes);
-        return mimes.toArray(new String[0]);
+        Log.d(
+            TAG,
+            "Allowed file extensions mimes: $mimes"
+        )
+        return mimes
     }
 
-    public static String getFileName(Uri uri, final Context context) {
-        String result = null;
+    @JvmStatic
+    fun getFileName(uri: Uri, context: Context): String? {
+        var result: String? = null
 
         try {
-
-            if (uri.getScheme().equals("content")) {
-                try (Cursor cursor = context.getContentResolver().query(uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
+            if (uri.scheme == "content") {
+                context.contentResolver.query(
+                    uri,
+                    arrayOf(OpenableColumns.DISPLAY_NAME),
+                    null,
+                    null,
+                    null
+                ).use { cursor ->
                     if (cursor != null && cursor.moveToFirst()) {
-                        result = cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME));
+                        result =
+                            cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
                     }
                 }
             }
             if (result == null) {
-                result = uri.getPath();
-                int cut = result.lastIndexOf('/');
+                result = uri.path
+                val cut = result!!.lastIndexOf('/')
                 if (cut != -1) {
-                    result = result.substring(cut + 1);
+                    result = result!!.substring(cut + 1)
                 }
             }
-        } catch (Exception ex) {
-            Log.e(TAG, "Failed to handle file name: " + ex);
+        } catch (ex: Exception) {
+            Log.e(
+                TAG,
+                "Failed to handle file name: $ex"
+            )
         }
 
-        return result;
+        return result
     }
 
-    public static boolean isImage(Context context, Uri uri) {
-        String extension = getFileExtension(context, uri);
-        return (extension != null && (extension.contentEquals("jpg") || extension.contentEquals("jpeg") || extension.contentEquals("png") || extension.contentEquals("WEBP")));
+    @JvmStatic
+    fun isImage(context: Context, uri: Uri): Boolean {
+        val extension = getFileExtension(context, uri)
+        return (extension != null && (extension.contentEquals("jpg") || extension.contentEquals("jpeg") || extension.contentEquals(
+            "png"
+        ) || extension.contentEquals("WEBP")))
     }
 
-    private static String getFileExtension(Context context, Uri uri) {
-        ContentResolver contentResolver = context.getContentResolver();
-        String mimeType = contentResolver.getType(uri);
-        return MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+    private fun getFileExtension(context: Context, uri: Uri): String? {
+        val contentResolver = context.contentResolver
+        val mimeType = contentResolver.getType(uri)
+        return MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
     }
 
-    private static Bitmap.CompressFormat getCompressFormat(Context context, Uri uri) {
-        String format = getFileExtension(context, uri);
-        switch (format.toUpperCase()) {
-            case "PNG":
-                return Bitmap.CompressFormat.PNG;
-            case "WEBP":
-                return Bitmap.CompressFormat.WEBP;
-            default:
-                return Bitmap.CompressFormat.JPEG;
+    private fun getCompressFormat(context: Context, uri: Uri): Bitmap.CompressFormat {
+        val format = getFileExtension(context, uri)
+        return when (format!!.uppercase(Locale.getDefault())) {
+            "PNG" -> Bitmap.CompressFormat.PNG
+            "WEBP" -> Bitmap.CompressFormat.WEBP
+            else -> Bitmap.CompressFormat.JPEG
         }
     }
 
-    public static Uri compressImage(Uri originalImageUri, int compressionQuality, Context context) {
-        Uri compressedUri;
-        try (InputStream imageStream = context.getContentResolver().openInputStream(originalImageUri)) {
-            File compressedFile = createImageFile(context, originalImageUri);
-            Bitmap originalBitmap = BitmapFactory.decodeStream(imageStream);
-            // Compress and save the image
-            FileOutputStream fos = new FileOutputStream(compressedFile);
-            originalBitmap.compress(getCompressFormat(context, originalImageUri), compressionQuality, fos);
-            fos.flush();
-            fos.close();
-            compressedUri = Uri.fromFile(compressedFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    @JvmStatic
+    fun compressImage(originalImageUri: Uri, compressionQuality: Int, context: Context): Uri {
+        val compressedUri: Uri
+        try {
+            context.contentResolver.openInputStream(originalImageUri).use { imageStream ->
+                val compressedFile = createImageFile(context, originalImageUri)
+                val originalBitmap = BitmapFactory.decodeStream(imageStream)
+                // Compress and save the image
+                val fos = FileOutputStream(compressedFile)
+                originalBitmap.compress(
+                    getCompressFormat(context, originalImageUri),
+                    compressionQuality,
+                    fos
+                )
+                fos.flush()
+                fos.close()
+                compressedUri = Uri.fromFile(compressedFile)
+            }
+        } catch (e: IOException) {
+            throw RuntimeException(e)
         }
-        return compressedUri;
+        return compressedUri
     }
 
-    private static File createImageFile(Context context, Uri uri) throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String imageFileName = "IMAGE_" + timeStamp + "_";
-        File storageDir = context.getCacheDir();
-        return File.createTempFile(imageFileName, "." + getFileExtension(context, uri), storageDir);
+    @Throws(IOException::class)
+    private fun createImageFile(context: Context, uri: Uri): File {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val imageFileName = "IMAGE_" + timeStamp + "_"
+        val storageDir = context.cacheDir
+        return File.createTempFile(imageFileName, "." + getFileExtension(context, uri), storageDir)
     }
 
     /**
      * @param uri The Uri to check.
      * @return Whether the Uri authority is DownloadsProvider.
      */
-    public static boolean isDownloadsDocument(Uri uri) {
-        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    fun isDownloadsDocument(uri: Uri): Boolean {
+        return "com.android.providers.downloads.documents" == uri.authority
     }
 
-    public static boolean clearCache(final Context context) {
+    @JvmStatic
+    fun clearCache(context: Context): Boolean {
         try {
-            final File cacheDir = new File(context.getCacheDir() + "/file_picker/");
-            recursiveDeleteFile(cacheDir);
-        } catch (final Exception ex) {
-            Log.e(TAG, "There was an error while clearing cached files: " + ex.toString());
-            return false;
+            val cacheDir = File(context.cacheDir.toString() + "/file_picker/")
+            recursiveDeleteFile(cacheDir)
+        } catch (ex: Exception) {
+            Log.e(
+                TAG,
+                "There was an error while clearing cached files: $ex"
+            )
+            return false
         }
-        return true;
+        return true
     }
 
-    public static void loadData(final File file, FileInfo.Builder fileInfo) {
+    fun loadData(file: File, fileInfo: FileInfo.Builder) {
         try {
-            int size = (int) file.length();
-            byte[] bytes = new byte[size];
+            val size = file.length().toInt()
+            val bytes = ByteArray(size)
 
             try {
-                BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
-                buf.read(bytes, 0, bytes.length);
-                buf.close();
-            } catch (FileNotFoundException e) {
-                Log.e(TAG, "File not found: " + e.getMessage(), null);
-            } catch (IOException e) {
-                Log.e(TAG, "Failed to close file streams: " + e.getMessage(), null);
+                val buf = BufferedInputStream(FileInputStream(file))
+                buf.read(bytes, 0, bytes.size)
+                buf.close()
+            } catch (e: FileNotFoundException) {
+                Log.e(TAG, "File not found: " + e.message, null)
+            } catch (e: IOException) {
+                Log.e(TAG, "Failed to close file streams: " + e.message, null)
             }
-            fileInfo.withData(bytes);
-
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to load bytes into memory with error " + e.toString() + ". Probably the file is too big to fit device memory. Bytes won't be added to the file this time.");
+            fileInfo.withData(bytes)
+        } catch (e: Exception) {
+            Log.e(
+                TAG,
+                "Failed to load bytes into memory with error $e. Probably the file is too big to fit device memory. Bytes won't be added to the file this time."
+            )
         }
     }
 
-    public static FileInfo openFileStream(final Context context, final Uri uri, boolean withData) {
+    @JvmStatic
+    fun openFileStream(context: Context, uri: Uri, withData: Boolean): FileInfo? {
+        Log.i(TAG, "Caching from URI: $uri")
+        var fos: FileOutputStream? = null
+        var `in`: InputStream? = null
+        val fileInfo = FileInfo.Builder()
+        val fileName = getFileName(uri, context)
+        val path =
+            context.cacheDir.absolutePath + "/file_picker/" + System.currentTimeMillis() + "/" + (fileName
+                ?: "unamed")
 
-        Log.i(TAG, "Caching from URI: " + uri.toString());
-        FileOutputStream fos = null;
-        InputStream in = null;
-        final FileInfo.Builder fileInfo = new FileInfo.Builder();
-        final String fileName = FileUtils.getFileName(uri, context);
-        final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/" + System.currentTimeMillis() + "/" + (fileName != null ? fileName : "unamed");
-
-        final File file = new File(path);
+        val file = File(path)
 
         if (!file.exists()) {
             try {
-                file.getParentFile().mkdirs();
-                fos = new FileOutputStream(path);
+                file.parentFile.mkdirs()
+                fos = FileOutputStream(path)
                 try {
-                    final BufferedOutputStream out = new BufferedOutputStream(fos);
-                    in = context.getContentResolver().openInputStream(uri);
+                    val out = BufferedOutputStream(fos)
+                    `in` = context.contentResolver.openInputStream(uri)
 
-                    final byte[] buffer = new byte[8192];
-                    int len = 0;
+                    val buffer = ByteArray(8192)
+                    var len = 0
 
-                    while ((len = in.read(buffer)) >= 0) {
-                        out.write(buffer, 0, len);
+                    while ((`in`!!.read(buffer).also { len = it }) >= 0) {
+                        out.write(buffer, 0, len)
                     }
 
-                    out.flush();
+                    out.flush()
                 } finally {
-                    fos.getFD().sync();
+                    fos.fd.sync()
                 }
-            } catch (final Exception e) {
-                Log.e(TAG, "Failed to retrieve path: " + e.getMessage(), null);
-                return null;
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to retrieve path: " + e.message, null)
+                return null
             } finally {
                 if (fos != null) {
                     try {
-                        fos.close();
-                    } catch (final IOException ex) {
-                        Log.e(TAG, "Failed to close file streams: " + ex.getMessage(), null);
+                        fos.close()
+                    } catch (ex: IOException) {
+                        Log.e(TAG, "Failed to close file streams: " + ex.message, null)
                     }
                 }
-                if (in != null) {
+                if (`in` != null) {
                     try {
-                        in.close();
-                    } catch (final IOException ex) {
-                        Log.e(TAG, "Failed to close file streams: " + ex.getMessage(), null);
+                        `in`.close()
+                    } catch (ex: IOException) {
+                        Log.e(TAG, "Failed to close file streams: " + ex.message, null)
                     }
                 }
             }
         }
 
-        Log.d(TAG, "File loaded and cached at:" + path);
+        Log.d(
+            TAG,
+            "File loaded and cached at:$path"
+        )
 
         if (withData) {
-            loadData(file, fileInfo);
+            loadData(file, fileInfo)
         }
 
         fileInfo
-                .withPath(path)
-                .withName(fileName)
-                .withUri(uri)
-                .withSize(Long.parseLong(String.valueOf(file.length())));
+            .withPath(path)
+            .withName(fileName)
+            .withUri(uri)
+            .withSize(file.length().toString().toLong())
 
-        return fileInfo.build();
+        return fileInfo.build()
     }
 
-    @Nullable
-    public static String getFullPathFromTreeUri(@Nullable final Uri treeUri, Context con) {
+    @JvmStatic
+    fun getFullPathFromTreeUri(treeUri: Uri?, con: Context): String? {
         if (treeUri == null) {
-            return null;
+            return null
         }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             if (isDownloadsDocument(treeUri)) {
-                String docId = DocumentsContract.getDocumentId(treeUri);
-                String extPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
-                if (docId.equals("downloads")) {
-                    return extPath;
-                } else if (docId.matches("^ms[df]\\:.*")) {
-                    String fileName = getFileName(treeUri, con);
-                    return extPath + "/" + fileName;
+                val docId = DocumentsContract.getDocumentId(treeUri)
+                val extPath =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
+                if (docId == "downloads") {
+                    return extPath
+                } else if (docId.matches("^ms[df]\\:.*".toRegex())) {
+                    val fileName = getFileName(treeUri, con)
+                    return "$extPath/$fileName"
                 } else if (docId.startsWith("raw:")) {
-                    return docId.split(":")[1];
+                    return docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }
+                        .toTypedArray()[1]
                 }
-                return null;
+                return null
             }
         }
 
-        String volumePath = getVolumePath(getVolumeIdFromTreeUri(treeUri), con);
+        var volumePath = getVolumePath(
+            getVolumeIdFromTreeUri(
+                treeUri
+            ), con
+        )
+            ?: return File.separator
 
-        if (volumePath == null) {
-            return File.separator;
-        }
+        if (volumePath.endsWith(File.separator)) volumePath =
+            volumePath.substring(0, volumePath.length - 1)
 
-        if (volumePath.endsWith(File.separator))
-            volumePath = volumePath.substring(0, volumePath.length() - 1);
+        var documentPath = getDocumentPathFromTreeUri(treeUri)
 
-        String documentPath = getDocumentPathFromTreeUri(treeUri);
+        if (documentPath.endsWith(File.separator)) documentPath =
+            documentPath.substring(0, documentPath.length - 1)
 
-        if (documentPath.endsWith(File.separator))
-            documentPath = documentPath.substring(0, documentPath.length() - 1);
-
-        if (!documentPath.isEmpty()) {
+        return if (!documentPath.isEmpty()) {
             if (documentPath.startsWith(File.separator)) {
-                return volumePath + documentPath;
+                volumePath + documentPath
             } else {
-                return volumePath + File.separator + documentPath;
+                volumePath + File.separator + documentPath
             }
         } else {
-            return volumePath;
+            volumePath
         }
     }
 
-    @Nullable
-    private static String getDirectoryPath(Class<?> storageVolumeClazz, Object storageVolumeElement) {
+    private fun getDirectoryPath(
+        storageVolumeClazz: Class<*>,
+        storageVolumeElement: Any?
+    ): String? {
         try {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                Method getPath = storageVolumeClazz.getMethod("getPath");
-                return (String) getPath.invoke(storageVolumeElement);
+                val getPath = storageVolumeClazz.getMethod("getPath")
+                return getPath.invoke(storageVolumeElement) as String
             }
 
-            Method getDirectory = storageVolumeClazz.getMethod("getDirectory");
-            File f = (File) getDirectory.invoke(storageVolumeElement);
-            if (f != null)
-                return f.getPath();
-
-        } catch (Exception ex) {
-            return null;
+            val getDirectory = storageVolumeClazz.getMethod("getDirectory")
+            val f = getDirectory.invoke(storageVolumeElement) as File
+            if (f != null) return f.path
+        } catch (ex: Exception) {
+            return null
         }
-        return null;
+        return null
     }
 
-    private static String getVolumePath(final String volumeId, Context context) {
+    private fun getVolumePath(volumeId: String?, context: Context): String? {
         try {
-            StorageManager mStorageManager =
-                    (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
-            Class<?> storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
-            Method getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
-            Method getUuid = storageVolumeClazz.getMethod("getUuid");
-            Method isPrimary = storageVolumeClazz.getMethod("isPrimary");
-            Object result = getVolumeList.invoke(mStorageManager);
-            if (result == null)
-                return null;
+            val mStorageManager =
+                context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
+            val storageVolumeClazz = Class.forName("android.os.storage.StorageVolume")
+            val getVolumeList = mStorageManager.javaClass.getMethod("getVolumeList")
+            val getUuid = storageVolumeClazz.getMethod("getUuid")
+            val isPrimary = storageVolumeClazz.getMethod("isPrimary")
+            val result = getVolumeList.invoke(mStorageManager) ?: return null
 
-            final int length = Array.getLength(result);
-            for (int i = 0; i < length; i++) {
-                Object storageVolumeElement = Array.get(result, i);
-                String uuid = (String) getUuid.invoke(storageVolumeElement);
-                Boolean primary = (Boolean) isPrimary.invoke(storageVolumeElement);
+            val length = java.lang.reflect.Array.getLength(result)
+            for (i in 0 until length) {
+                val storageVolumeElement = java.lang.reflect.Array.get(result, i)
+                val uuid = getUuid.invoke(storageVolumeElement) as String
+                val primary = isPrimary.invoke(storageVolumeElement) as Boolean
 
                 // primary volume?
-                if (primary != null && PRIMARY_VOLUME_NAME.equals(volumeId)) {
-                    return getDirectoryPath(storageVolumeClazz, storageVolumeElement);
+                if (primary != null && PRIMARY_VOLUME_NAME == volumeId) {
+                    return getDirectoryPath(storageVolumeClazz, storageVolumeElement)
                 }
 
                 // other volumes?
-                if (uuid != null && uuid.equals(volumeId)) {
-                    return getDirectoryPath(storageVolumeClazz, storageVolumeElement);
+                if (uuid != null && uuid == volumeId) {
+                    return getDirectoryPath(storageVolumeClazz, storageVolumeElement)
                 }
             }
             // not found.
-            return null;
-        } catch (Exception ex) {
-            return null;
+            return null
+        } catch (ex: Exception) {
+            return null
         }
     }
 
-    private static String getVolumeIdFromTreeUri(final Uri treeUri) {
-        final String docId = DocumentsContract.getTreeDocumentId(treeUri);
-        final String[] split = docId.split(":");
-        if (split.length > 0) return split[0];
-        else return null;
+    private fun getVolumeIdFromTreeUri(treeUri: Uri): String? {
+        val docId = DocumentsContract.getTreeDocumentId(treeUri)
+        val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        return if (split.size > 0) split[0]
+        else null
     }
 
 
-    private static String getDocumentPathFromTreeUri(final Uri treeUri) {
-        final String docId = DocumentsContract.getTreeDocumentId(treeUri);
-        final String[] split = docId.split(":");
-        if ((split.length >= 2) && (split[1] != null)) return split[1];
-        else return File.separator;
+    private fun getDocumentPathFromTreeUri(treeUri: Uri): String {
+        val docId = DocumentsContract.getTreeDocumentId(treeUri)
+        val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        return if ((split.size >= 2) && (split[1] != null)) split[1]
+        else File.separator
     }
 
-    private static void recursiveDeleteFile(final File file) {
+    private fun recursiveDeleteFile(file: File?) {
         if (file == null || !file.exists()) {
-            return;
+            return
         }
 
-        if (file.listFiles() != null && file.isDirectory()) {
-            for (File child : file.listFiles()) {
-                recursiveDeleteFile(child);
+        if (file.listFiles() != null && file.isDirectory) {
+            for (child in file.listFiles()) {
+                recursiveDeleteFile(child)
             }
         }
 
-        file.delete();
+        file.delete()
     }
-
 }

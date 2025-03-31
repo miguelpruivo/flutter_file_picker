@@ -1,71 +1,65 @@
-package com.mr.flutter.plugin.filepicker;
+package com.mr.flutter.plugin.filepicker
 
-import android.net.Uri;
+import android.net.Uri
 
-import java.util.HashMap;
+class FileInfo(
+    val path: String?,
+    val name: String?,
+    val uri: Uri?,
+    val size: Long,
+    val bytes: ByteArray?
+) {
+    class Builder {
+        private var path: String? = null
+        private var name: String? = null
+        private var uri: Uri? = null
+        private var size: Long = 0
+        private var bytes: ByteArray?=null
 
-public class FileInfo {
-
-    final String path;
-    final String name;
-    final Uri uri;
-    final long size;
-    final byte[] bytes;
-
-    public FileInfo(String path, String name, Uri uri, long size, byte[] bytes) {
-        this.path = path;
-        this.name = name;
-        this.size = size;
-        this.bytes = bytes;
-        this.uri = uri;
-    }
-
-    public static class Builder {
-
-        private String path;
-        private String name;
-        private Uri uri;
-        private long size;
-        private byte[] bytes;
-
-        public Builder withPath(String path){
-            this.path = path;
-            return this;
+        fun withPath(path: String?): Builder {
+            this.path = path
+            return this
         }
 
-        public Builder withName(String name){
-            this.name = name;
-            return this;
+        fun withName(name: String?): Builder {
+            this.name = name
+            return this
         }
 
-        public Builder withSize(long size){
-            this.size = size;
-            return this;
+        fun withSize(size: Long): Builder {
+            this.size = size
+            return this
         }
 
-        public Builder withData(byte[] bytes){
-            this.bytes = bytes;
-            return this;
+        fun withData(bytes: ByteArray): Builder {
+            this.bytes = bytes
+            return this
         }
 
-        public Builder withUri(Uri uri){
-            this.uri = uri;
-            return this;
+        fun withUri(uri: Uri?): Builder {
+            this.uri = uri
+            return this
         }
 
-        public FileInfo build() {
-            return new FileInfo(this.path, this.name, this.uri, this.size, this.bytes);
+        fun build(): FileInfo {
+            return FileInfo(
+                this.path,
+                this.name,
+                this.uri,
+                this.size,
+                this.bytes
+            )
         }
     }
 
 
-    public HashMap<String, Object> toMap() {
-        final HashMap<String, Object> data = new HashMap<>();
-        data.put("path", path);
-        data.put("name", name);
-        data.put("size", size);
-        data.put("bytes", bytes);
-        data.put("identifier", uri.toString());
-        return data;
+    fun toMap(): HashMap<String, Any?> {
+        val data = HashMap<String, Any?>()
+        data["path"] = path
+        data["name"] = name
+        data["size"] = size
+        data["bytes"] = bytes
+        data["identifier"] = uri.toString()
+        return data
     }
 }

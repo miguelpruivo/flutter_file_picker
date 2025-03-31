@@ -20,6 +20,7 @@ rootProject.allprojects {
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     compileSdk 34
@@ -38,8 +39,14 @@ android {
         implementation 'androidx.annotation:annotation:1.0.0'
         implementation "androidx.lifecycle:lifecycle-runtime:2.1.0"
     }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 
     if (project.android.hasProperty("namespace")) {
         namespace 'com.mr.flutter.plugin.filepicker' 
     }
+}
+dependencies {
+    implementation 'androidx.core:core-ktx:1.15.0'
 }
