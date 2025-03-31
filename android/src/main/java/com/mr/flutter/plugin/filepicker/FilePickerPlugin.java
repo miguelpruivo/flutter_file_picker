@@ -258,7 +258,6 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
         activityBinding.addActivityResultListener(this.delegate);
         this.lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding);
         this.lifecycle.addObserver(this.observer);
-    
     }
 
     private void tearDown() {
