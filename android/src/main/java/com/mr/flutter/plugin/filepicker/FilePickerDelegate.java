@@ -1,9 +1,7 @@
 package com.mr.flutter.plugin.filepicker;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,7 +15,6 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.app.ActivityCompat;
 
 import java.io.File;
 import java.io.IOException;
@@ -120,8 +117,8 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             int currentItem = 0;
                             while (currentItem < count) {
                                  Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
-
-                                if (Objects.equals(type, "image/*") && compressionQuality > 0) {
+                                compressionQuality = 30;
+                                if (FileUtils.isImage(activity.getApplicationContext(), currentUri)) {
                                     currentUri = FileUtils.compressImage(currentUri, compressionQuality, activity.getApplicationContext());
                                 }
                                 final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
@@ -136,7 +133,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                         } else if (data.getData() != null) {
                             Uri uri = data.getData();
 
-                            if (Objects.equals(type, "image/*") && compressionQuality > 0) {
+                            if (FileUtils.isImage(activity.getApplicationContext(), uri)) {
                                 uri = FileUtils.compressImage(uri, compressionQuality, activity.getApplicationContext());
                             }
 
