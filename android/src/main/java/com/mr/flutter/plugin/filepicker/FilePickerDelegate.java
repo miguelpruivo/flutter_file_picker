@@ -117,7 +117,6 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
                             int currentItem = 0;
                             while (currentItem < count) {
                                  Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
-                                compressionQuality = 30;
                                 if (FileUtils.isImage(activity.getApplicationContext(), currentUri)) {
                                     currentUri = FileUtils.compressImage(currentUri, compressionQuality, activity.getApplicationContext());
                                 }
