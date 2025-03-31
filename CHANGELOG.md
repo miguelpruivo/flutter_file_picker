@@ -1,10 +1,11 @@
 ## 10.0.0
 ### General
-- The `compressionQuality` property in the `pickFiles` method now defaults to `0`, and `allowCompression` is set to `false`. [@vicajilau](https://github.com/vicajilau).
-- The `allowCompression` property has been deprecated in favor of `compressionQuality`. [@vicajilau](https://github.com/vicajilau).
+- **BREAKING CHANGE:** The `compressionQuality` property in the `pickFiles` method now defaults to `0`.
+- **BREAKING CHANGE:** The `allowCompression` property has been deprecated in favor of `compressionQuality`, and now defaults to `false`.
+
 ### Android
-- **Fixed:** *Permission denied* exception on Android 11 or lower when `compressionQuality` is not `0` ([#1742](https://github.com/miguelpruivo/flutter_file_picker/issues/1742)).
-- **Fixed:** Image duplication issue in the "Pictures" folder on Android ([#1743](https://github.com/miguelpruivo/flutter_file_picker/issues/1743)).
+- Fixed a permission denied exception Android 11 or lower when `compressionQuality` is not `0`. ([#1742](https://github.com/miguelpruivo/flutter_file_picker/issues/1742)). [@vicajilau](https://github.com/vicajilau)
+- Fixed an issue where images were duplicated to the "Pictures" folder on Android. ([#1743](https://github.com/miguelpruivo/flutter_file_picker/issues/1743)) [@vicajilau](https://github.com/vicajilau)
 
 ## 9.2.3
 ### Desktop (macOS)
