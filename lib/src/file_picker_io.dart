@@ -139,14 +139,16 @@ class FilePickerIO extends FilePicker {
   }
 
   @override
-  Future<String?> saveFile(
-      {String? dialogTitle,
-      String? fileName,
-      String? initialDirectory,
-      FileType type = FileType.any,
-      List<String>? allowedExtensions,
-      Uint8List? bytes,
-      bool lockParentWindow = false}) {
+  Future<String?> saveFile({
+    String? dialogTitle,
+    String? fileName,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Uint8List? bytes,
+    bool lockParentWindow = false,
+    String? mimeType,
+  }) {
     if (Platform.isIOS || Platform.isAndroid) {
       if (bytes == null) {
         throw ArgumentError(
@@ -155,6 +157,7 @@ class FilePickerIO extends FilePicker {
 
       return _channel.invokeMethod("save", {
         "fileName": fileName,
+        "mimeType": mimeType,
         "fileType": type.name,
         "initialDirectory": initialDirectory,
         "allowedExtensions": allowedExtensions,
@@ -169,6 +172,7 @@ class FilePickerIO extends FilePicker {
       allowedExtensions: allowedExtensions,
       bytes: bytes,
       lockParentWindow: lockParentWindow,
+      mimeType: mimeType,
     );
   }
 }
