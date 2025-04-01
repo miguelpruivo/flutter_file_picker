@@ -145,6 +145,7 @@ class FilePickerIO extends FilePicker {
       String? initialDirectory,
       FileType type = FileType.any,
       List<String>? allowedExtensions,
+      bool inferMimeType = false,
       Uint8List? bytes,
       bool lockParentWindow = false}) {
     if (Platform.isIOS || Platform.isAndroid) {
@@ -158,6 +159,7 @@ class FilePickerIO extends FilePicker {
         "fileType": type.name,
         "initialDirectory": initialDirectory,
         "allowedExtensions": allowedExtensions,
+        "inferMimeType": inferMimeType,
         "bytes": bytes,
       });
     }

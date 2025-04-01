@@ -21,6 +21,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   String? _directoryPath;
   String? _extension;
   bool _isLoading = false;
+  bool _inferMimeType = false;
   bool _lockParentWindow = false;
   bool _userAborted = false;
   bool _multiPick = false;
@@ -120,6 +121,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         type: _pickingType,
         dialogTitle: _dialogTitleController.text,
         fileName: _defaultFileNameController.text,
+        inferMimeType: _inferMimeType,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
         bytes: _paths?.first.bytes,
@@ -291,6 +293,17 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                   spacing: 10.0,
                   runSpacing: 10.0,
                   children: [
+                    SizedBox(
+                      width: 400.0,
+                      child: SwitchListTile.adaptive(
+                        title: Text(
+                          'Infer mime type',
+                          textAlign: TextAlign.left,
+                        ),
+                        onChanged: (bool value) => setState(() => _inferMimeType = value),
+                        value: _inferMimeType,
+                      ),
+                    ),
                     SizedBox(
                       width: 400.0,
                       child: SwitchListTile.adaptive(
