@@ -311,7 +311,9 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             try (TikaInputStream stream = TikaInputStream.get(bytes)) {
                 Metadata metadata = new Metadata();
                 Tika tika = new Tika();
-                metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName);
+                if (fileName != null && !fileName.isEmpty()) {
+                    metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName);
+                }
                 org.apache.tika.mime.MediaType mediaType = tika.getDetector().detect(stream, metadata);
 
                 String inferredMimeType = mediaType.toString();
