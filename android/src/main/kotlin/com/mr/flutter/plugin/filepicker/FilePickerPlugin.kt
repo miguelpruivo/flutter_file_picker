@@ -126,9 +126,9 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
             result.notImplemented()
         } else if (fileType !== "dir") {
             isMultipleSelection = arguments?.get("allowMultipleSelection") as Boolean
-            withData = arguments.get("withData") as Boolean
-            compressionQuality = arguments["compressionQuality"] as Int
-            allowedExtensions = getMimeTypes(arguments["allowedExtensions"] as ArrayList<String>?)
+            withData = arguments?.get("withData") as Boolean
+            compressionQuality = arguments?.get("compressionQuality") as Int
+            allowedExtensions = getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?)
         }
 
         if (call.method != null && call.method == "custom" && (allowedExtensions == null || allowedExtensions.size == 0)) {
