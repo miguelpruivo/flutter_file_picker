@@ -13,9 +13,7 @@ import android.os.Parcelable
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
-import com.mr.flutter.plugin.filepicker.FilePickerPlugin
 import com.mr.flutter.plugin.filepicker.FileUtils.compressImage
 import com.mr.flutter.plugin.filepicker.FileUtils.getFileName
 import com.mr.flutter.plugin.filepicker.FileUtils.getFullPathFromTreeUri
@@ -26,6 +24,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry.ActivityResultListener
 import java.io.File
 import java.io.IOException
+import androidx.core.net.toUri
 
 class FilePickerDelegate @VisibleForTesting internal constructor(
     private val activity: Activity,
@@ -39,7 +38,7 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
     private var allowedExtensions: ArrayList<String?>? = null
     private var eventSink: EventSink? = null
 
-    private var bytes: ByteArray?=null
+    private var bytes: ByteArray? = null
 
     constructor(activity: Activity) : this(
         activity,
@@ -271,24 +270,21 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
             if (type == "image/*") {
                 intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             } else {
-                intent = if (Build.VERSION.SDK_INT >= 19) {
+                intent =
                     Intent(Intent.ACTION_OPEN_DOCUMENT)
-                } else {
-                    Intent(Intent.ACTION_GET_CONTENT)
-                }
                 intent.addCategory(Intent.CATEGORY_OPENABLE)
             }
-            val uri = Uri.parse(Environment.getExternalStorageDirectory().path + File.separator)
+            val uri = (Environment.getExternalStorageDirectory().path + File.separator).toUri()
             Log.d(TAG, "Selected type $type")
             intent.setDataAndType(uri, this.type)
-            intent.setType(this.type)
+            intent.type = this.type
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection)
             intent.putExtra("multi-pick", this.isMultipleSelection)
 
-            if (type!!.contains(",")) {
-                allowedExtensions =
-                    type!!.split(",".toRegex()).dropLastWhile { it.isEmpty() } as ArrayList<String?>
-            }
+            type?.takeIf { it.contains(",") }
+                ?.split(",")
+                ?.filter { it.isNotEmpty() }
+                ?.let { allowedExtensions = ArrayList(it) }
 
             if (allowedExtensions != null) {
                 intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions)
@@ -306,7 +302,6 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
         }
     }
 
-    @Suppress("deprecation")
     fun startFileExplorer(
         type: String?,
         isMultipleSelection: Boolean,
@@ -328,7 +323,6 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
         this.startFileExplorer()
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     fun saveFile(
         fileName: String?,
         type: String?,
@@ -350,16 +344,16 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
         if (type != null && ("dir" != type) && type.split(",".toRegex())
                 .dropLastWhile { it.isEmpty() }.toTypedArray().size == 1
         ) {
-            intent.setType(type)
+            intent.type = type
         } else {
-            intent.setType("*/*")
+            intent.type = "*/*"
         }
         if (initialDirectory != null && !initialDirectory.isEmpty()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(initialDirectory))
+                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialDirectory.toUri())
             }
         }
-        if (allowedExtensions != null && allowedExtensions.size > 0) {
+        if (allowedExtensions != null && allowedExtensions.isNotEmpty()) {
             intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions)
         }
         if (intent.resolveActivity(activity.packageManager) != null) {

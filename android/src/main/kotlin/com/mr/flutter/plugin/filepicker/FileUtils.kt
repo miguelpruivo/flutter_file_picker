@@ -75,11 +75,7 @@ object FileUtils {
                 }
             }
             if (result == null) {
-                result = uri.path
-                val cut = result!!.lastIndexOf('/')
-                if (cut != -1) {
-                    result = result!!.substring(cut + 1)
-                }
+                result = uri.path?.substringAfterLast('/')
             }
         } catch (ex: Exception) {
             Log.e(
@@ -207,7 +203,7 @@ object FileUtils {
 
         if (!file.exists()) {
             try {
-                file.parentFile.mkdirs()
+                file.parentFile?.mkdirs()
                 fos = FileOutputStream(path)
                 try {
                     val out = BufferedOutputStream(fos)
@@ -325,8 +321,8 @@ object FileUtils {
 
             val getDirectory = storageVolumeClazz.getMethod("getDirectory")
             val f = getDirectory.invoke(storageVolumeElement) as File
-            if (f != null) return f.path
-        } catch (ex: Exception) {
+            return f.path
+        } catch (_: Exception) {
             return null
         }
         return null
@@ -345,8 +341,8 @@ object FileUtils {
             val length = java.lang.reflect.Array.getLength(result)
             for (i in 0 until length) {
                 val storageVolumeElement = java.lang.reflect.Array.get(result, i)
-                val uuid = getUuid.invoke(storageVolumeElement) as String
-                val primary = isPrimary.invoke(storageVolumeElement) as Boolean
+                val uuid = getUuid.invoke(storageVolumeElement) as? String
+                val primary = isPrimary.invoke(storageVolumeElement) as? Boolean
 
                 // primary volume?
                 if (primary != null && PRIMARY_VOLUME_NAME == volumeId) {
@@ -360,7 +356,7 @@ object FileUtils {
             }
             // not found.
             return null
-        } catch (ex: Exception) {
+        } catch (_: Exception) {
             return null
         }
     }
@@ -376,7 +372,7 @@ object FileUtils {
     private fun getDocumentPathFromTreeUri(treeUri: Uri): String {
         val docId = DocumentsContract.getTreeDocumentId(treeUri)
         val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        return if ((split.size >= 2) && (split[1] != null)) split[1]
+        return if ((split.size >= 2)) split[1]
         else File.separator
     }
 
@@ -386,7 +382,7 @@ object FileUtils {
         }
 
         if (file.listFiles() != null && file.isDirectory) {
-            for (child in file.listFiles()) {
+            for (child in file.listFiles().orEmpty()) {
                 recursiveDeleteFile(child)
             }
         }
