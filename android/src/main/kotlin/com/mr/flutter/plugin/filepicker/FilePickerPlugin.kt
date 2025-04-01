@@ -21,6 +21,7 @@ import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
+import java.util.HashMap
 
 /**
  * FilePickerPlugin
@@ -99,7 +100,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
         }
 
         val result: MethodChannel.Result = MethodResultWrapper(rawResult)
-        val arguments = call.arguments as HashMap<*, *>
+        val arguments = call.arguments as? HashMap<*,*>
 
         if (call.method != null && call.method == "clear") {
             result.success(clearCache(activity!!.applicationContext))
@@ -107,13 +108,13 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
         }
 
         if (call.method != null && call.method == "save") {
-            val fileName = arguments["fileName"] as String?
-            val type = resolveType((arguments["fileType"] as String?)!!)
-            val initialDirectory = arguments["initialDirectory"] as String?
+            val fileName = arguments?.get("fileName") as String?
+            val type = resolveType((arguments?.get("fileType") as String?)!!)
+            val initialDirectory = arguments?.get("initialDirectory") as String?
             val allowedExtensions = getMimeTypes(
-                arguments["allowedExtensions"] as ArrayList<String>?
+                arguments?.get("allowedExtensions") as ArrayList<String>?
             )
-            val bytes = arguments["bytes"] as ByteArray?
+            val bytes = arguments?.get("bytes") as ByteArray?
             delegate!!.saveFile(fileName, type, initialDirectory, allowedExtensions, bytes, result)
             return
         }
@@ -124,8 +125,8 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
         if (fileType == null) {
             result.notImplemented()
         } else if (fileType !== "dir") {
-            isMultipleSelection = arguments["allowMultipleSelection"] as Boolean
-            withData = arguments["withData"] as Boolean
+            isMultipleSelection = arguments?.get("allowMultipleSelection") as Boolean
+            withData = arguments.get("withData") as Boolean
             compressionQuality = arguments["compressionQuality"] as Int
             allowedExtensions = getMimeTypes(arguments["allowedExtensions"] as ArrayList<String>?)
         }

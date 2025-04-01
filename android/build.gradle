@@ -2,6 +2,9 @@ group 'com.mr.flutter.plugin.filepicker'
 version '1.0-SNAPSHOT'
 
 buildscript {
+    ext {
+        kotlin_version = '2.1.20'
+    }
     repositories {
         google()
         mavenCentral()
@@ -9,6 +12,7 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
