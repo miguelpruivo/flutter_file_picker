@@ -16,7 +16,6 @@ linter:
     - comment_references
     - slash_for_doc_comments
     - use_key_in_widget_constructors
-    - unsafe_html
     - unnecessary_statements
     - throw_in_finally
     - always_use_package_imports

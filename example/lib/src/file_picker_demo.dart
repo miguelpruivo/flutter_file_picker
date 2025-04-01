@@ -38,7 +38,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     try {
       _directoryPath = null;
       _paths = (await FilePicker.platform.pickFiles(
-        compressionQuality: 30,
         type: _pickingType,
         allowMultiple: _multiPick,
         onFileLoading: (FilePickerStatus status) => print(status),
@@ -48,6 +47,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         dialogTitle: _dialogTitleController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
+        withData: true,
       ))
           ?.files;
     } on PlatformException catch (e) {
@@ -112,7 +112,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   Future<void> _saveFile() async {
-    _resetState();
     try {
       String? fileName = await FilePicker.platform.saveFile(
         allowedExtensions: (_extension?.isNotEmpty ?? false)
@@ -123,6 +122,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         fileName: _defaultFileNameController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
+        bytes: _paths?.first.bytes,
       );
       setState(() {
         _saveAsFileName = fileName;
@@ -133,6 +133,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     } catch (e) {
       _logException(e.toString());
     } finally {
+      _resetState();
       setState(() => _isLoading = false);
     }
   }

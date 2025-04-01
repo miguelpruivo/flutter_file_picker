@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:js_interop';
-import 'package:web/web.dart';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:path/path.dart' as p;
+import 'package:web/web.dart';
 
 class FilePickerWeb extends FilePicker {
   late Element _target;
@@ -42,12 +43,14 @@ class FilePickerWeb extends FilePicker {
     List<String>? allowedExtensions,
     bool allowMultiple = false,
     Function(FilePickerStatus)? onFileLoading,
-    bool allowCompression = true,
+    @Deprecated(
+        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
+    bool allowCompression = false,
     bool withData = true,
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
-    int compressionQuality = 20,
+    int compressionQuality = 0,
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
@@ -86,9 +89,16 @@ class FilePickerWeb extends FilePicker {
         String? path,
         Stream<List<int>>? readStream,
       ) {
+        String? blobUrl;
+        if (bytes != null && bytes.isNotEmpty) {
+          final blob =
+              Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
+
+          blobUrl = URL.createObjectURL(blob);
+        }
         pickedFiles.add(PlatformFile(
           name: file.name,
-          path: path,
+          path: path ?? blobUrl,
           size: bytes != null ? bytes.length : file.size,
           bytes: bytes,
           readStream: readStream,
@@ -176,6 +186,49 @@ class FilePickerWeb extends FilePicker {
     final List<PlatformFile>? files = await filesCompleter.future;
 
     return files == null ? null : FilePickerResult(files);
+  }
+
+  @override
+  Future<String?> saveFile({
+    String? dialogTitle,
+    String? fileName,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Uint8List? bytes,
+    bool lockParentWindow = false,
+  }) async {
+    if (bytes == null || bytes.isEmpty) {
+      throw ArgumentError(
+        'The bytes are required when saving a file on the web.',
+      );
+    }
+
+    if (fileName == null || fileName.isEmpty) {
+      throw ArgumentError(
+        'A file name is required when saving a file on the web.',
+      );
+    }
+
+    if (p.extension(fileName).isEmpty) {
+      throw ArgumentError(
+        'The file name should include a valid file extension.',
+      );
+    }
+
+    final blob = Blob([bytes.toJS].toJS);
+    final url = URL.createObjectURL(blob);
+
+    // Start a download by using a click event on an anchor element that contains the Blob.
+    HTMLAnchorElement()
+      ..href = url
+      ..target = 'blank' // Always open the file in a new tab.
+      ..download = fileName
+      ..click();
+
+    // Release the Blob URL after the download started.
+    URL.revokeObjectURL(url);
+    return null;
   }
 
   static String _fileType(FileType type, List<String>? allowedExtensions) {
