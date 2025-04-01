@@ -1,3 +1,7 @@
+## 10.1.0
+### Android
+- Added new parameter `inferMimeType` to `saveFile()` which, when enabled, infers the MIME type using Apache Tika. Fixes incorrect file incrementing if a file with the same name in the destination folder already exists. ([#1669](https://github.com/miguelpruivo/flutter_file_picker/issues/1669)) [@Leapward-Koex](https://github.com/Leapward-Koex)
+
 ## 10.0.0
 ### General
 - **BREAKING CHANGE:** The `compressionQuality` property in the `pickFiles` method now defaults to `0`.
