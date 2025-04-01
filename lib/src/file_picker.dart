@@ -186,6 +186,9 @@ abstract class FilePicker extends PlatformInterface {
   /// parameters are just a proposal to the user as the save file dialog does
   /// not enforce these restrictions.
   ///
+  /// (Android only) if [inferMimeType] is set to `true` then the type is inferred from the supplied bytes.
+  /// If inferring fails for whatever reason it will fallback to [type] and [allowedExtensions] if specified.
+  ///
   /// If [lockParentWindow] is set, the child window (file picker window) will
   /// stay in front of the Flutter window until it is closed (like a modal
   /// window). This parameter works only on Windows desktop.
@@ -198,6 +201,7 @@ abstract class FilePicker extends PlatformInterface {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
+    bool inferMimeType = false,
     Uint8List? bytes,
     bool lockParentWindow = false,
   }) async =>

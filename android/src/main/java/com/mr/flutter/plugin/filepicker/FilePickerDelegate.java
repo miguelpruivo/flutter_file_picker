@@ -1,9 +1,7 @@
 package com.mr.flutter.plugin.filepicker;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,7 +15,6 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.app.ActivityCompat;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +26,11 @@ import java.util.Objects;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
+
+import org.apache.tika.Tika;
+import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
 
 public class FilePickerDelegate implements PluginRegistry.ActivityResultListener {
 
@@ -294,7 +296,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public void saveFile(String fileName, String type, String initialDirectory, String[] allowedExtensions, byte[] bytes, MethodChannel.Result result) {
+    public void saveFile(String fileName, String type, String initialDirectory, String[] allowedExtensions, boolean inferMimeType, byte[] bytes, MethodChannel.Result result) {
         if (!this.setPendingMethodCallAndResult(result)) {
             finishWithAlreadyActiveError(result);
             return;
@@ -305,10 +307,20 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
             intent.putExtra(Intent.EXTRA_TITLE, fileName);
         }
         this.bytes = bytes;
-        if (type != null && !"dir".equals(type) && type.split(",").length == 1) {
-            intent.setType(type);
+        if (inferMimeType && bytes != null && bytes.length > 0) {
+            try (TikaInputStream stream = TikaInputStream.get(bytes)) {
+                Metadata metadata = new Metadata();
+                Tika tika = new Tika();
+                metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName);
+                org.apache.tika.mime.MediaType mediaType = tika.getDetector().detect(stream, metadata);
+
+                String inferredMimeType = mediaType.toString();
+                intent.setType(inferredMimeType);
+            } catch (Exception e) {
+                setIntentType(intent, type);
+            }
         } else {
-            intent.setType("*/*");
+            setIntentType(intent, type);
         }
         if (initialDirectory != null && !initialDirectory.isEmpty()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -323,6 +335,14 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         } else {
             Log.e(TAG, "Can't find a valid activity to handle the request. Make sure you've a file explorer installed.");
             finishWithError("invalid_format_type", "Can't handle the provided file type.");
+        }
+    }
+
+    private void setIntentType(Intent intent, String type) {
+        if (type != null && !"dir".equals(type) && type.split(",").length == 1) {
+            intent.setType(type);
+        } else {
+            intent.setType("*/*");
         }
     }
 

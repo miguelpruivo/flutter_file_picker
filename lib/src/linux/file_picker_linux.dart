@@ -88,6 +88,7 @@ class FilePickerLinux extends FilePicker {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
+    bool inferMimeType = false,
     Uint8List? bytes,
     bool lockParentWindow = false,
   }) async {
