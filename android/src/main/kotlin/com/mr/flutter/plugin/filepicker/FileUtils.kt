@@ -113,10 +113,10 @@ object FileUtils {
             return
         }
 
-        if (type.contentEquals("dir")) {
+        if (type == "dir") {
             intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         } else {
-            if (type.contentEquals("image/*")) {
+            if (type == "image/*") {
                 intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             } else {
                 intent =
@@ -190,7 +190,7 @@ object FileUtils {
             intent.putExtra(Intent.EXTRA_TITLE, fileName)
         }
         this.bytes = bytes
-        if (type != null && ("dir".contentEquals(type)) && type.split(",".toRegex())
+        if (type != null && ("dir" != type) && type.split(",".toRegex())
                 .dropLastWhile { it.isEmpty() }.toTypedArray().size == 1
         ) {
             intent.type = type
@@ -216,7 +216,7 @@ object FileUtils {
         }
     }
 
-    private fun processUri(activity: Activity, uri: Uri, compressionQuality: Int): Uri {
+    fun processUri(activity: Activity, uri: Uri, compressionQuality: Int): Uri {
         return if (compressionQuality > 0 && isImage(activity.applicationContext, uri)) {
             compressImage(uri, compressionQuality, activity.applicationContext)
         } else {
@@ -224,14 +224,14 @@ object FileUtils {
         }
     }
 
-    private fun addFile(activity: Activity, uri: Uri, loadDataToMemory: Boolean, files: MutableList<FileInfo>) {
+    fun addFile(activity: Activity, uri: Uri, loadDataToMemory: Boolean, files: MutableList<FileInfo>) {
         openFileStream(activity, uri, loadDataToMemory)?.let { file ->
             files.add(file)
             Log.d(FilePickerDelegate.TAG, "[FilePick] URI: ${uri.path}")
         }
     }
     @Suppress("deprecation")
-    private fun getSelectedItems(bundle: Bundle): ArrayList<Parcelable>? {
+    fun getSelectedItems(bundle: Bundle): ArrayList<Parcelable>? {
         if (Build.VERSION.SDK_INT >= 33) {
             return bundle.getParcelableArrayList("selectedItems", Parcelable::class.java)
         }
@@ -241,7 +241,7 @@ object FileUtils {
 
 
     fun getMimeTypes(allowedExtensions: ArrayList<String>?): ArrayList<String?>? {
-        if (allowedExtensions.isNullOrEmpty()) {
+        if (allowedExtensions == null || allowedExtensions.isEmpty()) {
             return null
         }
 
@@ -273,7 +273,7 @@ object FileUtils {
         var result: String? = null
 
         try {
-            if (uri.scheme.contentEquals("content")) {
+            if (uri.scheme == "content") {
                 context.contentResolver.query(
                     uri,
                     arrayOf(OpenableColumns.DISPLAY_NAME),
