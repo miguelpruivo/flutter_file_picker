@@ -27,8 +27,7 @@ import java.io.IOException
 import androidx.core.net.toUri
 
 class FilePickerDelegate @VisibleForTesting internal constructor(
-    private val activity: Activity,
-    private var pendingResult: MethodChannel.Result?
+    private val activity: Activity
 ) :
     ActivityResultListener {
     private var isMultipleSelection = false
@@ -39,11 +38,6 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
     private var eventSink: EventSink? = null
 
     private var bytes: ByteArray? = null
-
-    constructor(activity: Activity) : this(
-        activity,
-        null
-    )
 
     fun setEventHandler(eventSink: EventSink?) {
         this.eventSink = eventSink
@@ -239,10 +233,6 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
     }
 
     private fun setPendingMethodCallAndResult(result: MethodChannel.Result): Boolean {
-        if (this.pendingResult != null) {
-            return false
-        }
-        this.pendingResult = result
         return true
     }
 
@@ -371,7 +361,7 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
         this.dispatchEventStatus(false)
 
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
-        if (this.pendingResult != null) {
+
             if (data != null && data !is String) {
                 val files = ArrayList<HashMap<String, Any?>>()
 
@@ -379,21 +369,13 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
                     files.add(file.toMap())
                 }
                 data = files
-            }
 
-            pendingResult!!.success(data)
-            this.clearPendingResult()
         }
     }
 
     private fun finishWithError(errorCode: String, errorMessage: String?) {
-        if (this.pendingResult == null) {
-            return
-        }
 
         this.dispatchEventStatus(false)
-        pendingResult!!.error(errorCode, errorMessage, null)
-        this.clearPendingResult()
     }
 
     private fun dispatchEventStatus(status: Boolean) {
@@ -406,11 +388,6 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
                 eventSink!!.success(status)
             }
         }.obtainMessage().sendToTarget()
-    }
-
-
-    private fun clearPendingResult() {
-        this.pendingResult = null
     }
 
     companion object {
