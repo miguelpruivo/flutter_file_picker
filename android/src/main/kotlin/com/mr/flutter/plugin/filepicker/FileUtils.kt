@@ -94,21 +94,6 @@ object FileUtils {
         }
     }
 
-    fun FilePickerDelegate.processUri(activity: Activity, uri: Uri, compressionQuality: Int): Uri {
-        return if (compressionQuality > 0 && isImage(activity.applicationContext, uri)) {
-            compressImage(uri, compressionQuality, activity.applicationContext)
-        } else {
-            uri
-        }
-    }
-
-    fun FilePickerDelegate.addFile(activity: Activity, uri: Uri, loadDataToMemory: Boolean, files: MutableList<FileInfo>) {
-        openFileStream(activity, uri, loadDataToMemory)?.let { file ->
-            files.add(file)
-            Log.d(FilePickerDelegate.TAG, "[FilePick] URI: ${uri.path}")
-        }
-    }
-
     fun FilePickerDelegate.handleFileResult(files: List<FileInfo>) {
         if (files.isNotEmpty()) {
             Log.d(FilePickerDelegate.TAG, "File path: $files")
@@ -118,18 +103,7 @@ object FileUtils {
         }
     }
 
-    fun FilePickerDelegate.setPendingMethodCallAndResult(result: MethodChannel.Result): Boolean {
-        return true
-    }
 
-    @Suppress("deprecation")
-    fun FilePickerDelegate.getSelectedItems(bundle: Bundle): ArrayList<Parcelable>? {
-        if (Build.VERSION.SDK_INT >= 33) {
-            return bundle.getParcelableArrayList("selectedItems", Parcelable::class.java)
-        }
-
-        return bundle.getParcelableArrayList("selectedItems")
-    }
 
     fun FilePickerDelegate.startFileExplorer() {
         val intent: Intent
@@ -240,6 +214,29 @@ object FileUtils {
             )
             finishWithError("invalid_format_type", "Can't handle the provided file type.")
         }
+    }
+
+    fun processUri(activity: Activity, uri: Uri, compressionQuality: Int): Uri {
+        return if (compressionQuality > 0 && isImage(activity.applicationContext, uri)) {
+            compressImage(uri, compressionQuality, activity.applicationContext)
+        } else {
+            uri
+        }
+    }
+
+    fun addFile(activity: Activity, uri: Uri, loadDataToMemory: Boolean, files: MutableList<FileInfo>) {
+        openFileStream(activity, uri, loadDataToMemory)?.let { file ->
+            files.add(file)
+            Log.d(FilePickerDelegate.TAG, "[FilePick] URI: ${uri.path}")
+        }
+    }
+    @Suppress("deprecation")
+    fun getSelectedItems(bundle: Bundle): ArrayList<Parcelable>? {
+        if (Build.VERSION.SDK_INT >= 33) {
+            return bundle.getParcelableArrayList("selectedItems", Parcelable::class.java)
+        }
+
+        return bundle.getParcelableArrayList("selectedItems")
     }
 
 
@@ -426,7 +423,7 @@ object FileUtils {
                     `in` = context.contentResolver.openInputStream(uri)
 
                     val buffer = ByteArray(8192)
-                    var len = 0
+                    var len: Int
 
                     while ((`in`!!.read(buffer).also { len = it }) >= 0) {
                         out.write(buffer, 0, len)
@@ -541,7 +538,6 @@ object FileUtils {
         } catch (_: Exception) {
             return null
         }
-        return null
     }
 
     private fun getVolumePath(volumeId: String?, context: Context): String? {
