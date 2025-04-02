@@ -10,6 +10,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.mr.flutter.plugin.filepicker.FileUtils.clearCache
 import com.mr.flutter.plugin.filepicker.FileUtils.getMimeTypes
+import com.mr.flutter.plugin.filepicker.FileUtils.saveFile
+import com.mr.flutter.plugin.filepicker.FileUtils.startFileExplorer
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -26,7 +28,6 @@ import java.util.HashMap
 /**
  * FilePickerPlugin
  */
-@Suppress("deprecation")
 class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
     ActivityAware {
     private inner class LifeCycleObserver

@@ -1,16 +1,30 @@
 package com.mr.flutter.plugin.filepicker
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Environment
+import android.os.Parcelable
 import android.os.storage.StorageManager
 import android.provider.DocumentsContract
+import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Log
 import android.webkit.MimeTypeMap
+import androidx.core.net.toUri
+import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion
+import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion.REQUEST_CODE
+import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion.SAVE_FILE_CODE
+import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion.finishWithAlreadyActiveError
+import io.flutter.plugin.common.MethodChannel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -26,6 +40,208 @@ import java.util.Locale
 object FileUtils {
     private const val TAG = "FilePickerUtils"
     private const val PRIMARY_VOLUME_NAME = "primary"
+
+
+
+
+    fun FilePickerDelegate.processFiles(activity: Activity, data: Intent?, compressionQuality: Int, loadDataToMemory: Boolean, type: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            if (data == null) {
+                finishWithError("unknown_activity", "Unknown activity error, please fill an issue.")
+                return@launch
+            }
+
+            val files = mutableListOf<FileInfo>()
+
+            when {
+                data.clipData != null -> {
+                    for (i in 0 until data.clipData!!.itemCount) {
+                        var uri = data.clipData!!.getItemAt(i).uri
+                        uri = processUri(activity, uri, compressionQuality)
+                        addFile(activity, uri, loadDataToMemory, files)
+                    }
+                    finishWithSuccess(files)
+                }
+
+                data.data != null -> {
+                    var uri = data.data!!
+                    uri = processUri(activity, uri, compressionQuality)
+
+                    if (type == "dir") {
+                        uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri))
+                        val dirPath = getFullPathFromTreeUri(uri, activity)
+                        if (dirPath != null) {
+                            finishWithSuccess(dirPath)
+                        } else {
+                            finishWithError("unknown_path", "Failed to retrieve directory path.")
+                        }
+                    } else {
+                        addFile(activity, uri, loadDataToMemory, files)
+                        handleFileResult(files)
+                    }
+                }
+
+                data.extras?.containsKey("selectedItems") == true -> {
+                    val fileUris = getSelectedItems(data.extras!!)
+                    fileUris?.filterIsInstance<Uri>()?.forEach { uri ->
+                        addFile(activity, uri, loadDataToMemory, files)
+                    }
+                    finishWithSuccess(files)
+                }
+
+                else -> finishWithError("unknown_activity", "Unknown activity error, please fill an issue.")
+            }
+        }
+    }
+
+    fun FilePickerDelegate.processUri(activity: Activity, uri: Uri, compressionQuality: Int): Uri {
+        return if (compressionQuality > 0 && isImage(activity.applicationContext, uri)) {
+            compressImage(uri, compressionQuality, activity.applicationContext)
+        } else {
+            uri
+        }
+    }
+
+    fun FilePickerDelegate.addFile(activity: Activity, uri: Uri, loadDataToMemory: Boolean, files: MutableList<FileInfo>) {
+        openFileStream(activity, uri, loadDataToMemory)?.let { file ->
+            files.add(file)
+            Log.d(FilePickerDelegate.TAG, "[FilePick] URI: ${uri.path}")
+        }
+    }
+
+    fun FilePickerDelegate.handleFileResult(files: List<FileInfo>) {
+        if (files.isNotEmpty()) {
+            Log.d(FilePickerDelegate.TAG, "File path: $files")
+            finishWithSuccess(files)
+        } else {
+            finishWithError("unknown_path", "Failed to retrieve path.")
+        }
+    }
+
+    fun FilePickerDelegate.setPendingMethodCallAndResult(result: MethodChannel.Result): Boolean {
+        return true
+    }
+
+    @Suppress("deprecation")
+    fun FilePickerDelegate.getSelectedItems(bundle: Bundle): ArrayList<Parcelable>? {
+        if (Build.VERSION.SDK_INT >= 33) {
+            return bundle.getParcelableArrayList("selectedItems", Parcelable::class.java)
+        }
+
+        return bundle.getParcelableArrayList("selectedItems")
+    }
+
+    fun FilePickerDelegate.startFileExplorer() {
+        val intent: Intent
+
+        // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
+        if (type == null) {
+            return
+        }
+
+        if (type == "dir") {
+            intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+        } else {
+            if (type == "image/*") {
+                intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            } else {
+                intent =
+                    Intent(Intent.ACTION_OPEN_DOCUMENT)
+                intent.addCategory(Intent.CATEGORY_OPENABLE)
+            }
+            val uri = (Environment.getExternalStorageDirectory().path + File.separator).toUri()
+            Log.d(FilePickerDelegate.TAG, "Selected type $type")
+            intent.setDataAndType(uri, this.type)
+            intent.type = this.type
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection)
+            intent.putExtra("multi-pick", this.isMultipleSelection)
+
+            type?.takeIf { it.contains(",") }
+                ?.split(",")
+                ?.filter { it.isNotEmpty() }
+                ?.let { allowedExtensions = ArrayList(it) }
+
+            if (allowedExtensions != null) {
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions)
+            }
+        }
+
+        if (intent.resolveActivity(activity.packageManager) != null) {
+            activity.startActivityForResult(intent, REQUEST_CODE)
+        } else {
+            Log.e(
+                FilePickerDelegate.TAG,
+                "Can't find a valid activity to handle the request. Make sure you've a file explorer installed."
+            )
+            finishWithError("invalid_format_type", "Can't handle the provided file type.")
+        }
+    }
+
+    fun FilePickerDelegate.startFileExplorer(
+        type: String?,
+        isMultipleSelection: Boolean,
+        withData: Boolean,
+        allowedExtensions: ArrayList<String?>?,
+        compressionQuality: Int,
+        result: MethodChannel.Result
+    ) {
+        if (!this.setPendingMethodCallAndResult(result)) {
+            finishWithAlreadyActiveError(result)
+            return
+        }
+        this.type = type
+        this.isMultipleSelection = isMultipleSelection
+        this.loadDataToMemory = withData
+        this.allowedExtensions = allowedExtensions
+        this.compressionQuality = compressionQuality
+
+        this.startFileExplorer()
+    }
+
+    fun FilePickerDelegate.saveFile(
+        fileName: String?,
+        type: String?,
+        initialDirectory: String?,
+        allowedExtensions: ArrayList<String?>?,
+        bytes: ByteArray?,
+        result: MethodChannel.Result
+    ) {
+        if (!this.setPendingMethodCallAndResult(result)) {
+            finishWithAlreadyActiveError(result)
+            return
+        }
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        if (!fileName.isNullOrEmpty()) {
+            intent.putExtra(Intent.EXTRA_TITLE, fileName)
+        }
+        this.bytes = bytes
+        if (type != null && ("dir" != type) && type.split(",".toRegex())
+                .dropLastWhile { it.isEmpty() }.toTypedArray().size == 1
+        ) {
+            intent.type = type
+        } else {
+            intent.type = "*/*"
+        }
+        if (!initialDirectory.isNullOrEmpty()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialDirectory.toUri())
+            }
+        }
+        if (!allowedExtensions.isNullOrEmpty()) {
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions)
+        }
+        if (intent.resolveActivity(activity.packageManager) != null) {
+            activity.startActivityForResult(intent, SAVE_FILE_CODE)
+        } else {
+            Log.e(
+                FilePickerDelegate.TAG,
+                "Can't find a valid activity to handle the request. Make sure you've a file explorer installed."
+            )
+            finishWithError("invalid_format_type", "Can't handle the provided file type.")
+        }
+    }
+
 
     fun getMimeTypes(allowedExtensions: ArrayList<String>?): ArrayList<String?>? {
         if (allowedExtensions == null || allowedExtensions.isEmpty()) {
