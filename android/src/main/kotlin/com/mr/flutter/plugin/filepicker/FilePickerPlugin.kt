@@ -256,11 +256,6 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
         private const val CHANNEL = "miguelruivo.flutter.plugins.filepicker"
         private const val EVENT_CHANNEL = "miguelruivo.flutter.plugins.filepickerevent"
 
-        private var fileType: String? = null
-        private var isMultipleSelection = false
-        private var withData = false
-        private var compressionQuality = 0
-
         private fun resolveType(type: String): String? {
             return when (type) {
                 "audio" -> "audio/*"
