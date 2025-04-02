@@ -176,7 +176,7 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
                             files.add(file)
                         }
 
-                        if (!files.isEmpty()) {
+                        if (files.isNotEmpty()) {
                             Log.d(TAG, "File path:$files")
                             finishWithSuccess(files)
                         } else {
@@ -193,10 +193,9 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
                             if (fileUris != null) {
                                 for (fileUri in fileUris) {
                                     if (fileUri is Uri) {
-                                        val currentUri = fileUri
                                         val file = openFileStream(
                                             this@FilePickerDelegate.activity,
-                                            currentUri,
+                                            fileUri,
                                             loadDataToMemory
                                         )
 
@@ -204,7 +203,7 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
                                             files.add(file)
                                             Log.d(
                                                 TAG,
-                                                "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.path
+                                                "[MultiFilePick] File #" + currentItem + " - URI: " + fileUri.path
                                             )
                                         }
                                     }
@@ -337,7 +336,7 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
         }
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
-        if (fileName != null && !fileName.isEmpty()) {
+        if (!fileName.isNullOrEmpty()) {
             intent.putExtra(Intent.EXTRA_TITLE, fileName)
         }
         this.bytes = bytes
@@ -348,12 +347,12 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
         } else {
             intent.type = "*/*"
         }
-        if (initialDirectory != null && !initialDirectory.isEmpty()) {
+        if (!initialDirectory.isNullOrEmpty()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialDirectory.toUri())
             }
         }
-        if (allowedExtensions != null && allowedExtensions.isNotEmpty()) {
+        if (!allowedExtensions.isNullOrEmpty()) {
             intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions)
         }
         if (intent.resolveActivity(activity.packageManager) != null) {
