@@ -291,10 +291,33 @@ public class FileUtils {
         FileOutputStream fos = null;
         InputStream in = null;
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
-        final String fileName = FileUtils.getFileName(uri, context);
-        final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/"+System.currentTimeMillis() +"/"+ (fileName != null ? fileName : "unamed");
+        String fileName = FileUtils.getFileName(uri, context);
+        String path = context.getCacheDir().getAbsolutePath() + "/file_picker/"+System.currentTimeMillis() +"/"+ (fileName != null ? fileName : "unamed");
+        final boolean fileHasExtension = fileName != null && 
+            fileName.contains(".") && 
+            (fileName.substring(fileName.lastIndexOf(".") + 1).length() >= 2 && 
+            fileName.substring(fileName.lastIndexOf(".") + 1).length() <= 4);
 
-        final File file = new File(path);
+        File tempFile = new File(path);
+
+        Log.e(TAG, "FileName has extension: " + fileHasExtension);
+
+        if(!fileHasExtension) {
+            String mimeType = context.getContentResolver().getType(uri);
+            String extension = "";
+
+            if (mimeType != null) {
+                extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+            }
+
+            if (extension != null && !extension.isEmpty()) {
+                path = path + "." + extension;
+                fileName = fileName + "." + extension;
+                tempFile = new File(path);
+            }
+        }
+
+        final File file = tempFile;
 
         if(!file.exists()) {
             try {
