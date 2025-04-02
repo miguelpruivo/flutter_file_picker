@@ -1,6 +1,4 @@
-import java.util.Properties
 import java.io.File
-import java.io.FileInputStream
 
 pluginManagement {
     val flutterSdkPath: String by lazy {
