@@ -12,7 +12,7 @@ allprojects {
     }
 }
 
-rootProject.buildDir = "../build"
+rootProject.buildDir = File(rootProject.rootDir, "build")
 subprojects {
     buildDir = File(rootProject.buildDir, name)
 }
