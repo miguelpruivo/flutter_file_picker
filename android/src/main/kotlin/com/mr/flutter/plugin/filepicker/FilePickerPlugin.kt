@@ -92,61 +92,56 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
     private var channel: MethodChannel? = null
     override fun onMethodCall(call: MethodCall, rawResult: MethodChannel.Result) {
         if (this.activity == null) {
-            rawResult.error(
-                "no_activity",
-                "file picker plugin requires a foreground activity",
-                null
-            )
+            rawResult.error("no_activity", "file picker plugin requires a foreground activity", null)
             return
         }
 
         val result: MethodChannel.Result = MethodResultWrapper(rawResult)
-        val arguments = call.arguments as? HashMap<*,*>
+        val arguments = call.arguments as? HashMap<*, *>
+        val method = call.method
 
-        if (call.method != null && call.method == "clear") {
-            result.success(clearCache(activity!!.applicationContext))
-            return
-        }
-
-        if (call.method != null && call.method == "save") {
-            val fileName = arguments?.get("fileName") as String?
-            val type = resolveType((arguments?.get("fileType") as String?)!!)
-            val initialDirectory = arguments?.get("initialDirectory") as String?
-            val allowedExtensions = getMimeTypes(
-                arguments?.get("allowedExtensions") as ArrayList<String>?
-            )
-            val bytes = arguments?.get("bytes") as ByteArray?
-            delegate!!.saveFile(fileName, type, initialDirectory, allowedExtensions, bytes, result)
-            return
-        }
-
-        fileType = resolveType(call.method)
-        var allowedExtensions: ArrayList<String?>? = null
-
-        if (fileType == null) {
-            result.notImplemented()
-        } else if (fileType !== "dir") {
-            isMultipleSelection = arguments?.get("allowMultipleSelection") as Boolean
-            withData = arguments?.get("withData") as Boolean
-            compressionQuality = arguments?.get("compressionQuality") as Int
-            allowedExtensions = getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?)
-        }
-
-        if (call.method != null && call.method == "custom" && (allowedExtensions == null || allowedExtensions.size == 0)) {
-            result.error(
-                TAG,
-                "Unsupported filter. Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.any instead.",
-                null
-            )
-        } else {
-            delegate!!.startFileExplorer(
-                fileType,
-                isMultipleSelection,
-                withData,
-                allowedExtensions,
-                compressionQuality,
-                result
-            )
+        when (method) {
+            "clear" -> {
+                result.success(clearCache(activity!!.applicationContext))
+            }
+            "save" -> {
+                val fileName = arguments?.get("fileName") as String?
+                val type = resolveType(arguments?.get("fileType") as String)
+                val initialDirectory = arguments?.get("initialDirectory") as String?
+                val allowedExtensions = getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?)
+                val bytes = arguments?.get("bytes") as ByteArray?
+                delegate!!.saveFile(fileName, type, initialDirectory, allowedExtensions, bytes, result)
+            }
+            "custom" -> {
+                val allowedExtensions = getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?)
+                if (allowedExtensions.isNullOrEmpty()) {
+                    result.error(TAG, "Unsupported filter. Ensure using extension without dot (e.g., jpg, not .jpg).", null)
+                } else {
+                    delegate!!.startFileExplorer(
+                        resolveType(call.method),
+                        arguments?.get("allowMultipleSelection") as Boolean,
+                        arguments?.get("withData") as Boolean,
+                        allowedExtensions,
+                        arguments?.get("compressionQuality") as Int,
+                        result
+                    )
+                }
+            }
+            else -> {
+                val fileType = resolveType(method)
+                if (fileType == null) {
+                    result.notImplemented()
+                } else if (fileType != "dir") {
+                    delegate!!.startFileExplorer(
+                        fileType,
+                        arguments?.get("allowMultipleSelection") as Boolean,
+                        arguments?.get("withData") as Boolean,
+                        getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?),
+                        arguments?.get("compressionQuality") as Int,
+                        result
+                    )
+                }
+            }
         }
     }
 
