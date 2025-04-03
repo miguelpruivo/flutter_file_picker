@@ -17,7 +17,6 @@ import android.provider.OpenableColumns
 import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
-import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion
 import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion.REQUEST_CODE
 import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion.SAVE_FILE_CODE
 import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion.finishWithAlreadyActiveError
@@ -25,6 +24,7 @@ import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.apache.tika.Tika
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -172,6 +172,12 @@ object FileUtils {
         this.startFileExplorer()
     }
 
+    fun getMimeTypeForBytes(bytes: ByteArray?):String{
+        val tika = Tika()
+        val mimeType = tika.detect(bytes)
+        return mimeType.substringAfter("/")
+    }
+
     fun FilePickerDelegate.saveFile(
         fileName: String?,
         type: String?,
@@ -241,7 +247,7 @@ object FileUtils {
 
 
     fun getMimeTypes(allowedExtensions: ArrayList<String>?): ArrayList<String?>? {
-        if (allowedExtensions == null || allowedExtensions.isEmpty()) {
+        if (allowedExtensions.isNullOrEmpty()) {
             return null
         }
 

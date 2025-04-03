@@ -10,14 +10,13 @@ import android.provider.DocumentsContract
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.mr.flutter.plugin.filepicker.FileUtils.getFileName
+import com.mr.flutter.plugin.filepicker.FileUtils.getMimeTypeForBytes
 import com.mr.flutter.plugin.filepicker.FileUtils.processFiles
 import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry.ActivityResultListener
 import org.apache.tika.Tika
-import java.io.ByteArrayInputStream
 import java.io.IOException
-import java.net.URLConnection
 
 class FilePickerDelegate @VisibleForTesting internal constructor(
     val activity: Activity,
@@ -59,11 +58,8 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
     private fun saveFile(uri: Uri?): Boolean {
         uri ?: return false
         dispatchEventStatus(true)
-
-        val tika = Tika()
-        val mimeType = tika.detect(bytes)
-        val extension = mimeType.substringAfter("/")
         val fileName = getFileName(uri, activity)
+        val extension = getMimeTypeForBytes(bytes)
         val path = "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).absolutePath}/$fileName.$extension"
         val newUri = if(fileName?.contains(".") == false){
             DocumentsContract.renameDocument(activity.contentResolver, uri, "$fileName.$extension")?:uri
