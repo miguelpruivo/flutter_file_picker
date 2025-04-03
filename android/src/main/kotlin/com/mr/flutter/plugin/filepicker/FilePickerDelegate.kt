@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import android.provider.DocumentsContract
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.mr.flutter.plugin.filepicker.FileUtils.getFileName
@@ -13,7 +14,10 @@ import com.mr.flutter.plugin.filepicker.FileUtils.processFiles
 import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry.ActivityResultListener
+import org.apache.tika.Tika
+import java.io.ByteArrayInputStream
 import java.io.IOException
+import java.net.URLConnection
 
 class FilePickerDelegate @VisibleForTesting internal constructor(
     val activity: Activity,
@@ -56,11 +60,15 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
         uri ?: return false
         dispatchEventStatus(true)
 
+        val tika = Tika()
+        val mimeType = tika.detect(bytes)
+        val extension = mimeType.substringAfter("/")
         val fileName = getFileName(uri, activity)
-        val path = "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath}/$fileName"
+        val path = "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).absolutePath}/$fileName.$extension"
+        val newUri = DocumentsContract.renameDocument(activity.contentResolver, uri, "$fileName.$extension")?:uri
 
         return try {
-            activity.contentResolver.openOutputStream(uri)?.use { outputStream ->
+            activity.contentResolver.openOutputStream(newUri)?.use { outputStream ->
                 bytes?.let {
                     outputStream.write(it)
                     outputStream.flush()
