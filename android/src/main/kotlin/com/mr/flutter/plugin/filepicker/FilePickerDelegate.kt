@@ -65,7 +65,12 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
         val extension = mimeType.substringAfter("/")
         val fileName = getFileName(uri, activity)
         val path = "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).absolutePath}/$fileName.$extension"
-        val newUri = DocumentsContract.renameDocument(activity.contentResolver, uri, "$fileName.$extension")?:uri
+        val newUri = if(fileName?.contains(".") == false){
+            DocumentsContract.renameDocument(activity.contentResolver, uri, "$fileName.$extension")?:uri
+        }else{
+            uri
+        }
+
 
         return try {
             activity.contentResolver.openOutputStream(newUri)?.use { outputStream ->
