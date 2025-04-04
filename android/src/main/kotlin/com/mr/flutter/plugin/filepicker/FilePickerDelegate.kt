@@ -3,10 +3,8 @@ package com.mr.flutter.plugin.filepicker
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import android.os.Environment
 import android.os.Handler
 import android.os.Looper
-import android.provider.DocumentsContract
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.mr.flutter.plugin.filepicker.FileUtils.getFileName
@@ -15,7 +13,6 @@ import com.mr.flutter.plugin.filepicker.FileUtils.processFiles
 import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry.ActivityResultListener
-import org.apache.tika.Tika
 import java.io.IOException
 
 class FilePickerDelegate @VisibleForTesting internal constructor(
@@ -60,22 +57,13 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
         dispatchEventStatus(true)
         val fileName = getFileName(uri, activity)
         val extension = getMimeTypeForBytes(bytes)
-        val path = "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).absolutePath}/$fileName.$extension"
-        val newUri = if(fileName?.contains(".") == false){
-            DocumentsContract.renameDocument(activity.contentResolver, uri, "$fileName.$extension")?:uri
-        }else{
-            uri
-        }
-
-
         return try {
-            activity.contentResolver.openOutputStream(newUri)?.use { outputStream ->
-                bytes?.let {
-                    outputStream.write(it)
-                    outputStream.flush()
-                }
+            val newUri = if(fileName?.contains(".") == false){
+                FileUtils.forceRenameWithCopy(context = activity, uri, "$fileName.$extension",bytes)?:uri
+            }else{
+                uri
             }
-            finishWithSuccess(path)
+            finishWithSuccess(newUri.path)
             true
         } catch (e: IOException) {
             Log.e(TAG, "Error while saving file", e)

@@ -1,6 +1,7 @@
 package com.mr.flutter.plugin.filepicker
 
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -25,6 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.apache.tika.Tika
+import org.apache.tika.mime.MimeType
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -92,6 +94,40 @@ object FileUtils {
                 else -> finishWithError("unknown_activity", "Unknown activity error, please fill an issue.")
             }
         }
+    }
+
+    fun forceRenameWithCopy(
+        context: Context,
+        uri: Uri,
+        newNameWithExtension: String,
+        bytes: ByteArray?
+    ): Uri? {
+        val mimeType = context.contentResolver.getType(uri) ?: "image/*" // por defecto
+
+        val values = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, newNameWithExtension)
+            put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+        }
+
+        val newUri =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+            } else {
+                context.contentResolver.insert(MediaStore.Files.getContentUri("external"),values)
+            }
+
+        if (newUri != null) {
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                context.contentResolver.openOutputStream(newUri)?.use { output ->
+                    bytes?.let {
+                        output.write(it)
+                        output.flush()
+                    }
+                }
+            }
+        }
+
+        return newUri
     }
 
     fun FilePickerDelegate.handleFileResult(files: List<FileInfo>) {
