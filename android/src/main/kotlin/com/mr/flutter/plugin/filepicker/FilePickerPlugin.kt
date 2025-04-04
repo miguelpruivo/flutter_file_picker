@@ -2,15 +2,9 @@ package com.mr.flutter.plugin.filepicker
 
 import android.app.Activity
 import android.app.Application
-import android.content.ContentValues
-import android.content.Context
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.provider.MediaStore
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
