@@ -5,14 +5,14 @@ allprojects {
     }
 
     gradle.projectsEvaluated {
-        tasks.withType<org.gradle.api.tasks.compile.JavaCompile>().configureEach {
+        tasks.withType<JavaCompile>().configureEach {
             options.encoding = "UTF-8"
             options.compilerArgs.addAll(listOf("-Xlint:unchecked", "-Xlint:deprecation"))
         }
     }
 }
 
-rootProject.buildDir = "../build"
+rootProject.buildDir = File(rootProject.rootDir, "build")
 subprojects {
     buildDir = File(rootProject.buildDir, name)
 }

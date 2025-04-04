@@ -14,7 +14,7 @@ class FileInfo(
         private var name: String? = null
         private var uri: Uri? = null
         private var size: Long = 0
-        private var bytes: ByteArray?=null
+        private var bytes: ByteArray? = null
 
         fun withPath(path: String?): Builder {
             this.path = path
