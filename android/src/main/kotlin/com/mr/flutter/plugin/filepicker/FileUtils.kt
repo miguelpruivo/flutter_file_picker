@@ -26,7 +26,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.apache.tika.Tika
-import org.apache.tika.mime.MimeType
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -208,10 +207,17 @@ object FileUtils {
         this.startFileExplorer()
     }
 
-    fun getMimeTypeForBytes(bytes: ByteArray?):String{
+    fun getFileExtension(bytes: ByteArray?):String{
         val tika = Tika()
         val mimeType = tika.detect(bytes)
         return mimeType.substringAfter("/")
+    }
+
+
+    fun getMimeTypeForBytes(bytes: ByteArray?):String{
+        val tika = Tika()
+        val mimeType = tika.detect(bytes)
+        return mimeType
     }
 
     fun FilePickerDelegate.saveFile(
@@ -232,20 +238,13 @@ object FileUtils {
             intent.putExtra(Intent.EXTRA_TITLE, fileName)
         }
         this.bytes = bytes
-        if (type != null && ("dir" != type) && type.split(",".toRegex())
-                .dropLastWhile { it.isEmpty() }.toTypedArray().size == 1
-        ) {
-            intent.type = type
-        } else {
-            intent.type = "*/*"
+        if ("dir" != type) {
+            intent.type = getMimeTypeForBytes(bytes)
         }
         if (!initialDirectory.isNullOrEmpty()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialDirectory.toUri())
             }
-        }
-        if (!allowedExtensions.isNullOrEmpty()) {
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions)
         }
         if (intent.resolveActivity(activity.packageManager) != null) {
             activity.startActivityForResult(intent, SAVE_FILE_CODE)

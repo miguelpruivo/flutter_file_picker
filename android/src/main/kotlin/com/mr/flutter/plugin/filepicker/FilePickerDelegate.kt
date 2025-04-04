@@ -8,7 +8,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.mr.flutter.plugin.filepicker.FileUtils.getFileName
-import com.mr.flutter.plugin.filepicker.FileUtils.getMimeTypeForBytes
+import com.mr.flutter.plugin.filepicker.FileUtils.getFileExtension
 import com.mr.flutter.plugin.filepicker.FileUtils.processFiles
 import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.MethodChannel
@@ -56,7 +56,7 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
         uri ?: return false
         dispatchEventStatus(true)
         val fileName = getFileName(uri, activity)
-        val extension = getMimeTypeForBytes(bytes)
+        val extension = getFileExtension(bytes)
         return try {
             val newUri = if(fileName?.contains(".") == false){
                 FileUtils.forceRenameWithCopy(context = activity, uri, "$fileName.$extension",bytes)?:uri
