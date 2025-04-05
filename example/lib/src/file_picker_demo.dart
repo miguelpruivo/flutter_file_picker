@@ -234,10 +234,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
 
     try {
       pickedSaveFilePath = await FilePicker.platform.saveFile(
-        allowedExtensions: (_extension?.isNotEmpty ?? false)
-            ? _extension?.replaceAll(' ', '').split(',')
-            : null,
-        type: _pickingType,
+        allowedExtensions: ["txt"],
+        type: FileType.custom,
         dialogTitle: _dialogTitleController.text,
         fileName: _defaultFileNameController.text,
         initialDirectory: _initialDirectoryController.text,
