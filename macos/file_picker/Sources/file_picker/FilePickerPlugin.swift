@@ -137,7 +137,6 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
                 let paths = pathResult.map { $0.path }
                 result(paths)
             }
-            return
         }
     }
 

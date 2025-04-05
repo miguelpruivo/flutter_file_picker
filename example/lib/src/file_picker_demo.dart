@@ -1,8 +1,9 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:file/local.dart';
 import 'dart:convert';
-import 'dart:io' as io;
 
 class FilePickerDemo extends StatefulWidget {
   @override
@@ -55,21 +56,16 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         .addListener(() => _extension = _fileExtensionController.text);
   }
 
-  Widget _buildFilePickerResultsWidget(
-      {required int itemCount,
-      required Widget Function(BuildContext, int) itemBuilder}) {
-    final ScrollController scrollController = ScrollController();
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.50,
-      child: Scrollbar(
-        controller: scrollController,
-        child: ListView.separated(
-          controller: scrollController,
-          itemCount: itemCount,
-          itemBuilder: itemBuilder,
-          separatorBuilder: (BuildContext context, int index) =>
-              const Divider(),
-        ),
+  Widget _buildFilePickerResultsWidget({
+    required int itemCount,
+    required Widget Function(BuildContext, int) itemBuilder,
+  }) {
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height * 0.50,
+      child: ListView.separated(
+        itemCount: itemCount,
+        itemBuilder: itemBuilder,
+        separatorBuilder: (BuildContext context, int index) => const Divider(),
       ),
     );
   }
@@ -150,18 +146,20 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _resultsWidget = _buildFilePickerResultsWidget(
         itemCount: pickedFilesAndDirectories?.length ?? 0,
         itemBuilder: (BuildContext context, int index) {
-          final String name =
-              new io.File(pickedFilesAndDirectories![index]).statSync().type ==
-                      io.FileSystemEntityType.file
-                  ? 'File path:'
-                  : 'Directory path:';
+          String name = 'File path:';
+          if (!kIsWeb) {
+            final fs = LocalFileSystem();
+            name = fs.isFileSync(pickedFilesAndDirectories![index])
+                ? 'File path:'
+                : 'Directory path:';
+          }
           return ListTile(
             leading: Text(
               index.toString(),
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
             title: Text(name),
-            subtitle: Text(pickedFilesAndDirectories[index]),
+            subtitle: Text(pickedFilesAndDirectories![index]),
           );
         },
       );
@@ -467,10 +465,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                       SizedBox(
                         width: 120,
                         child: FloatingActionButton.extended(
-                            onPressed: () => _pickFiles(),
-                            label:
-                                Text(_multiPick ? 'Pick files' : 'Pick file'),
-                            icon: const Icon(Icons.description)),
+                          onPressed: () => _pickFiles(),
+                          label: Text(_multiPick ? 'Pick files' : 'Pick file'),
+                          icon: const Icon(Icons.description),
+                        ),
                       ),
                       SizedBox(
                         width: 120,
@@ -483,9 +481,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                       SizedBox(
                         width: 250,
                         child: FloatingActionButton.extended(
-                            onPressed: () => _pickFileAndDirectoryPaths(),
-                            label: Text('Pick files and directories'),
-                            icon: const Icon(Icons.folder_open)),
+                          onPressed: () => _pickFileAndDirectoryPaths(),
+                          label: Text('Pick files and directories'),
+                          icon: const Icon(Icons.folder_open),
+                        ),
                       ),
                       SizedBox(
                         width: 120,
@@ -546,7 +545,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                                           Icons.error_outline,
                                         ),
                                         contentPadding: EdgeInsets.symmetric(
-                                            vertical: 40.0),
+                                          vertical: 40.0,
+                                        ),
                                         title: const Text(
                                           'User has aborted the dialog',
                                         ),
@@ -558,7 +558,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                             )
                           : _resultsWidget,
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10.0,
                 ),
               ],
