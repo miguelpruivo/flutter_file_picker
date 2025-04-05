@@ -1,3 +1,7 @@
+## 10.1.0
+### Desktop (macOS)
+- Introduced a new method, `pickFileAndDirectoryPaths()`, which displays a dialog enabling users to select both files and directories simultaneously. The method returns their absolute paths. Only available for macOS.
+
 ## 10.0.0
 ### General
 - **BREAKING CHANGE:** The `compressionQuality` property in the `pickFiles` method now defaults to `0`.

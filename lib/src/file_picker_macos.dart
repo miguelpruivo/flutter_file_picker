@@ -13,6 +13,28 @@ class FilePickerMacOS extends FilePicker {
       const MethodChannel('miguelruivo.flutter.plugins.filepicker');
 
   @override
+  Future<List<String>?> pickFileAndDirectoryPaths({
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+  }) async {
+    final fileFilter = fileTypeToFileFilter(
+      type,
+      allowedExtensions,
+    );
+
+    final filePaths = await methodChannel.invokeListMethod<String>(
+      'pickFileAndDirectoryPaths',
+      <String, dynamic>{
+        'allowedExtensions': fileFilter,
+        'initialDirectory': escapeInitialDirectory(initialDirectory),
+      },
+    );
+
+    return filePaths;
+  }
+
+  @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
     String? initialDirectory,

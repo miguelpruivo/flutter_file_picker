@@ -32,6 +32,7 @@ A package that allows you to use the native file explorer to pick single or mult
 * Supports retrieving as XFile (cross_file) for easy manipulation with other libraries
 * Different default type filtering (media, image, video, audio or any)
 * Picking directories
+* Picking both files and directories simultaneously
 * Load file data immediately into memory (`Uint8List`) if needed; 
 * Open a save-file / save-as dialog (a dialog that lets the user specify the drive, directory, and name of a file to save)
 
@@ -39,12 +40,13 @@ If you have any feature that you want to see in this package, please feel free t
 
 ## Compatibility Chart
 
-| API                   | Android            | iOS                | Linux              | macOS              | Windows            | Web                |
-|-----------------------|--------------------|--------------------|--------------------|--------------------|--------------------|--------------------|
-| clearTemporaryFiles() | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x:                | :x:                | :x:                |
-| getDirectoryPath()    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:                |
-| pickFiles()           | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| saveFile()            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| API                           | Android            | iOS                | Linux              | macOS              | Windows            | Web                |
+|-------------------------------|--------------------|--------------------|--------------------|--------------------|--------------------|--------------------|
+| `clearTemporaryFiles()`       | :white_check_mark: | :white_check_mark: | :x:                | :x:                | :x:                | :x:                |
+| `getDirectoryPath()`          | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x:                |
+| `pickFileAndDirectoryPaths()` | :x:                | :x:                | :x:                | :white_check_mark: | :x:                | :x:                |
+| `pickFiles()`                 | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| `saveFile()`                  | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 
 See the [API section of the File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api) or the [official API reference on pub.dev](https://pub.dev/documentation/file_picker/latest/file_picker/FilePicker-class.html) for further details.
 
@@ -170,7 +172,7 @@ For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flu
 ![DemoMultiFilters](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_ios.gif?raw=true)
 
 #### MacOS
-![DemoMacOS](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_macos.png?raw=true)
+![DemoMacOS](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_macos.gif?raw=true)
 
 #### Linux
 ![DemoLinux](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_linux.gif?raw=true)
