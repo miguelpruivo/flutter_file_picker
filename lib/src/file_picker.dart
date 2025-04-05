@@ -131,7 +131,8 @@ abstract class FilePicker extends PlatformInterface {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
   }) async =>
-      throw UnimplementedError('pickFiles() has not been implemented.');
+      throw UnimplementedError(
+          'pickFileAndDirectoryPaths() has not been implemented.');
 
   /// Asks the underlying platform to remove any temporary files created by this plugin.
   ///
