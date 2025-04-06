@@ -9,7 +9,10 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.mr.flutter.plugin.filepicker.FileUtils.clearCache
+import com.mr.flutter.plugin.filepicker.FileUtils.getFileExtension
 import com.mr.flutter.plugin.filepicker.FileUtils.getMimeTypes
+import com.mr.flutter.plugin.filepicker.FileUtils.saveFile
+import com.mr.flutter.plugin.filepicker.FileUtils.startFileExplorer
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -21,12 +24,10 @@ import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import java.util.HashMap
 
 /**
  * FilePickerPlugin
  */
-@Suppress("deprecation")
 class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
     ActivityAware {
     private inner class LifeCycleObserver
@@ -91,61 +92,57 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
     private var channel: MethodChannel? = null
     override fun onMethodCall(call: MethodCall, rawResult: MethodChannel.Result) {
         if (this.activity == null) {
-            rawResult.error(
-                "no_activity",
-                "file picker plugin requires a foreground activity",
-                null
-            )
+            rawResult.error("no_activity", "file picker plugin requires a foreground activity", null)
             return
         }
 
         val result: MethodChannel.Result = MethodResultWrapper(rawResult)
-        val arguments = call.arguments as? HashMap<*,*>
+        val arguments = call.arguments as? HashMap<*, *>
+        val method = call.method
 
-        if (call.method != null && call.method == "clear") {
-            result.success(clearCache(activity!!.applicationContext))
-            return
-        }
-
-        if (call.method != null && call.method == "save") {
-            val fileName = arguments?.get("fileName") as String?
-            val type = resolveType((arguments?.get("fileType") as String?)!!)
-            val initialDirectory = arguments?.get("initialDirectory") as String?
-            val allowedExtensions = getMimeTypes(
-                arguments?.get("allowedExtensions") as ArrayList<String>?
-            )
-            val bytes = arguments?.get("bytes") as ByteArray?
-            delegate!!.saveFile(fileName, type, initialDirectory, allowedExtensions, bytes, result)
-            return
-        }
-
-        fileType = resolveType(call.method)
-        var allowedExtensions: ArrayList<String?>? = null
-
-        if (fileType == null) {
-            result.notImplemented()
-        } else if (fileType !== "dir") {
-            isMultipleSelection = arguments?.get("allowMultipleSelection") as Boolean
-            withData = arguments?.get("withData") as Boolean
-            compressionQuality = arguments?.get("compressionQuality") as Int
-            allowedExtensions = getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?)
-        }
-
-        if (call.method != null && call.method == "custom" && (allowedExtensions == null || allowedExtensions.size == 0)) {
-            result.error(
-                TAG,
-                "Unsupported filter. Make sure that you are only using the extension without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension.  If the problem persists, you may want to consider using FileType.any instead.",
-                null
-            )
-        } else {
-            delegate!!.startFileExplorer(
-                fileType,
-                isMultipleSelection,
-                withData,
-                allowedExtensions,
-                compressionQuality,
-                result
-            )
+        when (method) {
+            "clear" -> {
+                result.success(activity?.applicationContext?.let { clearCache(it) })
+            }
+            "save" -> {
+                val type = resolveType(arguments?.get("fileType") as String)
+                val initialDirectory = arguments?.get("initialDirectory") as String?
+                val allowedExtensions = getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?)
+                val bytes = arguments?.get("bytes") as ByteArray?
+                val fileNameWithoutExtension = "${arguments?.get("fileName")}"
+                val fileName = if(fileNameWithoutExtension.isNotEmpty() && !fileNameWithoutExtension.contains(".")) "$fileNameWithoutExtension.${getFileExtension(bytes)}" else fileNameWithoutExtension
+                delegate?.saveFile(fileName, type, initialDirectory, allowedExtensions, bytes, result)
+            }
+            "custom" -> {
+                val allowedExtensions = getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?)
+                if (allowedExtensions.isNullOrEmpty()) {
+                    result.error(TAG, "Unsupported filter. Ensure using extension without dot (e.g., jpg, not .jpg).", null)
+                } else {
+                    delegate?.startFileExplorer(
+                        resolveType(call.method),
+                        arguments?.get("allowMultipleSelection") as Boolean,
+                        arguments?.get("withData") as Boolean,
+                        allowedExtensions,
+                        arguments?.get("compressionQuality") as Int,
+                        result
+                    )
+                }
+            }
+            else -> {
+                val fileType = resolveType(method)
+                if (fileType == null) {
+                    result.notImplemented()
+                } else if (fileType != "dir") {
+                    delegate?.startFileExplorer(
+                        fileType,
+                        arguments?.get("allowMultipleSelection") as Boolean,
+                        arguments?.get("withData") as Boolean,
+                        getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?),
+                        arguments?.get("compressionQuality") as Int,
+                        result
+                    )
+                }
+            }
         }
     }
 
@@ -180,7 +177,6 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
         }
     }
 
-
     private fun setup(
         messenger: BinaryMessenger,
         application: Application,
@@ -191,36 +187,43 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
         this.application = application
         this.delegate = FilePickerDelegate(activity)
         this.channel = MethodChannel(messenger, CHANNEL)
-        channel!!.setMethodCallHandler(this)
-        EventChannel(messenger, EVENT_CHANNEL).setStreamHandler(object :
-            EventChannel.StreamHandler {
-            override fun onListen(arguments: Any, events: EventSink) {
-                delegate!!.setEventHandler(events)
-            }
+        channel?.setMethodCallHandler(this)
+        delegate?.let {delegate ->
+            EventChannel(messenger, EVENT_CHANNEL).setStreamHandler(object :
+                EventChannel.StreamHandler {
+                override fun onListen(arguments: Any, events: EventSink) {
+                    delegate.setEventHandler(events)
+                }
 
-            override fun onCancel(arguments: Any) {
-                delegate!!.setEventHandler(null)
-            }
-        })
-        this.observer = LifeCycleObserver(activity)
+                override fun onCancel(arguments: Any) {
+                    delegate.setEventHandler(null)
+                }
+            })
+            this.observer = LifeCycleObserver(activity)
 
-        // V2 embedding setup for activity listeners.
-        activityBinding.addActivityResultListener(delegate!!)
-        this.lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding)
-        lifecycle!!.addObserver(observer!!)
+            // V2 embedding setup for activity listeners.
+            activityBinding.addActivityResultListener(delegate)
+            this.lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding)
+            observer?.let {observer-> lifecycle?.addObserver(observer) }
+        }
+
     }
 
     private fun tearDown() {
-        activityBinding!!.removeActivityResultListener(delegate!!)
+        delegate?.let { delegate->
+            activityBinding?.removeActivityResultListener(delegate)
+        }
         this.activityBinding = null
         if (this.observer != null) {
-            lifecycle!!.removeObserver(observer!!)
-            application!!.unregisterActivityLifecycleCallbacks(this.observer)
+            observer?.let { observer->
+                lifecycle?.removeObserver(observer)
+            }
+            application?.unregisterActivityLifecycleCallbacks(this.observer)
         }
         this.lifecycle = null
-        delegate!!.setEventHandler(null)
+        delegate?.setEventHandler(null)
         this.delegate = null
-        channel!!.setMethodCallHandler(null)
+        channel?.setMethodCallHandler(null)
         this.channel = null
         this.application = null
     }
@@ -235,12 +238,15 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         this.activityBinding = binding
-        this.setup(
-            pluginBinding!!.binaryMessenger,
-            pluginBinding!!.applicationContext as Application,
-            activityBinding!!.activity,
-            activityBinding!!
-        )
+        pluginBinding?.let {pluginBinding->
+            this.setup(
+                pluginBinding.binaryMessenger,
+                pluginBinding.applicationContext as Application,
+                activityBinding!!.activity,
+                activityBinding!!
+            )
+        }
+
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
@@ -259,11 +265,6 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
         private const val TAG = "FilePicker"
         private const val CHANNEL = "miguelruivo.flutter.plugins.filepicker"
         private const val EVENT_CHANNEL = "miguelruivo.flutter.plugins.filepickerevent"
-
-        private var fileType: String? = null
-        private var isMultipleSelection = false
-        private var withData = false
-        private var compressionQuality = 0
 
         private fun resolveType(type: String): String? {
             return when (type) {
