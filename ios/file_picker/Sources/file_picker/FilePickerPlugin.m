@@ -116,7 +116,7 @@
     NSDictionary * arguments = call.arguments;
     BOOL isMultiplePick = ((NSNumber*)[arguments valueForKey:@"allowMultipleSelection"]).boolValue;
 
-    int compressionQuality = [[arguments valueForKey:@"compressionQuality"] intValue];
+    self.compressionQuality = [[arguments valueForKey:@"compressionQuality"] intValue];
     self.allowCompression = self.compressionQuality > 0;
     self.loadDataToMemory = ((NSNumber*)[arguments valueForKey:@"withData"]).boolValue;
     
