@@ -239,28 +239,22 @@ object FileUtils {
             finishWithAlreadyActiveError(result)
             return
         }
-
-        val values = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-            put(MediaStore.MediaColumns.MIME_TYPE, getMimeTypeForBytes(bytes))
-            put(MediaStore.MediaColumns.RELATIVE_PATH, initialDirectory?:Environment.DIRECTORY_DOWNLOADS)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        if (!fileName.isNullOrEmpty()) {
+            intent.putExtra(Intent.EXTRA_TITLE, fileName)
         }
-
-        val uri = activity.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
         this.bytes = bytes
-        uri?.let {
-            activity.contentResolver.openOutputStream(it)?.use { outputStream ->
-                outputStream.write(bytes)
+        if ("dir" != type) {
+            intent.type = getMimeTypeForBytes(bytes)
+        }
+        if (!initialDirectory.isNullOrEmpty()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialDirectory.toUri())
             }
         }
-        if (uri != null) {
-            return try {
-                //val newUri = FileUtils.forceRenameWithCopy(context = activity, uri, "$fileName",bytes)?:uri
-                finishWithSuccess(uri.path)
-            } catch (e: IOException) {
-                Log.e(FilePickerDelegate.TAG, "Error while saving file", e)
-                finishWithError("Error while saving file", e.message)
-            }
+        if (intent.resolveActivity(activity.packageManager) != null) {
+            activity.startActivityForResult(intent, SAVE_FILE_CODE)
         } else {
             Log.e(
                 FilePickerDelegate.TAG,
@@ -458,60 +452,45 @@ object FileUtils {
     @JvmStatic
     fun openFileStream(context: Context, uri: Uri, withData: Boolean): FileInfo? {
         Log.i(TAG, "Caching from URI: $uri")
-        var fos: FileOutputStream? = null
         var `in`: InputStream? = null
+        var fos: FileOutputStream? = null
         val fileInfo = FileInfo.Builder()
         val fileName = getFileName(uri, context)
         val path =
-            context.cacheDir.absolutePath + "/file_picker/" + System.currentTimeMillis() + "/" + (fileName
-                ?: "unamed")
+            context.cacheDir.absolutePath + "/file_picker/" + System.currentTimeMillis() + "/" + (fileName ?: "unamed")
 
         val file = File(path)
 
         if (!file.exists()) {
             try {
                 file.parentFile?.mkdirs()
-                fos = FileOutputStream(path)
-                try {
-                    val out = BufferedOutputStream(fos)
-                    `in` = context.contentResolver.openInputStream(uri)
 
-                    val buffer = ByteArray(8192)
-                    var len: Int
+                `in` = context.contentResolver.openInputStream(uri)
+                fos = FileOutputStream(file)
 
-                    while ((`in`!!.read(buffer).also { len = it }) >= 0) {
-                        out.write(buffer, 0, len)
-                    }
+                val out = BufferedOutputStream(fos)
+                val buffer = ByteArray(8192)
+                var len: Int
 
-                    out.flush()
-                } finally {
-                    fos.fd.sync()
+                while ((`in`!!.read(buffer).also { len = it }) >= 0) {
+                    out.write(buffer, 0, len)
                 }
+                out.flush()
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to retrieve path: " + e.message, null)
+                Log.e(TAG, "Failed to retrieve and cache file: " + e.message, e)
                 return null
             } finally {
-                if (fos != null) {
-                    try {
-                        fos.close()
-                    } catch (ex: IOException) {
-                        Log.e(TAG, "Failed to close file streams: " + ex.message, null)
-                    }
-                }
-                if (`in` != null) {
-                    try {
-                        `in`.close()
-                    } catch (ex: IOException) {
-                        Log.e(TAG, "Failed to close file streams: " + ex.message, null)
-                    }
+                try {
+                    fos?.fd?.sync()
+                    fos?.close()
+                    `in`?.close()
+                } catch (ex: IOException) {
+                    Log.e(TAG, "Failed to close file streams: " + ex.message, ex)
                 }
             }
         }
 
-        Log.d(
-            TAG,
-            "File loaded and cached at:$path"
-        )
+        Log.d(TAG, "File loaded and cached at: $path")
 
         if (withData) {
             loadData(file, fileInfo)
@@ -521,7 +500,7 @@ object FileUtils {
             .withPath(path)
             .withName(fileName)
             .withUri(uri)
-            .withSize(file.length().toString().toLong())
+            .withSize(file.length())
 
         return fileInfo.build()
     }
