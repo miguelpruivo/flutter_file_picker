@@ -18,6 +18,7 @@ import android.provider.OpenableColumns
 import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
+import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion
 import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion.REQUEST_CODE
 import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion.SAVE_FILE_CODE
 import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion.finishWithAlreadyActiveError
@@ -186,25 +187,31 @@ object FileUtils {
         }
     }
 
-    fun FilePickerDelegate.startFileExplorer(
+    fun FilePickerDelegate?.startFileExplorer(
         type: String?,
-        isMultipleSelection: Boolean,
-        withData: Boolean,
+        isMultipleSelection: Boolean?,
+        withData: Boolean?,
         allowedExtensions: ArrayList<String?>?,
-        compressionQuality: Int,
+        compressionQuality: Int? = 0,
         result: MethodChannel.Result
     ) {
-        if (!this.setPendingMethodCallAndResult(result)) {
+        if (this?.setPendingMethodCallAndResult(result) == false) {
             finishWithAlreadyActiveError(result)
             return
         }
-        this.type = type
-        this.isMultipleSelection = isMultipleSelection
-        this.loadDataToMemory = withData
-        this.allowedExtensions = allowedExtensions
-        this.compressionQuality = compressionQuality
+        this?.type = type
+        if (isMultipleSelection != null) {
+            this?.isMultipleSelection = isMultipleSelection
+        }
+        if (withData != null) {
+            this?.loadDataToMemory = withData
+        }
+        this?.allowedExtensions = allowedExtensions
+        if (compressionQuality != null) {
+            this?.compressionQuality = compressionQuality
+        }
 
-        this.startFileExplorer()
+        this?.startFileExplorer()
     }
 
     fun getFileExtension(bytes: ByteArray?):String{
@@ -232,22 +239,28 @@ object FileUtils {
             finishWithAlreadyActiveError(result)
             return
         }
-        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
-        intent.addCategory(Intent.CATEGORY_OPENABLE)
-        if (!fileName.isNullOrEmpty()) {
-            intent.putExtra(Intent.EXTRA_TITLE, fileName)
+
+        val values = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, getMimeTypeForBytes(bytes))
+            put(MediaStore.MediaColumns.RELATIVE_PATH, initialDirectory?:Environment.DIRECTORY_DOWNLOADS)
         }
+
+        val uri = activity.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
         this.bytes = bytes
-        if ("dir" != type) {
-            intent.type = getMimeTypeForBytes(bytes)
-        }
-        if (!initialDirectory.isNullOrEmpty()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialDirectory.toUri())
+        uri?.let {
+            activity.contentResolver.openOutputStream(it)?.use { outputStream ->
+                outputStream.write(bytes)
             }
         }
-        if (intent.resolveActivity(activity.packageManager) != null) {
-            activity.startActivityForResult(intent, SAVE_FILE_CODE)
+        if (uri != null) {
+            return try {
+                //val newUri = FileUtils.forceRenameWithCopy(context = activity, uri, "$fileName",bytes)?:uri
+                finishWithSuccess(uri.path)
+            } catch (e: IOException) {
+                Log.e(FilePickerDelegate.TAG, "Error while saving file", e)
+                finishWithError("Error while saving file", e.message)
+            }
         } else {
             Log.e(
                 FilePickerDelegate.TAG,

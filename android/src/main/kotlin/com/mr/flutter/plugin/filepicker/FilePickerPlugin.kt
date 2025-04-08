@@ -120,10 +120,10 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 } else {
                     delegate?.startFileExplorer(
                         resolveType(call.method),
-                        arguments?.get("allowMultipleSelection") as Boolean,
-                        arguments?.get("withData") as Boolean,
+                        arguments?.get("allowMultipleSelection") as Boolean?,
+                        arguments?.get("withData") as Boolean?,
                         allowedExtensions,
-                        arguments?.get("compressionQuality") as Int,
+                        arguments?.get("compressionQuality") as Int?,
                         result
                     )
                 }
@@ -132,16 +132,17 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 val fileType = resolveType(method)
                 if (fileType == null) {
                     result.notImplemented()
-                } else if (fileType != "dir") {
-                    delegate?.startFileExplorer(
-                        fileType,
-                        arguments?.get("allowMultipleSelection") as Boolean,
-                        arguments?.get("withData") as Boolean,
-                        getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?),
-                        arguments?.get("compressionQuality") as Int,
-                        result
-                    )
                 }
+
+                delegate?.startFileExplorer(
+                    fileType,
+                    arguments?.get("allowMultipleSelection") as Boolean?,
+                    arguments?.get("withData") as Boolean?,
+                    getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?),
+                    arguments?.get("compressionQuality") as Int?,
+                    result
+                )
+
             }
         }
     }
