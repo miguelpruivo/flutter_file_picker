@@ -99,7 +99,6 @@ object FileUtils {
     fun forceRenameWithCopy(
         context: Context,
         uri: Uri,
-        newNameWithExtension: String,
         bytes: ByteArray?
     ): Uri? {
             context.contentResolver.openInputStream(uri)?.use { input ->
