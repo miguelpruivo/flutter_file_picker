@@ -102,32 +102,15 @@ object FileUtils {
         newNameWithExtension: String,
         bytes: ByteArray?
     ): Uri? {
-        val mimeType = context.contentResolver.getType(uri) ?: "image/*" // por defecto
-
-        val values = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, newNameWithExtension)
-            put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-        }
-
-        val newUri =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-            } else {
-                context.contentResolver.insert(MediaStore.Files.getContentUri("external"),values)
-            }
-
-        if (newUri != null) {
             context.contentResolver.openInputStream(uri)?.use { input ->
-                context.contentResolver.openOutputStream(newUri)?.use { output ->
+                context.contentResolver.openOutputStream(uri)?.use { output ->
                     bytes?.let {
                         output.write(it)
-                        output.flush()
                     }
                 }
             }
-        }
 
-        return newUri
+        return uri
     }
 
     fun FilePickerDelegate.handleFileResult(files: List<FileInfo>) {
