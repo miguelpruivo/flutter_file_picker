@@ -1,7 +1,6 @@
 package com.mr.flutter.plugin.filepicker
 
 import android.app.Activity
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -18,7 +17,6 @@ import android.provider.OpenableColumns
 import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
-import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion
 import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion.REQUEST_CODE
 import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion.SAVE_FILE_CODE
 import com.mr.flutter.plugin.filepicker.FilePickerDelegate.Companion.finishWithAlreadyActiveError
@@ -38,6 +36,7 @@ import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.plus
 
 object FileUtils {
     private const val TAG = "FilePickerUtils"
@@ -101,13 +100,11 @@ object FileUtils {
         uri: Uri,
         bytes: ByteArray?
     ): Uri? {
-            context.contentResolver.openInputStream(uri)?.use { input ->
-                context.contentResolver.openOutputStream(uri)?.use { output ->
-                    bytes?.let {
-                        output.write(it)
-                    }
-                }
+        context.contentResolver.openOutputStream(uri)?.use { output ->
+            bytes?.let {
+                output.write(it)
             }
+        }
 
         return uri
     }
@@ -213,7 +210,6 @@ object FileUtils {
         fileName: String?,
         type: String?,
         initialDirectory: String?,
-        allowedExtensions: ArrayList<String?>?,
         bytes: ByteArray?,
         result: MethodChannel.Result
     ) {

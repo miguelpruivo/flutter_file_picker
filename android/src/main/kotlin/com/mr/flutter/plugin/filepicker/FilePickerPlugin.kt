@@ -107,11 +107,10 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
             "save" -> {
                 val type = resolveType(arguments?.get("fileType") as String)
                 val initialDirectory = arguments?.get("initialDirectory") as String?
-                val allowedExtensions = getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?)
                 val bytes = arguments?.get("bytes") as ByteArray?
                 val fileNameWithoutExtension = "${arguments?.get("fileName")}"
                 val fileName = if(fileNameWithoutExtension.isNotEmpty() && !fileNameWithoutExtension.contains(".")) "$fileNameWithoutExtension.${getFileExtension(bytes)}" else fileNameWithoutExtension
-                delegate?.saveFile(fileName, type, initialDirectory, allowedExtensions, bytes, result)
+                delegate?.saveFile(fileName, type, initialDirectory, bytes, result)
             }
             "custom" -> {
                 val allowedExtensions = getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?)
