@@ -18,6 +18,16 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
     var pendingResult: MethodChannel.Result? = null
 ) : ActivityResultListener {
 
+    companion object {
+        const val TAG = "FilePickerDelegate"
+        val REQUEST_CODE = (FilePickerPlugin::class.java.hashCode() + 43) and 0x0000ffff
+        val SAVE_FILE_CODE = (FilePickerPlugin::class.java.hashCode() + 83) and 0x0000ffff
+
+        fun finishWithAlreadyActiveError(result: MethodChannel.Result) {
+            result.error("already_active", "File picker is already active", null)
+        }
+    }
+
     var isMultipleSelection = false
     var loadDataToMemory = false
     var type: String? = null
@@ -109,15 +119,5 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
 
     private fun clearPendingResult() {
         pendingResult = null
-    }
-
-    companion object {
-        const val TAG = "FilePickerDelegate"
-        val REQUEST_CODE = (FilePickerPlugin::class.java.hashCode() + 43) and 0x0000ffff
-        val SAVE_FILE_CODE = (FilePickerPlugin::class.java.hashCode() + 83) and 0x0000ffff
-
-        fun finishWithAlreadyActiveError(result: MethodChannel.Result) {
-            result.error("already_active", "File picker is already active", null)
-        }
     }
 }
