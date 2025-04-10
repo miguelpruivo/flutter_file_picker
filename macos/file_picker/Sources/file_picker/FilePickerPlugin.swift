@@ -36,6 +36,9 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
         case "getDirectoryPath":
             handleDirectorySelection(call, result: result)
             
+        case "pickFileAndDirectoryPaths":
+            handleFileAndDirectorySelection(call, result: result)
+            
         case "saveFile":
             handleSaveFile(call, result: result)
             
@@ -95,7 +98,48 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
             result(nil)
         }
     }
-    
+
+    private func handleFileAndDirectorySelection(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        if let entitlementError = checkEntitlement(requiredMode: .readOrWrite) {
+            result(entitlementError)
+            return
+        }
+        let dialog: NSOpenPanel = NSOpenPanel()
+        let args = call.arguments as! [String: Any]
+        
+        dialog.directoryURL = URL(
+            fileURLWithPath: args["initialDirectory"] as? String ?? ""
+        )
+        dialog.showsHiddenFiles = false
+        dialog.allowsMultipleSelection = true
+        dialog.canChooseDirectories = true
+        dialog.canChooseFiles = true
+        let extensions = args["allowedExtensions"] as? [String] ?? []
+        applyExtensions(dialog, extensions)
+        
+        guard let appWindow: NSWindow = getFlutterWindow() else {
+            result(nil)
+            return
+        }
+        
+        dialog.beginSheetModal(for: appWindow) { response in
+            // User dismissed the dialog
+            if (response != .OK) {
+                result(nil)
+                return
+            }
+            
+            let pathResult = dialog.urls
+            
+            if pathResult.isEmpty {
+                result(nil)
+            } else {
+                let paths = pathResult.map { $0.path }
+                result(paths)
+            }
+        }
+    }
+
     private func handleDirectorySelection(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         if let entitlementError = checkEntitlement(requiredMode: .readOrWrite) {
             result(entitlementError)

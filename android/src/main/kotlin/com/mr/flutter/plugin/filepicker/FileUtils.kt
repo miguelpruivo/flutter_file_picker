@@ -36,16 +36,19 @@ import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.plus
 
 object FileUtils {
     private const val TAG = "FilePickerUtils"
     private const val PRIMARY_VOLUME_NAME = "primary"
 
 
-
-
-    fun FilePickerDelegate.processFiles(activity: Activity, data: Intent?, compressionQuality: Int, loadDataToMemory: Boolean, type: String) {
+    fun FilePickerDelegate.processFiles(
+        activity: Activity,
+        data: Intent?,
+        compressionQuality: Int,
+        loadDataToMemory: Boolean,
+        type: String
+    ) {
         CoroutineScope(Dispatchers.IO).launch {
             if (data == null) {
                 finishWithError("unknown_activity", "Unknown activity error, please fill an issue.")
@@ -69,7 +72,10 @@ object FileUtils {
                     uri = processUri(activity, uri, compressionQuality)
 
                     if (type == "dir") {
-                        uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri))
+                        uri = DocumentsContract.buildDocumentUriUsingTree(
+                            uri,
+                            DocumentsContract.getTreeDocumentId(uri)
+                        )
                         val dirPath = getFullPathFromTreeUri(uri, activity)
                         if (dirPath != null) {
                             finishWithSuccess(dirPath)
@@ -90,7 +96,10 @@ object FileUtils {
                     finishWithSuccess(files)
                 }
 
-                else -> finishWithError("unknown_activity", "Unknown activity error, please fill an issue.")
+                else -> finishWithError(
+                    "unknown_activity",
+                    "Unknown activity error, please fill an issue."
+                )
             }
         }
     }
@@ -117,7 +126,6 @@ object FileUtils {
             finishWithError("unknown_path", "Failed to retrieve path.")
         }
     }
-
 
 
     fun FilePickerDelegate.startFileExplorer() {
@@ -193,14 +201,14 @@ object FileUtils {
         this?.startFileExplorer()
     }
 
-    fun getFileExtension(bytes: ByteArray?):String{
+    fun getFileExtension(bytes: ByteArray?): String {
         val tika = Tika()
         val mimeType = tika.detect(bytes)
         return mimeType.substringAfter("/")
     }
 
 
-    fun getMimeTypeForBytes(bytes: ByteArray?):String{
+    fun getMimeTypeForBytes(bytes: ByteArray?): String {
         val tika = Tika()
         val mimeType = tika.detect(bytes)
         return mimeType
@@ -250,12 +258,18 @@ object FileUtils {
         }
     }
 
-    fun addFile(activity: Activity, uri: Uri, loadDataToMemory: Boolean, files: MutableList<FileInfo>) {
+    fun addFile(
+        activity: Activity,
+        uri: Uri,
+        loadDataToMemory: Boolean,
+        files: MutableList<FileInfo>
+    ) {
         openFileStream(activity, uri, loadDataToMemory)?.let { file ->
             files.add(file)
             Log.d(FilePickerDelegate.TAG, "[FilePick] URI: ${uri.path}")
         }
     }
+
     @Suppress("deprecation")
     fun getSelectedItems(bundle: Bundle): ArrayList<Parcelable>? {
         if (Build.VERSION.SDK_INT >= 33) {
@@ -435,7 +449,8 @@ object FileUtils {
         val fileInfo = FileInfo.Builder()
         val fileName = getFileName(uri, context)
         val path =
-            context.cacheDir.absolutePath + "/file_picker/" + System.currentTimeMillis() + "/" + (fileName ?: "unamed")
+            context.cacheDir.absolutePath + "/file_picker/" + System.currentTimeMillis() + "/" + (fileName
+                ?: "unamed")
 
         val file = File(path)
 
@@ -467,8 +482,6 @@ object FileUtils {
                 }
             }
         }
-
-        Log.d(TAG, "File loaded and cached at: $path")
 
         if (withData) {
             loadData(file, fileInfo)
@@ -513,13 +526,15 @@ object FileUtils {
         var volumePath = getPathFromTreeUri(treeUri)
             ?: return File.separator
 
-        if (volumePath.endsWith(File.separator)) volumePath =
-            volumePath.substring(0, volumePath.length - 1)
+        if (volumePath.endsWith(File.separator)) {
+            volumePath = volumePath.substring(0, volumePath.length - 1)
+        }
 
         var documentPath = getDocumentPathFromTreeUri(treeUri)
 
-        if (documentPath.endsWith(File.separator)) documentPath =
-            documentPath.substring(0, documentPath.length - 1)
+        if (documentPath.endsWith(File.separator)) {
+            documentPath = documentPath.substring(0, documentPath.length - 1)
+        }
 
         return if (!documentPath.isEmpty()) {
             if (documentPath.startsWith(File.separator)) {
@@ -586,7 +601,7 @@ object FileUtils {
     private fun getVolumeIdFromTreeUri(treeUri: Uri): String? {
         val docId = DocumentsContract.getTreeDocumentId(treeUri)
         val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        return if (split.size > 0) split[0]
+        return if (split.isNotEmpty()) split[0]
         else null
     }
 
