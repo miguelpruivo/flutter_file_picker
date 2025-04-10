@@ -7,8 +7,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.annotation.VisibleForTesting
-import com.mr.flutter.plugin.filepicker.FileUtils.getFileName
-import com.mr.flutter.plugin.filepicker.FileUtils.getFileExtension
 import com.mr.flutter.plugin.filepicker.FileUtils.processFiles
 import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.MethodChannel
@@ -44,7 +42,6 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
         return when (resultCode) {
             Activity.RESULT_OK -> saveFile(data?.data)
             Activity.RESULT_CANCELED -> {
-                Log.i(TAG, "User cancelled the save request")
                 finishWithSuccess(null)
                 false
             }
