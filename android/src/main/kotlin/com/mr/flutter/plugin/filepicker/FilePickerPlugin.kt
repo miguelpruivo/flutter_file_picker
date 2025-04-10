@@ -3,8 +3,6 @@ package com.mr.flutter.plugin.filepicker
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -182,37 +180,6 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 )
 
             }
-        }
-    }
-
-    // MethodChannel.Result wrapper that responds on the platform thread.
-    private class MethodResultWrapper(private val methodResult: MethodChannel.Result) :
-        MethodChannel.Result {
-        private val handler =
-            Handler(Looper.getMainLooper())
-
-        override fun success(result: Any?) {
-            handler.post {
-                methodResult.success(
-                    result
-                )
-            }
-        }
-
-        override fun error(
-            errorCode: String, errorMessage: String?, errorDetails: Any?
-        ) {
-            handler.post {
-                methodResult.error(
-                    errorCode,
-                    errorMessage,
-                    errorDetails
-                )
-            }
-        }
-
-        override fun notImplemented() {
-            handler.post { methodResult.notImplemented() }
         }
     }
 
