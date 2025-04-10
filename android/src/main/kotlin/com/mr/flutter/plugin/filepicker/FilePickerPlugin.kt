@@ -178,7 +178,6 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                     arguments?.get("compressionQuality") as Int?,
                     result
                 )
-
             }
         }
     }
