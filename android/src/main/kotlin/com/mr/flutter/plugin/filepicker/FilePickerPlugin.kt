@@ -154,7 +154,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                     )
                 } else {
                     delegate?.startFileExplorer(
-                        resolveType(call.method),
+                        resolveType(method),
                         arguments?.get("allowMultipleSelection") as Boolean?,
                         arguments?.get("withData") as Boolean?,
                         allowedExtensions,
