@@ -212,7 +212,6 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
             this.lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding)
             observer?.let { it -> lifecycle?.addObserver(it) }
         }
-
     }
 
     private fun tearDown() {
