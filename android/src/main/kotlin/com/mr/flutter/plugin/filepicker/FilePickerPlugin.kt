@@ -227,21 +227,21 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
         this.delegate = FilePickerDelegate(activity)
         this.channel = MethodChannel(messenger, CHANNEL)
         channel?.setMethodCallHandler(this)
-        delegate?.let { delegate ->
+        delegate?.let { it ->
             EventChannel(messenger, EVENT_CHANNEL).setStreamHandler(object :
                 EventChannel.StreamHandler {
                 override fun onListen(arguments: Any, events: EventSink) {
-                    delegate.setEventHandler(events)
+                    it.setEventHandler(events)
                 }
 
                 override fun onCancel(arguments: Any) {
-                    delegate.setEventHandler(null)
+                    it.setEventHandler(null)
                 }
             })
             this.observer = LifeCycleObserver(activity)
 
             // V2 embedding setup for activity listeners.
-            activityBinding.addActivityResultListener(delegate)
+            activityBinding.addActivityResultListener(it)
             this.lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding)
             observer?.let { it -> lifecycle?.addObserver(it) }
         }
