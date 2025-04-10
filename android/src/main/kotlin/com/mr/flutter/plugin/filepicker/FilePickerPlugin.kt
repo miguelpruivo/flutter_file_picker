@@ -69,10 +69,11 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
         }
 
         override fun onActivityDestroyed(activity: Activity) {
+            // Use getApplicationContext() to avoid casting failures
             if (this.thisActivity === activity && activity.applicationContext != null) {
                 (activity.applicationContext as Application).unregisterActivityLifecycleCallbacks(
                     this
-                ) // Use getApplicationContext() to avoid casting failures
+                )
             }
         }
 
