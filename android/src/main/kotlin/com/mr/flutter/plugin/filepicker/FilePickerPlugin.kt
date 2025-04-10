@@ -93,6 +93,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
     private var observer: LifeCycleObserver? = null
     private var activity: Activity? = null
     private var channel: MethodChannel? = null
+
     override fun onMethodCall(call: MethodCall, rawResult: MethodChannel.Result) {
         if (this.activity == null) {
             rawResult.error("no_activity", "file picker plugin requires a foreground activity", null)
