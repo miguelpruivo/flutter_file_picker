@@ -86,7 +86,9 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
     private var application: Application? = null
     private var pluginBinding: FlutterPluginBinding? = null
 
-    // This is null when not using v2 embedding;
+    // TODO: Remove references to v1 embedding once the minimum Flutter version is >= 3.29
+    // See: https://docs.flutter.dev/release/breaking-changes/v1-android-embedding
+    // This will be null when not using the v2 embedding
     private var lifecycle: Lifecycle? = null
     private var observer: LifeCycleObserver? = null
     private var activity: Activity? = null
