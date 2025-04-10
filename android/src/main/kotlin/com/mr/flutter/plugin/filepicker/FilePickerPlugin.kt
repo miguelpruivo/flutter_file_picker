@@ -250,7 +250,6 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 activityBinding!!
             )
         }
-
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
