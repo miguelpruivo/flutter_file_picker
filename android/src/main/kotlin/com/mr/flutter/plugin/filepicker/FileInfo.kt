@@ -52,14 +52,13 @@ class FileInfo(
         }
     }
 
-
     fun toMap(): HashMap<String, Any?> {
-        val data = HashMap<String, Any?>()
-        data["path"] = path
-        data["name"] = name
-        data["size"] = size
-        data["bytes"] = bytes
-        data["identifier"] = uri.toString()
-        return data
+        return hashMapOf<String, Any?>(
+            Pair("path", path),
+            Pair("name", name),
+            Pair("size", size),
+            Pair("bytes", bytes),
+            Pair("identifier", uri.toString())
+        )
     }
 }
