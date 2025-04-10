@@ -495,7 +495,11 @@ object FileUtils {
 
         return fileInfo.build()
     }
-
+    fun getPathFromTreeUri(uri: Uri): String? {
+        val docId = DocumentsContract.getTreeDocumentId(uri)
+        val parts = docId.split(":")
+        return "${Environment.getExternalStorageDirectory()}/${parts.last()}"
+    }
     @JvmStatic
     fun getFullPathFromTreeUri(treeUri: Uri?, con: Context): String? {
         if (treeUri == null) {
@@ -519,9 +523,8 @@ object FileUtils {
                 return null
             }
         }
-
-        var volumePath =
-            getVolumePath(getVolumeIdFromTreeUri(treeUri), con) ?: return File.separator
+        var volumePath = getPathFromTreeUri(treeUri)
+            ?: return File.separator
 
         if (volumePath.endsWith(File.separator)) {
             volumePath = volumePath.substring(0, volumePath.length - 1)
