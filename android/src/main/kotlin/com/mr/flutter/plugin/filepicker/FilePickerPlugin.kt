@@ -243,7 +243,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
             // V2 embedding setup for activity listeners.
             activityBinding.addActivityResultListener(delegate)
             this.lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding)
-            observer?.let { observer -> lifecycle?.addObserver(observer) }
+            observer?.let { it -> lifecycle?.addObserver(it) }
         }
 
     }
@@ -253,9 +253,9 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
             activityBinding?.removeActivityResultListener(it)
         }
         this.activityBinding = null
-        observer?.let { observer ->
-            lifecycle?.removeObserver(observer)
-            application?.unregisterActivityLifecycleCallbacks(observer)
+        observer?.let { it ->
+            lifecycle?.removeObserver(it)
+            application?.unregisterActivityLifecycleCallbacks(it)
         }
         this.lifecycle = null
         delegate?.setEventHandler(null)
