@@ -71,7 +71,6 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
                 true
             }
             Activity.RESULT_CANCELED -> {
-                Log.i(TAG, "User cancelled the picker request")
                 finishWithSuccess(null)
                 true
             }
