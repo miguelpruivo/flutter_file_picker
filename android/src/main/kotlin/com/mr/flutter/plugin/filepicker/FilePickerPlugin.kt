@@ -242,7 +242,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         this.activityBinding = binding
-        pluginBinding?.let {pluginBinding->
+        pluginBinding?.let { it->
             this.setup(
                 pluginBinding.binaryMessenger,
                 pluginBinding.applicationContext as Application,
