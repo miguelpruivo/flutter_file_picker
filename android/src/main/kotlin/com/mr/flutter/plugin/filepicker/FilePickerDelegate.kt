@@ -63,7 +63,7 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
         uri ?: return false
         dispatchEventStatus(true)
         return try {
-            val newUri = FileUtils.forceRenameWithCopy(context = activity, uri, bytes)?: uri
+            val newUri = FileUtils.forceRenameWithCopy(context = activity, uri, bytes) ?: uri
             finishWithSuccess(newUri.path)
             true
         } catch (e: IOException) {
