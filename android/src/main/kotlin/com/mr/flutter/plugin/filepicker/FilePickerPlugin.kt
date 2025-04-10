@@ -30,6 +30,25 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
  */
 class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
     ActivityAware {
+
+    companion object {
+        private const val TAG = "FilePicker"
+        private const val CHANNEL = "miguelruivo.flutter.plugins.filepicker"
+        private const val EVENT_CHANNEL = "miguelruivo.flutter.plugins.filepickerevent"
+
+        private fun resolveType(type: String): String? {
+            return when (type) {
+                "audio" -> "audio/*"
+                "image" -> "image/*"
+                "video" -> "video/*"
+                "media" -> "image/*,video/*"
+                "any", "custom" -> "*/*"
+                "dir" -> "dir"
+                else -> null
+            }
+        }
+    }
+
     private inner class LifeCycleObserver
         (private val thisActivity: Activity) : Application.ActivityLifecycleCallbacks,
         DefaultLifecycleObserver {
@@ -244,8 +263,8 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
         this.activityBinding = binding
         pluginBinding?.let { it->
             this.setup(
-                pluginBinding.binaryMessenger,
-                pluginBinding.applicationContext as Application,
+                it.binaryMessenger,
+                it.applicationContext as Application,
                 activityBinding!!.activity,
                 activityBinding!!
             )
@@ -263,23 +282,5 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
 
     override fun onDetachedFromActivity() {
         this.tearDown()
-    }
-
-    companion object {
-        private const val TAG = "FilePicker"
-        private const val CHANNEL = "miguelruivo.flutter.plugins.filepicker"
-        private const val EVENT_CHANNEL = "miguelruivo.flutter.plugins.filepickerevent"
-
-        private fun resolveType(type: String): String? {
-            return when (type) {
-                "audio" -> "audio/*"
-                "image" -> "image/*"
-                "video" -> "video/*"
-                "media" -> "image/*,video/*"
-                "any", "custom" -> "*/*"
-                "dir" -> "dir"
-                else -> null
-            }
-        }
     }
 }
