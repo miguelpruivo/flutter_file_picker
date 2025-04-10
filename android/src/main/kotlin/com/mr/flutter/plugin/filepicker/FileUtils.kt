@@ -10,7 +10,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
-import android.os.storage.StorageManager
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
@@ -39,8 +38,6 @@ import java.util.Locale
 
 object FileUtils {
     private const val TAG = "FilePickerUtils"
-    private const val PRIMARY_VOLUME_NAME = "primary"
-
 
     fun FilePickerDelegate.processFiles(
         activity: Activity,
@@ -495,11 +492,13 @@ object FileUtils {
 
         return fileInfo.build()
     }
+
     fun getPathFromTreeUri(uri: Uri): String? {
         val docId = DocumentsContract.getTreeDocumentId(uri)
         val parts = docId.split(":")
         return "${Environment.getExternalStorageDirectory()}/${parts.last()}"
     }
+
     @JvmStatic
     fun getFullPathFromTreeUri(treeUri: Uri?, con: Context): String? {
         if (treeUri == null) {
@@ -546,65 +545,6 @@ object FileUtils {
             volumePath
         }
     }
-
-    private fun getDirectoryPath(
-        storageVolumeClazz: Class<*>,
-        storageVolumeElement: Any?
-    ): String? {
-        try {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                val getPath = storageVolumeClazz.getMethod("getPath")
-                return getPath.invoke(storageVolumeElement) as String
-            }
-
-            val getDirectory = storageVolumeClazz.getMethod("getDirectory")
-            val f = getDirectory.invoke(storageVolumeElement) as File
-            return f.path
-        } catch (_: Exception) {
-            return null
-        }
-    }
-
-    private fun getVolumePath(volumeId: String?, context: Context): String? {
-        try {
-            val mStorageManager =
-                context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
-            val storageVolumeClazz = Class.forName("android.os.storage.StorageVolume")
-            val getVolumeList = mStorageManager.javaClass.getMethod("getVolumeList")
-            val getUuid = storageVolumeClazz.getMethod("getUuid")
-            val isPrimary = storageVolumeClazz.getMethod("isPrimary")
-            val result = getVolumeList.invoke(mStorageManager) ?: return null
-
-            val length = java.lang.reflect.Array.getLength(result)
-            for (i in 0 until length) {
-                val storageVolumeElement = java.lang.reflect.Array.get(result, i)
-                val uuid = getUuid.invoke(storageVolumeElement) as? String
-                val primary = isPrimary.invoke(storageVolumeElement) as? Boolean
-
-                // primary volume?
-                if (primary != null && PRIMARY_VOLUME_NAME == volumeId) {
-                    return getDirectoryPath(storageVolumeClazz, storageVolumeElement)
-                }
-
-                // other volumes?
-                if (uuid != null && uuid == volumeId) {
-                    return getDirectoryPath(storageVolumeClazz, storageVolumeElement)
-                }
-            }
-            // not found.
-            return null
-        } catch (_: Exception) {
-            return null
-        }
-    }
-
-    private fun getVolumeIdFromTreeUri(treeUri: Uri): String? {
-        val docId = DocumentsContract.getTreeDocumentId(treeUri)
-        val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        return if (split.isNotEmpty()) split[0]
-        else null
-    }
-
 
     private fun getDocumentPathFromTreeUri(treeUri: Uri): String {
         val docId = DocumentsContract.getTreeDocumentId(treeUri)
