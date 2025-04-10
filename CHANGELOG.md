@@ -4,7 +4,7 @@
 - Fixed an issue where compressed images were always saved as JPEG files. [#1738](https://github.com/miguelpruivo/flutter_file_picker/pull/1753)[@vicajilau](https://github.com/vicajilau)
 - Fixed an issue where files without extension were not saved properly. [@vicajilau](https://github.com/vicajilau)
 ### iOS
-- Fixed an issue where`compressionQuality` on iOS was not loaded properly. [#1761](https://github.com/miguelpruivo/flutter_file_picker/pull/1761)
+- Fixed an issue where `compressionQuality` on iOS was not loaded properly. [#1761](https://github.com/miguelpruivo/flutter_file_picker/pull/1761)
 
 ## 10.1.0
 ### Desktop (macOS)
