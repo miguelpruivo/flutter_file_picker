@@ -276,7 +276,6 @@ object FileUtils {
         return bundle.getParcelableArrayList("selectedItems")
     }
 
-
     fun getMimeTypes(allowedExtensions: ArrayList<String>?): ArrayList<String?>? {
         if (allowedExtensions.isNullOrEmpty()) {
             return null
