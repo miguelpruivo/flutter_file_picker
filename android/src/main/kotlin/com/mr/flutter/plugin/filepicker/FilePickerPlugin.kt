@@ -107,11 +107,10 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
             "save" -> {
                 val type = resolveType(arguments?.get("fileType") as String)
                 val initialDirectory = arguments?.get("initialDirectory") as String?
-                val allowedExtensions = getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?)
                 val bytes = arguments?.get("bytes") as ByteArray?
                 val fileNameWithoutExtension = "${arguments?.get("fileName")}"
                 val fileName = if(fileNameWithoutExtension.isNotEmpty() && !fileNameWithoutExtension.contains(".")) "$fileNameWithoutExtension.${getFileExtension(bytes)}" else fileNameWithoutExtension
-                delegate?.saveFile(fileName, type, initialDirectory, allowedExtensions, bytes, result)
+                delegate?.saveFile(fileName, type, initialDirectory, bytes, result)
             }
             "custom" -> {
                 val allowedExtensions = getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?)
@@ -120,10 +119,10 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 } else {
                     delegate?.startFileExplorer(
                         resolveType(call.method),
-                        arguments?.get("allowMultipleSelection") as Boolean,
-                        arguments?.get("withData") as Boolean,
+                        arguments?.get("allowMultipleSelection") as Boolean?,
+                        arguments?.get("withData") as Boolean?,
                         allowedExtensions,
-                        arguments?.get("compressionQuality") as Int,
+                        arguments?.get("compressionQuality") as Int?,
                         result
                     )
                 }
@@ -132,16 +131,17 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 val fileType = resolveType(method)
                 if (fileType == null) {
                     result.notImplemented()
-                } else if (fileType != "dir") {
-                    delegate?.startFileExplorer(
-                        fileType,
-                        arguments?.get("allowMultipleSelection") as Boolean,
-                        arguments?.get("withData") as Boolean,
-                        getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?),
-                        arguments?.get("compressionQuality") as Int,
-                        result
-                    )
                 }
+
+                delegate?.startFileExplorer(
+                    fileType,
+                    arguments?.get("allowMultipleSelection") as Boolean?,
+                    arguments?.get("withData") as Boolean?,
+                    getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?),
+                    arguments?.get("compressionQuality") as Int?,
+                    result
+                )
+
             }
         }
     }

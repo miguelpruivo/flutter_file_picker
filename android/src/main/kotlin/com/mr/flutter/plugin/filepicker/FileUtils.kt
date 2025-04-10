@@ -1,7 +1,6 @@
 package com.mr.flutter.plugin.filepicker
 
 import android.app.Activity
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -37,6 +36,7 @@ import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.plus
 
 object FileUtils {
     private const val TAG = "FilePickerUtils"
@@ -98,35 +98,15 @@ object FileUtils {
     fun forceRenameWithCopy(
         context: Context,
         uri: Uri,
-        newNameWithExtension: String,
         bytes: ByteArray?
     ): Uri? {
-        val mimeType = context.contentResolver.getType(uri) ?: "image/*" // por defecto
-
-        val values = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, newNameWithExtension)
-            put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-        }
-
-        val newUri =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-            } else {
-                context.contentResolver.insert(MediaStore.Files.getContentUri("external"),values)
-            }
-
-        if (newUri != null) {
-            context.contentResolver.openInputStream(uri)?.use { input ->
-                context.contentResolver.openOutputStream(newUri)?.use { output ->
-                    bytes?.let {
-                        output.write(it)
-                        output.flush()
-                    }
-                }
+        context.contentResolver.openOutputStream(uri)?.use { output ->
+            bytes?.let {
+                output.write(it)
             }
         }
 
-        return newUri
+        return uri
     }
 
     fun FilePickerDelegate.handleFileResult(files: List<FileInfo>) {
@@ -186,25 +166,31 @@ object FileUtils {
         }
     }
 
-    fun FilePickerDelegate.startFileExplorer(
+    fun FilePickerDelegate?.startFileExplorer(
         type: String?,
-        isMultipleSelection: Boolean,
-        withData: Boolean,
+        isMultipleSelection: Boolean?,
+        withData: Boolean?,
         allowedExtensions: ArrayList<String?>?,
-        compressionQuality: Int,
+        compressionQuality: Int? = 0,
         result: MethodChannel.Result
     ) {
-        if (!this.setPendingMethodCallAndResult(result)) {
+        if (this?.setPendingMethodCallAndResult(result) == false) {
             finishWithAlreadyActiveError(result)
             return
         }
-        this.type = type
-        this.isMultipleSelection = isMultipleSelection
-        this.loadDataToMemory = withData
-        this.allowedExtensions = allowedExtensions
-        this.compressionQuality = compressionQuality
+        this?.type = type
+        if (isMultipleSelection != null) {
+            this?.isMultipleSelection = isMultipleSelection
+        }
+        if (withData != null) {
+            this?.loadDataToMemory = withData
+        }
+        this?.allowedExtensions = allowedExtensions
+        if (compressionQuality != null) {
+            this?.compressionQuality = compressionQuality
+        }
 
-        this.startFileExplorer()
+        this?.startFileExplorer()
     }
 
     fun getFileExtension(bytes: ByteArray?):String{
@@ -224,7 +210,6 @@ object FileUtils {
         fileName: String?,
         type: String?,
         initialDirectory: String?,
-        allowedExtensions: ArrayList<String?>?,
         bytes: ByteArray?,
         result: MethodChannel.Result
     ) {
@@ -445,60 +430,45 @@ object FileUtils {
     @JvmStatic
     fun openFileStream(context: Context, uri: Uri, withData: Boolean): FileInfo? {
         Log.i(TAG, "Caching from URI: $uri")
-        var fos: FileOutputStream? = null
         var `in`: InputStream? = null
+        var fos: FileOutputStream? = null
         val fileInfo = FileInfo.Builder()
         val fileName = getFileName(uri, context)
         val path =
-            context.cacheDir.absolutePath + "/file_picker/" + System.currentTimeMillis() + "/" + (fileName
-                ?: "unamed")
+            context.cacheDir.absolutePath + "/file_picker/" + System.currentTimeMillis() + "/" + (fileName ?: "unamed")
 
         val file = File(path)
 
         if (!file.exists()) {
             try {
                 file.parentFile?.mkdirs()
-                fos = FileOutputStream(path)
-                try {
-                    val out = BufferedOutputStream(fos)
-                    `in` = context.contentResolver.openInputStream(uri)
 
-                    val buffer = ByteArray(8192)
-                    var len: Int
+                `in` = context.contentResolver.openInputStream(uri)
+                fos = FileOutputStream(file)
 
-                    while ((`in`!!.read(buffer).also { len = it }) >= 0) {
-                        out.write(buffer, 0, len)
-                    }
+                val out = BufferedOutputStream(fos)
+                val buffer = ByteArray(8192)
+                var len: Int
 
-                    out.flush()
-                } finally {
-                    fos.fd.sync()
+                while ((`in`!!.read(buffer).also { len = it }) >= 0) {
+                    out.write(buffer, 0, len)
                 }
+                out.flush()
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to retrieve path: " + e.message, null)
+                Log.e(TAG, "Failed to retrieve and cache file: " + e.message, e)
                 return null
             } finally {
-                if (fos != null) {
-                    try {
-                        fos.close()
-                    } catch (ex: IOException) {
-                        Log.e(TAG, "Failed to close file streams: " + ex.message, null)
-                    }
-                }
-                if (`in` != null) {
-                    try {
-                        `in`.close()
-                    } catch (ex: IOException) {
-                        Log.e(TAG, "Failed to close file streams: " + ex.message, null)
-                    }
+                try {
+                    fos?.fd?.sync()
+                    fos?.close()
+                    `in`?.close()
+                } catch (ex: IOException) {
+                    Log.e(TAG, "Failed to close file streams: " + ex.message, ex)
                 }
             }
         }
 
-        Log.d(
-            TAG,
-            "File loaded and cached at:$path"
-        )
+        Log.d(TAG, "File loaded and cached at: $path")
 
         if (withData) {
             loadData(file, fileInfo)
@@ -508,7 +478,7 @@ object FileUtils {
             .withPath(path)
             .withName(fileName)
             .withUri(uri)
-            .withSize(file.length().toString().toLong())
+            .withSize(file.length())
 
         return fileInfo.build()
     }
