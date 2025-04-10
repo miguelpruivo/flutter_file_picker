@@ -36,7 +36,6 @@ import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.plus
 
 object FileUtils {
     private const val TAG = "FilePickerUtils"
@@ -467,8 +466,6 @@ object FileUtils {
                 }
             }
         }
-
-        Log.d(TAG, "File loaded and cached at: $path")
 
         if (withData) {
             loadData(file, fileInfo)
