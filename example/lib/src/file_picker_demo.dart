@@ -1,9 +1,11 @@
+import 'dart:convert';
+import 'dart:io' show Platform;
+
+import 'package:file/local.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:file/local.dart';
-import 'dart:convert';
 
 class FilePickerDemo extends StatefulWidget {
   @override
@@ -476,14 +478,16 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                           icon: const Icon(Icons.folder),
                         ),
                       ),
-                      SizedBox(
-                        width: 250,
-                        child: FloatingActionButton.extended(
-                          onPressed: () => _pickFileAndDirectoryPaths(),
-                          label: Text('Pick files and directories'),
-                          icon: const Icon(Icons.folder_open),
+                      //TODO Remove it when that funcionality will be ready to all platforms
+                      if (Platform.isMacOS)
+                        SizedBox(
+                          width: 250,
+                          child: FloatingActionButton.extended(
+                            onPressed: () => _pickFileAndDirectoryPaths(),
+                            label: Text('Pick files and directories'),
+                            icon: const Icon(Icons.folder_open),
+                          ),
                         ),
-                      ),
                       SizedBox(
                         width: 120,
                         child: FloatingActionButton.extended(
