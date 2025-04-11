@@ -478,7 +478,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                           icon: const Icon(Icons.folder),
                         ),
                       ),
-                      //TODO Remove it when that funcionality will be ready to all platforms
+                      //TODO Remove it when that functionality will be ready to all platforms
                       if (Platform.isMacOS)
                         SizedBox(
                           width: 250,
