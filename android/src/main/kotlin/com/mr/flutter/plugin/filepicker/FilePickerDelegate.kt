@@ -88,7 +88,7 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
         }
     }
 
-    fun setPendingMethodCallAndResult(result: MethodChannel.Result): Boolean {
+    fun setPendingMethodCallResult(result: MethodChannel.Result): Boolean {
         return if (pendingResult == null) {
             pendingResult = result
             true
