@@ -117,13 +117,11 @@ object FileUtils {
 
     fun FilePickerDelegate.handleFileResult(files: List<FileInfo>) {
         if (files.isNotEmpty()) {
-            Log.d(FilePickerDelegate.TAG, "File path: $files")
             finishWithSuccess(files)
         } else {
             finishWithError("unknown_path", "Failed to retrieve path.")
         }
     }
-
 
     fun FilePickerDelegate.startFileExplorer() {
         val intent: Intent
@@ -139,12 +137,10 @@ object FileUtils {
             if (type == "image/*") {
                 intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             } else {
-                intent =
-                    Intent(Intent.ACTION_OPEN_DOCUMENT)
+                intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
                 intent.addCategory(Intent.CATEGORY_OPENABLE)
             }
             val uri = (Environment.getExternalStorageDirectory().path + File.separator).toUri()
-            Log.d(FilePickerDelegate.TAG, "Selected type $type")
             intent.setDataAndType(uri, this.type)
             intent.type = this.type
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection)
@@ -204,7 +200,6 @@ object FileUtils {
         return mimeType.substringAfter("/")
     }
 
-
     fun getMimeTypeForBytes(bytes: ByteArray?): String {
         val tika = Tika()
         val mimeType = tika.detect(bytes)
@@ -263,7 +258,6 @@ object FileUtils {
     ) {
         openFileStream(activity, uri, loadDataToMemory)?.let { file ->
             files.add(file)
-            Log.d(FilePickerDelegate.TAG, "[FilePick] URI: ${uri.path}")
         }
     }
 
@@ -297,10 +291,6 @@ object FileUtils {
 
             mimes.add(mime)
         }
-        Log.d(
-            TAG,
-            "Allowed file extensions mimes: $mimes"
-        )
         return mimes
     }
 
@@ -339,9 +329,13 @@ object FileUtils {
     @JvmStatic
     fun isImage(context: Context, uri: Uri): Boolean {
         val extension = getFileExtension(context, uri)
-        return (extension != null && (extension.contentEquals("jpg") || extension.contentEquals("jpeg") || extension.contentEquals(
-            "png"
-        ) || extension.contentEquals("WEBP")))
+
+        if (extension == null) {
+            return false
+        }
+
+        return extension.contentEquals("jpg") || extension.contentEquals("jpeg")
+            || extension.contentEquals("png") || extension.contentEquals("webp")
     }
 
     private fun getFileExtension(context: Context, uri: Uri): String? {
@@ -367,14 +361,14 @@ object FileUtils {
                 val compressedFile = createImageFile(context, originalImageUri)
                 val originalBitmap = BitmapFactory.decodeStream(imageStream)
                 // Compress and save the image
-                val fos = FileOutputStream(compressedFile)
+                val fileOutputStream = FileOutputStream(compressedFile)
                 originalBitmap.compress(
                     getCompressFormat(context, originalImageUri),
                     compressionQuality,
-                    fos
+                    fileOutputStream
                 )
-                fos.flush()
-                fos.close()
+                fileOutputStream.flush()
+                fileOutputStream.close()
                 compressedUri = Uri.fromFile(compressedFile)
             }
         } catch (e: IOException) {
@@ -396,7 +390,7 @@ object FileUtils {
      * @return Whether the Uri authority is DownloadsProvider.
      */
     fun isDownloadsDocument(uri: Uri): Boolean {
-        return "com.android.providers.downloads.documents" == uri.authority
+        return uri.authority == "com.android.providers.downloads.documents"
     }
 
     @JvmStatic
@@ -439,9 +433,8 @@ object FileUtils {
 
     @JvmStatic
     fun openFileStream(context: Context, uri: Uri, withData: Boolean): FileInfo? {
-        Log.i(TAG, "Caching from URI: $uri")
-        var `in`: InputStream? = null
-        var fos: FileOutputStream? = null
+        var fileInputStream: InputStream? = null
+        var fileOutputStream: FileOutputStream? = null
         val fileInfo = FileInfo.Builder()
         val fileName = getFileName(uri, context)
         val path =
@@ -454,14 +447,14 @@ object FileUtils {
             try {
                 file.parentFile?.mkdirs()
 
-                `in` = context.contentResolver.openInputStream(uri)
-                fos = FileOutputStream(file)
+                fileInputStream = context.contentResolver.openInputStream(uri)
+                fileOutputStream = FileOutputStream(file)
 
-                val out = BufferedOutputStream(fos)
+                val out = BufferedOutputStream(fileOutputStream)
                 val buffer = ByteArray(8192)
                 var len: Int
 
-                while ((`in`!!.read(buffer).also { len = it }) >= 0) {
+                while ((fileInputStream!!.read(buffer).also { len = it }) >= 0) {
                     out.write(buffer, 0, len)
                 }
                 out.flush()
@@ -470,9 +463,9 @@ object FileUtils {
                 return null
             } finally {
                 try {
-                    fos?.fd?.sync()
-                    fos?.close()
-                    `in`?.close()
+                    fileOutputStream?.fd?.sync()
+                    fileOutputStream?.close()
+                    fileInputStream?.close()
                 } catch (ex: IOException) {
                     Log.e(TAG, "Failed to close file streams: " + ex.message, ex)
                 }
