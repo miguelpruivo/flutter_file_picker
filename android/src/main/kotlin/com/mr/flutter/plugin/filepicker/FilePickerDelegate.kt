@@ -6,14 +6,13 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.annotation.VisibleForTesting
 import com.mr.flutter.plugin.filepicker.FileUtils.processFiles
 import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry.ActivityResultListener
 import java.io.IOException
 
-class FilePickerDelegate @VisibleForTesting internal constructor(
+class FilePickerDelegate(
     val activity: Activity,
     var pendingResult: MethodChannel.Result? = null
 ) : ActivityResultListener {
@@ -44,7 +43,12 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
         return when (requestCode) {
             SAVE_FILE_CODE -> handleSaveFileResult(resultCode, data)
             REQUEST_CODE -> handleFilePickerResult(resultCode, data)
-            else -> false.also { finishWithError("unknown_activity", "Unknown activity error, please file an issue.") }
+            else -> false.also {
+                finishWithError(
+                    "unknown_activity",
+                    "Unknown activity error, please file an issue."
+                )
+            }
         }
     }
 
@@ -55,6 +59,7 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
                 finishWithSuccess(null)
                 false
             }
+
             else -> false
         }
     }
@@ -80,10 +85,12 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
                 processFiles(activity, data, compressionQuality, loadDataToMemory, type.orEmpty())
                 true
             }
+
             Activity.RESULT_CANCELED -> {
                 finishWithSuccess(null)
                 true
             }
+
             else -> false
         }
     }
@@ -100,7 +107,8 @@ class FilePickerDelegate @VisibleForTesting internal constructor(
     fun finishWithSuccess(data: Any?) {
         dispatchEventStatus(false)
         pendingResult?.let {
-            it.success(data?.takeIf { it is String } ?: (data as? ArrayList<*>)?.mapNotNull { (it as? FileInfo)?.toMap() })
+            it.success(data?.takeIf { it is String }
+                ?: (data as? ArrayList<*>)?.mapNotNull { (it as? FileInfo)?.toMap() })
             clearPendingResult()
         }
     }

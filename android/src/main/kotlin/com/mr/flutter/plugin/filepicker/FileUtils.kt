@@ -179,7 +179,7 @@ object FileUtils {
         compressionQuality: Int? = 0,
         result: MethodChannel.Result
     ) {
-        if (this?.setPendingMethodCallAndResult(result) == false) {
+        if (this?.setPendingMethodCallResult(result) == false) {
             finishWithAlreadyActiveError(result)
             return
         }
@@ -218,7 +218,7 @@ object FileUtils {
         bytes: ByteArray?,
         result: MethodChannel.Result
     ) {
-        if (!this.setPendingMethodCallAndResult(result)) {
+        if (!this.setPendingMethodCallResult(result)) {
             finishWithAlreadyActiveError(result)
             return
         }
