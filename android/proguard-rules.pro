@@ -1,5 +1,3 @@
--keep class androidx.lifecycle.DefaultLifecycleObserver
-
 #TIKA PROGUARD RULES
 -keep class org.apache.tika.** { *; }
 -keep class javax.xml.stream.XMLResolver.** { *; }
