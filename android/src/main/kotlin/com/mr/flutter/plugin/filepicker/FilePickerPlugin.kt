@@ -168,6 +168,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 val fileType = resolveType(method)
                 if (fileType == null) {
                     result.notImplemented()
+                    return
                 }
 
                 delegate?.startFileExplorer(
