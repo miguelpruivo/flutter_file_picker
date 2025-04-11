@@ -101,7 +101,7 @@ object FileUtils {
         }
     }
 
-    fun forceRenameWithCopy(
+    fun writeBytesData(
         context: Context,
         uri: Uri,
         bytes: ByteArray?
