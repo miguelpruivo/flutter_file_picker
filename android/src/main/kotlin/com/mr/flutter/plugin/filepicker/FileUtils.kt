@@ -204,8 +204,6 @@ object FileUtils {
     }
 
     fun getMimeTypeForBytes(fileName: String?, bytes: ByteArray?): String {
-        if (bytes == null) return "application/octet-stream"
-
         val tika = Tika()
         val detector = tika.detector
 
