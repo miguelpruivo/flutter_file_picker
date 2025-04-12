@@ -24,6 +24,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   bool _userAborted = false;
   bool _multiPick = false;
   FileType _pickingType = FileType.any;
+  List<PlatformFile>? pickedFiles;
   Widget _resultsWidget = const Row(
     children: [
       Expanded(
@@ -72,7 +73,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   void _pickFiles() async {
-    List<PlatformFile>? pickedFiles;
     bool hasUserAborted = true;
     _resetState();
 
@@ -243,7 +243,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         fileName: _defaultFileNameController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
-        bytes: _paths?.first.bytes,
+        bytes: pickedFiles?.first.bytes,
       );
       hasUserAborted = pickedSaveFilePath == null;
     } on PlatformException catch (e) {
