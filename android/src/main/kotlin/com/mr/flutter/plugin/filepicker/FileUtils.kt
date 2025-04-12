@@ -24,6 +24,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.apache.tika.Tika
+import org.apache.tika.io.TikaInputStream
+import org.apache.tika.metadata.Metadata
+import org.apache.tika.metadata.TikaCoreProperties
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -200,10 +203,18 @@ object FileUtils {
         return mimeType.substringAfter("/")
     }
 
-    fun getMimeTypeForBytes(bytes: ByteArray?): String {
+    fun getMimeTypeForBytes(fileName: String?, bytes: ByteArray?): String {
         val tika = Tika()
-        val mimeType = tika.detect(bytes)
-        return mimeType
+
+        if (fileName.isNullOrEmpty()) {
+            return tika.detect(bytes)
+        }
+        val detector = tika.detector
+
+        val stream = TikaInputStream.get(bytes)
+        val metadata = Metadata()
+        metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName)
+        return detector.detect(stream, metadata).toString()
     }
 
     fun FilePickerDelegate.saveFile(
@@ -224,7 +235,7 @@ object FileUtils {
         }
         this.bytes = bytes
         if ("dir" != type) {
-            intent.type = getMimeTypeForBytes(bytes)
+            intent.type = getMimeTypeForBytes(fileName = fileName, bytes = bytes)
         }
         if (!initialDirectory.isNullOrEmpty()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
