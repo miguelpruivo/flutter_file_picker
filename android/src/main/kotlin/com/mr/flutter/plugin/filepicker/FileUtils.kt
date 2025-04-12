@@ -205,17 +205,16 @@ object FileUtils {
 
     fun getMimeTypeForBytes(fileName: String?, bytes: ByteArray?): String {
         val tika = Tika()
+
+        if (fileName.isNullOrEmpty()) {
+            return tika.detect(bytes)
+        }
         val detector = tika.detector
 
         val stream = TikaInputStream.get(bytes)
         val metadata = Metadata()
-
-        if (!fileName.isNullOrEmpty()) {
-            metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName)
-            return detector.detect(stream, metadata).toString()
-        }
-
-        return tika.detect(bytes)
+        metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName)
+        return detector.detect(stream, metadata).toString()
     }
 
     fun FilePickerDelegate.saveFile(
