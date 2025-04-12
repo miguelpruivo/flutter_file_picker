@@ -1,9 +1,10 @@
+import 'dart:convert';
+
+import 'package:file/local.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:file/local.dart';
-import 'dart:convert';
 
 class FilePickerDemo extends StatefulWidget {
   @override
@@ -234,13 +235,15 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
 
     try {
       pickedSaveFilePath = await FilePicker.platform.saveFile(
-        allowedExtensions: ["txt"],
+        allowedExtensions: (_extension?.isNotEmpty ?? false)
+            ? _extension?.replaceAll(' ', '').split(',')
+            : null,
         type: FileType.custom,
         dialogTitle: _dialogTitleController.text,
         fileName: _defaultFileNameController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
-        bytes: utf8.encode('Hello, world!'),
+        bytes: _paths?.first.bytes,
       );
       hasUserAborted = pickedSaveFilePath == null;
     } on PlatformException catch (e) {
