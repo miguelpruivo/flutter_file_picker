@@ -1,3 +1,7 @@
+## 10.1.2
+### Android
+- Improved mimetype detection. [@vicajilau](https://github.com/vicajilau)
+
 ## 10.1.1
 ### Android
 - Migrated Android code base from Java to Kotlin.
