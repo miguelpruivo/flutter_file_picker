@@ -1,3 +1,7 @@
+## 10.1.3
+### Web
+- Dispose `filesCompleter` to avoid memory leak
+
 ## 10.1.2
 ### Android
 - Improved mimetype detection. [@vicajilau](https://github.com/vicajilau)
