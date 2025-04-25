@@ -537,14 +537,15 @@ object FileUtils {
         if (documentPath.endsWith(File.separator)) {
             documentPath = documentPath.substring(0, documentPath.length - 1)
         }
-        if(volumePath.endsWith(documentPath)){
-            return volumePath
-        }
         return if (!documentPath.isEmpty()) {
-            if (documentPath.startsWith(File.separator)) {
-                volumePath + documentPath
-            } else {
-                volumePath + File.separator + documentPath
+            if(volumePath.endsWith(documentPath)){
+                volumePath
+            }else {
+                if (documentPath.startsWith(File.separator)) {
+                    volumePath + documentPath
+                } else {
+                    volumePath + File.separator + documentPath
+                }
             }
         } else {
             volumePath
