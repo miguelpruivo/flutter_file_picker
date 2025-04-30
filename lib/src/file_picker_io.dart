@@ -11,7 +11,8 @@ final MethodChannel _channel = MethodChannel(
       : const StandardMethodCodec(),
 );
 
-const EventChannel _eventChannel = EventChannel('miguelruivo.flutter.plugins.filepickerevent');
+const EventChannel _eventChannel =
+    EventChannel('miguelruivo.flutter.plugins.filepickerevent');
 
 /// An implementation of [FilePicker] that uses method channels.
 class FilePickerIO extends FilePicker {
@@ -29,7 +30,8 @@ class FilePickerIO extends FilePicker {
     String? dialogTitle,
     String? initialDirectory,
     Function(FilePickerStatus)? onFileLoading,
-    @Deprecated('allowCompression is deprecated and has no effect. Use compressionQuality instead.')
+    @Deprecated(
+        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
     bool? allowCompression = false,
     bool allowMultiple = false,
     bool? withData = false,
@@ -50,7 +52,8 @@ class FilePickerIO extends FilePicker {
       );
 
   @override
-  Future<bool?> clearTemporaryFiles() async => _channel.invokeMethod<bool>('clear');
+  Future<bool?> clearTemporaryFiles() async =>
+      _channel.invokeMethod<bool>('clear');
 
   @override
   Future<String?> getDirectoryPath({
@@ -80,20 +83,21 @@ class FilePickerIO extends FilePicker {
     int? compressionQuality,
   ) async {
     final String type = fileType.name;
-    /*if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
+    if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
       throw ArgumentError.value(
         allowedExtensions,
         'allowedExtensions',
         'Custom extension filters are only allowed with FileType.custom. '
             'Remove the extension filter or change the FileType to FileType.custom.',
       );
-    }*/
+    }
     try {
       _eventSubscription?.cancel();
       if (onFileLoading != null) {
         _eventSubscription = _eventChannel.receiveBroadcastStream().listen(
-              (data) =>
-                  onFileLoading((data is bool) ? FilePickerStatus.picking : FilePickerStatus.done),
+              (data) => onFileLoading((data is bool)
+                  ? FilePickerStatus.picking
+                  : FilePickerStatus.done),
               onError: (error) => throw Exception(error),
             );
       }
@@ -116,7 +120,9 @@ class FilePickerIO extends FilePicker {
         platformFiles.add(
           PlatformFile.fromMap(
             platformFileMap,
-            readStream: withReadStream! ? File(platformFileMap['path']).openRead() : null,
+            readStream: withReadStream!
+                ? File(platformFileMap['path']).openRead()
+                : null,
           ),
         );
       }
@@ -126,7 +132,8 @@ class FilePickerIO extends FilePicker {
       print('[$_tag] Platform exception: $e');
       rethrow;
     } catch (e) {
-      print('[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
+      print(
+          '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
       rethrow;
     }
   }
@@ -142,7 +149,8 @@ class FilePickerIO extends FilePicker {
       bool lockParentWindow = false}) {
     if (Platform.isIOS || Platform.isAndroid) {
       if (bytes == null) {
-        throw ArgumentError('Bytes are required on Android & iOS when saving a file.');
+        throw ArgumentError(
+            'Bytes are required on Android & iOS when saving a file.');
       }
 
       return _channel.invokeMethod("save", {
