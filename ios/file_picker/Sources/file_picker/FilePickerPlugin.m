@@ -85,7 +85,6 @@
         result([FlutterError errorWithCode:@"multiple_request"
                                    message:@"Cancelled by a second request"
                                    details:nil]);
-        _result = nil;
         return;
     }
     
