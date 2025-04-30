@@ -1,7 +1,7 @@
 ## 10.1.3
 ### iOS
 - Fixed an app crash when calling `.saveFile` twice and cancelling the native save operation via the UI [#1626](https://github.com/miguelpruivo/flutter_file_picker/issues/1626) [@Leapward-Koex](https://github.com/Leapward-Koex)
-- Fixed a .saveFile future never completing when `.saveFile` is called twice without waiting for the first completion. [@Leapward-Koex](https://github.com/Leapward-Koex)
+- Fixed a `.saveFile` future never completing when `.saveFile` is called twice without waiting for the first completion. [@Leapward-Koex](https://github.com/Leapward-Koex)
 
 ## 10.1.2
 ### Android
