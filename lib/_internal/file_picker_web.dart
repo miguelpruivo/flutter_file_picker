@@ -43,8 +43,7 @@ class FilePickerWeb extends FilePicker {
     List<String>? allowedExtensions,
     bool allowMultiple = false,
     Function(FilePickerStatus)? onFileLoading,
-    @Deprecated(
-        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
+    @Deprecated('allowCompression is deprecated and has no effect. Use compressionQuality instead.')
     bool allowCompression = false,
     bool withData = true,
     bool withReadStream = false,
@@ -52,13 +51,12 @@ class FilePickerWeb extends FilePicker {
     bool readSequential = false,
     int compressionQuality = 0,
   }) async {
-    if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
+    /*if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
           'You are setting a type [$type]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.');
-    }
+    }*/
 
-    final Completer<List<PlatformFile>?> filesCompleter =
-        Completer<List<PlatformFile>?>();
+    final Completer<List<PlatformFile>?> filesCompleter = Completer<List<PlatformFile>?>();
 
     String accept = _fileType(type, allowedExtensions);
     HTMLInputElement uploadInput = HTMLInputElement();
@@ -91,8 +89,7 @@ class FilePickerWeb extends FilePicker {
       ) {
         String? blobUrl;
         if (bytes != null && bytes.isNotEmpty) {
-          final blob =
-              Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
+          final blob = Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
 
           blobUrl = URL.createObjectURL(blob);
         }
@@ -259,9 +256,8 @@ class FilePickerWeb extends FilePicker {
 
     int start = 0;
     while (start < file.size) {
-      final end = start + _readStreamChunkSize > file.size
-          ? file.size
-          : start + _readStreamChunkSize;
+      final end =
+          start + _readStreamChunkSize > file.size ? file.size : start + _readStreamChunkSize;
       final blob = file.slice(start, end);
       reader.readAsArrayBuffer(blob);
       await EventStreamProviders.loadEvent.forTarget(reader).first;
