@@ -41,7 +41,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
     private boolean isMultipleSelection = false;
     private boolean loadDataToMemory = false;
     private String type;
-    private int compressionQuality=20;
+    private int compressionQuality = 0;
     private String[] allowedExtensions;
     private EventChannel.EventSink eventSink;
 
@@ -243,12 +243,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         if (type.equals("dir")) {
             intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         } else {
-            if (type.equals("image/*")) {
-                intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            } else {
-                intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-            }
+            intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             final Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separator);
             Log.d(TAG, "Selected type " + type);
             intent.setDataAndType(uri, this.type);
@@ -284,8 +279,8 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         this.isMultipleSelection = isMultipleSelection;
         this.loadDataToMemory = withData;
         this.allowedExtensions = allowedExtensions;
-		this.compressionQuality=compressionQuality;
-     
+		this.compressionQuality = compressionQuality;
+
         this.startFileExplorer();
     }
 

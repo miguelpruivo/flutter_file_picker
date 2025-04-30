@@ -2,6 +2,9 @@ group 'com.mr.flutter.plugin.filepicker'
 version '1.0-SNAPSHOT'
 
 buildscript {
+    ext {
+        kotlin_version = '1.8.22'
+    }
     repositories {
         google()
         mavenCentral()
@@ -9,6 +12,7 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -20,6 +24,7 @@ rootProject.allprojects {
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     compileSdk 34
@@ -27,18 +32,26 @@ android {
     defaultConfig {
         minSdk 21
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'proguard-rules.pro'
     }
     lintOptions {
         disable 'InvalidPackage'
     }
     
     dependencies {
-        implementation 'androidx.core:core:1.0.2'
-        implementation 'androidx.annotation:annotation:1.0.0'
-        implementation "androidx.lifecycle:lifecycle-runtime:2.1.0"
+        implementation 'androidx.core:core:1.15.0'
+        implementation 'androidx.annotation:annotation:1.9.1'
+        implementation "androidx.lifecycle:lifecycle-runtime:2.8.7"
+        implementation "org.apache.tika:tika-core:3.1.0"
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 
     if (project.android.hasProperty("namespace")) {
         namespace 'com.mr.flutter.plugin.filepicker' 
     }
+}
+dependencies {
+    implementation 'androidx.core:core-ktx:1.15.0'
 }

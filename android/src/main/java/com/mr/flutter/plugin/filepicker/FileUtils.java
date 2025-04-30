@@ -34,6 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Random;
 
 public class FileUtils {
@@ -95,7 +96,7 @@ public class FileUtils {
     public static Uri compressImage(Uri originalImageUri, int compressionQuality, Context context) {
         Uri compressedUri;
         try (InputStream imageStream = context.getContentResolver().openInputStream(originalImageUri)) {
-            File compressedFile = createImageFile();
+            File compressedFile = createImageFile(context);
             Bitmap originalBitmap = BitmapFactory.decodeStream(imageStream);
             // Compress and save the image
             FileOutputStream fos = new FileOutputStream(compressedFile);
@@ -113,10 +114,10 @@ public class FileUtils {
         return compressedUri;
     }
 
-    private static File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+    private static File createImageFile(Context context) throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File storageDir = context.getCacheDir();
         return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
@@ -288,6 +289,7 @@ public class FileUtils {
 
         Log.i(TAG, "Caching from URI: " + uri.toString());
         FileOutputStream fos = null;
+        InputStream in = null;
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
         final String fileName = FileUtils.getFileName(uri, context);
         final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/"+System.currentTimeMillis() +"/"+ (fileName != null ? fileName : "unamed");
@@ -310,12 +312,12 @@ public class FileUtils {
         }
 
         if(!file.exists()) {
-            file.getParentFile().mkdirs();
             try {
+                file.getParentFile().mkdirs();
                 fos = new FileOutputStream(path);
                 try {
                     final BufferedOutputStream out = new BufferedOutputStream(fos);
-                    final InputStream in = context.getContentResolver().openInputStream(uri);
+                    in = context.getContentResolver().openInputStream(uri);
 
                     final byte[] buffer = new byte[8192];
                     int len = 0;
@@ -338,14 +340,23 @@ public class FileUtils {
                 }
                 
             } catch (final Exception e) {
-                try {
-                    fos.close();
-                } catch (final IOException | NullPointerException ex) {
-                    Log.e(TAG, "Failed to close file streams: " + e.getMessage(), null);
-                    return null;
-                }
                 Log.e(TAG, "Failed to retrieve path: " + e.getMessage(), null);
                 return null;
+            } finally {
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (final IOException ex) {
+                        Log.e(TAG, "Failed to close file streams: " + ex.getMessage(), null);
+                    }
+                }
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (final IOException ex) {
+                        Log.e(TAG, "Failed to close file streams: " + ex.getMessage(), null);
+                    }
+                }
             }
         }
 

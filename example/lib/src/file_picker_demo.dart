@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:file/local.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -15,16 +18,38 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   final _dialogTitleController = TextEditingController();
   final _initialDirectoryController = TextEditingController();
   final _fileExtensionController = TextEditingController();
-  String? _fileName;
-  String? _saveAsFileName;
-  List<PlatformFile>? _paths;
-  String? _directoryPath;
   String? _extension;
   bool _isLoading = false;
   bool _lockParentWindow = false;
   bool _userAborted = false;
   bool _multiPick = false;
   FileType _pickingType = FileType.any;
+  List<PlatformFile>? pickedFiles;
+  Widget _resultsWidget = const Row(
+    children: [
+      Expanded(
+        child: Center(
+          child: SizedBox(
+            width: 300,
+            child: ListTile(
+              leading: Icon(
+                Icons.error_outline,
+              ),
+              contentPadding: EdgeInsets.symmetric(vertical: 40.0),
+              title: const Text('No action taken yet'),
+              subtitle: Text(
+                'Please use on one of the buttons above to get started',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
 
   @override
   void initState() {
@@ -33,12 +58,26 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         .addListener(() => _extension = _fileExtensionController.text);
   }
 
+  Widget _buildFilePickerResultsWidget({
+    required int itemCount,
+    required Widget Function(BuildContext, int) itemBuilder,
+  }) {
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height * 0.50,
+      child: ListView.separated(
+        itemCount: itemCount,
+        itemBuilder: itemBuilder,
+        separatorBuilder: (BuildContext context, int index) => const Divider(),
+      ),
+    );
+  }
+
   void _pickFiles() async {
+    bool hasUserAborted = true;
     _resetState();
+
     try {
-      _directoryPath = null;
-      _paths = (await FilePicker.platform.pickFiles(
-        compressionQuality: 30,
+      pickedFiles = (await FilePicker.platform.pickFiles(
         type: _pickingType,
         allowMultiple: _multiPick,
         onFileLoading: (FilePickerStatus status) => print(status),
@@ -48,19 +87,83 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         dialogTitle: _dialogTitleController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
+        withData: true,
       ))
           ?.files;
+      hasUserAborted = pickedFiles == null;
     } on PlatformException catch (e) {
       _logException('Unsupported operation' + e.toString());
     } catch (e) {
       _logException(e.toString());
     }
     if (!mounted) return;
+
     setState(() {
       _isLoading = false;
-      _fileName =
-          _paths != null ? _paths!.map((e) => e.name).toString() : '...';
-      _userAborted = _paths == null;
+      _userAborted = hasUserAborted;
+      _resultsWidget = _buildFilePickerResultsWidget(
+        itemCount: pickedFiles?.length ?? 0,
+        itemBuilder: (BuildContext context, int index) {
+          final path =
+              pickedFiles!.map((e) => e.path).toList()[index].toString();
+          return ListTile(
+            leading: Text(
+              index.toString(),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            title: Text("File path:"),
+            subtitle: Text(path),
+          );
+        },
+      );
+    });
+  }
+
+  void _pickFileAndDirectoryPaths() async {
+    List<String>? pickedFilesAndDirectories;
+    bool hasUserAborted = true;
+    _resetState();
+
+    try {
+      pickedFilesAndDirectories =
+          await FilePicker.platform.pickFileAndDirectoryPaths(
+        type: _pickingType,
+        allowedExtensions: (_extension?.isNotEmpty ?? false)
+            ? _extension?.replaceAll(' ', '').split(',')
+            : null,
+        initialDirectory: _initialDirectoryController.text,
+      );
+      hasUserAborted = pickedFilesAndDirectories == null;
+    } on PlatformException catch (e) {
+      _logException('Unsupported operation' + e.toString());
+    } catch (e) {
+      _logException(e.toString());
+    }
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = false;
+      _userAborted = hasUserAborted;
+      _resultsWidget = _buildFilePickerResultsWidget(
+        itemCount: pickedFilesAndDirectories?.length ?? 0,
+        itemBuilder: (BuildContext context, int index) {
+          String name = 'File path:';
+          if (!kIsWeb) {
+            final fs = LocalFileSystem();
+            name = fs.isFileSync(pickedFilesAndDirectories![index])
+                ? 'File path:'
+                : 'Directory path:';
+          }
+          return ListTile(
+            leading: Text(
+              index.toString(),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            title: Text(name),
+            subtitle: Text(pickedFilesAndDirectories![index]),
+          );
+        },
+      );
     });
   }
 
@@ -85,56 +188,84 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _logException('Unsupported operation' + e.toString());
     } catch (e) {
       _logException(e.toString());
-    } finally {
-      setState(() => _isLoading = false);
     }
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
   }
 
   void _selectFolder() async {
+    String? pickedDirectoryPath;
+    bool hasUserAborted = true;
     _resetState();
+
     try {
-      String? path = await FilePicker.platform.getDirectoryPath(
+      pickedDirectoryPath = await FilePicker.platform.getDirectoryPath(
         dialogTitle: _dialogTitleController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
       );
-      setState(() {
-        _directoryPath = path;
-        _userAborted = path == null;
-      });
+      hasUserAborted = pickedDirectoryPath == null;
     } on PlatformException catch (e) {
       _logException('Unsupported operation' + e.toString());
     } catch (e) {
       _logException(e.toString());
-    } finally {
-      setState(() => _isLoading = false);
     }
+
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+      _userAborted = hasUserAborted;
+      _resultsWidget = _buildFilePickerResultsWidget(
+        itemCount: pickedDirectoryPath != null ? 1 : 0,
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+            title: const Text('Directory path:'),
+            subtitle: Text(pickedDirectoryPath ?? ''),
+          );
+        },
+      );
+    });
   }
 
   Future<void> _saveFile() async {
+    String? pickedSaveFilePath;
+    bool hasUserAborted = true;
     _resetState();
+
     try {
-      String? fileName = await FilePicker.platform.saveFile(
+      pickedSaveFilePath = await FilePicker.platform.saveFile(
         allowedExtensions: (_extension?.isNotEmpty ?? false)
             ? _extension?.replaceAll(' ', '').split(',')
             : null,
-        type: _pickingType,
+        type: FileType.custom,
         dialogTitle: _dialogTitleController.text,
         fileName: _defaultFileNameController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
+        bytes: pickedFiles?.first.bytes,
       );
-      setState(() {
-        _saveAsFileName = fileName;
-        _userAborted = fileName == null;
-      });
+      hasUserAborted = pickedSaveFilePath == null;
     } on PlatformException catch (e) {
       _logException('Unsupported operation' + e.toString());
     } catch (e) {
       _logException(e.toString());
-    } finally {
-      setState(() => _isLoading = false);
     }
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = false;
+      _userAborted = hasUserAborted;
+      _resultsWidget = _buildFilePickerResultsWidget(
+        itemCount: pickedSaveFilePath != null ? 1 : 0,
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+            title: const Text('Save file path:'),
+            subtitle: Text(pickedSaveFilePath ?? ''),
+          );
+        },
+      );
+    });
   }
 
   void _logException(String message) {
@@ -153,15 +284,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   void _resetState() {
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
+
     setState(() {
       _isLoading = true;
-      _directoryPath = null;
-      _fileName = null;
-      _paths = null;
-      _saveAsFileName = null;
       _userAborted = false;
     });
   }
@@ -340,10 +466,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                       SizedBox(
                         width: 120,
                         child: FloatingActionButton.extended(
-                            onPressed: () => _pickFiles(),
-                            label:
-                                Text(_multiPick ? 'Pick files' : 'Pick file'),
-                            icon: const Icon(Icons.description)),
+                          onPressed: () => _pickFiles(),
+                          label: Text(_multiPick ? 'Pick files' : 'Pick file'),
+                          icon: const Icon(Icons.description),
+                        ),
                       ),
                       SizedBox(
                         width: 120,
@@ -351,6 +477,14 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                           onPressed: () => _selectFolder(),
                           label: const Text('Pick folder'),
                           icon: const Icon(Icons.folder),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 250,
+                        child: FloatingActionButton.extended(
+                          onPressed: () => _pickFileAndDirectoryPaths(),
+                          label: Text('Pick files and directories'),
+                          icon: const Icon(Icons.folder_open),
                         ),
                       ),
                       SizedBox(
@@ -412,7 +546,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                                           Icons.error_outline,
                                         ),
                                         contentPadding: EdgeInsets.symmetric(
-                                            vertical: 40.0),
+                                          vertical: 40.0,
+                                        ),
                                         title: const Text(
                                           'User has aborted the dialog',
                                         ),
@@ -422,64 +557,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                                 ),
                               ],
                             )
-                          : _directoryPath != null
-                              ? ListTile(
-                                  title: const Text('Directory path'),
-                                  subtitle: Text(_directoryPath!),
-                                )
-                              : _paths != null
-                                  ? Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 20.0,
-                                      ),
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.50,
-                                      child: Scrollbar(
-                                          child: ListView.separated(
-                                        itemCount:
-                                            _paths != null && _paths!.isNotEmpty
-                                                ? _paths!.length
-                                                : 1,
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          final bool isMultiPath =
-                                              _paths != null &&
-                                                  _paths!.isNotEmpty;
-                                          final String name = 'File $index: ' +
-                                              (isMultiPath
-                                                  ? _paths!
-                                                      .map((e) => e.name)
-                                                      .toList()[index]
-                                                  : _fileName ?? '...');
-                                          final path = kIsWeb
-                                              ? null
-                                              : _paths!
-                                                  .map((e) => e.path)
-                                                  .toList()[index]
-                                                  .toString();
-
-                                          return ListTile(
-                                            title: Text(
-                                              name,
-                                            ),
-                                            subtitle: Text(path ?? ''),
-                                          );
-                                        },
-                                        separatorBuilder:
-                                            (BuildContext context, int index) =>
-                                                const Divider(),
-                                      )),
-                                    )
-                                  : _saveAsFileName != null
-                                      ? ListTile(
-                                          title: const Text('Save file'),
-                                          subtitle: Text(_saveAsFileName!),
-                                        )
-                                      : const SizedBox(),
+                          : _resultsWidget,
                 ),
-                SizedBox(
-                  height: 40.0,
+                const SizedBox(
+                  height: 10.0,
                 ),
               ],
             ),

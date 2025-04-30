@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+
 import 'package:file_picker/src/file_picker.dart';
 import 'package:file_picker/src/file_picker_result.dart';
 import 'package:file_picker/src/linux/dialog_handler.dart';
@@ -18,13 +19,15 @@ class FilePickerLinux extends FilePicker {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
-    bool allowCompression = true,
+    @Deprecated(
+        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
+    bool allowCompression = false,
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
-    int compressionQuality = 30,
+    int compressionQuality = 0,
   }) async {
     final String executable = await _getPathToExecutable();
     final dialogHandler = DialogHandler(executable);
@@ -104,7 +107,10 @@ class FilePickerLinux extends FilePicker {
       saveFile: true,
     );
 
-    return await runExecutableWithArguments(executable, arguments);
+    final savedFilePath =
+        await runExecutableWithArguments(executable, arguments);
+    await saveBytesToFile(bytes, savedFilePath);
+    return savedFilePath;
   }
 
   /// Returns the path to the executables `qarma`, `zenity` or `kdialog` as a

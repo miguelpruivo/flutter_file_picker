@@ -50,33 +50,44 @@ abstract class FilePicker extends PlatformInterface {
   /// which can be useful if you are picking it for server upload or similar. However, have in mind that
   /// enabling this on IO (iOS & Android) may result in out of memory issues if you allow multiple picks or
   /// pick huge files. Use [withReadStream] instead. Defaults to `true` on web, `false` otherwise.
+  /// Not supported on macOS.
   ///
   /// If [withReadStream] is set, picked files will have its byte data available as a [Stream<List<int>>]
   /// which can be useful for uploading and processing large files. Defaults to `false`.
+  /// Not supported on macOS.
   ///
   /// If you want to track picking status, for example, because some files may take some time to be
   /// cached (particularly those picked from cloud providers), you may want to set [onFileLoading] handler
   /// that will give you the current status of picking.
+  /// Not supported on macOS.
   ///
   /// If [allowCompression] is set, it will allow media to apply the default OS compression.
-  /// Defaults to `true`.
+  /// Defaults to `false`.
+  /// **Deprecated:** This option has no effect. Use [compressionQuality] instead.
   ///
   /// If [lockParentWindow] is set, the child window (file picker window) will
   /// stay in front of the Flutter window until it is closed (like a modal
   /// window). This parameter works only on Windows desktop.
+  /// On macOS the parent window will be locked and this parameter is ignored.
   ///
-  /// [dialogTitle] can be optionally set on desktop platforms to set the modal window title. It will be ignored on
-  /// other platforms.
+  /// [dialogTitle] can be optionally set on desktop platforms to set the modal window title.
+  /// Not supported on macOS. It will be ignored on other platforms.
   ///
   /// [initialDirectory] can be optionally set to an absolute path to specify
   /// where the dialog should open. Only supported on Linux, macOS, and Windows.
+  /// On macOS the home directory shortcut (~/) is not necessary and passing it will be ignored.
+  /// On macOS if the [initialDirectory] is invalid the user directory or previously valid directory
+  /// will be used.
   ///
   /// [readSequential] can be optionally set on web to keep the import file order during import.
+  /// Not supported on macOS.
   ///
   /// The result is wrapped in a [FilePickerResult] which contains helper getters
   /// with useful information regarding the picked [List<PlatformFile>].
   ///
   /// For more information, check the [API documentation](https://github.com/miguelpruivo/flutter_file_picker/wiki/api).
+  ///
+  /// Note: This requires the User Selected File Read entitlement on macOS.
   ///
   /// Returns `null` if aborted.
   Future<FilePickerResult?> pickFiles({
@@ -85,8 +96,10 @@ abstract class FilePicker extends PlatformInterface {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
-    bool allowCompression = true,
-    int compressionQuality = 30,
+    @Deprecated(
+        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
+    bool allowCompression = false,
+    int compressionQuality = 0,
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
@@ -94,6 +107,32 @@ abstract class FilePicker extends PlatformInterface {
     bool readSequential = false,
   }) async =>
       throw UnimplementedError('pickFiles() has not been implemented.');
+
+  /// Displays a dialog that allows the user to select both files and
+  /// directories simultaneously, returning their absolute paths.
+  ///
+  /// **Platform Support:** As of right now, this functionality is only
+  /// supported on macOS.
+  ///
+  /// [initialDirectory] can be optionally set to an absolute path to specify
+  /// where the dialog should open. On macOS the home directory shortcut (~/) is
+  /// not necessary and passing it will be ignored. On macOS if the
+  /// [initialDirectory] is invalid the user directory or previously valid
+  /// directory will be used.
+  ///
+  /// The file type filter [type] defaults to [FileType.any]. Optionally,
+  /// [allowedExtensions] might be provided (e.g. `["pdf", "svg", "jpg"]`).
+  ///
+  /// Returns a [Future<List<String>?>] that resolves to a list of absolute
+  /// paths for the selected files and directories. If the user cancels the
+  /// dialog or if the paths cannot be resolved, the method returns `null`.
+  Future<List<String>?> pickFileAndDirectoryPaths({
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+  }) async =>
+      throw UnimplementedError(
+          'pickFileAndDirectoryPaths() has not been implemented.');
 
   /// Asks the underlying platform to remove any temporary files created by this plugin.
   ///
@@ -112,14 +151,19 @@ abstract class FilePicker extends PlatformInterface {
   /// On Android, this requires to be running on SDK 21 or above, else won't work.
   /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
   ///
-  /// [dialogTitle] can be set to display a custom title on desktop platforms. It will be ignored on Web & IO.
+  /// [dialogTitle] can be set to display a custom title on desktop platforms.
+  /// Not supported on macOS. It will be ignored on other platforms.
   ///
   /// If [lockParentWindow] is set, the child window (file picker window) will
   /// stay in front of the Flutter window until it is closed (like a modal
   /// window). This parameter works only on Windows desktop.
+  /// On macOS the parent window will be locked and this parameter is ignored.
   ///
   /// [initialDirectory] can be optionally set to an absolute path to specify
   /// where the dialog should open. Only supported on Linux, macOS, and Windows.
+  /// On macOS the home directory shortcut (~/) is not necessary and passing it will be ignored.
+  /// On macOS if the [initialDirectory] is invalid the user directory or previously valid directory
+  /// will be used.
   ///
   /// Returns a [Future<String?>] which resolves to  the absolute path of the selected directory,
   /// if the user selected a directory. Returns `null` if the user aborted the dialog or if the
@@ -128,6 +172,7 @@ abstract class FilePicker extends PlatformInterface {
   /// Note: on Windows, throws a `WindowsException` with a detailed error message, if the dialog
   /// could not be instantiated or the dialog result could not be interpreted.
   /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
+  /// Note: The User Selected File Read entitlement is required on macOS.
   Future<String?> getDirectoryPath({
     String? dialogTitle,
     bool lockParentWindow = false,
@@ -138,13 +183,19 @@ abstract class FilePicker extends PlatformInterface {
   /// Opens a save file dialog which lets the user select a file path and a file
   /// name to save a file.
   ///
-  /// For mobile platforms, this function will save file with [bytes] to return a path.
+  /// For mobile, this function will save a file with the given [fileName] and [bytes] and return the path where the file was saved.
   ///
-  /// For desktop platforms (Linux, macOS & Windows),This function does not actually
-  /// save a file. It only opens the dialog to let the user choose a location and
-  /// file name. This function only returns the **path** to this (non-existing) file.
+  /// For desktop platforms, this function opens a dialog to let the user choose a location for the file and returns the selected path.
+  /// If the bytes are provided, then the bytes are written to a file at the chosen path.
+  ///
+  /// On the web, this function will start a download for the file with [bytes] and [fileName].
+  /// If the [bytes] or [fileName] are omitted, this will throw an [ArgumentError].
+  /// The returned path for the downloaded file will always be `null`, as the browser handles the download.
+  ///
+  /// The User Selected File Read/Write entitlement is required on macOS.
   ///
   /// [dialogTitle] can be set to display a custom title on desktop platforms.
+  /// Not supported on macOS.
   ///
   /// [fileName] can be set to a non-empty string to provide a default file
   /// name. Throws an `IllegalCharacterInFileNameException` under Windows if the
@@ -152,9 +203,12 @@ abstract class FilePicker extends PlatformInterface {
   ///
   /// [initialDirectory] can be optionally set to an absolute path to specify
   /// where the dialog should open. Only supported on Linux, macOS, and Windows.
+  /// On macOS the home directory shortcut (~/) is not necessary and passing it will be ignored.
+  /// On macOS if the [initialDirectory] is invalid the user directory or previously valid directory
+  /// will be used.
   ///
   /// The file type filter [type] defaults to [FileType.any]. Optionally,
-  /// [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`.). Both
+  /// [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`). Both
   /// parameters are just a proposal to the user as the save file dialog does
   /// not enforce these restrictions.
   ///

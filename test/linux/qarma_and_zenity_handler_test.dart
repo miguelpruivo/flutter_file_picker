@@ -22,7 +22,7 @@ void main() {
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.audio, null),
         equals(
-            'Audio Files | *.[aA][aA][cC] *.[mM][iI][dD][iI] *.[mM][pP]3 *.[oO][gG][gG] *.[wW][aA][vV]'),
+            'Audio Files | *.[aA][aA][cC] *.[mM][iI][dD][iI] *.[mM][pP]3 *.[oO][gG][gG] *.[wW][aA][vV] *.[mM]4[aA]'),
       );
 
       expect(

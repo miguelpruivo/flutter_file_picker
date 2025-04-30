@@ -1,11 +1,37 @@
-import 'dart:typed_data';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/utils.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 class FilePickerMacOS extends FilePicker {
   static void registerWith() {
     FilePicker.platform = FilePickerMacOS();
+  }
+
+  @visibleForTesting
+  final methodChannel =
+      const MethodChannel('miguelruivo.flutter.plugins.filepicker');
+
+  @override
+  Future<List<String>?> pickFileAndDirectoryPaths({
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+  }) async {
+    final fileFilter = fileTypeToFileFilter(
+      type,
+      allowedExtensions,
+    );
+
+    final filePaths = await methodChannel.invokeListMethod<String>(
+      'pickFileAndDirectoryPaths',
+      <String, dynamic>{
+        'allowedExtensions': fileFilter,
+        'initialDirectory': escapeInitialDirectory(initialDirectory),
+      },
+    );
+
+    return filePaths;
   }
 
   @override
@@ -15,38 +41,33 @@ class FilePickerMacOS extends FilePicker {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
-    bool allowCompression = true,
-    int compressionQuality = 30,
+    @Deprecated(
+        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
+    bool allowCompression = false,
+    int compressionQuality = 0,
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
   }) async {
-    final String executable = await isExecutableOnPath('osascript');
-    final String fileFilter = fileTypeToFileFilter(
+    final fileFilter = fileTypeToFileFilter(
       type,
       allowedExtensions,
     );
-    final List<String> arguments = generateCommandLineArguments(
-      escapeDialogTitle(dialogTitle ?? defaultDialogTitle),
-      fileFilter: fileFilter,
-      initialDirectory: initialDirectory ?? '',
-      multipleFiles: allowMultiple,
-      pickDirectory: false,
-    );
 
-    final String? fileSelectionResult = await runExecutableWithArguments(
-      executable,
-      arguments,
+    final filePaths = await methodChannel.invokeListMethod<String>(
+      'pickFiles',
+      <String, dynamic>{
+        'allowedExtensions': fileFilter,
+        'initialDirectory': escapeInitialDirectory(initialDirectory),
+        'allowMultiple': allowMultiple,
+      },
     );
-    if (fileSelectionResult == null) {
+    if (filePaths == null) {
       return null;
     }
 
-    final List<String> filePaths = resultStringToFilePaths(
-      fileSelectionResult,
-    );
     final List<PlatformFile> platformFiles = await filePathsToPlatformFiles(
       filePaths,
       withReadStream,
@@ -62,22 +83,14 @@ class FilePickerMacOS extends FilePicker {
     bool lockParentWindow = false,
     String? initialDirectory,
   }) async {
-    final String executable = await isExecutableOnPath('osascript');
-    final List<String> arguments = generateCommandLineArguments(
-      escapeDialogTitle(dialogTitle ?? defaultDialogTitle),
-      initialDirectory: initialDirectory ?? '',
-      pickDirectory: true,
+    final String? directoryPath = await methodChannel.invokeMethod<String>(
+      'getDirectoryPath',
+      <String, dynamic>{
+        'initialDirectory': escapeInitialDirectory(initialDirectory),
+      },
     );
 
-    final String? directorySelectionResult = await runExecutableWithArguments(
-      executable,
-      arguments,
-    );
-    if (directorySelectionResult == null) {
-      return null;
-    }
-
-    return resultStringToFilePaths(directorySelectionResult).first;
+    return directoryPath;
   }
 
   @override
@@ -90,31 +103,27 @@ class FilePickerMacOS extends FilePicker {
     Uint8List? bytes,
     bool lockParentWindow = false,
   }) async {
-    final String executable = await isExecutableOnPath('osascript');
-    final String fileFilter = fileTypeToFileFilter(
+    final fileFilter = fileTypeToFileFilter(
       type,
       allowedExtensions,
     );
-    final List<String> arguments = generateCommandLineArguments(
-      escapeDialogTitle(dialogTitle ?? defaultDialogTitle),
-      fileFilter: fileFilter,
-      fileName: fileName ?? '',
-      initialDirectory: initialDirectory ?? '',
-      saveFile: true,
+
+    final String? savedFilePath = await methodChannel.invokeMethod<String>(
+      'saveFile',
+      <String, dynamic>{
+        'dialogTitle': escapeDialogTitle(dialogTitle ?? defaultDialogTitle),
+        'fileName': fileName,
+        'initialDirectory': escapeInitialDirectory(initialDirectory),
+        'allowedExtensions': fileFilter,
+      },
     );
 
-    final String? saveFileResult = await runExecutableWithArguments(
-      executable,
-      arguments,
-    );
-    if (saveFileResult == null) {
-      return null;
-    }
-
-    return resultStringToFilePaths(saveFileResult).first;
+    await saveBytesToFile(bytes, savedFilePath);
+    return savedFilePath;
   }
 
-  String fileTypeToFileFilter(FileType type, List<String>? allowedExtensions) {
+  List<String> fileTypeToFileFilter(
+      FileType type, List<String>? allowedExtensions) {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw ArgumentError.value(
         allowedExtensions,
@@ -125,99 +134,61 @@ class FilePickerMacOS extends FilePicker {
     }
     switch (type) {
       case FileType.any:
-        return '';
+        return [];
       case FileType.audio:
-        return '"aac", "midi", "mp3", "ogg", "wav"';
+        return ["aac", "midi", "mp3", "ogg", "wav"];
       case FileType.custom:
-        return '"", "${allowedExtensions!.join('", "')}"';
+        return [...?allowedExtensions];
       case FileType.image:
-        return '"bmp", "gif", "jpeg", "jpg", "png"';
+        return ["bmp", "gif", "jpeg", "jpg", "png"];
       case FileType.media:
-        return '"avi", "flv", "m4v", "mkv", "mov", "mp4", "mpeg", "webm", "wmv", "bmp", "gif", "jpeg", "jpg", "png"';
+        return [
+          "avi",
+          "flv",
+          "m4v",
+          "mkv",
+          "mov",
+          "mp4",
+          "mpeg",
+          "webm",
+          "wmv",
+          "bmp",
+          "gif",
+          "jpeg",
+          "jpg",
+          "png"
+        ];
       case FileType.video:
-        return '"avi", "flv", "mkv", "mov", "mp4", "m4v", "mpeg", "webm", "wmv"';
-      default:
-        throw Exception('unknown file type');
+        return [
+          "avi",
+          "flv",
+          "mkv",
+          "mov",
+          "mp4",
+          "m4v",
+          "mpeg",
+          "webm",
+          "wmv"
+        ];
     }
   }
 
-  List<String> generateCommandLineArguments(
-    String dialogTitle, {
-    String fileFilter = '',
-    String fileName = '',
-    String initialDirectory = '',
-    bool multipleFiles = false,
-    bool pickDirectory = false,
-    bool saveFile = false,
-  }) {
-    final arguments = ['-e'];
-
-    String argument = 'choose ';
-    if (pickDirectory) {
-      argument += 'folder ';
-    } else {
-      argument += 'file ';
-
-      if (saveFile) {
-        argument += 'name ';
-
-        if (fileName.isNotEmpty) {
-          argument += 'default name "$fileName" ';
-        }
-      } else {
-        if (fileFilter.isNotEmpty) {
-          argument += 'of type {$fileFilter} ';
-        }
-
-        if (multipleFiles) {
-          argument += 'with multiple selections allowed ';
-        }
-      }
+  String? escapeInitialDirectory(String? initialDirectory) {
+    if (initialDirectory == null) {
+      return null;
     }
-
-    if (initialDirectory.isNotEmpty) {
-      argument += 'default location "$initialDirectory" ';
+    // if starts with ~/ or ~ then remove it
+    if (initialDirectory.startsWith('~/')) {
+      return initialDirectory.substring(2);
     }
-
-    argument += 'with prompt "$dialogTitle"';
-    arguments.add(argument);
-
-    return arguments;
+    if (initialDirectory.startsWith('~')) {
+      return initialDirectory.substring(1);
+    }
+    return initialDirectory;
   }
 
   String escapeDialogTitle(String dialogTitle) => dialogTitle
       .replaceAll('\\', '\\\\')
       .replaceAll('"', '\\"')
       .replaceAll('\n', '\\\n');
-
-  /// Transforms the result string (stdout) of `osascript` into a [List] of
-  /// POSIX file paths.
-  List<String> resultStringToFilePaths(String fileSelectionResult) {
-    if (fileSelectionResult.trim().isEmpty) {
-      return [];
-    }
-
-    final paths = fileSelectionResult
-        .trim()
-        .split(', alias ')
-        .map((String path) => path.trim())
-        .where((String path) => path.isNotEmpty)
-        .toList();
-
-    if (paths.length == 1 && paths.first.startsWith('file ')) {
-      // The first token of the first path is "file" in case of the save file
-      // dialog
-      paths[0] = paths[0].substring(5);
-    } else if (paths.isNotEmpty && paths.first.startsWith('alias ')) {
-      // The first token of the first path is "alias" in case of the
-      // file/directory picker dialog
-      paths[0] = paths[0].substring(6);
-    }
-
-    return paths.map((String path) {
-      final pathElements = path.split(':').where((e) => e.isNotEmpty).toList();
-      final volumeName = pathElements[0];
-      return ['/Volumes', volumeName, ...pathElements.sublist(1)].join('/');
-    }).toList();
-  }
 }
