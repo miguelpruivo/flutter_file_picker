@@ -3,7 +3,7 @@ version '1.0-SNAPSHOT'
 
 buildscript {
     ext {
-        kotlin_version = '1.8.22'
+        kotlin_version = '2.1.0'
     }
     repositories {
         google()
