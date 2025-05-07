@@ -1,3 +1,7 @@
+## 10.1.4
+### Android
+- Fixed an issue where paths were loaded with duplicated endings. [#1767](https://github.com/miguelpruivo/flutter_file_picker/pull/1767)
+
 ## 10.1.3
 ### Android
 - Fixed an issue loading files. [#1777](https://github.com/miguelpruivo/flutter_file_picker/pull/1777)
