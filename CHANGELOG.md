@@ -1,3 +1,7 @@
+## 10.1.3
+### Android
+- Fixed an issue loading files. [#1777](https://github.com/miguelpruivo/flutter_file_picker/pull/1777)
+
 ## 10.1.2
 ### Android
 - Improved mimetype detection. [@vicajilau](https://github.com/vicajilau)
