@@ -423,9 +423,9 @@ object FileUtils {
         try {
             val size = file.length().toInt()
             if (size > 10000000) {
-                throw new RuntimeException("loadData: file size too large");
+                throw RuntimeException("loadData: file size too large");
             }
-            
+
             val bytes = ByteArray(size)
 
             try {
