@@ -1,3 +1,7 @@
+## 10.1.6
+### iOS
+- Fixed an issue in android when you try to select more than one file
+
 ## 10.1.5
 ### iOS
 - Fixed an app crash when calling `.saveFile` twice and cancelling the native save operation via the UI [#1626](https://github.com/miguelpruivo/flutter_file_picker/issues/1626) [@Leapward-Koex](https://github.com/Leapward-Koex)
