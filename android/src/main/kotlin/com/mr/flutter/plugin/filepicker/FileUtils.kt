@@ -168,15 +168,14 @@ object FileUtils {
             }
 
 
-            if (intent.resolveActivity(activity.packageManager) != null) {
-                activity.startActivityForResult(intent, REQUEST_CODE)
-            } else {
-                Log.e(
-                    FilePickerDelegate.TAG,
-                    "Can't find a valid activity to handle the request. Make sure you've a file explorer installed."
-                )
-                finishWithError("invalid_format_type", "Can't handle the provided file type.")
-            }
+        if (intent.resolveActivity(activity.packageManager) != null) {
+            activity.startActivityForResult(intent, REQUEST_CODE)
+        } else {
+            Log.e(
+                FilePickerDelegate.TAG,
+                "Can't find a valid activity to handle the request. Make sure you've a file explorer installed."
+            )
+            finishWithError("invalid_format_type", "Can't handle the provided file type.")
         }
     }
 
