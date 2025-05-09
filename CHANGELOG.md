@@ -1,6 +1,7 @@
 ## 10.1.6
-### iOS
-- Fixed an issue in android when you try to select more than one file
+### Android
+- Fixed an issue in android when you try to select more than one file[#1796](https://github.com/miguelpruivo/flutter_file_picker/issues/1796)
+- Fixed the app not filter correctly for the sleected file types [#1792](https://github.com/miguelpruivo/flutter_file_picker/issues/1792)
 
 ## 10.1.5
 ### iOS
