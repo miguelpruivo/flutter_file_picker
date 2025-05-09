@@ -197,11 +197,11 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
         delegate?.let { it ->
             EventChannel(messenger, EVENT_CHANNEL).setStreamHandler(object :
                 EventChannel.StreamHandler {
-                override fun onListen(arguments: Any, events: EventSink) {
+                override fun onListen(arguments: Any?, events: EventSink?) {
                     it.setEventHandler(events)
                 }
 
-                override fun onCancel(arguments: Any) {
+                override fun onCancel(arguments: Any?) {
                     it.setEventHandler(null)
                 }
             })
