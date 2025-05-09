@@ -1,4 +1,5 @@
 @TestOn('linux')
+library;
 
 import 'package:file_picker/src/file_picker.dart';
 import 'package:file_picker/src/linux/kdialog_handler.dart';
@@ -21,25 +22,27 @@ void main() {
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.audio, null),
-        equals('Audio File (*.aac *.midi *.mp3 *.ogg *.wav)'),
+        equals(
+            'Audio File (*.[aA][aA][cC] *.[mM][iI][dD][iI] *.[mM][pP]3 *.[oO][gG][gG] *.[wW][aA][vV] *.[mM]4[aA])'),
       );
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.image, null),
-        equals('Image File (*.bmp *.gif *.jpeg *.jpg *.png)'),
+        equals(
+            'Image File (*.[bB][mM][pP] *.[gG][iI][fF] *.[jJ][pP][eE][gG] *.[jJ][pP][gG] *.[pP][nN][gG])'),
       );
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.media, null),
         equals(
-          'Media File (*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv *.bmp *.gif *.jpeg *.jpg *.png)',
+          'Media File (*.[aA][vV][iI] *.[fF][lL][vV] *.[mM][kK][vV] *.[mM][oO][vV] *.[mM][pP]4 *.[mM][pP][eE][gG] *.[wW][eE][bB][mM] *.[wW][mM][vV] *.[bB][mM][pP] *.[gG][iI][fF] *.[jJ][pP][eE][gG] *.[jJ][pP][gG] *.[pP][nN][gG])',
         ),
       );
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.video, null),
         equals(
-            'Video File (*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv)'),
+            'Video File (*.[aA][vV][iI] *.[fF][lL][vV] *.[mM][kK][vV] *.[mM][oO][vV] *.[mM][pP]4 *.[mM][pP][eE][gG] *.[wW][eE][bB][mM] *.[wW][mM][vV])'),
       );
     });
 
@@ -48,12 +51,12 @@ void main() {
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.custom, ['dart']),
-        equals('DART File (*.dart)'),
+        equals('DART File (*.[dD][aA][rR][tT])'),
       );
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.custom, ['dart', 'html']),
-        equals('DART File, HTML File (*.dart *.html)'),
+        equals('DART File, HTML File (*.[dD][aA][rR][tT] *.[hH][tT][mM][lL])'),
       );
     });
   });

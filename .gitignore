@@ -17,6 +17,9 @@ Pods/
 **/Flutter/flutter_assets/
 ServiceDefinitions.json
 xcuserdata/
+**/.swiftpm/
+**/swiftpm/
+**/.build/
 
 local.properties
 .gradle/
@@ -34,4 +37,3 @@ example/ios/Flutter/flutter_export_environment.sh
 example/.flutter-plugins-dependencies
 file_picker/example/.flutter-plugins-dependencies
 file_picker/example/ios/Flutter/flutter_export_environment.sh
-example/macos

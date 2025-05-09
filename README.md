@@ -1,17 +1,20 @@
 ![fluter_file_picker](https://user-images.githubusercontent.com/27860743/64064695-b88dab00-cbfc-11e9-814f-30921b66035f.png)
 <p align="center">
- <a href="https://pub.dartlang.org/packages/file_picker">
+  <a href="https://pub.dartlang.org/packages/file_picker">
     <img alt="File Picker" src="https://img.shields.io/pub/v/file_picker.svg">
   </a>
- <a href="https://github.com/Solido/awesome-flutter">
+  <a href="https://github.com/Solido/awesome-flutter">
     <img alt="Awesome Flutter" src="https://img.shields.io/badge/Awesome-Flutter-blue.svg?longCache=true&style=flat-square">
   </a>
- <a href="https://www.buymeacoffee.com/gQyz2MR">
+  <a href="https://www.buymeacoffee.com/gQyz2MR">
     <img alt="Buy me a coffee" src="https://img.shields.io/badge/Donate-Buy%20Me%20A%20Coffee-yellow.svg">
   </a>
-  <a href="https://github.com/miguelpruivo/flutter_file_picker/issues"><img src="https://img.shields.io/github/issues/miguelpruivo/flutter_file_picker">
+  <a href="https://github.com/miguelpruivo/flutter_file_picker/issues">
+    <img src="https://img.shields.io/github/issues/miguelpruivo/flutter_file_picker" alt="GitHub issues badge">
   </a>
-  <img src="https://img.shields.io/github/license/miguelpruivo/flutter_file_picker">
+  <a href="https://github.com/miguelpruivo/flutter_file_picker?tab=MIT-1-ov-file">
+    <img src="https://img.shields.io/github/license/miguelpruivo/flutter_file_picker" alt="GitHub license badge">
+  </a>
   <a href="https://github.com/miguelpruivo/flutter_file_picker/actions/workflows/main.yml">
     <img alt="CI pipeline status" src="https://github.com/miguelpruivo/flutter_file_picker/actions/workflows/main.yml/badge.svg">
   </a>
@@ -22,12 +25,14 @@ A package that allows you to use the native file explorer to pick single or mult
 
 ## Currently supported features
 * Uses OS default native pickers
-* Supports multiple platforms (Mobile, Web, Desktop and Flutter GO)
+* Supports multiple platforms (Mobile, Web, Desktop)
 * Pick files using  **custom format** filtering — you can provide a list of file extensions (pdf, svg, zip, etc.)
 * Pick files from **cloud files** (GDrive, Dropbox, iCloud)
 * Single or multiple file picks
+* Supports retrieving as XFile (cross_file) for easy manipulation with other libraries
 * Different default type filtering (media, image, video, audio or any)
 * Picking directories
+* Picking both files and directories simultaneously
 * Load file data immediately into memory (`Uint8List`) if needed; 
 * Open a save-file / save-as dialog (a dialog that lets the user specify the drive, directory, and name of a file to save)
 
@@ -35,12 +40,13 @@ If you have any feature that you want to see in this package, please feel free t
 
 ## Compatibility Chart
 
-| API                   | Android            | iOS                | Linux              | macOS              | Windows            | Web                |
-| --------------------- | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ |
-| clearTemporaryFiles() | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x:                | :x:                | :x:                |
-| getDirectoryPath()    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:                |
-| pickFiles()           | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| saveFile()            | :x:                | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:                |
+| API                           | Android            | iOS                | Linux              | macOS              | Windows            | Web                |
+|-------------------------------|--------------------|--------------------|--------------------|--------------------|--------------------|--------------------|
+| `clearTemporaryFiles()`       | :white_check_mark: | :white_check_mark: | :x:                | :x:                | :x:                | :x:                |
+| `getDirectoryPath()`          | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x:                |
+| `pickFileAndDirectoryPaths()` | :x:                | :x:                | :x:                | :white_check_mark: | :x:                | :x:                |
+| `pickFiles()`                 | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| `saveFile()`                  | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 
 See the [API section of the File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api) or the [official API reference on pub.dev](https://pub.dev/documentation/file_picker/latest/file_picker/FilePicker-class.html) for further details.
 
@@ -55,7 +61,7 @@ See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker
    * [Android](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup#android)
    * [iOS](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup#ios)
    * [Web](https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#--web)
-   * [Desktop (go-flutter)](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup/_edit#desktop-go-flutter)
+   * [Desktop](https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#--desktop)
 3. [API](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/api)
    * [Filters](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/API#filters)
    * [Parameters](https://github.com/miguelpruivo/flutter_file_picker/wiki/API#parameters)
@@ -89,6 +95,7 @@ if (result != null) {
 #### Multiple files with extension filter
 ```dart
 FilePickerResult? result = await FilePicker.platform.pickFiles(
+  allowMultiple: true,
   type: FileType.custom,
   allowedExtensions: ['jpg', 'pdf', 'doc'],
 );
@@ -128,6 +135,20 @@ if (result != null) {
   // User canceled the picker
 }
 ```
+### Retrieve all files as XFiles or individually
+```dart
+FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+if (result != null) {
+  // All files
+  List<XFile> xFiles = result.xFiles;
+
+  // Individually
+  XFile xFile = result.files.first.xFile;
+} else {
+  // User canceled the picker
+}
+```
 #### Pick and upload a file to Firebase Storage with Flutter Web
 ```dart
 FilePickerResult? result = await FilePicker.platform.pickFiles();
@@ -145,19 +166,19 @@ For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flu
 
 ## Example App
 #### Android
-![DemoAndroid](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_android.gif)
+![DemoAndroid](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_android.gif?raw=true)
 
 #### iOS
-![DemoMultiFilters](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_ios.gif)
+![DemoMultiFilters](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_ios.gif?raw=true)
 
 #### MacOS
-![DemoMacOS](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_macos.png)
+![DemoMacOS](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_macos.gif?raw=true)
 
 #### Linux
-![DemoLinux](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_linux.gif)
+![DemoLinux](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_linux.gif?raw=true)
 
 #### Windows
-![DemoWindows](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_windows.gif)
+![DemoWindows](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_windows.gif?raw=true)
 
 ## Getting Started
 

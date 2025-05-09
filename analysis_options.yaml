@@ -16,7 +16,6 @@ linter:
     - comment_references
     - slash_for_doc_comments
     - use_key_in_widget_constructors
-    - unsafe_html
     - unnecessary_statements
     - throw_in_finally
     - always_use_package_imports
@@ -24,7 +23,6 @@ linter:
     - avoid_empty_else
     # - avoid_print
     - avoid_relative_lib_imports
-    - avoid_returning_null_for_future
     - avoid_slow_async_io
     - avoid_type_to_string
     - avoid_types_as_parameter_names

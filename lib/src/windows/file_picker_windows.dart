@@ -5,15 +5,18 @@ import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:file_picker/src/utils.dart';
 import 'package:file_picker/src/exceptions.dart';
+import 'package:file_picker/src/utils.dart';
 import 'package:file_picker/src/windows/file_picker_windows_ffi_types.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:win32/win32.dart';
 
-FilePicker filePickerWithFFI() => FilePickerWindows();
-
 class FilePickerWindows extends FilePicker {
+  static void registerWith() {
+    FilePicker.platform = FilePickerWindows();
+  }
+
   @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
@@ -21,12 +24,15 @@ class FilePickerWindows extends FilePicker {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
-    bool allowCompression = true,
+    @Deprecated(
+        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
+    bool allowCompression = false,
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
+    int compressionQuality = 0,
   }) async {
     final port = ReceivePort();
     await Isolate.spawn(
@@ -91,72 +97,99 @@ class FilePickerWindows extends FilePicker {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-  }) {
+  }) async {
+    return compute(_getDirectoryPathIsolate, {
+      'dialogTitle': dialogTitle,
+      'initialDirectory': initialDirectory,
+      'lockParentWindow': lockParentWindow,
+    });
+  }
+
+  String? _getDirectoryPathIsolate(Map<String, Object?> args) {
+    String? dialogTitle = args['dialogTitle'] as String?;
+    String? initialDirectory = args['initialDirectory'] as String?;
+    bool lockParentWindow = args['lockParentWindow'] as bool? ?? false;
+
     int hr = CoInitializeEx(
-        nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+      nullptr,
+      COINIT.COINIT_APARTMENTTHREADED | COINIT.COINIT_DISABLE_OLE1DDE,
+    );
 
-    if (!SUCCEEDED(hr)) throw WindowsException(hr);
-
-    final fileDialog = FileOpenDialog.createInstance();
-
-    final optionsPointer = calloc<Uint32>();
-    hr = fileDialog.getOptions(optionsPointer);
-    if (!SUCCEEDED(hr)) throw WindowsException(hr);
-
-    final options = optionsPointer.value |
-        FILEOPENDIALOGOPTIONS.FOS_PICKFOLDERS |
-        FILEOPENDIALOGOPTIONS.FOS_FORCEFILESYSTEM |
-        FILEOPENDIALOGOPTIONS.FOS_NOCHANGEDIR;
-    hr = fileDialog.setOptions(options);
-    if (!SUCCEEDED(hr)) throw WindowsException(hr);
-
-    final title = TEXT(dialogTitle ?? defaultDialogTitle);
-    hr = fileDialog.setTitle(title);
-    if (!SUCCEEDED(hr)) throw WindowsException(hr);
-    free(title);
-
-    // TODO: figure out how to set the initial directory via SetDefaultFolder / SetFolder
-    // if (initialDirectory != null) {
-    //   final folder = TEXT(initialDirectory);
-    //   final riid = calloc<COMObject>();
-    //   final item = IShellItem(riid);
-    //   final location = item.ptr;
-    //   SHCreateItemFromParsingName(folder, nullptr, riid.cast(), item.ptr.cast());
-    //   hr = fileDialog.AddPlace(item.ptr, FDAP.FDAP_TOP);
-    //   if (!SUCCEEDED(hr)) throw WindowsException(hr);
-    //   hr = fileDialog.SetFolder(location);
-    //   if (!SUCCEEDED(hr)) throw WindowsException(hr);
-    //   free(folder);
-    // }
-
-    final hwndOwner = lockParentWindow ? GetForegroundWindow() : NULL;
-    hr = fileDialog.show(hwndOwner);
     if (!SUCCEEDED(hr)) {
-      CoUninitialize();
-
-      if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED)) {
-        return Future.value(null);
-      }
       throw WindowsException(hr);
     }
 
-    final ppsi = calloc<COMObject>();
-    hr = fileDialog.getResult(ppsi.cast());
-    if (!SUCCEEDED(hr)) throw WindowsException(hr);
+    try {
+      final fileDialog = FileOpenDialog.createInstance();
 
-    final item = IShellItem(ppsi);
-    final pathPtr = calloc<Pointer<Utf16>>();
-    hr = item.getDisplayName(SIGDN.SIGDN_FILESYSPATH, pathPtr);
-    if (!SUCCEEDED(hr)) throw WindowsException(hr);
+      final optionsPointer = calloc<Uint32>();
+      try {
+        hr = fileDialog.getOptions(optionsPointer);
+        if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
-    final path = pathPtr.value.toDartString();
+        final options = optionsPointer.value |
+            FILEOPENDIALOGOPTIONS.FOS_PICKFOLDERS |
+            FILEOPENDIALOGOPTIONS.FOS_FORCEFILESYSTEM |
+            FILEOPENDIALOGOPTIONS.FOS_NOCHANGEDIR;
+        hr = fileDialog.setOptions(options);
+        if (!SUCCEEDED(hr)) throw WindowsException(hr);
+      } finally {
+        free(optionsPointer);
+      }
 
-    hr = item.release();
-    if (!SUCCEEDED(hr)) throw WindowsException(hr);
+      final title = TEXT(dialogTitle ?? defaultDialogTitle);
+      try {
+        hr = fileDialog.setTitle(title);
+        if (!SUCCEEDED(hr)) throw WindowsException(hr);
+      } finally {
+        free(title);
+      }
 
-    CoUninitialize();
+      if (initialDirectory != null) {
+        final folder = TEXT(initialDirectory);
+        final riid = convertToIID(IID_IShellItem);
+        final ppv = calloc<Pointer>();
 
-    return Future.value(path);
+        try {
+          hr = SHCreateItemFromParsingName(folder, nullptr, riid, ppv);
+          if (!SUCCEEDED(hr) || ppv.value == nullptr) {
+            throw WindowsException(hr);
+          }
+
+          final item = IShellItem(ppv.cast());
+          hr = fileDialog.setFolder(item.ptr.cast<Pointer<COMObject>>().value);
+          if (!SUCCEEDED(hr)) throw WindowsException(hr);
+        } finally {
+          free(folder);
+          free(riid);
+          free(ppv);
+        }
+      }
+
+      final hwndOwner = lockParentWindow ? GetForegroundWindow() : NULL;
+      hr = fileDialog.show(hwndOwner);
+      if (!SUCCEEDED(hr)) return null;
+
+      final ppv = calloc<Pointer<COMObject>>();
+      String? selectedPath;
+      try {
+        hr = fileDialog.getResult(ppv);
+        if (!SUCCEEDED(hr)) throw WindowsException(hr);
+
+        final item = IShellItem(ppv.cast());
+        final pathPtr = calloc<Pointer<Utf16>>();
+        hr = item.getDisplayName(SIGDN.SIGDN_FILESYSPATH, pathPtr);
+        if (SUCCEEDED(hr)) {
+          selectedPath = pathPtr.value.toDartString();
+        }
+        free(pathPtr);
+      } finally {
+        free(ppv);
+      }
+      return selectedPath;
+    } finally {
+      CoUninitialize();
+    }
   }
 
   @override
@@ -166,6 +199,7 @@ class FilePickerWindows extends FilePicker {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
+    Uint8List? bytes,
     bool lockParentWindow = false,
   }) async {
     final port = ReceivePort();
@@ -181,7 +215,9 @@ class FilePickerWindows extends FilePicker {
           lockParentWindow: lockParentWindow,
           confirmOverwrite: true,
         ));
-    return (await port.first) as String?;
+    final savedFilePath = (await port.first) as String?;
+    await saveBytesToFile(bytes, savedFilePath);
+    return savedFilePath;
   }
 
   String? _saveFile(_OpenSaveFileArgs args) {
@@ -213,7 +249,7 @@ class FilePickerWindows extends FilePicker {
       case FileType.any:
         return 'All Files (*.*)\x00*.*\x00\x00';
       case FileType.audio:
-        return 'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav\x00\x00';
+        return 'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav,*.m4a)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav;*.m4a\x00\x00';
       case FileType.custom:
         return 'Files (*.${allowedExtensions!.join(',*.')})\x00*.${allowedExtensions.join(';*.')}\x00\x00';
       case FileType.image:
@@ -222,8 +258,6 @@ class FilePickerWindows extends FilePicker {
         return 'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)\x00*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv\x00Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png)\x00*.bmp;*.gif;*.jpeg;*.jpg;*.png\x00\x00';
       case FileType.video:
         return 'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)\x00*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv\x00\x00';
-      default:
-        throw Exception('unknown file type');
     }
   }
 
@@ -262,7 +296,7 @@ class FilePickerWindows extends FilePicker {
     bool lastCharWasNull = false;
     // ignore: literal_only_boolean_expressions
     while (true) {
-      final char = openFileNameW.lpstrFile.cast<Uint16>().elementAt(i).value;
+      final char = openFileNameW.lpstrFile.cast<Uint16>()[i];
       final currentCharIsNull = char == 0;
       if (currentCharIsNull && lastCharWasNull) {
         break;

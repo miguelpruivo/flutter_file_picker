@@ -12,10 +12,11 @@ A flutter plugin to show native file picker dialogs.
   s.license               = { :file => '../LICENSE' }
   s.author                = 'Miguel Ruivo'
   s.source                = { :path => '.' }
-  s.source_files          = 'Classes/**/*'
-  s.public_header_files   = 'Classes/**/*.h'
+  s.source_files          = 'file_picker/Sources/**/*.{m,h}'
+  s.public_header_files   = 'file_picker/Sources/file_picker/include/**/*.h'
+  s.module_map            = 'file_picker/Sources/file_picker/include/file_picker.modulemap'
   
-  s.ios.deployment_target = '11.0'
+  s.ios.deployment_target = '12.0'
 
   s.dependency 'Flutter'
 
@@ -31,6 +32,6 @@ A flutter plugin to show native file picker dialogs.
     preprocess_definitions << "PICKER_DOCUMENT=1"
   end
   s.pod_target_xcconfig = { "GCC_PREPROCESSOR_DEFINITIONS" => preprocess_definitions.join(' ') }
+  s.resource_bundles = {'file_picker_ios_privacy' => ['file_picker/Sources/file_picker/PrivacyInfo.xcprivacy']}
 
 end
-

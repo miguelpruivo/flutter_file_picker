@@ -1,18 +1,17 @@
 import 'dart:async';
-// ignore: unnecessary_import
-import 'dart:typed_data';
 
+import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
 
 class PlatformFile {
   PlatformFile({
-    String? path,
+    this.path,
     required this.name,
     required this.size,
     this.bytes,
     this.readStream,
     this.identifier,
-  }) : _path = path;
+  });
 
   factory PlatformFile.fromMap(Map data, {Stream<List<int>>? readStream}) {
     return PlatformFile(
@@ -30,21 +29,9 @@ class PlatformFile {
   /// ```
   /// final File myFile = File(platformFile.path);
   /// ```
-  /// On web this is always `null`. You should access `bytes` property instead.
+  /// On web the path points to a Blob URL, if present, which can be cleaned up using [URL.revokeObjectURL](https://pub.dev/documentation/web/latest/web/URL/revokeObjectURL.html).
   /// Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
-  String? _path;
-
-  String? get path {
-    if (kIsWeb) {
-      /// https://github.com/miguelpruivo/flutter_file_picker/issues/751
-      throw '''
-      On web `path` is always `null`,
-      You should access `bytes` property instead,
-      Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
-      ''';
-    }
-    return _path;
-  }
+  final String? path;
 
   /// File name including its extension.
   final String name;
@@ -72,6 +59,15 @@ class PlatformFile {
   /// File extension for this file.
   String? get extension => name.split('.').last;
 
+  /// Retrieves this as a XFile
+  XFile get xFile {
+    if (kIsWeb) {
+      return XFile.fromData(bytes!, name: name, length: size);
+    } else {
+      return XFile(path!, name: name, bytes: bytes, length: size);
+    }
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) {
@@ -79,7 +75,7 @@ class PlatformFile {
     }
 
     return other is PlatformFile &&
-        (kIsWeb || other.path == path) &&
+        other.path == path &&
         other.name == name &&
         other.bytes == bytes &&
         other.readStream == readStream &&
