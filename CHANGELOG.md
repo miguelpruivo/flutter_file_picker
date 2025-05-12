@@ -1,3 +1,7 @@
+## 10.1.7
+### Android
+- Fixed issue select field [#1802](https://github.com/miguelpruivo/flutter_file_picker/issues/1802)
+
 ## 10.1.6
 ### Android
 - Fixed an issue when you try to select more than one file[#1796](https://github.com/miguelpruivo/flutter_file_picker/issues/1796)
