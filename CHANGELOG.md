@@ -1,6 +1,10 @@
-## 10.1.7
+## 10.1.8
 ### Android
 - Fixed an issue when a folder is selected [#1802](https://github.com/miguelpruivo/flutter_file_picker/issues/1802)
+
+## 10.1.7
+### Web
+- Fixed a memory leak on the web.
 
 ## 10.1.6
 ### Android
