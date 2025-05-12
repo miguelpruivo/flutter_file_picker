@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import android.database.Cursor
 import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
@@ -72,11 +73,11 @@ object FileUtils {
                     uri = processUri(activity, uri, compressionQuality)
 
                     if (type == "dir") {
-                        uri = DocumentsContract.buildDocumentUriUsingTree(
+                        var docUriTree = DocumentsContract.buildDocumentUriUsingTree(
                             uri,
                             DocumentsContract.getTreeDocumentId(uri)
                         )
-                        val dirPath = getFullPathFromTreeUri(uri, activity)
+                        val dirPath = getFullPathFromTreeUri(uri, docUriTree, activity)
                         if (dirPath != null) {
                             finishWithSuccess(dirPath)
                         } else {
@@ -108,7 +109,7 @@ object FileUtils {
         context: Context,
         uri: Uri,
         bytes: ByteArray?
-    ): Uri? {
+    ): Uri {
         context.contentResolver.openOutputStream(uri)?.use { output ->
             bytes?.let {
                 output.write(it)
@@ -164,19 +165,19 @@ object FileUtils {
                         putExtra(Intent.EXTRA_MIME_TYPES, it.toTypedArray())
                     }
                 }
-
             }
 
 
-            if (intent.resolveActivity(activity.packageManager) != null) {
-                activity.startActivityForResult(intent, REQUEST_CODE)
-            } else {
-                Log.e(
-                    FilePickerDelegate.TAG,
-                    "Can't find a valid activity to handle the request. Make sure you've a file explorer installed."
-                )
-                finishWithError("invalid_format_type", "Can't handle the provided file type.")
-            }
+
+        }
+        if (intent.resolveActivity(activity.packageManager) != null) {
+            activity.startActivityForResult(intent, REQUEST_CODE)
+        } else {
+            Log.e(
+                FilePickerDelegate.TAG,
+                "Can't find a valid activity to handle the request. Make sure you've a file explorer installed."
+            )
+            finishWithError("invalid_format_type", "Can't handle the provided file type.")
         }
     }
         fun FilePickerDelegate?.startFileExplorer(
@@ -412,6 +413,14 @@ object FileUtils {
     fun isDownloadsDocument(uri: Uri): Boolean {
         return uri.authority == "com.android.providers.downloads.documents"
     }
+    
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is in External Storage Documents.
+     */
+    fun isExternalStorageDocument(uri: Uri): Boolean {
+        return uri.authority == "com.android.externalstorage.documents"
+    }
 
     @JvmStatic
     fun clearCache(context: Context): Boolean {
@@ -511,13 +520,74 @@ object FileUtils {
         return "${Environment.getExternalStorageDirectory()}/${parts.last()}"
     }
 
+    private fun isGooglePhotosUri(uri: Uri): Boolean {
+        return "com.google.android.apps.photos.content" == uri.authority
+    }
+
+    private fun getDataColumn(
+        context: Context,
+        uri: Uri?,
+        selection: String?,
+        selectionArgs: Array<String>?
+    ): String {
+        var cursor: Cursor? = null
+        val column = "_data"
+        val projection = arrayOf(column)
+
+        try {
+            cursor = context.contentResolver.query(uri!!, projection, selection, selectionArgs, null)
+            if (cursor != null && cursor.moveToFirst()) {
+                val index = cursor.getColumnIndexOrThrow(column)
+                return cursor.getString(index)
+            }
+        } finally {
+            cursor?.close()
+        }
+
+        return ""
+    }
+
     @JvmStatic
-    fun getFullPathFromTreeUri(treeUri: Uri?, con: Context): String? {
+    fun getFullPathFromTreeUri(uri: Uri, treeUri: Uri?, con: Context): String? {
         if (treeUri == null) {
             return null
         }
 
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            if ("content".equals(treeUri.scheme, ignoreCase = true)) {
+                return when {
+                    isGooglePhotosUri(treeUri) -> uri.lastPathSegment ?: ""
+                    else -> getDataColumn(con, treeUri, null, null)
+                }
+            }
+
+            if ("file".equals(treeUri.scheme, ignoreCase = true)) {
+                return treeUri.path ?: ""
+            }
+        }
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            if (isExternalStorageDocument(treeUri)) {
+                val docId = DocumentsContract.getDocumentId(treeUri)
+                val split = docId.split(":")
+                val type = split[0]
+
+                if ((Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q && "home".equals(type, ignoreCase = true)) || "primary".equals(type, ignoreCase = true)) {
+                    return "${Environment.getExternalStorageDirectory()}/Documents/${split[1]}"
+                } else if ("primary".equals(type, ignoreCase = true)) {
+                    return "${Environment.getExternalStorageDirectory()}/${split[1]}"
+                } else {
+                    val externalStorageVolumes = con.getExternalFilesDirs(null)
+                    for (externalFile in externalStorageVolumes) {
+                        val path = externalFile.absolutePath
+                        if (path.contains(type)) {
+                            val subPath = path.substringBefore("/Android")
+                            return "$subPath/${split[1]}"
+                        }
+                    }
+                }
+            }
+
             if (isDownloadsDocument(treeUri)) {
                 val docId = DocumentsContract.getDocumentId(treeUri)
                 val extPath =
