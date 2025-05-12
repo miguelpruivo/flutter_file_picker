@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
 import android.provider.DocumentsContract
-import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Log
 import android.webkit.MimeTypeMap
@@ -68,8 +67,7 @@ object FileUtils {
                 }
 
                 data.data != null -> {
-                    var uri = data.data!!
-                    uri = processUri(activity, uri, compressionQuality)
+                    var uri = processUri(activity, data.data!!, compressionQuality)
 
                     if (type == "dir") {
                         uri = DocumentsContract.buildDocumentUriUsingTree(
@@ -118,7 +116,7 @@ object FileUtils {
         return uri
     }
 
-    fun FilePickerDelegate.handleFileResult(files: List<FileInfo>) {
+    private fun FilePickerDelegate.handleFileResult(files: List<FileInfo>) {
         if (files.isNotEmpty()) {
             finishWithSuccess(files)
         } else {
@@ -138,7 +136,7 @@ object FileUtils {
             intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         } else {
             if (type == "image/*") {
-                intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                intent = Intent(Intent.ACTION_PICK)
                 val uri = (Environment.getExternalStorageDirectory().path + File.separator).toUri()
                 intent.setDataAndType(uri, type)
                 intent.type = this.type
@@ -213,7 +211,7 @@ object FileUtils {
             return mimeType.substringAfter("/")
         }
 
-        fun getMimeTypeForBytes(fileName: String?, bytes: ByteArray?): String {
+        private fun getMimeTypeForBytes(fileName: String?, bytes: ByteArray?): String {
             val tika = Tika()
 
             if (fileName.isNullOrEmpty()) {
@@ -263,7 +261,7 @@ object FileUtils {
             }
         }
 
-        fun processUri(activity: Activity, uri: Uri, compressionQuality: Int): Uri {
+        private fun processUri(activity: Activity, uri: Uri, compressionQuality: Int): Uri {
             return if (compressionQuality > 0 && isImage(activity.applicationContext, uri)) {
                 compressImage(uri, compressionQuality, activity.applicationContext)
             } else {
@@ -271,7 +269,7 @@ object FileUtils {
             }
         }
 
-        fun addFile(
+        private fun addFile(
             activity: Activity,
             uri: Uri,
             loadDataToMemory: Boolean,
@@ -283,7 +281,7 @@ object FileUtils {
         }
 
         @Suppress("deprecation")
-        fun getSelectedItems(bundle: Bundle): ArrayList<Parcelable>? {
+        private fun getSelectedItems(bundle: Bundle): ArrayList<Parcelable>? {
             if (Build.VERSION.SDK_INT >= 33) {
                 return bundle.getParcelableArrayList("selectedItems", Parcelable::class.java)
             }
@@ -349,11 +347,7 @@ object FileUtils {
 
     @JvmStatic
     fun isImage(context: Context, uri: Uri): Boolean {
-        val extension = getFileExtension(context, uri)
-
-        if (extension == null) {
-            return false
-        }
+        val extension = getFileExtension(context, uri) ?: return false
 
         return extension.contentEquals("jpg") || extension.contentEquals("jpeg")
             || extension.contentEquals("png") || extension.contentEquals("webp")
@@ -410,7 +404,7 @@ object FileUtils {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is DownloadsProvider.
      */
-    fun isDownloadsDocument(uri: Uri): Boolean {
+    private fun isDownloadsDocument(uri: Uri): Boolean {
         return uri.authority == "com.android.providers.downloads.documents"
     }
 
@@ -429,7 +423,7 @@ object FileUtils {
         return true
     }
 
-    fun loadData(file: File, fileInfo: FileInfo.Builder) {
+    private fun loadData(file: File, fileInfo: FileInfo.Builder) {
         try {
             val size = file.length().toInt()
             val bytes = ByteArray(size)
@@ -506,7 +500,7 @@ object FileUtils {
         return fileInfo.build()
     }
 
-    fun getPathFromTreeUri(uri: Uri): String? {
+    private fun getPathFromTreeUri(uri: Uri): String {
         val docId = DocumentsContract.getTreeDocumentId(uri)
         val parts = docId.split(":")
         return "${Environment.getExternalStorageDirectory()}/${parts.last()}"
@@ -525,7 +519,7 @@ object FileUtils {
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
                 if (docId == "downloads") {
                     return extPath
-                } else if (docId.matches("^ms[df]\\:.*".toRegex())) {
+                } else if (docId.matches("^ms[df]:.*".toRegex())) {
                     val fileName = getFileName(treeUri, con)
                     return "$extPath/$fileName"
                 } else if (docId.startsWith("raw:")) {
@@ -536,7 +530,6 @@ object FileUtils {
             }
         }
         var volumePath = getPathFromTreeUri(treeUri)
-            ?: return File.separator
 
         if (volumePath.endsWith(File.separator)) {
             volumePath = volumePath.substring(0, volumePath.length - 1)
@@ -547,7 +540,7 @@ object FileUtils {
         if (documentPath.endsWith(File.separator)) {
             documentPath = documentPath.substring(0, documentPath.length - 1)
         }
-        return if (!documentPath.isEmpty()) {
+        return if (documentPath.isNotEmpty()) {
             if(volumePath.endsWith(documentPath)){
                 volumePath
             }else {
