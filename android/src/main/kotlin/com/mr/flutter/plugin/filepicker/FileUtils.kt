@@ -514,50 +514,10 @@ object FileUtils {
         return "${Environment.getExternalStorageDirectory()}/${parts.last()}"
     }
 
-    private fun isGooglePhotosUri(uri: Uri): Boolean {
-        return "com.google.android.apps.photos.content" == uri.authority
-    }
-
-    private fun getDataColumn(
-        context: Context,
-        uri: Uri?,
-        selection: String?,
-        selectionArgs: Array<String>?
-    ): String {
-        var cursor: Cursor? = null
-        val column = "_data"
-        val projection = arrayOf(column)
-
-        try {
-            cursor = context.contentResolver.query(uri!!, projection, selection, selectionArgs, null)
-            if (cursor != null && cursor.moveToFirst()) {
-                val index = cursor.getColumnIndexOrThrow(column)
-                return cursor.getString(index)
-            }
-        } finally {
-            cursor?.close()
-        }
-
-        return ""
-    }
-
     @JvmStatic
     fun getFullPathFromTreeUri(uri: Uri, treeUri: Uri?, con: Context): String? {
         if (treeUri == null) {
             return null
-        }
-
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            if ("content".equals(treeUri.scheme, ignoreCase = true)) {
-                return when {
-                    isGooglePhotosUri(treeUri) -> uri.lastPathSegment ?: ""
-                    else -> getDataColumn(con, treeUri, null, null)
-                }
-            }
-
-            if ("file".equals(treeUri.scheme, ignoreCase = true)) {
-                return treeUri.path ?: ""
-            }
         }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
