@@ -7,7 +7,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
-import android.database.Cursor
 import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
@@ -71,11 +70,11 @@ object FileUtils {
                     var uri = processUri(activity, data.data!!, compressionQuality)
 
                     if (type == "dir") {
-                        var docUriTree = DocumentsContract.buildDocumentUriUsingTree(
+                        uri = DocumentsContract.buildDocumentUriUsingTree(
                             uri,
                             DocumentsContract.getTreeDocumentId(uri)
                         )
-                        val dirPath = getFullPathFromTreeUri(uri, docUriTree, activity)
+                        val dirPath = getFullPathFromTreeUri(uri, activity)
                         if (dirPath != null) {
                             finishWithSuccess(dirPath)
                         } else {
@@ -515,7 +514,7 @@ object FileUtils {
     }
 
     @JvmStatic
-    fun getFullPathFromTreeUri(uri: Uri, treeUri: Uri?, con: Context): String? {
+    fun getFullPathFromTreeUri(treeUri: Uri?, con: Context): String? {
         if (treeUri == null) {
             return null
         }
