@@ -52,7 +52,7 @@ class QarmaAndZenityHandler implements DialogHandler {
       case FileType.custom:
         return "Custom Files | ${DialogHandler.toCaseInsensitive('*.${allowedExtensions!.join(' *.')}')}";
       case FileType.image:
-        return "Image Files | ${DialogHandler.toCaseInsensitive('*.bmp *.gif *.jpeg *.jpg *.png')}";
+        return "Image Files | ${DialogHandler.toCaseInsensitive('*.bmp *.gif *.jpeg *.jpg *.png *.webp')}";
       case FileType.media:
         return "Media Files | ${DialogHandler.toCaseInsensitive('*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv *.bmp *.gif *.jpeg *.jpg *.png')}";
       case FileType.video:

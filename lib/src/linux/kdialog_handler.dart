@@ -60,7 +60,7 @@ class KDialogHandler implements DialogHandler {
       case FileType.custom:
         return '${allowedExtensions!.map((ext) => ext.toUpperCase()).join(' File, ')} File (${DialogHandler.toCaseInsensitive("*.${allowedExtensions.join(' *.')}")})';
       case FileType.image:
-        return 'Image File (${DialogHandler.toCaseInsensitive("*.bmp *.gif *.jpeg *.jpg *.png")})';
+        return 'Image File (${DialogHandler.toCaseInsensitive("*.bmp *.gif *.jpeg *.jpg *.png *.webp")})';
       case FileType.media:
         return 'Media File (${DialogHandler.toCaseInsensitive("*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv *.bmp *.gif *.jpeg *.jpg *.png")})';
       case FileType.video:

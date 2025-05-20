@@ -140,7 +140,7 @@ class FilePickerMacOS extends FilePicker {
       case FileType.custom:
         return [...?allowedExtensions];
       case FileType.image:
-        return ["bmp", "gif", "jpeg", "jpg", "png"];
+        return ["bmp", "gif", "jpeg", "jpg", "png", "webp"];
       case FileType.media:
         return [
           "avi",
