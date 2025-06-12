@@ -249,7 +249,7 @@ object FileUtils {
                 intent.type = "*/*"
                 Log.e(
                     FilePickerDelegate.TAG,
-                    "Tika failed to detect mime type. Throws: $t"
+                    "Failed to detect mime type. $t"
                 )
             }
         }
