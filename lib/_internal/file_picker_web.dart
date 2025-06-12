@@ -102,6 +102,7 @@ class FilePickerWeb extends FilePicker {
           size: bytes != null ? bytes.length : file.size,
           bytes: bytes,
           readStream: readStream,
+          lastModifiedMs: file.lastModified
         ));
 
         if (pickedFiles.length >= files.length) {
