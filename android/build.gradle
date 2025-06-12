@@ -42,7 +42,7 @@ android {
         implementation 'androidx.core:core:1.15.0'
         implementation 'androidx.annotation:annotation:1.9.1'
         implementation "androidx.lifecycle:lifecycle-runtime:2.8.7"
-        implementation "org.apache.tika:tika-core:3.1.0"
+        implementation "org.apache.tika:tika-core:3.2.0"
     }
     kotlinOptions {
         jvmTarget = '1.8'

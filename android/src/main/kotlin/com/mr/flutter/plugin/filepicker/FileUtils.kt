@@ -166,7 +166,6 @@ object FileUtils {
             }
 
 
-
         }
         if (intent.resolveActivity(activity.packageManager) != null) {
             activity.startActivityForResult(intent, REQUEST_CODE)
@@ -178,140 +177,149 @@ object FileUtils {
             finishWithError("invalid_format_type", "Can't handle the provided file type.")
         }
     }
-        fun FilePickerDelegate?.startFileExplorer(
-            type: String?,
-            isMultipleSelection: Boolean?,
-            withData: Boolean?,
-            allowedExtensions: ArrayList<String?>?,
-            compressionQuality: Int? = 0,
-            result: MethodChannel.Result
-        ) {
-            if (this?.setPendingMethodCallResult(result) == false) {
-                finishWithAlreadyActiveError(result)
-                return
-            }
-            this?.type = type
-            if (isMultipleSelection != null) {
-                this?.isMultipleSelection = isMultipleSelection
-            }
-            if (withData != null) {
-                this?.loadDataToMemory = withData
-            }
-            this?.allowedExtensions = allowedExtensions
-            if (compressionQuality != null) {
-                this?.compressionQuality = compressionQuality
-            }
 
-            this?.startFileExplorer()
+    fun FilePickerDelegate?.startFileExplorer(
+        type: String?,
+        isMultipleSelection: Boolean?,
+        withData: Boolean?,
+        allowedExtensions: ArrayList<String?>?,
+        compressionQuality: Int? = 0,
+        result: MethodChannel.Result
+    ) {
+        if (this?.setPendingMethodCallResult(result) == false) {
+            finishWithAlreadyActiveError(result)
+            return
+        }
+        this?.type = type
+        if (isMultipleSelection != null) {
+            this?.isMultipleSelection = isMultipleSelection
+        }
+        if (withData != null) {
+            this?.loadDataToMemory = withData
+        }
+        this?.allowedExtensions = allowedExtensions
+        if (compressionQuality != null) {
+            this?.compressionQuality = compressionQuality
         }
 
-        fun getFileExtension(bytes: ByteArray?): String {
-            val tika = Tika()
-            val mimeType = tika.detect(bytes)
-            return mimeType.substringAfter("/")
+        this?.startFileExplorer()
+    }
+
+    fun getFileExtension(bytes: ByteArray?): String {
+        val tika = Tika()
+        val mimeType = tika.detect(bytes)
+        return mimeType.substringAfter("/")
+    }
+
+    private fun getMimeTypeForBytes(fileName: String?, bytes: ByteArray?): String {
+        val tika = Tika()
+
+        if (fileName.isNullOrEmpty()) {
+            return tika.detect(bytes)
         }
+        val detector = tika.detector
 
-        private fun getMimeTypeForBytes(fileName: String?, bytes: ByteArray?): String {
-            val tika = Tika()
+        val stream = TikaInputStream.get(bytes)
+        val metadata = Metadata()
+        metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName)
+        return detector.detect(stream, metadata).toString()
+    }
 
-            if (fileName.isNullOrEmpty()) {
-                return tika.detect(bytes)
-            }
-            val detector = tika.detector
-
-            val stream = TikaInputStream.get(bytes)
-            val metadata = Metadata()
-            metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName)
-            return detector.detect(stream, metadata).toString()
+    fun FilePickerDelegate.saveFile(
+        fileName: String?,
+        type: String?,
+        initialDirectory: String?,
+        bytes: ByteArray?,
+        result: MethodChannel.Result
+    ) {
+        if (!this.setPendingMethodCallResult(result)) {
+            finishWithAlreadyActiveError(result)
+            return
         }
-
-        fun FilePickerDelegate.saveFile(
-            fileName: String?,
-            type: String?,
-            initialDirectory: String?,
-            bytes: ByteArray?,
-            result: MethodChannel.Result
-        ) {
-            if (!this.setPendingMethodCallResult(result)) {
-                finishWithAlreadyActiveError(result)
-                return
-            }
-            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
-            intent.addCategory(Intent.CATEGORY_OPENABLE)
-            if (!fileName.isNullOrEmpty()) {
-                intent.putExtra(Intent.EXTRA_TITLE, fileName)
-            }
-            this.bytes = bytes
-            if ("dir" != type) {
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        if (!fileName.isNullOrEmpty()) {
+            intent.putExtra(Intent.EXTRA_TITLE, fileName)
+        }
+        this.bytes = bytes
+        if ("dir" != type) {
+            try {
                 intent.type = getMimeTypeForBytes(fileName = fileName, bytes = bytes)
-            }
-            if (!initialDirectory.isNullOrEmpty()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialDirectory.toUri())
-                }
-            }
-            if (intent.resolveActivity(activity.packageManager) != null) {
-                activity.startActivityForResult(intent, SAVE_FILE_CODE)
-            } else {
+            } catch (t: Throwable) {
+                intent.type = "*/*"
                 Log.e(
                     FilePickerDelegate.TAG,
-                    "Can't find a valid activity to handle the request. Make sure you've a file explorer installed."
+                    "Failed to detect mime type. $t"
                 )
-                finishWithError("invalid_format_type", "Can't handle the provided file type.")
             }
         }
-
-        private fun processUri(activity: Activity, uri: Uri, compressionQuality: Int): Uri {
-            return if (compressionQuality > 0 && isImage(activity.applicationContext, uri)) {
-                compressImage(uri, compressionQuality, activity.applicationContext)
-            } else {
-                uri
+        if (!initialDirectory.isNullOrEmpty()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialDirectory.toUri())
             }
         }
+        if (intent.resolveActivity(activity.packageManager) != null) {
+            activity.startActivityForResult(intent, SAVE_FILE_CODE)
+        } else {
+            Log.e(
+                FilePickerDelegate.TAG,
+                "Can't find a valid activity to handle the request. Make sure you've a file explorer installed."
+            )
+            finishWithError("invalid_format_type", "Can't handle the provided file type.")
+        }
+    }
 
-        private fun addFile(
-            activity: Activity,
-            uri: Uri,
-            loadDataToMemory: Boolean,
-            files: MutableList<FileInfo>
-        ) {
-            openFileStream(activity, uri, loadDataToMemory)?.let { file ->
-                files.add(file)
-            }
+    private fun processUri(activity: Activity, uri: Uri, compressionQuality: Int): Uri {
+        return if (compressionQuality > 0 && isImage(activity.applicationContext, uri)) {
+            compressImage(uri, compressionQuality, activity.applicationContext)
+        } else {
+            uri
+        }
+    }
+
+    private fun addFile(
+        activity: Activity,
+        uri: Uri,
+        loadDataToMemory: Boolean,
+        files: MutableList<FileInfo>
+    ) {
+        openFileStream(activity, uri, loadDataToMemory)?.let { file ->
+            files.add(file)
+        }
+    }
+
+    @Suppress("deprecation")
+    private fun getSelectedItems(bundle: Bundle): ArrayList<Parcelable>? {
+        if (Build.VERSION.SDK_INT >= 33) {
+            return bundle.getParcelableArrayList("selectedItems", Parcelable::class.java)
         }
 
-        @Suppress("deprecation")
-        private fun getSelectedItems(bundle: Bundle): ArrayList<Parcelable>? {
-            if (Build.VERSION.SDK_INT >= 33) {
-                return bundle.getParcelableArrayList("selectedItems", Parcelable::class.java)
-            }
+        return bundle.getParcelableArrayList("selectedItems")
+    }
 
-            return bundle.getParcelableArrayList("selectedItems")
+    fun getMimeTypes(allowedExtensions: ArrayList<String>?): ArrayList<String?>? {
+        if (allowedExtensions.isNullOrEmpty()) {
+            return null
         }
 
-        fun getMimeTypes(allowedExtensions: ArrayList<String>?): ArrayList<String?>? {
-            if (allowedExtensions.isNullOrEmpty()) {
-                return null
-            }
+        val mimes = ArrayList<String?>()
 
-            val mimes = ArrayList<String?>()
-
-            for (i in allowedExtensions.indices) {
-                val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                    allowedExtensions[i]
+        for (i in allowedExtensions.indices) {
+            val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                allowedExtensions[i]
+            )
+            if (mime == null) {
+                Log.w(
+                    TAG,
+                    "Custom file type " + allowedExtensions[i] + " is unsupported and will be ignored."
                 )
-                if (mime == null) {
-                    Log.w(
-                        TAG,
-                        "Custom file type " + allowedExtensions[i] + " is unsupported and will be ignored."
-                    )
-                    continue
-                }
-
-                mimes.add(mime)
+                continue
             }
-            return mimes
+
+            mimes.add(mime)
         }
+        return mimes
+    }
 
     @JvmStatic
     fun getFileName(uri: Uri, context: Context): String? {
@@ -350,7 +358,7 @@ object FileUtils {
         val extension = getFileExtension(context, uri) ?: return false
 
         return extension.contentEquals("jpg") || extension.contentEquals("jpeg")
-            || extension.contentEquals("png") || extension.contentEquals("webp")
+                || extension.contentEquals("png") || extension.contentEquals("webp")
     }
 
     private fun getFileExtension(context: Context, uri: Uri): String? {
@@ -555,9 +563,9 @@ object FileUtils {
             documentPath = documentPath.substring(0, documentPath.length - 1)
         }
         return if (documentPath.isNotEmpty()) {
-            if(volumePath.endsWith(documentPath)){
+            if (volumePath.endsWith(documentPath)) {
                 volumePath
-            }else {
+            } else {
                 if (documentPath.startsWith(File.separator)) {
                     volumePath + documentPath
                 } else {

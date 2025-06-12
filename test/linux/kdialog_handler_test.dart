@@ -29,7 +29,7 @@ void main() {
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.image, null),
         equals(
-            'Image File (*.[bB][mM][pP] *.[gG][iI][fF] *.[jJ][pP][eE][gG] *.[jJ][pP][gG] *.[pP][nN][gG])'),
+            'Image File (*.[bB][mM][pP] *.[gG][iI][fF] *.[jJ][pP][eE][gG] *.[jJ][pP][gG] *.[pP][nN][gG] *.[wW][eE][bB][pP])'),
       );
 
       expect(
