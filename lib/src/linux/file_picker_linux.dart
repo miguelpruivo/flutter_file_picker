@@ -256,12 +256,10 @@ class FilePickerLinux extends FilePicker {
     Uint8List? bytes,
     bool lockParentWindow = false,
   }) async {
-    final filter = Filter(type, allowedExtensions);
     Map<String, DBusValue> xdpOption = {
       'handle_token': DBusString('flutter_picker'),
       'current_name': DBusString(fileName ?? ''),
       'modal': DBusBoolean(lockParentWindow),
-      'filters': filter.toDBusArray(),
     };
     if (initialDirectory != null) {
       List<int> tmp = [];
