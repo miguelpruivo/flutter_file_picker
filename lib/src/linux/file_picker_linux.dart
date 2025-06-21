@@ -130,6 +130,7 @@ class FilePickerLinux extends FilePicker {
   @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
+    String? confirmButtonText,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
@@ -158,6 +159,9 @@ class FilePickerLinux extends FilePicker {
       }
       DBusArray directory = DBusArray.byte(tmp);
       xdpOption["current_folder"] = directory;
+    }
+    if (confirmButtonText != null) {
+      xdpOption["accept_label"] = DBusString(confirmButtonText);
     }
     final replyPath = await _xdpChooser.callOpenFile(
         "", dialogTitle ?? "flutter picker", xdpOption);
@@ -196,6 +200,7 @@ class FilePickerLinux extends FilePicker {
   @override
   Future<String?> getDirectoryPath({
     String? dialogTitle,
+    String? confirmButtonText,
     bool lockParentWindow = false,
     String? initialDirectory,
   }) async {
@@ -211,6 +216,9 @@ class FilePickerLinux extends FilePicker {
       }
       DBusArray directory = DBusArray.byte(tmp);
       xdpOption["current_folder"] = directory;
+    }
+    if (confirmButtonText != null) {
+      xdpOption["accept_label"] = DBusString(confirmButtonText);
     }
     final replyPath = await _xdpChooser.callOpenFile(
         "", dialogTitle ?? "flutter picker", xdpOption);
@@ -249,6 +257,7 @@ class FilePickerLinux extends FilePicker {
   @override
   Future<String?> saveFile({
     String? dialogTitle,
+    String? confirmButtonText,
     String? fileName,
     String? initialDirectory,
     FileType type = FileType.any,
@@ -268,6 +277,9 @@ class FilePickerLinux extends FilePicker {
       }
       DBusArray directory = DBusArray.byte(tmp);
       xdpOption["current_folder"] = directory;
+    }
+    if (confirmButtonText != null) {
+      xdpOption["accept_label"] = DBusString(confirmButtonText);
     }
 
     final replyPath = await _xdpChooser.callSaveFile(
