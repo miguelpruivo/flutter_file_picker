@@ -13,14 +13,38 @@ class FilePickerMacOS extends FilePicker {
       const MethodChannel('miguelruivo.flutter.plugins.filepicker');
 
   @override
+  Future<List<String>?> pickFileAndDirectoryPaths({
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+  }) async {
+    final fileFilter = fileTypeToFileFilter(
+      type,
+      allowedExtensions,
+    );
+
+    final filePaths = await methodChannel.invokeListMethod<String>(
+      'pickFileAndDirectoryPaths',
+      <String, dynamic>{
+        'allowedExtensions': fileFilter,
+        'initialDirectory': escapeInitialDirectory(initialDirectory),
+      },
+    );
+
+    return filePaths;
+  }
+
+  @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
-    bool allowCompression = true,
-    int compressionQuality = 30,
+    @Deprecated(
+        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
+    bool allowCompression = false,
+    int compressionQuality = 0,
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
@@ -116,7 +140,7 @@ class FilePickerMacOS extends FilePicker {
       case FileType.custom:
         return [...?allowedExtensions];
       case FileType.image:
-        return ["bmp", "gif", "jpeg", "jpg", "png"];
+        return ["bmp", "gif", "jpeg", "jpg", "png", "webp"];
       case FileType.media:
         return [
           "avi",

@@ -22,6 +22,7 @@
 @property (nonatomic) MPMediaPickerController *audioPickerController;
 @property (nonatomic) NSArray<NSString *> * allowedExtensions;
 @property (nonatomic) BOOL loadDataToMemory;
+@property (nonatomic) int compressionQuality;
 @property (nonatomic) BOOL allowCompression;
 @property (nonatomic) dispatch_group_t group;
 @property (nonatomic) MediaType type;
@@ -84,7 +85,6 @@
         result([FlutterError errorWithCode:@"multiple_request"
                                    message:@"Cancelled by a second request"
                                    details:nil]);
-        _result = nil;
         return;
     }
     
@@ -114,8 +114,9 @@
     
     NSDictionary * arguments = call.arguments;
     BOOL isMultiplePick = ((NSNumber*)[arguments valueForKey:@"allowMultipleSelection"]).boolValue;
-    
-    self.allowCompression = ((NSNumber*)[arguments valueForKey:@"allowCompression"]).boolValue;
+
+    self.compressionQuality = [[arguments valueForKey:@"compressionQuality"] intValue];
+    self.allowCompression = self.compressionQuality > 0;
     self.loadDataToMemory = ((NSNumber*)[arguments valueForKey:@"withData"]).boolValue;
     
     if([call.method isEqualToString:@"any"] || [call.method containsString:@"custom"]) {

@@ -30,10 +30,12 @@ class FilePickerIO extends FilePicker {
     String? dialogTitle,
     String? initialDirectory,
     Function(FilePickerStatus)? onFileLoading,
-    bool? allowCompression = true,
+    @Deprecated(
+        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
+    bool? allowCompression = false,
     bool allowMultiple = false,
     bool? withData = false,
-    int compressionQuality = 30,
+    int compressionQuality = 0,
     bool? withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
@@ -93,7 +95,7 @@ class FilePickerIO extends FilePicker {
       _eventSubscription?.cancel();
       if (onFileLoading != null) {
         _eventSubscription = _eventChannel.receiveBroadcastStream().listen(
-              (data) => onFileLoading((data as bool)
+              (data) => onFileLoading((data is bool)
                   ? FilePickerStatus.picking
                   : FilePickerStatus.done),
               onError: (error) => throw Exception(error),

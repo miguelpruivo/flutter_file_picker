@@ -22,7 +22,7 @@ void main() {
 
       expect(
         picker.fileTypeToFileFilter(FileType.image, null),
-        equals(["bmp", "gif", "jpeg", "jpg", "png"]),
+        equals(["bmp", "gif", "jpeg", "jpg", "png", "webp"]),
       );
 
       expect(

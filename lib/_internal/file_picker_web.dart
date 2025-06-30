@@ -27,18 +27,20 @@ class FilePickerWeb extends FilePicker {
     List<String>? allowedExtensions,
     bool allowMultiple = false,
     Function(FilePickerStatus)? onFileLoading,
-    bool allowCompression = true,
+    @Deprecated(
+        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
+    bool allowCompression = false,
     bool withData = true,
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
-    int compressionQuality = 20,
+    int compressionQuality = 0,
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
           'You are setting a type [$type]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.');
     }
-
+    
     final Completer<List<PlatformFile>?> filesCompleter =
     Completer<List<PlatformFile>?>();
 
@@ -257,7 +259,7 @@ class FilePickerWeb extends FilePicker {
           if (onFileLoading != null) {
             onFileLoading(FilePickerStatus.done);
           }
-          filesCompleter.complete(pickedFiles);
+          filesCompleter?.complete(pickedFiles);
         }
       }
 
@@ -305,7 +307,7 @@ class FilePickerWeb extends FilePicker {
       Future.delayed(Duration(seconds: 1)).then((value) {
         if (!changeEventTriggered) {
           changeEventTriggered = true;
-          filesCompleter.complete(null);
+          filesCompleter?.complete(null);
         }
       });
     }
@@ -318,6 +320,7 @@ class FilePickerWeb extends FilePicker {
     window.addEventListener('focus', cancelledEventListener.toJS);
 
     final List<PlatformFile>? files = await filesCompleter.future;
+    filesCompleter = null;
 
     return files == null ? null : FilePickerResult(files);
   }
