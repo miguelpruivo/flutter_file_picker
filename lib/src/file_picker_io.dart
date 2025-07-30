@@ -100,7 +100,7 @@ class FilePickerIO extends FilePicker {
                 onFileLoading(data ? FilePickerStatus.picking : FilePickerStatus.done);
               },
               onError: (error) => throw Exception(error),
-        );
+            );
       }
 
       final List<Map>? result = await _channel.invokeListMethod(type, {
