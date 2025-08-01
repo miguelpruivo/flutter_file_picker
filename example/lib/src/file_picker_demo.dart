@@ -80,7 +80,9 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       pickedFiles = (await FilePicker.platform.pickFiles(
         type: _pickingType,
         allowMultiple: _multiPick,
-        onFileLoading: (FilePickerStatus status) => printInDebug(status),
+        onFileLoading: (FilePickerStatus status) => setState(() {
+          _isLoading = status == FilePickerStatus.picking;
+        }),
         allowedExtensions: (_extension?.isNotEmpty ?? false)
             ? _extension?.replaceAll(' ', '').split(',')
             : null,

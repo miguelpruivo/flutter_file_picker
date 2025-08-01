@@ -1,3 +1,7 @@
+## 10.2.1
+### Android
+- Fixed an issue where the image upload would not display the loading indicator.
+
 ## 10.2.0
 ### Desktop
 - Added support for webp images on Desktop platforms. [#1491](https://github.com/miguelpruivo/flutter_file_picker/issues/1491)

@@ -95,7 +95,7 @@ class FilePickerIO extends FilePicker {
       _eventSubscription?.cancel();
       if (onFileLoading != null) {
         _eventSubscription = _eventChannel.receiveBroadcastStream().listen(
-              (data) => onFileLoading((data is bool)
+              (data) => onFileLoading((data is bool && data)
                   ? FilePickerStatus.picking
                   : FilePickerStatus.done),
               onError: (error) => throw Exception(error),
