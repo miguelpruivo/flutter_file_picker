@@ -1,6 +1,6 @@
 ## 10.2.1
 ### Android
-- Fixed issue loading when you upload an image and loading its not showing.
+- Fixed an issue where the image upload would not display the loading indicator.
 
 ## 10.2.0
 ### Desktop
