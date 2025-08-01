@@ -50,6 +50,7 @@ class FilePickerWeb extends FilePicker {
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
+    bool cancelUploadOnWindowBlur = true,
     int compressionQuality = 0,
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -165,8 +166,10 @@ class FilePickerWeb extends FilePicker {
     uploadInput.addEventListener('change', changeEventListener.toJS);
     uploadInput.addEventListener('cancel', cancelledEventListener.toJS);
 
-    // Listen focus event for cancelled
-    window.addEventListener('focus', cancelledEventListener.toJS);
+    if (cancelUploadOnWindowBlur) {
+      // Listen focus event for cancelled
+      window.addEventListener('focus', cancelledEventListener.toJS);
+    }
 
     //Add input element to the page body
     Node? firstChild = _target.firstChild;
