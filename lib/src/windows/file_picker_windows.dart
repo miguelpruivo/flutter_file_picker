@@ -262,7 +262,7 @@ class FilePickerWindows extends FilePicker {
   }
 
   void validateFileName(String fileName) {
-    if (fileName.contains(RegExp(r'[<>:\/\\|?*"]'))) {
+    if (fileName.contains(RegExp(r'[<>:/\\|?*"]'))) {
       throw IllegalCharacterInFileNameException(
           'Reserved characters may not be used in file names. See: https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions');
     }
