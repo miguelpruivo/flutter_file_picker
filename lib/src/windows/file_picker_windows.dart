@@ -112,7 +112,7 @@ class FilePickerWindows extends FilePicker {
 
     int hr = CoInitializeEx(
       nullptr,
-      COINIT.COINIT_APARTMENTTHREADED | COINIT.COINIT_DISABLE_OLE1DDE,
+      COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE,
     );
 
     if (!SUCCEEDED(hr)) {
@@ -128,9 +128,9 @@ class FilePickerWindows extends FilePicker {
         if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
         final options = optionsPointer.value |
-            FILEOPENDIALOGOPTIONS.FOS_PICKFOLDERS |
-            FILEOPENDIALOGOPTIONS.FOS_FORCEFILESYSTEM |
-            FILEOPENDIALOGOPTIONS.FOS_NOCHANGEDIR;
+            FOS_PICKFOLDERS |
+            FOS_FORCEFILESYSTEM |
+            FOS_NOCHANGEDIR;
         hr = fileDialog.setOptions(options);
         if (!SUCCEEDED(hr)) throw WindowsException(hr);
       } finally {
@@ -178,7 +178,7 @@ class FilePickerWindows extends FilePicker {
 
         final item = IShellItem(ppv.cast());
         final pathPtr = calloc<Pointer<Utf16>>();
-        hr = item.getDisplayName(SIGDN.SIGDN_FILESYSPATH, pathPtr);
+        hr = item.getDisplayName(SIGDN_FILESYSPATH, pathPtr);
         if (SUCCEEDED(hr)) {
           selectedPath = pathPtr.value.toDartString();
         }
@@ -261,8 +261,8 @@ class FilePickerWindows extends FilePicker {
     }
   }
 
-  validateFileName(String fileName) {
-    if (fileName.contains(RegExp(r'[<>:\/\\|?*"]'))) {
+  void validateFileName(String fileName) {
+    if (fileName.contains(RegExp(r'[<>:/\\|?*"]'))) {
       throw IllegalCharacterInFileNameException(
           'Reserved characters may not be used in file names. See: https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions');
     }

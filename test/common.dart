@@ -1,6 +1,6 @@
 import 'dart:io';
 
-setUpTestFiles(
+void setUpTestFiles(
   String appTestFilePath,
   String imageTestFilePath,
   String pdfTestFilePath,
@@ -20,7 +20,7 @@ setUpTestFiles(
   ).copySync(yamlTestFilePath);
 }
 
-tearDownTestFiles(
+void tearDownTestFiles(
   String appTestFilePath,
   String imageTestFilePath,
   String pdfTestFilePath,
