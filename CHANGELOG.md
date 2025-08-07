@@ -1,3 +1,7 @@
+## 10.2.2
+### Android
+- Fixed an issue where some files would incorrectly append a `.txt` extension when saving files on Android. 
+
 ## 10.2.1
 ### Android
 - Fixed an issue where the image upload would not display the loading indicator.
