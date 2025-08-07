@@ -244,7 +244,12 @@ object FileUtils {
         this.bytes = bytes
         if ("dir" != type) {
             try {
-                intent.type = getMimeTypeForBytes(fileName = fileName, bytes = bytes)
+                val detectedMimeType = getMimeTypeForBytes(fileName = fileName, bytes = bytes)
+                if (detectedMimeType == "text/plain") {
+                    intent.type = "*/*"
+                } else {
+                    intent.type = detectedMimeType
+                }
             } catch (t: Throwable) {
                 intent.type = "*/*"
                 Log.e(
