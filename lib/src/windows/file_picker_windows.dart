@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'dart:ffi';
 import 'dart:isolate';
 import 'dart:math';
@@ -114,7 +112,7 @@ class FilePickerWindows extends FilePicker {
 
     int hr = CoInitializeEx(
       nullptr,
-      COINIT.COINIT_APARTMENTTHREADED | COINIT.COINIT_DISABLE_OLE1DDE,
+      COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE,
     );
 
     if (!SUCCEEDED(hr)) {
@@ -130,9 +128,9 @@ class FilePickerWindows extends FilePicker {
         if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
         final options = optionsPointer.value |
-            FILEOPENDIALOGOPTIONS.FOS_PICKFOLDERS |
-            FILEOPENDIALOGOPTIONS.FOS_FORCEFILESYSTEM |
-            FILEOPENDIALOGOPTIONS.FOS_NOCHANGEDIR;
+            FOS_PICKFOLDERS |
+            FOS_FORCEFILESYSTEM |
+            FOS_NOCHANGEDIR;
         hr = fileDialog.setOptions(options);
         if (!SUCCEEDED(hr)) throw WindowsException(hr);
       } finally {
@@ -180,7 +178,7 @@ class FilePickerWindows extends FilePicker {
 
         final item = IShellItem(ppv.cast());
         final pathPtr = calloc<Pointer<Utf16>>();
-        hr = item.getDisplayName(SIGDN.SIGDN_FILESYSPATH, pathPtr);
+        hr = item.getDisplayName(SIGDN_FILESYSPATH, pathPtr);
         if (SUCCEEDED(hr)) {
           selectedPath = pathPtr.value.toDartString();
         }
