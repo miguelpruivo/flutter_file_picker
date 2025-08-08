@@ -106,7 +106,7 @@ void main() {
     });
 
     test(
-        'should tranform a list of file paths containing a path into a list of PlatformFiles',
+        'should transform a list of file paths containing a path into a list of PlatformFiles',
         () async {
       final filePaths = <String>['test'];
 

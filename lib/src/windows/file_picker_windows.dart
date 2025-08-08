@@ -22,6 +22,7 @@ class FilePickerWindows extends FilePicker {
   @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
+    String? confirmButtonText,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
@@ -97,6 +98,7 @@ class FilePickerWindows extends FilePicker {
   @override
   Future<String?> getDirectoryPath({
     String? dialogTitle,
+    String? confirmButtonText,
     bool lockParentWindow = false,
     String? initialDirectory,
   }) async {
@@ -197,6 +199,7 @@ class FilePickerWindows extends FilePicker {
   @override
   Future<String?> saveFile({
     String? dialogTitle,
+    String? confirmButtonText,
     String? fileName,
     String? initialDirectory,
     FileType type = FileType.any,

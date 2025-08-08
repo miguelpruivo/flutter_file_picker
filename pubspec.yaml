@@ -18,6 +18,7 @@ dependencies:
   win32: ^5.9.0
   cross_file: ^0.3.4+2
   web: ^1.1.0
+  dbus: ^0.7.11
 
 dev_dependencies:
   flutter_lints: ^5.0.0
