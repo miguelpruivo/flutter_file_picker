@@ -1,3 +1,7 @@
+## 10.2.3
+### General
+- Fixed build failures on Flutter 3.24 caused by changes to address Win32 deprecation warnings on Windows. [#1855](https://github.com/miguelpruivo/flutter_file_picker/issues/1855)
+
 ## 10.2.2
 ### Android
 - Fixed an issue where some files would incorrectly append a `.txt` extension when saving files on Android. 
