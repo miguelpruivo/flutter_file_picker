@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          flutter-version: 'stable'
 
       - run: flutter --version
 
@@ -61,3 +61,45 @@ jobs:
 
       - name: Run tests
         run: flutter test
+
+      # Linux build (example app)
+      - name: Install Linux desktop dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Enable Linux desktop
+        if: matrix.os == 'ubuntu-latest'
+        run: flutter config --enable-linux-desktop
+
+      - name: Build Linux example
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: example
+        run: |
+          flutter pub get
+          flutter build linux
+
+      # Windows build (example app)
+      - name: Enable Windows desktop
+        if: matrix.os == 'windows-latest'
+        run: flutter config --enable-windows-desktop
+
+      - name: Build Windows example
+        if: matrix.os == 'windows-latest'
+        working-directory: example
+        run: |
+          flutter pub get
+          flutter build windows
+
+      # macOS build (example app)
+      - name: Enable macOS desktop
+        if: matrix.os == 'macos-latest'
+        run: flutter config --enable-macos-desktop
+
+      - name: Build macOS example
+        if: matrix.os == 'macos-latest'
+        working-directory: example
+        run: |
+          flutter pub get
+          flutter build macos
