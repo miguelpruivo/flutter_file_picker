@@ -54,7 +54,7 @@ jobs:
         run: flutter pub get
 
       - name: Verify formatting
-        run: flutter format --output=none --set-exit-if-changed .
+        run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze project source
         run: flutter analyze
