@@ -308,7 +308,16 @@ object FileUtils {
             return ArrayList(listOf("*/*"))
         }
 
-        val mimes = ArrayList<String>()
+        // On Android, the CSV mime type from getMimeTypeFromExtension() returns
+        // "text/comma-separated-values" which is non-standard and doesn't filter
+        // CSV files in Google Drive.
+        // (see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types)
+        // (see https://android.googlesource.com/platform/frameworks/base/+/61ae88e/core/java/android/webkit/MimeTypeMap.java#439)
+        val CSV_EXTENSION = "csv";
+        val CSV_MIME_TYPE = "text/csv";
+
+
+        val mimes = ArrayList<String?>()
 
         for (i in allowedExtensions.indices) {
             val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
@@ -323,6 +332,10 @@ object FileUtils {
             }
 
             mimes.add(mime)
+            if(allowedExtensions[i].equals(CSV_EXTENSION)) {
+                // Add the standard CSV mime type.
+                mimes.add(CSV_MIME_TYPE);
+            }
         }
         return mimes
     }
