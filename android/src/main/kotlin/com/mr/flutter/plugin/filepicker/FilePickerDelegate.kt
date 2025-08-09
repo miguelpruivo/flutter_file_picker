@@ -31,7 +31,7 @@ class FilePickerDelegate(
     var loadDataToMemory = false
     var type: String? = null
     var compressionQuality = 0
-    var allowedExtensions: ArrayList<String?>? = null
+    var allowedExtensions: ArrayList<String>? = null
     var eventSink: EventSink? = null
     var bytes: ByteArray? = null
 

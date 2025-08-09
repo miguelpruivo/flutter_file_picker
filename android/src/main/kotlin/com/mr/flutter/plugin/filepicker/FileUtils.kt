@@ -182,7 +182,7 @@ object FileUtils {
         type: String?,
         isMultipleSelection: Boolean?,
         withData: Boolean?,
-        allowedExtensions: ArrayList<String?>?,
+        allowedExtensions: ArrayList<String>,
         compressionQuality: Int? = 0,
         result: MethodChannel.Result
     ) {
@@ -214,15 +214,21 @@ object FileUtils {
     private fun getMimeTypeForBytes(fileName: String?, bytes: ByteArray?): String {
         val tika = Tika()
 
-        if (fileName.isNullOrEmpty()) {
-            return tika.detect(bytes)
-        }
-        val detector = tika.detector
+        val detectedType = if (fileName.isNullOrEmpty()) {
+            tika.detect(bytes)
+        } else {
+            val detector = tika.detector
 
-        val stream = TikaInputStream.get(bytes)
-        val metadata = Metadata()
-        metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName)
-        return detector.detect(stream, metadata).toString()
+            val stream = TikaInputStream.get(bytes)
+            val metadata = Metadata()
+            metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName)
+            detector.detect(stream, metadata).toString()
+        }
+        return if (detectedType == "text/plain") {
+            "*/*"
+        } else {
+            detectedType
+        }
     }
 
     fun FilePickerDelegate.saveFile(
@@ -244,12 +250,7 @@ object FileUtils {
         this.bytes = bytes
         if ("dir" != type) {
             try {
-                val detectedMimeType = getMimeTypeForBytes(fileName = fileName, bytes = bytes)
-                if (detectedMimeType == "text/plain") {
-                    intent.type = "*/*"
-                } else {
-                    intent.type = detectedMimeType
-                }
+                intent.type = getMimeTypeForBytes(fileName = fileName, bytes = bytes)
             } catch (t: Throwable) {
                 intent.type = "*/*"
                 Log.e(
@@ -302,12 +303,12 @@ object FileUtils {
         return bundle.getParcelableArrayList("selectedItems")
     }
 
-    fun getMimeTypes(allowedExtensions: ArrayList<String>?): ArrayList<String?>? {
+    fun getMimeTypes(allowedExtensions: ArrayList<String>?): ArrayList<String> {
         if (allowedExtensions.isNullOrEmpty()) {
-            return null
+            return ArrayList(listOf("*/*"))
         }
 
-        val mimes = ArrayList<String?>()
+        val mimes = ArrayList<String>()
 
         for (i in allowedExtensions.indices) {
             val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
@@ -318,7 +319,7 @@ object FileUtils {
                     TAG,
                     "Custom file type " + allowedExtensions[i] + " is unsupported and will be ignored."
                 )
-                continue
+                return ArrayList(listOf("*/*"))
             }
 
             mimes.add(mime)
