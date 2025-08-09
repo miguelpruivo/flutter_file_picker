@@ -7,33 +7,99 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
+  test_flutter_versions:
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
-
-    name: Run unit tests on ${{ matrix.os }}
-
+        flutter: [ '3.24.0', '3.27.0', '3.29.0', '3.32.0' ]
+    name: Tests on Flutter ${{ matrix.flutter }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          flutter-version: ${{ matrix.flutter }}
 
       - run: flutter --version
 
       - name: Install dependencies
         run: flutter pub get
 
-      # Uncomment this step to verify the use of 'dart format' on each commit.
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
-
-      # Consider passing '--fatal-infos' for slightly stricter analysis.
+        
       - name: Analyze project source
-        run: dart analyze
+        run: flutter analyze
 
       - name: Run tests
         run: flutter test
+
+  test_os_matrix:
+    needs: test_flutter_versions
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    name: Tests on ${{ matrix.os }} (stable)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - run: flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze project source
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
+      # Linux build (example app)
+      - name: Install Linux desktop dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Enable Linux desktop
+        if: matrix.os == 'ubuntu-latest'
+        run: flutter config --enable-linux-desktop
+
+      - name: Build Linux example
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: example
+        run: |
+          flutter pub get
+          flutter build linux
+
+      # Windows build (example app)
+      - name: Enable Windows desktop
+        if: matrix.os == 'windows-latest'
+        run: flutter config --enable-windows-desktop
+
+      - name: Build Windows example
+        if: matrix.os == 'windows-latest'
+        working-directory: example
+        run: |
+          flutter pub get
+          flutter build windows
+
+      # macOS build (example app)
+      - name: Enable macOS desktop
+        if: matrix.os == 'macos-latest'
+        run: flutter config --enable-macos-desktop
+
+      - name: Build macOS example
+        if: matrix.os == 'macos-latest'
+        working-directory: example
+        run: |
+          flutter pub get
+          flutter build macos

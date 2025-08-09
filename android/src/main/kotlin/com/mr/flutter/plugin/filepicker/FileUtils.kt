@@ -182,7 +182,7 @@ object FileUtils {
         type: String?,
         isMultipleSelection: Boolean?,
         withData: Boolean?,
-        allowedExtensions: ArrayList<String?>?,
+        allowedExtensions: ArrayList<String>,
         compressionQuality: Int? = 0,
         result: MethodChannel.Result
     ) {
@@ -214,15 +214,21 @@ object FileUtils {
     private fun getMimeTypeForBytes(fileName: String?, bytes: ByteArray?): String {
         val tika = Tika()
 
-        if (fileName.isNullOrEmpty()) {
-            return tika.detect(bytes)
-        }
-        val detector = tika.detector
+        val detectedType = if (fileName.isNullOrEmpty()) {
+            tika.detect(bytes)
+        } else {
+            val detector = tika.detector
 
-        val stream = TikaInputStream.get(bytes)
-        val metadata = Metadata()
-        metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName)
-        return detector.detect(stream, metadata).toString()
+            val stream = TikaInputStream.get(bytes)
+            val metadata = Metadata()
+            metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName)
+            detector.detect(stream, metadata).toString()
+        }
+        return if (detectedType == "text/plain") {
+            "*/*"
+        } else {
+            detectedType
+        }
     }
 
     fun FilePickerDelegate.saveFile(
@@ -297,9 +303,9 @@ object FileUtils {
         return bundle.getParcelableArrayList("selectedItems")
     }
 
-    fun getMimeTypes(allowedExtensions: ArrayList<String>?): ArrayList<String?>? {
+    fun getMimeTypes(allowedExtensions: ArrayList<String>?): ArrayList<String> {
         if (allowedExtensions.isNullOrEmpty()) {
-            return null
+            return ArrayList(listOf("*/*"))
         }
 
         // On Android, the CSV mime type from getMimeTypeFromExtension() returns
@@ -322,7 +328,7 @@ object FileUtils {
                     TAG,
                     "Custom file type " + allowedExtensions[i] + " is unsupported and will be ignored."
                 )
-                continue
+                return ArrayList(listOf("*/*"))
             }
 
             mimes.add(mime)
