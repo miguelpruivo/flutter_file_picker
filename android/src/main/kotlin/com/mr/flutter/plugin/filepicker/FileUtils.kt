@@ -40,6 +40,13 @@ import java.util.Locale
 
 object FileUtils {
     private const val TAG = "FilePickerUtils"
+    // On Android, the CSV mime type from getMimeTypeFromExtension() returns
+    // "text/comma-separated-values" which is non-standard and doesn't filter
+    // CSV files in Google Drive.
+    // (see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types)
+    // (see https://android.googlesource.com/platform/frameworks/base/+/61ae88e/core/java/android/webkit/MimeTypeMap.java#439)
+    private const val CSV_EXTENSION = "csv"
+    private const val CSV_MIME_TYPE = "text/csv"
 
     fun FilePickerDelegate.processFiles(
         activity: Activity,
@@ -308,16 +315,7 @@ object FileUtils {
             return ArrayList(listOf("*/*"))
         }
 
-        // On Android, the CSV mime type from getMimeTypeFromExtension() returns
-        // "text/comma-separated-values" which is non-standard and doesn't filter
-        // CSV files in Google Drive.
-        // (see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types)
-        // (see https://android.googlesource.com/platform/frameworks/base/+/61ae88e/core/java/android/webkit/MimeTypeMap.java#439)
-        val CSV_EXTENSION = "csv";
-        val CSV_MIME_TYPE = "text/csv";
-
-
-        val mimes = ArrayList<String?>()
+        val mimes = ArrayList<String>()
 
         for (i in allowedExtensions.indices) {
             val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
@@ -326,16 +324,21 @@ object FileUtils {
             if (mime == null) {
                 Log.w(
                     TAG,
-                    "Custom file type " + allowedExtensions[i] + " is unsupported and will be ignored."
+                    "Custom file type '" + allowedExtensions[i] + "' is unsupported and will not be filtered."
                 )
                 return ArrayList(listOf("*/*"))
             }
-
-            mimes.add(mime)
-            if(allowedExtensions[i].equals(CSV_EXTENSION)) {
+            // Check if the extension is a CSV extension
+            if(allowedExtensions[i] == CSV_EXTENSION) {
                 // Add the standard CSV mime type.
-                mimes.add(CSV_MIME_TYPE);
+                mimes.add(CSV_MIME_TYPE)
+            } else {
+                mimes.add(mime)
             }
+            Log.d(
+                TAG,
+                "Custom file type '" + allowedExtensions[i] + "' was detected as '" + mimes.last() + "'."
+            )
         }
         return mimes
     }
