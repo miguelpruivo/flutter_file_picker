@@ -328,18 +328,17 @@ object FileUtils {
                 )
                 return ArrayList(listOf("*/*"))
             }
-            // Check if the extension is a CSV extension
+
+            mimes.add(mime)
             if(allowedExtensions[i] == CSV_EXTENSION) {
                 // Add the standard CSV mime type.
                 mimes.add(CSV_MIME_TYPE)
-            } else {
-                mimes.add(mime)
             }
-            Log.d(
-                TAG,
-                "Custom file type '" + allowedExtensions[i] + "' was detected as '" + mimes.last() + "'."
-            )
         }
+        Log.d(
+            TAG,
+            "Custom file types are $allowedExtensions. The mime types were detected as $mimes."
+        )
         return mimes
     }
 
