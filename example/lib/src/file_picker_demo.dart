@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, deprecated_member_use_from_same_package
+
 import 'package:file/local.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
