@@ -12,12 +12,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        flutter: [ '3.24.0', '3.27.0', '3.29.0', '3.32.0' ]
+        flutter: [ '3.24.0', '3.27.0', '3.29.0', 'stable', 'beta' ]
     name: Tests on Flutter ${{ matrix.flutter }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
+        if: matrix.flutter == 'stable' || matrix.flutter == 'beta'
+        with:
+          channel: ${{ matrix.flutter }}
+
+      - uses: subosito/flutter-action@v2
+        if: matrix.flutter != 'stable' && matrix.flutter != 'beta'
         with:
           flutter-version: ${{ matrix.flutter }}
 
@@ -41,7 +47,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
-    name: Tests on ${{ matrix.os }} (stable)
+    name: Tests & Builds on ${{ matrix.os }} (channel stable)
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
