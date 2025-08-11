@@ -92,7 +92,7 @@ class FilePickerIO extends FilePicker {
       );
     }
     try {
-      _eventSubscription?.cancel();
+      await _eventSubscription?.cancel();
       if (onFileLoading != null) {
         _eventSubscription = _eventChannel.receiveBroadcastStream().listen(
               (data) => onFileLoading((data is bool && data)
