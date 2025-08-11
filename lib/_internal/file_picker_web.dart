@@ -39,7 +39,6 @@ class FilePickerWeb extends FilePicker {
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
-    String? confirmButtonText,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     bool allowMultiple = false,
@@ -194,7 +193,6 @@ class FilePickerWeb extends FilePicker {
   Future<String?> saveFile({
     String? dialogTitle,
     String? fileName,
-    String? confirmButtonText,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
