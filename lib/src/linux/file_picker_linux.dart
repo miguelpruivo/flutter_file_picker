@@ -10,7 +10,6 @@ import 'package:file_picker/src/linux/xdp_request.dart';
 import 'package:file_picker/src/linux/filters.dart';
 import 'package:dbus/dbus.dart';
 
-
 class FilePickerLinux extends FilePicker {
   static void registerWith() {
     FilePicker.platform = FilePickerLinux();
