@@ -3,13 +3,26 @@ import 'dart:typed_data';
 
 import 'package:file_picker/src/file_picker.dart';
 import 'package:file_picker/src/file_picker_result.dart';
-import 'package:file_picker/src/linux/dialog_handler.dart';
 import 'package:file_picker/src/platform_file.dart';
 import 'package:file_picker/src/utils.dart';
+import 'package:file_picker/src/linux/xdp_filechooser.dart';
+import 'package:file_picker/src/linux/xdp_request.dart';
+import 'package:file_picker/src/linux/filters.dart';
+import 'package:dbus/dbus.dart';
 
 class FilePickerLinux extends FilePicker {
   static void registerWith() {
     FilePicker.platform = FilePickerLinux();
+  }
+
+  final destination = "org.freedesktop.portal.Desktop";
+  late final DBusClient _client;
+  late final OrgFreedesktopPortalFileChooser _xdpChooser;
+
+  FilePickerLinux() : super() {
+    _client = DBusClient.session();
+    _xdpChooser = OrgFreedesktopPortalFileChooser(_client, destination,
+        path: DBusObjectPath("/org/freedesktop/portal/desktop"));
   }
 
   @override
@@ -29,33 +42,46 @@ class FilePickerLinux extends FilePicker {
     bool readSequential = false,
     int compressionQuality = 0,
   }) async {
-    final String executable = await _getPathToExecutable();
-    final dialogHandler = DialogHandler(executable);
+    final filter = Filter(type, allowedExtensions);
+    Map<String, DBusValue> xdpOption = {
+      'handle_token': DBusString('flutter_picker'),
+      'multiple': DBusBoolean(allowMultiple),
+      'modal': DBusBoolean(lockParentWindow),
+      'filters': filter.toDBusArray(),
+    };
+    if (initialDirectory != null) {
+      List<int> tmp = [];
+      for (var i = 0; i < initialDirectory.length; i++) {
+        tmp.add(initialDirectory[i].codeUnitAt(0));
+      }
+      DBusArray directory = DBusArray.byte(tmp);
+      xdpOption["current_folder"] = directory;
+    }
+    final replyPath = await _xdpChooser.callOpenFile(
+        "", dialogTitle ?? "flutter picker", xdpOption);
 
-    final String fileFilter = dialogHandler.fileTypeToFileFilter(
-      type,
-      allowedExtensions,
-    );
+    List<Uri> uriPaths = [];
 
-    final List<String> arguments = dialogHandler.generateCommandLineArguments(
-      dialogTitle ?? defaultDialogTitle,
-      fileFilter: fileFilter,
-      initialDirectory: initialDirectory ?? '',
-      multipleFiles: allowMultiple,
-      pickDirectory: false,
-    );
+    final request =
+        OrgFreedesktopPortalRequest(_client, destination, path: replyPath);
 
-    final String? fileSelectionResult = await runExecutableWithArguments(
-      executable,
-      arguments,
-    );
-    if (fileSelectionResult == null) {
-      return null;
+    await for (var response in request.response) {
+      final status = response.response;
+      // Maybe cancelled
+      if (status != 0) {
+        return null;
+      }
+      final result = response.results;
+      uriPaths = result["uris"]
+              ?.asArray()
+              .map((data) => Uri.parse(data.asString()))
+              .toList() ??
+          [];
+      break;
     }
 
-    final List<String> filePaths = dialogHandler.resultStringToFilePaths(
-      fileSelectionResult,
-    );
+    final filePaths = uriPaths.map((uri) => uri.toFilePath()).toList();
+
     final List<PlatformFile> platformFiles = await filePathsToPlatformFiles(
       filePaths,
       withReadStream,
@@ -71,14 +97,51 @@ class FilePickerLinux extends FilePicker {
     bool lockParentWindow = false,
     String? initialDirectory,
   }) async {
-    final executable = await _getPathToExecutable();
-    final List<String> arguments =
-        DialogHandler(executable).generateCommandLineArguments(
-      dialogTitle ?? defaultDialogTitle,
-      initialDirectory: initialDirectory ?? '',
-      pickDirectory: true,
+    Map<String, DBusValue> xdpOption = {
+      'handle_token': DBusString('flutter_picker'),
+      'directory': DBusBoolean(true),
+      'modal': DBusBoolean(lockParentWindow),
+    };
+    if (initialDirectory != null) {
+      List<int> tmp = [];
+      for (var i = 0; i < initialDirectory.length; i++) {
+        tmp.add(initialDirectory[i].codeUnitAt(0));
+      }
+      DBusArray directory = DBusArray.byte(tmp);
+      xdpOption["current_folder"] = directory;
+    }
+    final replyPath = await _xdpChooser.callOpenFile(
+        "", dialogTitle ?? "flutter picker", xdpOption);
+
+    List<Uri> uriPaths = [];
+
+    final request =
+        OrgFreedesktopPortalRequest(_client, destination, path: replyPath);
+
+    await for (var response in request.response) {
+      final status = response.response;
+      // Maybe cancelled
+      if (status != 0) {
+        return null;
+      }
+      final result = response.results;
+      uriPaths = result["uris"]
+              ?.asArray()
+              .map((data) => Uri.parse(data.asString()))
+              .toList() ??
+          [];
+      break;
+    }
+
+    final filePaths = uriPaths.map((uri) => uri.toFilePath()).toList();
+
+    final List<PlatformFile> platformFiles = await filePathsToPlatformFiles(
+      filePaths,
+      false,
+      false,
     );
-    return await runExecutableWithArguments(executable, arguments);
+
+    return platformFiles.firstOrNull?.path;
   }
 
   @override
@@ -91,46 +154,43 @@ class FilePickerLinux extends FilePicker {
     Uint8List? bytes,
     bool lockParentWindow = false,
   }) async {
-    final executable = await _getPathToExecutable();
-    final dialogHandler = DialogHandler(executable);
-
-    final String fileFilter = dialogHandler.fileTypeToFileFilter(
-      type,
-      allowedExtensions,
-    );
-
-    final List<String> arguments = dialogHandler.generateCommandLineArguments(
-      dialogTitle ?? defaultDialogTitle,
-      fileFilter: fileFilter,
-      fileName: fileName ?? '',
-      initialDirectory: initialDirectory ?? '',
-      saveFile: true,
-    );
-
-    final savedFilePath =
-        await runExecutableWithArguments(executable, arguments);
-    await saveBytesToFile(bytes, savedFilePath);
-    return savedFilePath;
-  }
-
-  /// Returns the path to the executables `qarma`, `zenity` or `kdialog` as a
-  /// [String].
-  /// On Linux, the CLI tools `qarma` or `zenity` can be used to open a native
-  /// file picker dialog. It seems as if all Linux distributions have at least
-  /// one of these two tools pre-installed (on Ubuntu `zenity` is pre-installed).
-  /// On distribuitions that use KDE Plasma as their Desktop Environment,
-  /// `kdialog` is used to achieve these functionalities.
-  /// The future returns an error, if none of the executables was found on
-  /// the path.
-  Future<String> _getPathToExecutable() async {
-    try {
-      try {
-        return await isExecutableOnPath('qarma');
-      } on Exception {
-        return await isExecutableOnPath('kdialog');
+    Map<String, DBusValue> xdpOption = {
+      'handle_token': DBusString('flutter_picker'),
+      'current_name': DBusString(fileName ?? ''),
+      'modal': DBusBoolean(lockParentWindow),
+    };
+    if (initialDirectory != null) {
+      List<int> tmp = [];
+      for (var i = 0; i < initialDirectory.length; i++) {
+        tmp.add(initialDirectory[i].codeUnitAt(0));
       }
-    } on Exception {
-      return await isExecutableOnPath('zenity');
+      DBusArray directory = DBusArray.byte(tmp);
+      xdpOption["current_folder"] = directory;
     }
+
+    final replyPath = await _xdpChooser.callSaveFile(
+        "", dialogTitle ?? "flutter picker", xdpOption);
+    final request =
+        OrgFreedesktopPortalRequest(_client, destination, path: replyPath);
+
+    List<Uri> saveUris = [];
+    await for (var response in request.response) {
+      final status = response.response;
+      // Maybe cancelled
+      if (status != 0) {
+        return null;
+      }
+      final result = response.results;
+      saveUris = result["uris"]
+              ?.asArray()
+              .map((data) => Uri.parse(data.asString()))
+              .toList() ??
+          saveUris;
+      break;
+    }
+
+    final savedFilePaths = saveUris.map((uri) => uri.toFilePath()).toList();
+
+    return savedFilePaths.firstOrNull;
   }
 }
