@@ -93,7 +93,6 @@ abstract class FilePicker extends PlatformInterface {
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
-    String? confirmButtonText,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
@@ -129,7 +128,6 @@ abstract class FilePicker extends PlatformInterface {
   /// dialog or if the paths cannot be resolved, the method returns `null`.
   Future<List<String>?> pickFileAndDirectoryPaths({
     String? initialDirectory,
-    String? confirmButtonText,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
   }) async =>
@@ -177,7 +175,6 @@ abstract class FilePicker extends PlatformInterface {
   /// Note: The User Selected File Read entitlement is required on macOS.
   Future<String?> getDirectoryPath({
     String? dialogTitle,
-    String? confirmButtonText,
     bool lockParentWindow = false,
     String? initialDirectory,
   }) async =>
@@ -223,7 +220,6 @@ abstract class FilePicker extends PlatformInterface {
   /// the absolute path of the selected file, if the user selected a file.
   Future<String?> saveFile({
     String? dialogTitle,
-    String? confirmButtonText,
     String? fileName,
     String? initialDirectory,
     FileType type = FileType.any,

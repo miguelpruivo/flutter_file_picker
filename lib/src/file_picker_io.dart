@@ -29,7 +29,6 @@ class FilePickerIO extends FilePicker {
     List<String>? allowedExtensions,
     String? dialogTitle,
     String? initialDirectory,
-    String? confirmButtonText,
     Function(FilePickerStatus)? onFileLoading,
     @Deprecated(
         'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
@@ -59,7 +58,6 @@ class FilePickerIO extends FilePicker {
   @override
   Future<String?> getDirectoryPath({
     String? dialogTitle,
-    String? confirmButtonText,
     bool lockParentWindow = false,
     String? initialDirectory,
   }) async {
@@ -144,7 +142,6 @@ class FilePickerIO extends FilePicker {
   Future<String?> saveFile(
       {String? dialogTitle,
       String? fileName,
-      String? confirmButtonText,
       String? initialDirectory,
       FileType type = FileType.any,
       List<String>? allowedExtensions,
