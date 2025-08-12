@@ -1,3 +1,7 @@
+## 10.3.1
+### General
+- Fixed onFileLoading handler to process status changes only when data is a bool.
+
 ## 10.3.0
 ### Desktop
 - Support xdg desktop portal filechooser on linux. [#1827](https://github.com/miguelpruivo/flutter_file_picker/issues/1827) [@Decodetalkers](https://github.com/Decodetalkers)
