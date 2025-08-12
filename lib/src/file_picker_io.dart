@@ -11,8 +11,9 @@ final MethodChannel _channel = MethodChannel(
       : const StandardMethodCodec(),
 );
 
-const EventChannel _eventChannel =
-    EventChannel('miguelruivo.flutter.plugins.filepickerevent');
+const EventChannel _eventChannel = EventChannel(
+  'miguelruivo.flutter.plugins.filepickerevent',
+);
 
 /// An implementation of [FilePicker] that uses method channels.
 class FilePickerIO extends FilePicker {
@@ -31,7 +32,8 @@ class FilePickerIO extends FilePicker {
     String? initialDirectory,
     Function(FilePickerStatus)? onFileLoading,
     @Deprecated(
-        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
+      'allowCompression is deprecated and has no effect. Use compressionQuality instead.',
+    )
     bool? allowCompression = false,
     bool allowMultiple = false,
     bool? withData = false,
@@ -39,17 +41,16 @@ class FilePickerIO extends FilePicker {
     bool? withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
-  }) =>
-      _getPath(
-        type,
-        allowMultiple,
-        allowCompression,
-        allowedExtensions,
-        onFileLoading,
-        withData,
-        withReadStream,
-        compressionQuality,
-      );
+  }) => _getPath(
+    type,
+    allowMultiple,
+    allowCompression,
+    allowedExtensions,
+    onFileLoading,
+    withData,
+    withReadStream,
+    compressionQuality,
+  );
 
   @override
   Future<bool?> clearTemporaryFiles() async =>
@@ -66,7 +67,8 @@ class FilePickerIO extends FilePicker {
     } on PlatformException catch (ex) {
       if (ex.code == "unknown_path") {
         print(
-            '[$_tag] Could not resolve directory path. Maybe it\'s a protected one or unsupported (such as Downloads folder). If you are on Android, make sure that you are on SDK 21 or above.');
+          '[$_tag] Could not resolve directory path. Maybe it\'s a protected one or unsupported (such as Downloads folder). If you are on Android, make sure that you are on SDK 21 or above.',
+        );
       }
     }
     return null;
@@ -95,12 +97,13 @@ class FilePickerIO extends FilePicker {
       await _eventSubscription?.cancel();
       if (onFileLoading != null) {
         _eventSubscription = _eventChannel.receiveBroadcastStream().listen(
-              (data) {
-                if (data is! bool) return;
-                onFileLoading(data ? FilePickerStatus.picking : FilePickerStatus.done);
-              },
-              onError: (error) => throw Exception(error),
-            );
+          (data) => onFileLoading(
+            (data is bool && data)
+                ? FilePickerStatus.picking
+                : FilePickerStatus.done,
+          ),
+          onError: (error) => throw Exception(error),
+        );
       }
 
       final List<Map>? result = await _channel.invokeListMethod(type, {
@@ -134,24 +137,27 @@ class FilePickerIO extends FilePicker {
       rethrow;
     } catch (e) {
       print(
-          '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
+        '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e',
+      );
       rethrow;
     }
   }
 
   @override
-  Future<String?> saveFile(
-      {String? dialogTitle,
-      String? fileName,
-      String? initialDirectory,
-      FileType type = FileType.any,
-      List<String>? allowedExtensions,
-      Uint8List? bytes,
-      bool lockParentWindow = false}) {
+  Future<String?> saveFile({
+    String? dialogTitle,
+    String? fileName,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Uint8List? bytes,
+    bool lockParentWindow = false,
+  }) {
     if (Platform.isIOS || Platform.isAndroid) {
       if (bytes == null) {
         throw ArgumentError(
-            'Bytes are required on Android & iOS when saving a file.');
+          'Bytes are required on Android & iOS when saving a file.',
+        );
       }
 
       return _channel.invokeMethod("save", {
