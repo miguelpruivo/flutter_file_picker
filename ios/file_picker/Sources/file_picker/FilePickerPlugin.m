@@ -565,7 +565,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
                [result.itemProvider loadFileRepresentationForTypeIdentifier:typeIdentifier completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
                     @autoreleasepool {
                         if (error != nil || url == nil) {
-                            [errors addObject:[NSString stringWithFormat:@"Failed to load image at index %ld: %@",
+                            [errors addObject:[NSString stringWithFormat:@"Failed to load image/video at index %ld: %@",
                                 (long)index, error ? error.localizedDescription : @"Unknown error"]];
                             dispatch_group_leave(self->_group);
                             return;
@@ -583,26 +583,17 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
                             
                             // Load image data with options to reduce memory usage
                             NSError *loadError = nil;
-                            NSData *imageData = [NSData dataWithContentsOfURL:url options:NSDataReadingMappedIfSafe error:&loadError];
                             
-                            if (loadError || !imageData) {
-                                [errors addObject:[NSString stringWithFormat:@"Failed to load image data at index %ld: %@",
-                                    (long)index, loadError.localizedDescription ?: @"Unknown error"]];
+                            // Write to destination
+                            if ([[NSFileManager defaultManager] copyItemAtURL:url toURL:destinationUrl error:&loadError]) {
+                                [urls addObject:destinationUrl];
                             } else {
-                                // Write to destination
-                                if ([imageData writeToURL:destinationUrl options:NSDataWritingAtomic error:&loadError]) {
-                                    [urls addObject:destinationUrl];
-                                } else {
-                                    [errors addObject:[NSString stringWithFormat:@"Failed to save image at index %ld: %@",
-                                        (long)index, loadError.localizedDescription]];
-                                }
+                                [errors addObject:[NSString stringWithFormat:@"Failed to save image/video at index %ld: %@",
+                                    (long)index, loadError.localizedDescription]];
                             }
                             
-                            // Clean up
-                            imageData = nil;
-                            
                         } @catch (NSException *exception) {
-                            [errors addObject:[NSString stringWithFormat:@"Exception processing image at index %ld: %@",
+                            [errors addObject:[NSString stringWithFormat:@"Exception processing image/video at index %ld: %@",
                                 (long)index, exception.description]];
                         }
                         
@@ -642,7 +633,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
         } else {
             // Only if all images failed, return an error
             self->_result([FlutterError errorWithCode:@"file_picker_error"
-                                            message:@"Failed to process any images"
+                                            message:@"Failed to process any images/video"
                                             details:[errors componentsJoinedByString:@"\n"]]);
         }
         self->_result = nil;
