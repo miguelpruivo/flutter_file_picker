@@ -33,6 +33,7 @@ jobs:
         run: flutter pub get
 
       - name: Verify formatting
+        if: matrix.flutter == 'stable'
         run: dart format --output=none --set-exit-if-changed .
         
       - name: Analyze project source
