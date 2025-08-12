@@ -40,6 +40,13 @@ import java.util.Locale
 
 object FileUtils {
     private const val TAG = "FilePickerUtils"
+    // On Android, the CSV mime type from getMimeTypeFromExtension() returns
+    // "text/comma-separated-values" which is non-standard and doesn't filter
+    // CSV files in Google Drive.
+    // (see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types)
+    // (see https://android.googlesource.com/platform/frameworks/base/+/61ae88e/core/java/android/webkit/MimeTypeMap.java#439)
+    private const val CSV_EXTENSION = "csv"
+    private const val CSV_MIME_TYPE = "text/csv"
 
     fun FilePickerDelegate.processFiles(
         activity: Activity,
@@ -182,7 +189,7 @@ object FileUtils {
         type: String?,
         isMultipleSelection: Boolean?,
         withData: Boolean?,
-        allowedExtensions: ArrayList<String?>?,
+        allowedExtensions: ArrayList<String>,
         compressionQuality: Int? = 0,
         result: MethodChannel.Result
     ) {
@@ -214,15 +221,21 @@ object FileUtils {
     private fun getMimeTypeForBytes(fileName: String?, bytes: ByteArray?): String {
         val tika = Tika()
 
-        if (fileName.isNullOrEmpty()) {
-            return tika.detect(bytes)
-        }
-        val detector = tika.detector
+        val detectedType = if (fileName.isNullOrEmpty()) {
+            tika.detect(bytes)
+        } else {
+            val detector = tika.detector
 
-        val stream = TikaInputStream.get(bytes)
-        val metadata = Metadata()
-        metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName)
-        return detector.detect(stream, metadata).toString()
+            val stream = TikaInputStream.get(bytes)
+            val metadata = Metadata()
+            metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName)
+            detector.detect(stream, metadata).toString()
+        }
+        return if (detectedType == "text/plain") {
+            "*/*"
+        } else {
+            detectedType
+        }
     }
 
     fun FilePickerDelegate.saveFile(
@@ -297,12 +310,12 @@ object FileUtils {
         return bundle.getParcelableArrayList("selectedItems")
     }
 
-    fun getMimeTypes(allowedExtensions: ArrayList<String>?): ArrayList<String?>? {
+    fun getMimeTypes(allowedExtensions: ArrayList<String>?): ArrayList<String> {
         if (allowedExtensions.isNullOrEmpty()) {
-            return null
+            return ArrayList(listOf("*/*"))
         }
 
-        val mimes = ArrayList<String?>()
+        val mimes = ArrayList<String>()
 
         for (i in allowedExtensions.indices) {
             val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
@@ -311,13 +324,21 @@ object FileUtils {
             if (mime == null) {
                 Log.w(
                     TAG,
-                    "Custom file type " + allowedExtensions[i] + " is unsupported and will be ignored."
+                    "Custom file type '" + allowedExtensions[i] + "' is unsupported and will not be filtered."
                 )
-                continue
+                return ArrayList(listOf("*/*"))
             }
 
             mimes.add(mime)
+            if(allowedExtensions[i] == CSV_EXTENSION) {
+                // Add the standard CSV mime type.
+                mimes.add(CSV_MIME_TYPE)
+            }
         }
+        Log.d(
+            TAG,
+            "Custom file types are $allowedExtensions. The mime types were detected as $mimes."
+        )
         return mimes
     }
 

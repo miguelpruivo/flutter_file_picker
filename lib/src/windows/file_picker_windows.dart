@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:ffi';
 import 'dart:isolate';
 import 'dart:math';
@@ -261,8 +263,8 @@ class FilePickerWindows extends FilePicker {
     }
   }
 
-  validateFileName(String fileName) {
-    if (fileName.contains(RegExp(r'[<>:\/\\|?*"]'))) {
+  void validateFileName(String fileName) {
+    if (fileName.contains(RegExp(r'[<>:/\\|?*"]'))) {
       throw IllegalCharacterInFileNameException(
           'Reserved characters may not be used in file names. See: https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions');
     }

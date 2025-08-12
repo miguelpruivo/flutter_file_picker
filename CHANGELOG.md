@@ -1,3 +1,29 @@
+## 10.3.0
+### Desktop
+- Support xdg desktop portal filechooser on linux. [#1827](https://github.com/miguelpruivo/flutter_file_picker/issues/1827) [@Decodetalkers](https://github.com/Decodetalkers)
+
+### Android
+- Fixed an issue where CSV files were not properly filtered during file selection. [#1849](https://github.com/miguelpruivo/flutter_file_picker/pull/1849) [@SoftWyer](https://github.com/SoftWyer)
+
+### Web
+- Introduced bool flag to control upload behavior on window blur. [#1833](https://github.com/miguelpruivo/flutter_file_picker/issues/1833) [@mugglmenzel](https://github.com/mugglmenzel)
+
+## 10.2.4
+### Android
+- Fixed an issue where custom MIME types were failing to load picking files on Chromebook. [#1858](https://github.com/miguelpruivo/flutter_file_picker/issues/1858) [@vicajilau](https://github.com/vicajilau)
+
+## 10.2.3
+### General
+- Fixed build failures on Flutter 3.24 caused by changes to address Win32 deprecation warnings on Windows. [#1855](https://github.com/miguelpruivo/flutter_file_picker/issues/1855) [@vicajilau](https://github.com/vicajilau)
+
+## 10.2.2
+### Android
+- Fixed an issue where some files would incorrectly append a `.txt` extension when saving files on Android. [@vicajilau](https://github.com/vicajilau)
+
+## 10.2.1
+### Android
+- Fixed an issue where the image upload would not display the loading indicator.
+
 ## 10.2.0
 ### Desktop
 - Added support for webp images on Desktop platforms. [#1491](https://github.com/miguelpruivo/flutter_file_picker/issues/1491)

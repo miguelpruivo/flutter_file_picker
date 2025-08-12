@@ -146,22 +146,14 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
             "custom" -> {
                 val allowedExtensions =
                     getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?)
-                if (allowedExtensions.isNullOrEmpty()) {
-                    result.error(
-                        TAG,
-                        "Unsupported filter. Ensure using extension without dot (e.g., jpg, not .jpg).",
-                        null
-                    )
-                } else {
-                    delegate?.startFileExplorer(
-                        resolveType(method),
-                        arguments?.get("allowMultipleSelection") as Boolean?,
-                        arguments?.get("withData") as Boolean?,
-                        allowedExtensions,
-                        arguments?.get("compressionQuality") as Int?,
-                        result
-                    )
-                }
+                delegate?.startFileExplorer(
+                    resolveType(method),
+                    arguments?.get("allowMultipleSelection") as Boolean?,
+                    arguments?.get("withData") as Boolean?,
+                    allowedExtensions,
+                    arguments?.get("compressionQuality") as Int?,
+                    result
+                )
             }
 
             else -> {
