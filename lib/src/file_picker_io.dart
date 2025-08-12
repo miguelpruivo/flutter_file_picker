@@ -95,11 +95,13 @@ class FilePickerIO extends FilePicker {
       await _eventSubscription?.cancel();
       if (onFileLoading != null) {
         _eventSubscription = _eventChannel.receiveBroadcastStream().listen(
-              (data) => onFileLoading((data is bool && data)
-                  ? FilePickerStatus.picking
-                  : FilePickerStatus.done),
-              onError: (error) => throw Exception(error),
-            );
+          (data) {
+            if (data is! bool) return;
+            onFileLoading(
+                data ? FilePickerStatus.picking : FilePickerStatus.done);
+          },
+          onError: (error) => throw Exception(error),
+        );
       }
 
       final List<Map>? result = await _channel.invokeListMethod(type, {
