@@ -3,7 +3,7 @@ version '1.0-SNAPSHOT'
 
 buildscript {
     ext {
-        kotlin_version = '1.8.22'
+        kotlin_version = '2.1.0'
     }
     repositories {
         google()
@@ -11,7 +11,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'com.android.tools.build:gradle:8.12.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -27,7 +27,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
-    compileSdk 34
+    compileSdkVersion 36
 
     defaultConfig {
         minSdk 21
@@ -39,10 +39,10 @@ android {
     }
     
     dependencies {
-        implementation 'androidx.core:core:1.15.0'
+        implementation 'androidx.core:core:1.17.0'
         implementation 'androidx.annotation:annotation:1.9.1'
-        implementation "androidx.lifecycle:lifecycle-runtime:2.8.7"
-        implementation "org.apache.tika:tika-core:3.2.0"
+        implementation "androidx.lifecycle:lifecycle-runtime:2.9.2"
+        implementation "org.apache.tika:tika-core:3.2.2"
     }
     kotlinOptions {
         jvmTarget = '1.8'
@@ -53,5 +53,5 @@ android {
     }
 }
 dependencies {
-    implementation 'androidx.core:core-ktx:1.15.0'
+    implementation 'androidx.core:core-ktx:1.17.0'
 }
