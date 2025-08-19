@@ -28,7 +28,7 @@ class Filter {
         final custom = [...?allowedExtensions];
         List<(int, String)> customList = [];
         for (var filter in custom) {
-          customList.add((0, filter));
+          customList.add((0, "*.$filter"));
         }
         info["Custom"] = customList;
       case FileType.image:

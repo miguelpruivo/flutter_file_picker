@@ -65,7 +65,7 @@ void main() {
           ]));
     });
     test('custom test', () {
-      final filter = Filter(FileType.custom, ["*.txt", "*.utau"]);
+      final filter = Filter(FileType.custom, ["txt", "utau"]);
 
       expect(
           filter.info["Custom"],
