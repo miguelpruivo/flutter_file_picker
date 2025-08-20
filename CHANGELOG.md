@@ -1,3 +1,7 @@
+## 10.3.2
+### Linux
+- Fixed an issue filtering files by extension on Linux. [#1870](https://github.com/miguelpruivo/flutter_file_picker/pull/1870) [@Decodetalkers](https://github.com/Decodetalkers)
+
 ## 10.3.1
 ### General
 - Fixed onFileLoading handler to process status changes only when data is a bool.
