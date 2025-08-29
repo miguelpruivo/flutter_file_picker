@@ -1,3 +1,8 @@
+## 10.3.3
+### Android
+- Detect HEIC and HEIF extensions as valid image
+- Use compression format based file extension when compressing images.
+
 ## 10.3.2
 ### Linux
 - Fixed an issue filtering files by extension on Linux. [#1870](https://github.com/miguelpruivo/flutter_file_picker/pull/1870) [@Decodetalkers](https://github.com/Decodetalkers)

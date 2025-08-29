@@ -380,6 +380,7 @@ object FileUtils {
 
         return extension.contentEquals("jpg") || extension.contentEquals("jpeg")
                 || extension.contentEquals("png") || extension.contentEquals("webp")
+                || extension.contentEquals("heic") || extension.contentEquals("heif")
     }
 
     private fun getFileExtension(context: Context, uri: Uri): String? {
@@ -397,20 +398,25 @@ object FileUtils {
         }
     }
 
+    private fun getCompressFormatBasedFileExtension(format: Bitmap.CompressFormat): String {
+        return when (format) {
+            Bitmap.CompressFormat.PNG -> "png"
+            Bitmap.CompressFormat.WEBP -> "webp"
+            else -> "jpeg"
+        }
+    }
+
     @JvmStatic
     fun compressImage(originalImageUri: Uri, compressionQuality: Int, context: Context): Uri {
         val compressedUri: Uri
         try {
             context.contentResolver.openInputStream(originalImageUri).use { imageStream ->
-                val compressedFile = createImageFile(context, originalImageUri)
+                val compressFormat = getCompressFormat(context, originalImageUri)
+                val compressedFile = createImageFile(context, originalImageUri, compressFormat)
                 val originalBitmap = BitmapFactory.decodeStream(imageStream)
                 // Compress and save the image
                 val fileOutputStream = FileOutputStream(compressedFile)
-                originalBitmap.compress(
-                    getCompressFormat(context, originalImageUri),
-                    compressionQuality,
-                    fileOutputStream
-                )
+                originalBitmap.compress(compressFormat, compressionQuality, fileOutputStream)
                 fileOutputStream.flush()
                 fileOutputStream.close()
                 compressedUri = Uri.fromFile(compressedFile)
@@ -422,11 +428,11 @@ object FileUtils {
     }
 
     @Throws(IOException::class)
-    private fun createImageFile(context: Context, uri: Uri): File {
+    private fun createImageFile(context: Context, uri: Uri, compressFormat: Bitmap.CompressFormat): File {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val imageFileName = "IMAGE_" + timeStamp + "_"
         val storageDir = context.cacheDir
-        return File.createTempFile(imageFileName, "." + getFileExtension(context, uri), storageDir)
+        return File.createTempFile(imageFileName, "." + getCompressFormatBasedFileExtension(compressFormat), storageDir)
     }
 
     /**
