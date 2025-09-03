@@ -54,6 +54,7 @@ class FilePickerLinux extends FilePicker {
       for (var i = 0; i < initialDirectory.length; i++) {
         tmp.add(initialDirectory[i].codeUnitAt(0));
       }
+      tmp.add(0);
       DBusArray directory = DBusArray.byte(tmp);
       xdpOption["current_folder"] = directory;
     }
@@ -107,6 +108,7 @@ class FilePickerLinux extends FilePicker {
       for (var i = 0; i < initialDirectory.length; i++) {
         tmp.add(initialDirectory[i].codeUnitAt(0));
       }
+      tmp.add(0);
       DBusArray directory = DBusArray.byte(tmp);
       xdpOption["current_folder"] = directory;
     }
@@ -164,6 +166,7 @@ class FilePickerLinux extends FilePicker {
       for (var i = 0; i < initialDirectory.length; i++) {
         tmp.add(initialDirectory[i].codeUnitAt(0));
       }
+      tmp.add(0);
       DBusArray directory = DBusArray.byte(tmp);
       xdpOption["current_folder"] = directory;
     }
