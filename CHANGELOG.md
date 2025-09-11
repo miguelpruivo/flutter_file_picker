@@ -1,3 +1,7 @@
+## 10.3.3
+### Android
+- Updated compileSdk to use flutter.compileSdkVersion. [#1842](https://github.com/miguelpruivo/flutter_file_picker/issues/1842)
+
 ## 10.3.2
 ### Linux
 - Fixed an issue filtering files by extension on Linux. [#1870](https://github.com/miguelpruivo/flutter_file_picker/pull/1870) [@Decodetalkers](https://github.com/Decodetalkers)
