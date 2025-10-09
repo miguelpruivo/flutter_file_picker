@@ -193,7 +193,10 @@ class FilePickerLinux extends FilePicker {
     }
 
     final savedFilePaths = saveUris.map((uri) => uri.toFilePath()).toList();
+    final savedFilePath = savedFilePaths.firstOrNull;
 
-    return savedFilePaths.firstOrNull;
+    await saveBytesToFile(bytes, savedFilePath);
+
+    return savedFilePath;
   }
 }
