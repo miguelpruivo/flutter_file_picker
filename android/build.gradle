@@ -45,7 +45,7 @@ android {
         implementation "org.apache.tika:tika-core:3.2.0"
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
     if (project.android.hasProperty("namespace")) {
