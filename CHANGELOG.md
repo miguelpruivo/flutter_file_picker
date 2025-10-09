@@ -1,3 +1,8 @@
+## 10.3.4
+## Android
+- Detect HEIC and HEIF extensions as valid image
+- Use compression format based file extension when compressing images.
+
 ## 10.3.3
 ### Android
 - Updated compileSdk to use flutter.compileSdkVersion. [#1842](https://github.com/miguelpruivo/flutter_file_picker/issues/1842)
