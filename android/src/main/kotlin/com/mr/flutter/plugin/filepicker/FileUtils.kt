@@ -142,37 +142,27 @@ object FileUtils {
         if (type == "dir") {
             intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         } else {
+            var exts = allowedExtensions?.let { ArrayList(it) } ?: null
             if (type == "image/*") {
                 intent = Intent(Intent.ACTION_PICK)
                 val uri = (Environment.getExternalStorageDirectory().path + File.separator).toUri()
                 intent.setDataAndType(uri, type)
-                intent.type = this.type
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection)
-                intent.putExtra("multi-pick", this.isMultipleSelection)
-
-                type?.takeIf { it.contains(",") }
-                    ?.split(",")
-                    ?.filter { it.isNotEmpty() }
-                    ?.let { allowedExtensions = ArrayList(it) }
-
-                if (allowedExtensions != null) {
-                    intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions)
-                }
             } else {
-                intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = this@startFileExplorer.type
-                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
-                    putExtra("multi-pick", isMultipleSelection)
-
-                    allowedExtensions?.let {
-                        putExtra(Intent.EXTRA_MIME_TYPES, it.toTypedArray())
-                    }
-                }
-
+                intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+                intent.addCategory(Intent.CATEGORY_OPENABLE)
+                intent.setType(type)
             }
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection)
+            intent.putExtra("multi-pick", this.isMultipleSelection)
 
+            type?.takeIf { it.contains(",") }
+                ?.split(",")
+                    ?.filter { it.isNotEmpty() }
+                    ?.let { exts = ArrayList(it) }
 
+            if (exts != null) {
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, exts.toTypedArray())
+            }
         }
         if (intent.resolveActivity(activity.packageManager) != null) {
             activity.startActivityForResult(intent, REQUEST_CODE)
