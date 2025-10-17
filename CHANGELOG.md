@@ -1,6 +1,6 @@
 ## 10.3.5
 ## iOS
-- Fixed an error loading huge file (>= 2GB maybe) because of the out of memory.
+- Fixed an error when loading large files (>= 2GB~).
 
 ## 10.3.4
 ## Android
