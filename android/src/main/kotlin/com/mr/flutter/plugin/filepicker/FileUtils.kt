@@ -81,7 +81,7 @@ object FileUtils {
                             uri,
                             DocumentsContract.getTreeDocumentId(uri)
                         )
-                        val dirPath = getFullPathFromTreeUri(uri, activity)
+                        val dirPath = getFullPathFromTreeUri(uri)
                         if (dirPath != null) {
                             finishWithSuccess(dirPath)
                         } else {
@@ -556,7 +556,7 @@ object FileUtils {
     }
 
     @JvmStatic
-    fun getFullPathFromTreeUri(treeUri: Uri?, con: Context): String? {
+    fun getFullPathFromTreeUri(treeUri: Uri?): String? {
         if (treeUri == null) {
             return null
         }
@@ -568,9 +568,6 @@ object FileUtils {
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
                 if (docId == "downloads") {
                     return extPath
-                } else if (docId.matches("^ms[df]:.*".toRegex())) {
-                    val fileName = getFileName(treeUri, con)
-                    return "$extPath/$fileName"
                 } else if (docId.startsWith("raw:")) {
                     return docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }
                         .toTypedArray()[1]
@@ -578,6 +575,7 @@ object FileUtils {
                 return null
             }
         }
+
         var volumePath = getPathFromTreeUri(treeUri)
 
         if (volumePath.endsWith(File.separator)) {
