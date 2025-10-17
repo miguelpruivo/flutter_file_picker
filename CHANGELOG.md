@@ -1,3 +1,7 @@
+## 10.3.5
+## iOS
+- Fixed an error loading huge file (>= 2GB maybe) because of the out of memory.
+
 ## 10.3.4
 ## Android
 - Detect HEIC and HEIF extensions as valid image
