@@ -159,7 +159,7 @@ object FileUtils {
                     intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions)
                 }
             } else {
-                intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                intent = Intent(Intent.ACTION_GET_CONTENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
                     type = this@startFileExplorer.type
                     putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
