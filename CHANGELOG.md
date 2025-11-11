@@ -1,3 +1,7 @@
+## 10.3.6
+## Android
+- Added support for 16 KB page sizes. [#1888](https://github.com/miguelpruivo/flutter_file_picker/issues/1888)
+
 ## 10.3.5
 ## iOS
 - Fixed an error when loading large files (>= 2GB~).
