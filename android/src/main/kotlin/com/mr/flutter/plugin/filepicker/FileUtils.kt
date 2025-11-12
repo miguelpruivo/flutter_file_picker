@@ -142,7 +142,7 @@ object FileUtils {
         if (type == "dir") {
             intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         } else {
-            if (type == "image/*") {
+            if (type != "*/*") {
                 intent = Intent(Intent.ACTION_PICK)
                 val uri = (Environment.getExternalStorageDirectory().path + File.separator).toUri()
                 intent.setDataAndType(uri, type)
@@ -162,12 +162,13 @@ object FileUtils {
                 intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
                     type = this@startFileExplorer.type
+                    if (!allowedExtensions.isNullOrEmpty()) {
+                        putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions!!.toTypedArray())
+                    }else{
+                        putExtra(Intent.EXTRA_MIME_TYPES, this@startFileExplorer.type)
+                    }
                     putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
                     putExtra("multi-pick", isMultipleSelection)
-
-                    allowedExtensions?.let {
-                        putExtra(Intent.EXTRA_MIME_TYPES, it.toTypedArray())
-                    }
                 }
 
             }
