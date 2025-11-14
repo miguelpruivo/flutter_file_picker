@@ -164,8 +164,8 @@ object FileUtils {
                     type = this@startFileExplorer.type
                     if (!allowedExtensions.isNullOrEmpty()) {
                         putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions!!.toTypedArray())
-                    }else{
-                        putExtra(Intent.EXTRA_MIME_TYPES, this@startFileExplorer.type)
+                    } else {
+                        putExtra(Intent.EXTRA_MIME_TYPES, type)
                     }
                     putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
                     putExtra("multi-pick", isMultipleSelection)
