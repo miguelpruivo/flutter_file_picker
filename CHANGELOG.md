@@ -1,3 +1,7 @@
+## 10.3.7
+### General
+- Fixed an issue where file type filtering was not being applied correctly, now only displaying files that match the selected MIME types. [#1906](https://github.com/miguelpruivo/flutter_file_picker/pull/1906)
+
 ## 10.3.6
 ## Android
 - Added support for 16 KB page sizes. [#1888](https://github.com/miguelpruivo/flutter_file_picker/issues/1888)
