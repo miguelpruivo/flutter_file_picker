@@ -164,7 +164,7 @@ object FileUtils {
                     type = this@startFileExplorer.type
                     if (!allowedExtensions.isNullOrEmpty()) {
                         putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions!!.toTypedArray())
-                    }else{
+                    } else {
                         putExtra(Intent.EXTRA_MIME_TYPES, this@startFileExplorer.type)
                     }
                     putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
