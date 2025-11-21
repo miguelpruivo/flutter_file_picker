@@ -1,13 +1,17 @@
+## 10.3.7
+### Android
+- Fixed an issue where file type filtering was not being applied correctly, now only displaying files that match the selected MIME types. [#1906](https://github.com/miguelpruivo/flutter_file_picker/pull/1906)
+
 ## 10.3.6
-## Android
+### Android
 - Added support for 16 KB page sizes. [#1888](https://github.com/miguelpruivo/flutter_file_picker/issues/1888)
 
 ## 10.3.5
-## iOS
+### iOS
 - Fixed an error when loading large files (>= 2GB~).
 
 ## 10.3.4
-## Android
+### Android
 - Detect HEIC and HEIF extensions as valid image
 - Use compression format based file extension when compressing images.
 
