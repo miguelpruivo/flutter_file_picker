@@ -44,6 +44,11 @@ function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_options(${TARGET} PRIVATE -Wall -Werror)
   target_compile_options(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:-O3>")
   target_compile_definitions(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:NDEBUG>")
+
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_compile_options(${TARGET} PRIVATE -stdlib=libc++)
+    target_link_options(${TARGET} PRIVATE -stdlib=libc++)
+  endif()
 endfunction()
 
 # Flutter library and tool build rules.
