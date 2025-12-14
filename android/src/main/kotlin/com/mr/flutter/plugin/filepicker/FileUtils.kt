@@ -142,35 +142,21 @@ object FileUtils {
         if (type == "dir") {
             intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         } else {
-            if (type != "*/*") {
-                intent = Intent(Intent.ACTION_PICK)
-                val uri = (Environment.getExternalStorageDirectory().path + File.separator).toUri()
-                intent.setDataAndType(uri, type)
-                intent.type = this.type
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection)
-                intent.putExtra("multi-pick", this.isMultipleSelection)
-
-                type?.takeIf { it.contains(",") }
-                    ?.split(",")
-                    ?.filter { it.isNotEmpty() }
-                    ?.let { allowedExtensions = ArrayList(it) }
-
-                if (allowedExtensions != null) {
-                    intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions)
+            intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                val localType = this@startFileExplorer.type
+                if (!allowedExtensions.isNullOrEmpty()) {
+                    type = "*/*"
+                    putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions!!.toTypedArray())
+                } else if (localType != null && localType.contains(",")) {
+                    type = "*/*"
+                    val mimeTypes = localType.split(",").filter { it.isNotEmpty() }.toTypedArray()
+                    putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
+                } else {
+                    type = localType
                 }
-            } else {
-                intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = this@startFileExplorer.type
-                    if (!allowedExtensions.isNullOrEmpty()) {
-                        putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions!!.toTypedArray())
-                    } else {
-                        putExtra(Intent.EXTRA_MIME_TYPES, type)
-                    }
-                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
-                    putExtra("multi-pick", isMultipleSelection)
-                }
-
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
+                putExtra("multi-pick", isMultipleSelection)
             }
 
 
