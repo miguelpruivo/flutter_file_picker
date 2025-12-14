@@ -79,7 +79,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _resetState();
 
     try {
-      pickedFiles = (await FilePicker.platform.pickFiles(
+      final result = await FilePicker.platform.pickFiles(
         type: _pickingType,
         allowMultiple: _multiPick,
         onFileLoading: (FilePickerStatus status) => setState(() {
@@ -92,8 +92,9 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
         withData: true,
-      ))
-          ?.files;
+      );
+      printInDebug("pickedFiles: $result");
+      pickedFiles = result?.files;
       hasUserAborted = pickedFiles == null;
     } on PlatformException catch (e) {
       _logException('Unsupported operation: $e');
