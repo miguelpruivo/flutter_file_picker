@@ -413,7 +413,7 @@ object FileUtils {
         try {
             context.contentResolver.openInputStream(originalImageUri).use { imageStream ->
                 val compressFormat = getCompressFormat(context, originalImageUri)
-                val compressedFile = createImageFile(context, originalImageUri, compressFormat)
+                val compressedFile = createImageFile(context, compressFormat)
                 val originalBitmap = BitmapFactory.decodeStream(imageStream)
                 // Compress and save the image
                 val fileOutputStream = FileOutputStream(compressedFile)
@@ -429,7 +429,7 @@ object FileUtils {
     }
 
     @Throws(IOException::class)
-    private fun createImageFile(context: Context, uri: Uri, compressFormat: Bitmap.CompressFormat): File {
+    private fun createImageFile(context: Context, compressFormat: Bitmap.CompressFormat): File {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val imageFileName = "IMAGE_" + timeStamp + "_"
         val storageDir = context.cacheDir
@@ -588,13 +588,13 @@ object FileUtils {
         var volumePath = getPathFromTreeUri(treeUri)
 
         if (volumePath.endsWith(File.separator)) {
-            volumePath = volumePath.substring(0, volumePath.length - 1)
+            volumePath = volumePath.dropLast(1)
         }
 
         var documentPath = getDocumentPathFromTreeUri(treeUri)
 
         if (documentPath.endsWith(File.separator)) {
-            documentPath = documentPath.substring(0, documentPath.length - 1)
+            documentPath = documentPath.dropLast(1)
         }
         return if (documentPath.isNotEmpty()) {
             if (volumePath.endsWith(documentPath)) {
