@@ -570,6 +570,11 @@ object FileUtils {
                 if (docId == "downloads") {
                     return extPath
                 } else if (docId.matches("^ms[df]:.*".toRegex())) {
+                    // Handle "msf:" (Media Store File) and "msd:" (Media Store Directory) prefixes.
+                    // These are commonly seen on Android 10+ (API 29+) when selecting files from the
+                    // "Downloads" category in the system picker.
+                    // Note that this does not happen on all devices.
+                    // Example URI: content://com.android.providers.downloads.documents/document/msf:1000000033
                     val fileName = getFileName(treeUri, con)
                     return "$extPath/$fileName"
                 } else if (docId.startsWith("raw:")) {
