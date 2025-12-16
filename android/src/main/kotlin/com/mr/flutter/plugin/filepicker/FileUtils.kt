@@ -81,7 +81,7 @@ object FileUtils {
                             uri,
                             DocumentsContract.getTreeDocumentId(uri)
                         )
-                        val dirPath = getFullPathFromTreeUri(uri)
+                        val dirPath = getFullPathFromTreeUri(uri, activity)
                         if (dirPath != null) {
                             finishWithSuccess(dirPath)
                         } else {
@@ -557,7 +557,7 @@ object FileUtils {
     }
 
     @JvmStatic
-    fun getFullPathFromTreeUri(treeUri: Uri?): String? {
+    fun getFullPathFromTreeUri(treeUri: Uri?, context: Context): String? {
         if (treeUri == null) {
             return null
         }
@@ -575,7 +575,7 @@ object FileUtils {
                     // "Downloads" category in the system picker.
                     // Note that this does not happen on all devices.
                     // Example URI: content://com.android.providers.downloads.documents/document/msf:1000000033
-                    val fileName = getFileName(treeUri, con)
+                    val fileName = getFileName(treeUri, context)
                     return "$extPath/$fileName"
                 } else if (docId.startsWith("raw:")) {
                     return docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }
