@@ -569,6 +569,9 @@ object FileUtils {
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
                 if (docId == "downloads") {
                     return extPath
+                } else if (docId.matches("^ms[df]:.*".toRegex())) {
+                    val fileName = getFileName(treeUri, con)
+                    return "$extPath/$fileName"
                 } else if (docId.startsWith("raw:")) {
                     return docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }
                         .toTypedArray()[1]
