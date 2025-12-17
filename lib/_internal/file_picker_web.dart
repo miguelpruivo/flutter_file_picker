@@ -7,32 +7,16 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:path/path.dart' as p;
 import 'package:web/web.dart';
 
+import '../src/utils.dart';
+
 class FilePickerWeb extends FilePicker {
-  late Element _target;
-  final String _kFilePickerInputsDomId = '__file_picker_web-file-input';
 
   final int _readStreamChunkSize = 1000 * 1000; // 1 MB
 
-  FilePickerWeb._() {
-    _target = _ensureInitialized(_kFilePickerInputsDomId);
-  }
+  FilePickerWeb._();
 
   static void registerWith(Registrar registrar) {
     FilePicker.platform = FilePickerWeb._();
-  }
-
-  /// Initializes a DOM container where we can host input elements.
-  Element _ensureInitialized(String id) {
-    Element? target = document.querySelector('#$id');
-    if (target == null) {
-      final Element targetElement = document.createElement(
-        'flt-file-picker-inputs',
-      )..id = id;
-
-      document.querySelector('body')!.children.add(targetElement);
-      target = targetElement;
-    }
-    return target;
   }
 
   @override
@@ -57,17 +41,176 @@ class FilePickerWeb extends FilePicker {
       throw Exception(
           'You are setting a type [$type]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.');
     }
-
-    Completer<List<PlatformFile>?>? filesCompleter =
-        Completer<List<PlatformFile>?>();
+    
+    final Completer<List<PlatformFile>?> filesCompleter =
+    Completer<List<PlatformFile>?>();
 
     String accept = _fileType(type, allowedExtensions);
-    HTMLInputElement uploadInput = HTMLInputElement();
-    uploadInput.type = 'file';
-    uploadInput.draggable = true;
-    uploadInput.multiple = allowMultiple;
-    uploadInput.accept = accept;
-    uploadInput.style.display = 'none';
+
+    // Create a confirmation view
+    var confirmationView = ("""
+      <div id="fixed-overlay">
+         <div id="confirmation-modal">
+          <div id='confirmation-modal-content-container'>
+            <h2 id='confirmation-title'>Allow to select File${allowMultiple ? 's' : ''}!</h2>
+            <p id='confirmation-detail'>Kindly allow us to select File${allowMultiple ? 's' : ''} from library</p>
+          </div>
+          <div id='btn-container'>
+            <button id="cancel" class='btn'>Cancel</button>
+            <div id='allow-container'>
+              <button id='allow-demo'>Allow</button>
+              <input id="allow" type="file">
+            </div>
+          </div>
+        </div>
+      </div>
+      """);
+
+    var tDiv = HTMLDivElement();
+    tDiv.innerHTML = confirmationView.toJS;
+    document.body?.append(tDiv);
+
+    // Add the confirmation view to the page
+    //document.body?.children.add(confirmationView);
+
+    var fixedOverlay = document.getElementById('fixed-overlay') as HTMLElement?;
+    var confirmationModal =
+    document.getElementById('confirmation-modal') as HTMLElement?;
+    var cancelButton = document.querySelector('#cancel') as HTMLElement?;
+    var allowButton = document.querySelector('#allow-demo') as HTMLElement?;
+    var buttonContainer =
+    document.querySelector('#btn-container') as HTMLElement?;
+    var allowContainer =
+    document.querySelector('#allow-container') as HTMLElement?;
+    var confirmationTitle =
+    document.querySelector('#confirmation-title') as HTMLElement?;
+    var confirmationDetail =
+    document.querySelector('#confirmation-detail') as HTMLElement?;
+    var confirmationModalContentContainer = document
+        .querySelector('#confirmation-modal-content-container') as HTMLElement?;
+
+    fixedOverlay?.style.position = 'fixed';
+    fixedOverlay?.style.top = '0';
+    fixedOverlay?.style.left = '0';
+    fixedOverlay?.style.width = '100vw';
+    fixedOverlay?.style.height = '100vh';
+    fixedOverlay?.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    fixedOverlay?.style.zIndex = '999999999999';
+    if (!isSafariIos) {
+      fixedOverlay?.style.opacity = '0';
+    }
+
+    // Updated styles to match the ios style dialog
+    confirmationModal?.style.position = 'absolute';
+    confirmationModal?.style.top = '50%';
+    confirmationModal?.style.left = '50%';
+    confirmationModal?.style.transform = 'translate(-50%, -50%)';
+    confirmationModal?.style.backgroundColor = '#fff';
+    confirmationModal?.style.border = 'none';
+    confirmationModal?.style.borderRadius = '12px';
+    confirmationModal?.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.15)';
+    confirmationModal?.style.width = '320px';
+    confirmationModal?.style.maxWidth = '90%';
+
+    // Content container styling updated
+    confirmationModalContentContainer?.style.padding = "20px 24px";
+    confirmationModalContentContainer?.style.textAlign = "center";
+
+    // Updated title styling
+    confirmationTitle?.style.margin = "0px";
+    confirmationTitle?.style.marginBottom = "8px";
+    confirmationTitle?.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    confirmationTitle?.style.fontWeight = '600';
+    confirmationTitle?.style.fontSize = '17px';
+    confirmationTitle?.style.color = '#000';
+    confirmationTitle?.style.textAlign = "center";
+
+    // Updated detail text styling
+    confirmationDetail?.style.margin = "0px";
+    confirmationDetail?.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    confirmationDetail?.style.fontWeight = '400';
+    confirmationDetail?.style.fontSize = '13px';
+    confirmationDetail?.style.color = '#666';
+    confirmationDetail?.style.textAlign = "center";
+    confirmationDetail?.style.lineHeight = "1.4";
+
+    // Updated button container styling
+    buttonContainer?.style.display = "flex";
+    buttonContainer?.style.borderTop = "1px solid #E5E7EB";
+    buttonContainer?.style.padding = "0";
+    buttonContainer?.style.marginTop = "20px";
+    buttonContainer?.style.flexDirection = "row"; // Ensure horizontal layout
+    buttonContainer?.style.width = "100%";
+
+    // Updated cancel button styling
+    cancelButton?.style.backgroundColor = 'transparent';
+    cancelButton?.style.color = '#007AFF';
+    cancelButton?.style.border = 'none';
+    cancelButton?.style.borderRadius = '0';
+    cancelButton?.style.borderRight = '1px solid #E5E7EB'; // Add divider line
+    cancelButton?.style.padding = '12px 0';
+    cancelButton?.style.cursor = 'pointer';
+    cancelButton?.style.fontSize = '16px';
+    cancelButton?.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    cancelButton?.style.fontWeight = '400';
+    cancelButton?.style.flex = '1'; // Make it take up half the width
+    cancelButton?.style.textAlign = 'center';
+    cancelButton?.style.margin = '0';
+
+    // Make the allow container take up the right half
+    allowContainer?.style.position = "relative";
+    allowContainer?.style.flex = "1"; // Make it take up half the width
+
+    // Update allow button to span full width of its container
+    allowButton?.style.backgroundColor = 'transparent';
+    allowButton?.style.color = '#007AFF';
+    allowButton?.style.border = 'none';
+    allowButton?.style.borderRadius = '0';
+    allowButton?.style.padding = '12px 0';
+    allowButton?.style.cursor = 'pointer';
+    allowButton?.style.fontSize = '16px';
+    allowButton?.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    allowButton?.style.fontWeight = '600';
+    allowButton?.style.width = '100%'; // Full width of container
+    allowButton?.style.textAlign = 'center';
+
+    if (cancelButton != null) {
+      cancelButton.innerText = "Don't Allow";
+    }
+
+    if (allowButton != null) {
+      allowButton.innerText = "Allow";
+    }
+
+    // Get the buttons
+    HTMLInputElement? fileInput =
+    document.querySelector('#allow') as HTMLInputElement?;
+    fileInput?.accept = accept;
+    fileInput?.multiple = allowMultiple;
+    fileInput?.style.opacity = "0";
+    fileInput?.style.position = "absolute";
+    fileInput?.style.left = "0px";
+    fileInput?.style.width = "100%";
+    fileInput?.style.height = "100%";
+
+    // Set the click listeners
+    fileInput?.onClick.listen((e) {
+      // Handle the allow button click
+      print('Allow button clicked');
+      // Remove the confirmation view
+      fixedOverlay?.remove();
+    });
+
+    cancelButton?.onClick.listen((e) {
+      // Handle the cancel button click
+      print('Cancel button clicked');
+      // Remove the confirmation view
+      fixedOverlay?.remove();
+    });
+
+    if (!isSafariIos) {
+      fileInput?.click();
+    }
 
     bool changeEventTriggered = false;
 
@@ -81,29 +224,37 @@ class FilePickerWeb extends FilePicker {
       }
       changeEventTriggered = true;
 
-      final FileList files = uploadInput.files!;
+      final FileList? files = fileInput?.files!;
       final List<PlatformFile> pickedFiles = [];
 
       void addPickedFile(
-        File file,
-        Uint8List? bytes,
-        String? path,
-        Stream<List<int>>? readStream,
-      ) {
+          File? file,
+          Uint8List? bytes,
+          String? path,
+          Stream<List<int>>? readStream,
+          ) {
         String? blobUrl;
-        if (bytes != null && bytes.isNotEmpty) {
+        if (file != null && bytes != null && bytes.isNotEmpty) {
           final blob =
-              Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
+          Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
 
           blobUrl = URL.createObjectURL(blob);
         }
-        pickedFiles.add(PlatformFile(
-          name: file.name,
-          path: path ?? blobUrl,
-          size: bytes != null ? bytes.length : file.size,
-          bytes: bytes,
-          readStream: readStream,
-        ));
+        if (file != null) {
+          pickedFiles.add(
+            PlatformFile(
+              name: file.name,
+              path: path ?? blobUrl,
+              size: bytes != null ? bytes.length : file.size,
+              bytes: bytes,
+              readStream: readStream,
+            ),
+          );
+        }
+
+        if (files == null) {
+          return;
+        }
 
         if (pickedFiles.length >= files.length) {
           if (onFileLoading != null) {
@@ -113,14 +264,14 @@ class FilePickerWeb extends FilePicker {
         }
       }
 
+      if (files == null) {
+        return;
+      }
       for (int i = 0; i < files.length; i++) {
         final File? file = files.item(i);
-        if (file == null) {
-          continue;
-        }
 
         if (withReadStream) {
-          addPickedFile(file, null, null, _openFileReadStream(file));
+          addPickedFile(file, null, null, _openFileReadStream(file!));
           continue;
         }
 
@@ -130,7 +281,7 @@ class FilePickerWeb extends FilePicker {
             String? result = (reader.result as JSString?)?.toDart;
             addPickedFile(file, null, result, null);
           });
-          reader.readAsDataURL(file);
+          reader.readAsDataURL(file!);
           continue;
         }
 
@@ -141,7 +292,7 @@ class FilePickerWeb extends FilePicker {
           addPickedFile(file, byteBuffer?.asUint8List(), null, null);
           syncCompleter.complete();
         });
-        reader.readAsArrayBuffer(file);
+        reader.readAsArrayBuffer(file!);
         if (readSequential) {
           await syncCompleter.future;
         }
@@ -162,28 +313,13 @@ class FilePickerWeb extends FilePicker {
       });
     }
 
-    uploadInput.onChange.listen(changeEventListener);
-    uploadInput.addEventListener('change', changeEventListener.toJS);
-    uploadInput.addEventListener('cancel', cancelledEventListener.toJS);
+    fileInput?.onChange.listen(changeEventListener);
+    fileInput?.addEventListener('change', changeEventListener.toJS);
+    fileInput?.addEventListener('cancel', cancelledEventListener.toJS);
 
     if (cancelUploadOnWindowBlur) {
       // Listen focus event for cancelled
       window.addEventListener('focus', cancelledEventListener.toJS);
-    }
-
-    //Add input element to the page body
-    Node? firstChild = _target.firstChild;
-    while (firstChild != null) {
-      _target.removeChild(firstChild);
-      firstChild = _target.firstChild;
-    }
-    _target.children.add(uploadInput);
-    uploadInput.click();
-
-    firstChild = _target.firstChild;
-    while (firstChild != null) {
-      _target.removeChild(firstChild);
-      firstChild = _target.firstChild;
     }
 
     final List<PlatformFile>? files = await filesCompleter.future;
