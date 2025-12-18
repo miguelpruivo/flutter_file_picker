@@ -1,3 +1,7 @@
+## 10.3.9
+### iOS
+- Rename FileUtils to FilePickerUtils [#1921](https://github.com/miguelpruivo/flutter_file_picker/issues/1921)
+
 ## 10.3.8
 ### Android
 - Restores the ms[df] URI handling logic in FileUtils.kt to fix file selection returning null on some devices.
