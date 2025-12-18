@@ -1,5 +1,5 @@
 #import "FilePickerPlugin.h"
-#import "FileUtils.h"
+#import "FilePickerUtils.h"
 #import "ImageUtils.h"
 #import <Flutter/Flutter.h>
 
@@ -91,7 +91,7 @@
     _result = result;
     
     if([call.method isEqualToString:@"clear"]) {
-        _result([NSNumber numberWithBool: [FileUtils clearTemporaryFiles]]);
+        _result([NSNumber numberWithBool: [FilePickerUtils clearTemporaryFiles]]);
         _result = nil;
         return;
     }
@@ -120,7 +120,7 @@
     self.loadDataToMemory = ((NSNumber*)[arguments valueForKey:@"withData"]).boolValue;
     
     if([call.method isEqualToString:@"any"] || [call.method containsString:@"custom"]) {
-        self.allowedExtensions = [FileUtils resolveType:call.method withAllowedExtensions: [arguments valueForKey:@"allowedExtensions"]];
+        self.allowedExtensions = [FilePickerUtils resolveType:call.method withAllowedExtensions: [arguments valueForKey:@"allowedExtensions"]];
         if(self.allowedExtensions == nil) {
             _result([FlutterError errorWithCode:@"Unsupported file extension"
                                         message:@"If you are providing extension filters make sure that you are only using FileType.custom and the extension are provided without the dot, (ie., jpg instead of .jpg). This could also have happened because you are using an unsupported file extension. If the problem persists, you may want to consider using FileType.any instead."
@@ -137,7 +137,7 @@
         }
     } else if([call.method isEqualToString:@"video"] || [call.method isEqualToString:@"image"] || [call.method isEqualToString:@"media"]) {
 #ifdef PICKER_MEDIA
-        [self resolvePickMedia:[FileUtils resolveMediaType:call.method] withMultiPick:isMultiplePick withCompressionAllowed:self.allowCompression];
+        [self resolvePickMedia:[FilePickerUtils resolveMediaType:call.method] withMultiPick:isMultiplePick withCompressionAllowed:self.allowCompression];
 #else
         _result([FlutterError errorWithCode:@"Unsupported picker type"
                                     message:@"Support for the Media picker is not compiled in. Remove the Pod::PICKER_MEDIA=false statement from your Podfile."
@@ -386,7 +386,7 @@
 
 
 - (void) handleResult:(id) files {
-    _result([FileUtils resolveFileInfo: [files isKindOfClass: [NSArray class]] ? files : @[files] withData:self.loadDataToMemory]);
+    _result([FilePickerUtils resolveFileInfo: [files isKindOfClass: [NSArray class]] ? files : @[files] withData:self.loadDataToMemory]);
     _result = nil;
 }
 
@@ -661,7 +661,7 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls{
     NSMutableArray<NSURL *> * urls = [[NSMutableArray alloc] initWithCapacity:numberOfItems];
     
     for(MPMediaItemCollection * item in [mediaItemCollection items]) {
-        NSURL * cachedAsset = [FileUtils exportMusicAsset: [item valueForKey:MPMediaItemPropertyAssetURL] withName: [item valueForKey:MPMediaItemPropertyTitle]];
+        NSURL * cachedAsset = [FilePickerUtils exportMusicAsset: [item valueForKey:MPMediaItemPropertyAssetURL] withName: [item valueForKey:MPMediaItemPropertyTitle]];
         [urls addObject: cachedAsset];
     }
     

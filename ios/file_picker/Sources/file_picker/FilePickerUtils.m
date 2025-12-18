@@ -1,14 +1,14 @@
 //
-//  FileUtils.m
+//  FilePickerUtils.m
 //  file_picker
 //
 //  Created by Miguel Ruivo on 05/12/2018.
 //
 
-#import "FileUtils.h"
+#import "FilePickerUtils.h"
 #import "FileInfo.h"
 
-@implementation FileUtils
+@implementation FilePickerUtils
 
 + (BOOL) clearTemporaryFiles {
     NSString *tmpDirectory = NSTemporaryDirectory();
