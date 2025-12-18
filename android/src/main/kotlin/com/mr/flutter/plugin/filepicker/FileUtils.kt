@@ -131,6 +131,14 @@ object FileUtils {
         }
     }
 
+    /**
+     * Creates and launches an intent for the given file type.
+     *
+     * This method is responsible for creating the appropriate intent based on the [type] of file
+     * that is requested to be picked.
+     *
+     * This may be either a directory, a regular file, or a gallery pick.
+     */
     fun FilePickerDelegate.startFileExplorer() {
         val intent: Intent
 
@@ -143,6 +151,7 @@ object FileUtils {
             intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         } else {
             if (type == "image/*") {
+                // Use ACTION_PICK for images to allow using the Gallery app, which provides a better UX for image selection.
                 intent = Intent(Intent.ACTION_PICK)
                 val uri = (Environment.getExternalStorageDirectory().path + File.separator).toUri()
                 intent.setDataAndType(uri, type)
@@ -159,6 +168,11 @@ object FileUtils {
                     intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions)
                 }
             } else {
+                // Use ACTION_OPEN_DOCUMENT to allow selecting files from any document provider (SAF).
+                // We prefer ACTION_OPEN_DOCUMENT over ACTION_GET_CONTENT because it offers persistent
+                // access to the files via URI permissions, which is crucial for some use cases
+                // (e.g. caching, repeated access). ACTION_GET_CONTENT is more suitable for
+                // "importing" content and might not provide a persistent URI.
                 intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
                     type = this@startFileExplorer.type
@@ -186,6 +200,16 @@ object FileUtils {
         }
     }
 
+    /**
+     * Called by the plugin to start a new file explorer activity.
+     *
+     * @param type The file types that will be selectable.
+     * @param isMultipleSelection Whether multiple files can be selected.
+     * @param withData Whether the file data should be loaded into memory.
+     * @param allowedExtensions The allowed file extensions for custom file types.
+     * @param compressionQuality The compression quality for images.
+     * @param result The result channel to send the file picking result to.
+     */
     fun FilePickerDelegate?.startFileExplorer(
         type: String?,
         isMultipleSelection: Boolean?,
