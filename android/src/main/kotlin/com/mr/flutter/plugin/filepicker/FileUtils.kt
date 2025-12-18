@@ -208,7 +208,7 @@ object FileUtils {
      * @param withData Whether the file data should be loaded into memory.
      * @param allowedExtensions The allowed file extensions for custom file types.
      * @param compressionQuality The compression quality for images.
-     * @param result The result channel to send the file picking result to.
+     * @param result The MethodChannel result to send the file picking result to.
      */
     fun FilePickerDelegate?.startFileExplorer(
         type: String?,
