@@ -1,3 +1,7 @@
+## 10.3.8
+### Android
+- Restores the ms[df] URI handling logic in FileUtils.kt to fix file selection returning null on some devices.
+
 ## 10.3.7
 ### Android
 - Fixed an issue where file type filtering was not being applied correctly, now only displaying files that match the selected MIME types. [#1906](https://github.com/miguelpruivo/flutter_file_picker/pull/1906)

@@ -81,7 +81,7 @@ object FileUtils {
                             uri,
                             DocumentsContract.getTreeDocumentId(uri)
                         )
-                        val dirPath = getFullPathFromTreeUri(uri)
+                        val dirPath = getFullPathFromTreeUri(uri, activity)
                         if (dirPath != null) {
                             finishWithSuccess(dirPath)
                         } else {
@@ -131,6 +131,14 @@ object FileUtils {
         }
     }
 
+    /**
+     * Creates and launches an intent for the given file type.
+     *
+     * This method is responsible for creating the appropriate intent based on the [type] of file
+     * that is requested to be picked.
+     *
+     * This may be either a directory, a regular file, or a gallery pick.
+     */
     fun FilePickerDelegate.startFileExplorer() {
         val intent: Intent
 
@@ -142,7 +150,8 @@ object FileUtils {
         if (type == "dir") {
             intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         } else {
-            if (type != "*/*") {
+            if (type == "image/*") {
+                // Use ACTION_PICK for images to allow using the Gallery app, which provides a better UX for image selection.
                 intent = Intent(Intent.ACTION_PICK)
                 val uri = (Environment.getExternalStorageDirectory().path + File.separator).toUri()
                 intent.setDataAndType(uri, type)
@@ -159,7 +168,12 @@ object FileUtils {
                     intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions)
                 }
             } else {
-                intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                // Use ACTION_OPEN_DOCUMENT to allow selecting files from any document provider (SAF).
+                // We prefer ACTION_OPEN_DOCUMENT over ACTION_GET_CONTENT because it offers persistent
+                // access to the files via URI permissions, which is crucial for some use cases
+                // (e.g. caching, repeated access). ACTION_GET_CONTENT is more suitable for
+                // "importing" content and might not provide a persistent URI.
+                intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
                     type = this@startFileExplorer.type
                     if (!allowedExtensions.isNullOrEmpty()) {
@@ -186,6 +200,16 @@ object FileUtils {
         }
     }
 
+    /**
+     * Called by the plugin to start a new file explorer activity.
+     *
+     * @param type The file types that will be selectable.
+     * @param isMultipleSelection Whether multiple files can be selected.
+     * @param withData Whether the file data should be loaded into memory.
+     * @param allowedExtensions The allowed file extensions for custom file types.
+     * @param compressionQuality The compression quality for images.
+     * @param result The MethodChannel result to send the file picking result to.
+     */
     fun FilePickerDelegate?.startFileExplorer(
         type: String?,
         isMultipleSelection: Boolean?,
@@ -413,7 +437,7 @@ object FileUtils {
         try {
             context.contentResolver.openInputStream(originalImageUri).use { imageStream ->
                 val compressFormat = getCompressFormat(context, originalImageUri)
-                val compressedFile = createImageFile(context, originalImageUri, compressFormat)
+                val compressedFile = createImageFile(context, compressFormat)
                 val originalBitmap = BitmapFactory.decodeStream(imageStream)
                 // Compress and save the image
                 val fileOutputStream = FileOutputStream(compressedFile)
@@ -429,7 +453,7 @@ object FileUtils {
     }
 
     @Throws(IOException::class)
-    private fun createImageFile(context: Context, uri: Uri, compressFormat: Bitmap.CompressFormat): File {
+    private fun createImageFile(context: Context, compressFormat: Bitmap.CompressFormat): File {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val imageFileName = "IMAGE_" + timeStamp + "_"
         val storageDir = context.cacheDir
@@ -557,7 +581,7 @@ object FileUtils {
     }
 
     @JvmStatic
-    fun getFullPathFromTreeUri(treeUri: Uri?): String? {
+    fun getFullPathFromTreeUri(treeUri: Uri?, context: Context): String? {
         if (treeUri == null) {
             return null
         }
@@ -569,6 +593,14 @@ object FileUtils {
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
                 if (docId == "downloads") {
                     return extPath
+                } else if (docId.matches("^ms[df]:.*".toRegex())) {
+                    // Handle "msf:" (Media Store File) and "msd:" (Media Store Directory) prefixes.
+                    // These are commonly seen on Android 10+ (API 29+) when selecting files from the
+                    // "Downloads" category in the system picker.
+                    // Note that this does not happen on all devices.
+                    // Example URI: content://com.android.providers.downloads.documents/document/msf:1000000033
+                    val fileName = getFileName(treeUri, context)
+                    return "$extPath/$fileName"
                 } else if (docId.startsWith("raw:")) {
                     return docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }
                         .toTypedArray()[1]
@@ -580,13 +612,13 @@ object FileUtils {
         var volumePath = getPathFromTreeUri(treeUri)
 
         if (volumePath.endsWith(File.separator)) {
-            volumePath = volumePath.substring(0, volumePath.length - 1)
+            volumePath = volumePath.dropLast(1)
         }
 
         var documentPath = getDocumentPathFromTreeUri(treeUri)
 
         if (documentPath.endsWith(File.separator)) {
-            documentPath = documentPath.substring(0, documentPath.length - 1)
+            documentPath = documentPath.dropLast(1)
         }
         return if (documentPath.isNotEmpty()) {
             if (volumePath.endsWith(documentPath)) {
