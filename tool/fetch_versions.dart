@@ -66,8 +66,12 @@ List<String> parseVersions(Map<String, dynamic> json) {
       return dateB.compareTo(dateA);
     });
 
-  // Take the last 4 minor versions
-  final top4 = sortedByDate.take(4).map((r) => r['version'] as String).toList();
+  // Take the last 6 minor versions
+  final top6 = sortedByDate.take(6).map((r) => r['version'] as String).toList();
 
-  return [...top4, 'stable', 'beta'];
+  // Skip the first one (latest stable) to avoid duplication with 'stable' channel
+  // Return the next 5
+  final historicVersions = top6.skip(1).toList();
+
+  return [...historicVersions, 'stable', 'beta'];
 }

@@ -2,7 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import '../tool/fetch_versions.dart';
 
 void main() {
-  test('parseVersions extracts last 4 minor versions + stable/beta', () {
+  test(
+      'parseVersions extracts last 6 minor versions, skips 1st, returns 5 + stable/beta',
+      () {
     final json = {
       "releases": [
         // Minor 3.38
@@ -38,11 +40,18 @@ void main() {
           "release_date": "2025-09-12T10:00:00Z"
         },
 
-        // Minor 3.27 (5th older minor, should be excluded if limit is 4)
+        // Minor 3.27
         {
           "version": "3.27.4",
           "channel": "stable",
           "release_date": "2025-08-12T10:00:00Z"
+        },
+
+        // Minor 3.24
+        {
+          "version": "3.24.2",
+          "channel": "stable",
+          "release_date": "2025-07-12T10:00:00Z"
         },
 
         // Beta (ignored by filter, but 'beta' string is added manually)
@@ -57,13 +66,15 @@ void main() {
     final versions = parseVersions(json);
 
     expect(versions, [
-      "3.38.5", // Latest of 3.38
-      "3.35.7", // Latest of 3.35
-      "3.32.8", // Latest of 3.32
-      "3.29.3", // Latest of 3.29
+      // "3.38.5", // Skipped
+      "3.35.7",
+      "3.32.8",
+      "3.29.3",
+      "3.27.4",
+      "3.24.2",
       "stable",
       "beta"
     ]);
-    expect(versions.length, 6);
+    expect(versions.length, 7);
   });
 }
