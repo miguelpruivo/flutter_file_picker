@@ -40,6 +40,7 @@ import java.util.Locale
 
 object FileUtils {
     private const val TAG = "FilePickerUtils"
+
     // On Android, the CSV mime type from getMimeTypeFromExtension() returns
     // "text/comma-separated-values" which is non-standard and doesn't filter
     // CSV files in Google Drive.
@@ -355,7 +356,7 @@ object FileUtils {
             }
 
             mimes.add(mime)
-            if(allowedExtensions[i] == CSV_EXTENSION) {
+            if (allowedExtensions[i] == CSV_EXTENSION) {
                 // Add the standard CSV mime type.
                 mimes.add(CSV_MIME_TYPE)
             }
@@ -457,7 +458,11 @@ object FileUtils {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val imageFileName = "IMAGE_" + timeStamp + "_"
         val storageDir = context.cacheDir
-        return File.createTempFile(imageFileName, "." + getCompressFormatBasedFileExtension(compressFormat), storageDir)
+        return File.createTempFile(
+            imageFileName,
+            "." + getCompressFormatBasedFileExtension(compressFormat),
+            storageDir
+        )
     }
 
     /**
