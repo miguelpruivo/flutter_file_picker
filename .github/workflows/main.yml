@@ -7,12 +7,24 @@ on:
     branches: [ master ]
 
 jobs:
+  setup_flutter_versions:
+    runs-on: ubuntu-latest
+    outputs:
+      flutter-versions: ${{ steps.id_flutter_versions.outputs.versions }}
+    steps:
+      - name: Fetch Flutter versions
+        id: id_flutter_versions
+        run: |
+          VERSIONS=$(curl -s https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json | jq -c '[.releases | map(select(.channel == "stable")) | .[:5] | map(.version)] | flatten + ["stable", "beta"]')
+          echo "versions=$VERSIONS" >> $GITHUB_OUTPUT
+
   test_flutter_versions:
+    needs: setup_flutter_versions
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        flutter: [ '3.24.0', '3.27.0', '3.29.0', '3.32.0', '3.35.0', 'stable', 'beta' ]
+        flutter: ${{ fromJson(needs.setup_flutter_versions.outputs.flutter-versions) }}
     name: Tests on Flutter ${{ matrix.flutter }}
     steps:
       - uses: actions/checkout@v4
