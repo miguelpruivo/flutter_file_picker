@@ -15,7 +15,7 @@ jobs:
       - name: Fetch Flutter versions
         id: id_flutter_versions
         run: |
-          VERSIONS=$(curl -s https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json | jq -c '[.releases | map(select(.channel == "stable")) | .[:5] | map(.version)] | flatten + ["stable", "beta"]')
+          VERSIONS=$(curl -s https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json | jq -c '[.releases | map(select(.channel == "stable")) | group_by(.version | split(".")[:2] | join(".")) | map(.[0]) | sort_by(.release_date) | reverse | .[:5] | map(.version)] | flatten + ["stable", "beta"]')
           echo "versions=$VERSIONS" >> $GITHUB_OUTPUT
 
   test_flutter_versions:
