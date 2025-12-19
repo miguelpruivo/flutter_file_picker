@@ -3,7 +3,7 @@ import '../tool/fetch_versions.dart';
 
 void main() {
   test(
-      'parseVersions extracts last 6 minor versions, skips 1st, returns 5 + stable/beta',
+      'parseVersions extracts last 5 minor versions, skips 1st, returns 4 + stable/beta',
       () {
     final json = {
       "releases": [
@@ -71,10 +71,10 @@ void main() {
       "3.32.8",
       "3.29.3",
       "3.27.4",
-      "3.24.2",
+      // "3.24.2", // Removed
       "stable",
       "beta"
     ]);
-    expect(versions.length, 7);
+    expect(versions.length, 6);
   });
 }
