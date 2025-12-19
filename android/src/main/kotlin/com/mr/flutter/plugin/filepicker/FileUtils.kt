@@ -506,6 +506,26 @@ object FileUtils {
         }
     }
 
+    /**
+     * Opens a file stream from a URI, caches the file locally, and retrieves its metadata.
+     *
+     * This function takes a content URI, copies the file to the application's cache directory
+     * to ensure persistent access, and then builds a [FileInfo] object containing details
+     * about the file such as its path, name, URI, and size.
+     *
+     * If the `withData` flag is true, the file's content will also be read into a byte array
+     * and included in the returned [FileInfo] object. This is memory-intensive and should be
+     * used cautiously with large files.
+     *
+     * The cached file is placed in a structured directory within the app's cache to avoid
+     * name collisions.
+     *
+     * @param context The application context, used for accessing the content resolver and cache directory.
+     * @param uri The URI of the file to be opened.
+     * @param withData A boolean flag indicating whether to load the file's raw byte data into memory.
+     * @return A [FileInfo] object containing the file's details, or `null` if the file
+     *         could not be accessed or cached.
+     */
     @JvmStatic
     fun openFileStream(context: Context, uri: Uri, withData: Boolean): FileInfo? {
         var fileInputStream: InputStream? = null
@@ -515,39 +535,38 @@ object FileUtils {
         val path =
             context.cacheDir.absolutePath + "/file_picker/" + System.currentTimeMillis() + "/" + (fileName
                 ?: "unamed")
-
         val file = File(path)
+        if (withData) {
 
-        if (!file.exists()) {
-            try {
-                file.parentFile?.mkdirs()
-
-                fileInputStream = context.contentResolver.openInputStream(uri)
-                fileOutputStream = FileOutputStream(file)
-
-                val out = BufferedOutputStream(fileOutputStream)
-                val buffer = ByteArray(8192)
-                var len: Int
-
-                while ((fileInputStream!!.read(buffer).also { len = it }) >= 0) {
-                    out.write(buffer, 0, len)
-                }
-                out.flush()
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to retrieve and cache file: " + e.message, e)
-                return null
-            } finally {
+            if (!file.exists()) {
                 try {
-                    fileOutputStream?.fd?.sync()
-                    fileOutputStream?.close()
-                    fileInputStream?.close()
-                } catch (ex: IOException) {
-                    Log.e(TAG, "Failed to close file streams: " + ex.message, ex)
+                    file.parentFile?.mkdirs()
+
+                    fileInputStream = context.contentResolver.openInputStream(uri)
+                    fileOutputStream = FileOutputStream(file)
+
+                    val out = BufferedOutputStream(fileOutputStream)
+                    val buffer = ByteArray(8192)
+                    var len: Int
+
+                    while ((fileInputStream!!.read(buffer).also { len = it }) >= 0) {
+                        out.write(buffer, 0, len)
+                    }
+                    out.flush()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to retrieve and cache file: " + e.message, e)
+                    return null
+                } finally {
+                    try {
+                        fileOutputStream?.fd?.sync()
+                        fileOutputStream?.close()
+                        fileInputStream?.close()
+                    } catch (ex: IOException) {
+                        Log.e(TAG, "Failed to close file streams: " + ex.message, ex)
+                    }
                 }
             }
-        }
 
-        if (withData) {
             loadData(file, fileInfo)
         }
 
