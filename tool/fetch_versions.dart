@@ -23,7 +23,7 @@ Future<Map<String, Object?>> _fetchJson() async {
       throw HttpException('Failed to fetch releases: ${response.statusCode}');
     }
     final responseBody = await response.transform(utf8.decoder).join();
-    return jsonDecode(responseBody) as Map<String, dynamic>;
+    return jsonDecode(responseBody) as Map<String, Object?>;
   } finally {
     httpClient.close();
   }
