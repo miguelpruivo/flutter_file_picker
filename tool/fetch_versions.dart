@@ -1,6 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'flutter_release.dart';
+
+/// Main entry point for the version fetching script.
+///
+/// Fetches the list of Flutter releases for Linux, parses them to find
+/// the recent stable minor versions, and outputs them as a JSON list
+/// to `stdout` in the format `versions=["..."]`.
 Future<void> main() async {
   try {
     final json = await _fetchJson();
@@ -12,6 +19,7 @@ Future<void> main() async {
   }
 }
 
+/// Fetches the JSON data from the Flutter infrastructure releases URL.
 Future<Map<String, Object?>> _fetchJson() async {
   final url = Uri.parse(
       'https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json');
@@ -29,6 +37,11 @@ Future<Map<String, Object?>> _fetchJson() async {
   }
 }
 
+/// Parses the JSON response to extract relevant Flutter versions.
+///
+/// Filters for stable releases, groups them by major.minor version, keeps
+/// the latest patch for each group, and returns the last 5 minor versions
+/// (excluding the very latest stable one which overlaps with 'stable' channel).
 List<String> parseVersions(Map<String, Object?> json) {
   final releasesList = json['releases'];
   if (releasesList is! List) {
@@ -36,36 +49,30 @@ List<String> parseVersions(Map<String, Object?> json) {
   }
 
   // Group by Major.Minor (e.g. 3.38)
-  final Map<String, ({String version, DateTime date})> latestByMinor = {};
+  final Map<String, FlutterRelease> latestByMinor = {};
 
-  for (final release in releasesList) {
-    if (release
-        case {
-          'channel': 'stable',
-          'version': final String version,
-          'release_date': final String releaseDateString
-        }) {
-      final parts = version.split('.');
-      if (parts.length < 2) continue;
-      final minor = '${parts[0]}.${parts[1]}';
+  for (final releaseJson in releasesList) {
+    final release = FlutterRelease.tryParse(releaseJson);
+    if (release == null) continue;
 
-      final releaseDate = DateTime.parse(releaseDateString);
+    final parts = release.version.split('.');
+    if (parts.length < 2) continue;
+    final minor = '${parts[0]}.${parts[1]}';
 
-      if (!latestByMinor.containsKey(minor)) {
-        latestByMinor[minor] = (version: version, date: releaseDate);
-      } else {
-        final currentBest = latestByMinor[minor]!;
-        // Keep the most recent patch
-        if (releaseDate.isAfter(currentBest.date)) {
-          latestByMinor[minor] = (version: version, date: releaseDate);
-        }
+    if (!latestByMinor.containsKey(minor)) {
+      latestByMinor[minor] = release;
+    } else {
+      final currentBest = latestByMinor[minor]!;
+      // Keep the most recent patch
+      if (release.releaseDate.isAfter(currentBest.releaseDate)) {
+        latestByMinor[minor] = release;
       }
     }
   }
 
   // Sort groups by release date descending
   final sortedByDate = latestByMinor.values.toList()
-    ..sort((a, b) => b.date.compareTo(a.date));
+    ..sort((a, b) => b.releaseDate.compareTo(a.releaseDate));
 
   // Take the last 5 minor versions
   final top5 = sortedByDate.take(5).map((r) => r.version).toList();
