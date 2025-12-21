@@ -40,8 +40,9 @@ abstract class FilePickerPlatform extends PlatformInterface {
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
-  }) async =>
-      throw UnimplementedError('pickFiles() has not been implemented.');
+  }) async {
+    throw UnimplementedError('pickFiles() has not been implemented.');
+  }
 
   /// Displays a dialog that allows the user to select both files and
   /// directories simultaneously, returning their absolute paths.
@@ -49,21 +50,24 @@ abstract class FilePickerPlatform extends PlatformInterface {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-  }) async =>
-      throw UnimplementedError(
-          'pickFileAndDirectoryPaths() has not been implemented.');
+  }) async {
+    throw UnimplementedError(
+        'pickFileAndDirectoryPaths() has not been implemented.');
+  }
 
   /// Asks the underlying platform to remove any temporary files created by this plugin.
-  Future<bool?> clearTemporaryFiles() async => throw UnimplementedError(
-      'clearTemporaryFiles() has not been implemented.');
+  Future<bool?> clearTemporaryFiles() async {
+    throw UnimplementedError('clearTemporaryFiles() has not been implemented.');
+  }
 
   /// Selects a directory and returns its absolute path.
   Future<String?> getDirectoryPath({
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-  }) async =>
-      throw UnimplementedError('getDirectoryPath() has not been implemented.');
+  }) async {
+    throw UnimplementedError('getDirectoryPath() has not been implemented.');
+  }
 
   /// Opens a save file dialog which lets the user select a file path and a file
   /// name to save a file.
@@ -75,6 +79,7 @@ abstract class FilePickerPlatform extends PlatformInterface {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     bool lockParentWindow = false,
-  }) async =>
-      throw UnimplementedError('saveFile() has not been implemented.');
+  }) async {
+    throw UnimplementedError('saveFile() has not been implemented.');
+  }
 }
