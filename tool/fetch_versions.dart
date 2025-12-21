@@ -12,7 +12,7 @@ Future<void> main() async {
   }
 }
 
-Future<Map<String, dynamic>> _fetchJson() async {
+Future<Map<String, Object?>> _fetchJson() async {
   final url = Uri.parse(
       'https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json');
   final httpClient = HttpClient();
