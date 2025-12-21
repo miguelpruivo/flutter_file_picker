@@ -29,7 +29,7 @@ Future<Map<String, Object?>> _fetchJson() async {
   }
 }
 
-List<String> parseVersions(Map<String, dynamic> json) {
+List<String> parseVersions(Map<String, Object?> json) {
   final releases = (json['releases'] as List).cast<Map<String, dynamic>>();
 
   // Filter for stable channel
