@@ -1,11 +1,12 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:file_picker/src/file_picker_platform_interface.dart';
 import 'package:file_picker/src/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-class FilePickerMacOS extends FilePicker {
+class FilePickerMacOS extends FilePickerPlatform {
   static void registerWith() {
-    FilePicker.platform = FilePickerMacOS();
+    FilePickerPlatform.instance = FilePickerMacOS();
   }
 
   @visibleForTesting

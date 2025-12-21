@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:file_picker/src/file_picker_platform_interface.dart';
 import 'package:flutter/services.dart';
 
 final MethodChannel _channel = MethodChannel(
@@ -15,9 +16,9 @@ const EventChannel _eventChannel =
     EventChannel('miguelruivo.flutter.plugins.filepickerevent');
 
 /// An implementation of [FilePicker] that uses method channels.
-class FilePickerIO extends FilePicker {
+class FilePickerIO extends FilePickerPlatform {
   static void registerWith() {
-    FilePicker.platform = FilePickerIO();
+    FilePickerPlatform.instance = FilePickerIO();
   }
 
   static const String _tag = 'MethodChannelFilePicker';

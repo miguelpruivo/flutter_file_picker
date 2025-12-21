@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:file_picker/src/file_picker_platform_interface.dart';
 import 'package:file_picker/src/file_picker_result.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 const String defaultDialogTitle = '';
 
@@ -20,26 +20,12 @@ enum FilePickerStatus {
   done,
 }
 
-/// The interface that implementations of file_picker must implement.
-///
-/// Platform implementations should extend this class rather than implement it as `file_picker`
-/// does not consider newly added methods to be breaking changes. Extending this class
-/// (using `extends`) ensures that the subclass will get the default implementation, while
-/// platform implementations that `implements` this interface will be broken by newly added
-/// [FilePicker] methods.
-abstract class FilePicker extends PlatformInterface {
-  FilePicker() : super(token: _token);
+class FilePicker {
+  FilePicker._();
 
-  static final Object _token = Object();
-
-  static late FilePicker _instance;
+  static final FilePicker _instance = FilePicker._();
 
   static FilePicker get platform => _instance;
-
-  static set platform(FilePicker instance) {
-    PlatformInterface.verifyToken(instance, _token);
-    _instance = instance;
-  }
 
   /// Retrieves the file(s) from the underlying platform
   ///
@@ -105,8 +91,21 @@ abstract class FilePicker extends PlatformInterface {
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
-  }) async =>
-      throw UnimplementedError('pickFiles() has not been implemented.');
+  }) =>
+      FilePickerPlatform.instance.pickFiles(
+        dialogTitle: dialogTitle,
+        initialDirectory: initialDirectory,
+        type: type,
+        allowedExtensions: allowedExtensions,
+        onFileLoading: onFileLoading,
+        allowCompression: allowCompression,
+        compressionQuality: compressionQuality,
+        allowMultiple: allowMultiple,
+        withData: withData,
+        withReadStream: withReadStream,
+        lockParentWindow: lockParentWindow,
+        readSequential: readSequential,
+      );
 
   /// Displays a dialog that allows the user to select both files and
   /// directories simultaneously, returning their absolute paths.
@@ -130,9 +129,12 @@ abstract class FilePicker extends PlatformInterface {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-  }) async =>
-      throw UnimplementedError(
-          'pickFileAndDirectoryPaths() has not been implemented.');
+  }) =>
+      FilePickerPlatform.instance.pickFileAndDirectoryPaths(
+        initialDirectory: initialDirectory,
+        type: type,
+        allowedExtensions: allowedExtensions,
+      );
 
   /// Asks the underlying platform to remove any temporary files created by this plugin.
   ///
@@ -143,8 +145,8 @@ abstract class FilePicker extends PlatformInterface {
   /// This method is only available on mobile platforms (Android & iOS).
   ///
   /// Returns `true` if the files were removed with success, `false` otherwise.
-  Future<bool?> clearTemporaryFiles() async => throw UnimplementedError(
-      'clearTemporaryFiles() has not been implemented.');
+  Future<bool?> clearTemporaryFiles() =>
+      FilePickerPlatform.instance.clearTemporaryFiles();
 
   /// Selects a directory and returns its absolute path.
   ///
@@ -177,8 +179,12 @@ abstract class FilePicker extends PlatformInterface {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-  }) async =>
-      throw UnimplementedError('getDirectoryPath() has not been implemented.');
+  }) =>
+      FilePickerPlatform.instance.getDirectoryPath(
+        dialogTitle: dialogTitle,
+        lockParentWindow: lockParentWindow,
+        initialDirectory: initialDirectory,
+      );
 
   /// Opens a save file dialog which lets the user select a file path and a file
   /// name to save a file.
@@ -226,6 +232,14 @@ abstract class FilePicker extends PlatformInterface {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     bool lockParentWindow = false,
-  }) async =>
-      throw UnimplementedError('saveFile() has not been implemented.');
+  }) =>
+      FilePickerPlatform.instance.saveFile(
+        dialogTitle: dialogTitle,
+        fileName: fileName,
+        initialDirectory: initialDirectory,
+        type: type,
+        allowedExtensions: allowedExtensions,
+        bytes: bytes,
+        lockParentWindow: lockParentWindow,
+      );
 }

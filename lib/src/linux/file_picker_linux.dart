@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:file_picker/src/file_picker.dart';
+import 'package:file_picker/src/file_picker_platform_interface.dart';
 import 'package:file_picker/src/file_picker_result.dart';
 import 'package:file_picker/src/platform_file.dart';
 import 'package:file_picker/src/utils.dart';
@@ -10,9 +11,9 @@ import 'package:file_picker/src/linux/xdp_request.dart';
 import 'package:file_picker/src/linux/filters.dart';
 import 'package:dbus/dbus.dart';
 
-class FilePickerLinux extends FilePicker {
+class FilePickerLinux extends FilePickerPlatform {
   static void registerWith() {
-    FilePicker.platform = FilePickerLinux();
+    FilePickerPlatform.instance = FilePickerLinux();
   }
 
   final destination = "org.freedesktop.portal.Desktop";

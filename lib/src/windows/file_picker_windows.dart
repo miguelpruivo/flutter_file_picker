@@ -8,15 +8,16 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/exceptions.dart';
+import 'package:file_picker/src/file_picker_platform_interface.dart';
 import 'package:file_picker/src/utils.dart';
 import 'package:file_picker/src/windows/file_picker_windows_ffi_types.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:win32/win32.dart';
 
-class FilePickerWindows extends FilePicker {
+class FilePickerWindows extends FilePickerPlatform {
   static void registerWith() {
-    FilePicker.platform = FilePickerWindows();
+    FilePickerPlatform.instance = FilePickerWindows();
   }
 
   @override
