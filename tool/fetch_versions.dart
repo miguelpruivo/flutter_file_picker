@@ -36,7 +36,7 @@ List<String> parseVersions(Map<String, Object?> json) {
   final stableReleases = releases.where((r) => r['channel'] == 'stable');
 
   // Group by Major.Minor (e.g. 3.38)
-  final Map<String, Map<String, dynamic>> latestByMinor = {};
+  final Map<String, Map<String, Object?>> latestByMinor = {};
 
   for (final release in stableReleases) {
     final version = release['version'] as String;
