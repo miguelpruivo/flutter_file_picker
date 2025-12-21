@@ -152,28 +152,17 @@ class MethodChannelFilePicker extends FilePickerPlatform {
       List<String>? allowedExtensions,
       Uint8List? bytes,
       bool lockParentWindow = false}) {
-    if (Platform.isIOS || Platform.isAndroid) {
-      if (bytes == null) {
-        throw ArgumentError(
-            'Bytes are required on Android & iOS when saving a file.');
-      }
-
-      return methodChannel.invokeMethod("save", {
-        "fileName": fileName,
-        "fileType": type.name,
-        "initialDirectory": initialDirectory,
-        "allowedExtensions": allowedExtensions,
-        "bytes": bytes,
-      });
+    if (bytes == null) {
+      throw ArgumentError(
+          'The "bytes" parameter is required on Android & iOS when calling "saveFile".');
     }
-    return super.saveFile(
-      dialogTitle: dialogTitle,
-      fileName: fileName,
-      initialDirectory: initialDirectory,
-      type: type,
-      allowedExtensions: allowedExtensions,
-      bytes: bytes,
-      lockParentWindow: lockParentWindow,
-    );
+
+    return methodChannel.invokeMethod("save", {
+      "fileName": fileName,
+      "fileType": type.name,
+      "initialDirectory": initialDirectory,
+      "allowedExtensions": allowedExtensions,
+      "bytes": bytes,
+    });
   }
 }
