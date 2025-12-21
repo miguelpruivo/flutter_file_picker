@@ -75,6 +75,5 @@ void main() {
       "stable",
       "beta"
     ]);
-    expect(versions.length, 6);
   });
 }

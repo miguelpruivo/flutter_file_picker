@@ -59,15 +59,16 @@ List<String> parseVersions(Map<String, Object?> json) {
     if (parts.length < 2) continue;
     final minor = '${parts[0]}.${parts[1]}';
 
-    if (!latestByMinor.containsKey(minor)) {
-      latestByMinor[minor] = release;
-    } else {
+    if (latestByMinor.containsKey(minor)) {
       final currentBest = latestByMinor[minor]!;
       // Keep the most recent patch
       if (release.releaseDate.isAfter(currentBest.releaseDate)) {
         latestByMinor[minor] = release;
       }
+      continue;
     }
+
+    latestByMinor[minor] = release;
   }
 
   // Sort groups by release date descending
