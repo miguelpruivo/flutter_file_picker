@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:file_picker/src/file_picker_result.dart';
-import 'package:file_picker/src/platform_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import 'package:file_picker/src/api/file_picker_result.dart';
+import 'package:file_picker/src/api/file_picker_types.dart';
+import 'package:file_picker/src/api/platform_file.dart';
 import 'file_picker_platform_interface.dart';
-import 'file_picker_types.dart';
 
 /// An implementation of [FilePickerPlatform] that uses method channels.
 class MethodChannelFilePicker extends FilePickerPlatform {
@@ -15,9 +15,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
   @visibleForTesting
   final methodChannel = MethodChannel(
     'miguelruivo.flutter.plugins.filepicker',
-    Platform.isLinux || Platform.isWindows || Platform.isMacOS
-        ? const JSONMethodCodec()
-        : const StandardMethodCodec(),
+    const StandardMethodCodec(),
   );
 
   /// Registers this class as the default instance of [FilePickerPlatform].

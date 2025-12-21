@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:file_picker/src/file_picker_method_channel.dart';
-import 'package:file_picker/src/file_picker_result.dart';
+import 'package:file_picker/src/api/file_picker_result.dart';
+import 'package:file_picker/src/api/file_picker_types.dart';
+import 'package:file_picker/src/platform/file_picker_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
-import 'package:file_picker/src/file_picker_types.dart';
 
 /// The interface that implementations of file_picker must implement.
 ///

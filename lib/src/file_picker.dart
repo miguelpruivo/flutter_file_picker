@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:file_picker/src/file_picker_platform_interface.dart';
-import 'package:file_picker/src/file_picker_result.dart';
-import 'package:file_picker/src/file_picker_types.dart';
+import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
+import 'package:file_picker/src/api/file_picker_result.dart';
+import 'package:file_picker/src/api/file_picker_types.dart';
 
 abstract final class FilePicker {
   /// Retrieves the file(s) from the underlying platform

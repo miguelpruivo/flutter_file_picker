@@ -3,8 +3,8 @@ library;
 
 import 'dart:io';
 
-import 'package:file_picker/src/file_picker_method_channel.dart';
-import 'package:file_picker/src/file_picker_types.dart';
+import 'package:file_picker/src/platform/file_picker_method_channel.dart';
+import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
