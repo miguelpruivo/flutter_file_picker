@@ -18,16 +18,16 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     const StandardMethodCodec(),
   );
 
-  /// Registers this class as the default instance of [FilePickerPlatform].
-  static void registerWith() {
-    FilePickerPlatform.instance = MethodChannelFilePicker();
-  }
-
   /// The event channel used to receive real-time updates from the native platform.
   @visibleForTesting
   final eventChannel = const EventChannel(
     'miguelruivo.flutter.plugins.filepickerevent',
   );
+
+  /// Registers this class as the default instance of [FilePickerPlatform].
+  static void registerWith() {
+    FilePickerPlatform.instance = MethodChannelFilePicker();
+  }
 
   static const String _tag = 'MethodChannelFilePicker';
   static StreamSubscription? _eventSubscription;
