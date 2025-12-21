@@ -35,10 +35,8 @@ flutter:
       android:
         package: com.mr.flutter.plugin.filepicker
         pluginClass: FilePickerPlugin
-        dartPluginClass: FilePickerIO
       ios:
         pluginClass: FilePickerPlugin
-        dartPluginClass: FilePickerIO
       web:
         pluginClass: FilePickerWeb
         fileName: _internal/file_picker_web.dart

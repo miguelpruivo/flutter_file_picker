@@ -13,10 +13,17 @@ import 'file_picker_platform_interface.dart';
 class MethodChannelFilePicker extends FilePickerPlatform {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
-  final methodChannel = const MethodChannel(
+  final methodChannel = MethodChannel(
     'miguelruivo.flutter.plugins.filepicker',
-    JSONMethodCodec(),
+    Platform.isLinux || Platform.isWindows || Platform.isMacOS
+        ? const JSONMethodCodec()
+        : const StandardMethodCodec(),
   );
+
+  /// Registers this class as the default instance of [FilePickerPlatform].
+  static void registerWith() {
+    FilePickerPlatform.instance = MethodChannelFilePicker();
+  }
 
   /// The event channel used to receive real-time updates from the native platform.
   @visibleForTesting
@@ -29,30 +36,31 @@ class MethodChannelFilePicker extends FilePickerPlatform {
 
   @override
   Future<FilePickerResult?> pickFiles({
-    String? dialogTitle,
-    String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
+    String? dialogTitle,
+    String? initialDirectory,
     Function(FilePickerStatus)? onFileLoading,
-    bool allowCompression = false,
-    int compressionQuality = 0,
+    @Deprecated(
+        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
+    bool? allowCompression = false,
     bool allowMultiple = false,
-    bool withData = false,
-    bool withReadStream = false,
+    bool? withData = false,
+    int compressionQuality = 0,
+    bool? withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
-  }) {
-    return _getPath(
-      type,
-      allowMultiple,
-      allowCompression,
-      allowedExtensions,
-      onFileLoading,
-      withData,
-      withReadStream,
-      compressionQuality,
-    );
-  }
+  }) =>
+      _getPath(
+        type,
+        allowMultiple,
+        allowCompression,
+        allowedExtensions,
+        onFileLoading,
+        withData,
+        withReadStream,
+        compressionQuality,
+      );
 
   @override
   Future<bool?> clearTemporaryFiles() async =>
@@ -73,50 +81,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
       }
     }
     return null;
-  }
-
-  @override
-  Future<String?> saveFile({
-    String? dialogTitle,
-    String? fileName,
-    String? initialDirectory,
-    FileType type = FileType.any,
-    List<String>? allowedExtensions,
-    Uint8List? bytes,
-    bool lockParentWindow = false,
-  }) {
-    if (Platform.isIOS || Platform.isAndroid) {
-      if (bytes == null) {
-        throw ArgumentError(
-            'Bytes are required on Android & iOS when saving a file.');
-      }
-
-      return methodChannel.invokeMethod("save", {
-        "fileName": fileName,
-        "fileType": type.name,
-        "initialDirectory": initialDirectory,
-        "allowedExtensions": allowedExtensions,
-        "bytes": bytes,
-      });
-    }
-    // For desktop platforms or others where saveFile might be handled differently or not fully supported via this specific method channel if it was separated,
-    // but based on IO implementation it seems they share some logic or fallback.
-    // However, FilePickerIO called `super.saveFile` (which threw Unimplemented) for non-mobile if not handled?
-    // Actually FilePickerIO handled calling the channel for mobile, and super for others?
-    // Let's look at FilePickerIO again. It checked Platform.isIOS || Platform.isAndroid.
-    // Ideally MethodChannelFilePicker should try to invoke the method on the channel for ALL platforms that support this channel.
-    // If the native side implements 'saveFile', it should work.
-
-    // Fallback or full implementation depending on native support:
-    return methodChannel.invokeMethod("saveFile", {
-      "dialogTitle": dialogTitle,
-      "fileName": fileName,
-      "initialDirectory": initialDirectory,
-      "allowedExtensions": allowedExtensions,
-      "bytes": bytes,
-      "lockParentWindow": lockParentWindow,
-      "type": type.name,
-    });
   }
 
   Future<FilePickerResult?> _getPath(
@@ -188,22 +152,36 @@ class MethodChannelFilePicker extends FilePickerPlatform {
   }
 
   @override
-  Future<List<String>?> pickFileAndDirectoryPaths({
-    String? initialDirectory,
-    FileType type = FileType.any,
-    List<String>? allowedExtensions,
-  }) async {
-    // Attempting to match MacOS implementation or generic method channel
-    try {
-      return await methodChannel
-          .invokeListMethod<String>('pickFileAndDirectoryPaths', {
-        'initialDirectory': initialDirectory,
-        'allowedExtensions': allowedExtensions,
-        'type': type.name,
+  Future<String?> saveFile(
+      {String? dialogTitle,
+      String? fileName,
+      String? initialDirectory,
+      FileType type = FileType.any,
+      List<String>? allowedExtensions,
+      Uint8List? bytes,
+      bool lockParentWindow = false}) {
+    if (Platform.isIOS || Platform.isAndroid) {
+      if (bytes == null) {
+        throw ArgumentError(
+            'Bytes are required on Android & iOS when saving a file.');
+      }
+
+      return methodChannel.invokeMethod("save", {
+        "fileName": fileName,
+        "fileType": type.name,
+        "initialDirectory": initialDirectory,
+        "allowedExtensions": allowedExtensions,
+        "bytes": bytes,
       });
-    } on MissingPluginException {
-      // Fallback or return null if not supported
-      return null;
     }
+    return super.saveFile(
+      dialogTitle: dialogTitle,
+      fileName: fileName,
+      initialDirectory: initialDirectory,
+      type: type,
+      allowedExtensions: allowedExtensions,
+      bytes: bytes,
+      lockParentWindow: lockParentWindow,
+    );
   }
 }
