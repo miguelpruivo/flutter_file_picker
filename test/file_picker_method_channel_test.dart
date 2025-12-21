@@ -1,8 +1,6 @@
 @TestOn('vm')
 library;
 
-import 'dart:io';
-
 import 'package:file_picker/src/platform/file_picker_method_channel.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:flutter/services.dart';
@@ -11,13 +9,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final MethodCodec codec =
-      Platform.isLinux || Platform.isWindows || Platform.isMacOS
-          ? const JSONMethodCodec()
-          : const StandardMethodCodec();
-
-  final MethodChannel channel =
-      MethodChannel('miguelruivo.flutter.plugins.filepicker', codec);
+  final MethodChannel channel = MethodChannel(
+      'miguelruivo.flutter.plugins.filepicker', const StandardMethodCodec());
   final List<MethodCall> log = <MethodCall>[];
 
   group('MethodChannelFilePicker', () {
@@ -54,7 +47,6 @@ void main() {
       expect(log.first.arguments, {
         'allowMultipleSelection': false,
         'allowedExtensions': ['pdf'],
-        'allowCompression': false,
         'withData': false,
         'compressionQuality': 0,
       });

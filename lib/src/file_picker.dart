@@ -26,10 +26,6 @@ abstract final class FilePicker {
   /// that will give you the current status of picking.
   /// Not supported on macOS.
   ///
-  /// If [allowCompression] is set, it will allow media to apply the default OS compression.
-  /// Defaults to `false`.
-  /// **Deprecated:** This option has no effect. Use [compressionQuality] instead.
-  ///
   /// If [lockParentWindow] is set, the child window (file picker window) will
   /// stay in front of the Flutter window until it is closed (like a modal
   /// window). This parameter works only on Windows desktop.
@@ -61,9 +57,6 @@ abstract final class FilePicker {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
-    @Deprecated(
-        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
-    bool allowCompression = false,
     int compressionQuality = 0,
     bool allowMultiple = false,
     bool withData = false,
@@ -77,7 +70,6 @@ abstract final class FilePicker {
       type: type,
       allowedExtensions: allowedExtensions,
       onFileLoading: onFileLoading,
-      allowCompression: allowCompression,
       compressionQuality: compressionQuality,
       allowMultiple: allowMultiple,
       withData: withData,

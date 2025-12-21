@@ -39,9 +39,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     String? dialogTitle,
     String? initialDirectory,
     Function(FilePickerStatus)? onFileLoading,
-    @Deprecated(
-        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
-    bool? allowCompression = false,
     bool allowMultiple = false,
     bool? withData = false,
     int compressionQuality = 0,
@@ -52,7 +49,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
       _getPath(
         type,
         allowMultiple,
-        allowCompression,
         allowedExtensions,
         onFileLoading,
         withData,
@@ -84,7 +80,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
   Future<FilePickerResult?> _getPath(
     FileType fileType,
     bool allowMultipleSelection,
-    bool? allowCompression,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
     bool? withData,
@@ -116,7 +111,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
       final List<Map>? result = await methodChannel.invokeListMethod(type, {
         'allowMultipleSelection': allowMultipleSelection,
         'allowedExtensions': allowedExtensions,
-        'allowCompression': allowCompression,
         'withData': withData,
         'compressionQuality': compressionQuality,
       });

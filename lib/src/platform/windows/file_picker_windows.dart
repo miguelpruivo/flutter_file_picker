@@ -29,9 +29,6 @@ class FilePickerWindows extends FilePickerPlatform {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
-    @Deprecated(
-        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
-    bool allowCompression = false,
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
@@ -48,7 +45,6 @@ class FilePickerWindows extends FilePickerPlatform {
         initialDirectory: initialDirectory,
         type: type,
         allowedExtensions: allowedExtensions,
-        allowCompression: allowCompression,
         allowMultiple: allowMultiple,
         lockParentWindow: lockParentWindow,
       ),
@@ -416,7 +412,7 @@ class _OpenSaveFileArgs {
   final String? initialDirectory;
   final FileType type;
   final List<String>? allowedExtensions;
-  final bool allowCompression;
+
   final bool allowMultiple;
   final bool lockParentWindow;
   final bool confirmOverwrite;
@@ -428,7 +424,6 @@ class _OpenSaveFileArgs {
     this.initialDirectory,
     this.type = FileType.any,
     this.allowedExtensions,
-    this.allowCompression = true,
     this.allowMultiple = false,
     this.lockParentWindow = false,
     this.confirmOverwrite = false,
