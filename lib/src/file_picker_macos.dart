@@ -1,4 +1,6 @@
-import 'package:file_picker/file_picker.dart';
+import 'package:file_picker/src/file_picker_types.dart';
+import 'package:file_picker/src/platform_file.dart';
+import 'package:file_picker/src/file_picker_result.dart';
 import 'package:file_picker/src/file_picker_platform_interface.dart';
 import 'package:file_picker/src/utils.dart';
 import 'package:flutter/foundation.dart';

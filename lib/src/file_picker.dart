@@ -3,30 +3,9 @@ import 'dart:typed_data';
 
 import 'package:file_picker/src/file_picker_platform_interface.dart';
 import 'package:file_picker/src/file_picker_result.dart';
+import 'package:file_picker/src/file_picker_types.dart';
 
-const String defaultDialogTitle = '';
-
-enum FileType {
-  any,
-  media,
-  image,
-  video,
-  audio,
-  custom,
-}
-
-enum FilePickerStatus {
-  picking,
-  done,
-}
-
-class FilePicker {
-  FilePicker._();
-
-  static final FilePicker _instance = FilePicker._();
-
-  static FilePicker get platform => _instance;
-
+abstract final class FilePicker {
   /// Retrieves the file(s) from the underlying platform
   ///
   /// Default [type] set to [FileType.any] with [allowMultiple] set to `false`.
@@ -76,7 +55,7 @@ class FilePicker {
   /// Note: This requires the User Selected File Read entitlement on macOS.
   ///
   /// Returns `null` if aborted.
-  Future<FilePickerResult?> pickFiles({
+  static Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
     FileType type = FileType.any,
@@ -91,21 +70,22 @@ class FilePicker {
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
-  }) =>
-      FilePickerPlatform.instance.pickFiles(
-        dialogTitle: dialogTitle,
-        initialDirectory: initialDirectory,
-        type: type,
-        allowedExtensions: allowedExtensions,
-        onFileLoading: onFileLoading,
-        allowCompression: allowCompression,
-        compressionQuality: compressionQuality,
-        allowMultiple: allowMultiple,
-        withData: withData,
-        withReadStream: withReadStream,
-        lockParentWindow: lockParentWindow,
-        readSequential: readSequential,
-      );
+  }) {
+    return FilePickerPlatform.instance.pickFiles(
+      dialogTitle: dialogTitle,
+      initialDirectory: initialDirectory,
+      type: type,
+      allowedExtensions: allowedExtensions,
+      onFileLoading: onFileLoading,
+      allowCompression: allowCompression,
+      compressionQuality: compressionQuality,
+      allowMultiple: allowMultiple,
+      withData: withData,
+      withReadStream: withReadStream,
+      lockParentWindow: lockParentWindow,
+      readSequential: readSequential,
+    );
+  }
 
   /// Displays a dialog that allows the user to select both files and
   /// directories simultaneously, returning their absolute paths.
@@ -125,16 +105,17 @@ class FilePicker {
   /// Returns a [Future<List<String>?>] that resolves to a list of absolute
   /// paths for the selected files and directories. If the user cancels the
   /// dialog or if the paths cannot be resolved, the method returns `null`.
-  Future<List<String>?> pickFileAndDirectoryPaths({
+  static Future<List<String>?> pickFileAndDirectoryPaths({
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-  }) =>
-      FilePickerPlatform.instance.pickFileAndDirectoryPaths(
-        initialDirectory: initialDirectory,
-        type: type,
-        allowedExtensions: allowedExtensions,
-      );
+  }) {
+    return FilePickerPlatform.instance.pickFileAndDirectoryPaths(
+      initialDirectory: initialDirectory,
+      type: type,
+      allowedExtensions: allowedExtensions,
+    );
+  }
 
   /// Asks the underlying platform to remove any temporary files created by this plugin.
   ///
@@ -145,8 +126,9 @@ class FilePicker {
   /// This method is only available on mobile platforms (Android & iOS).
   ///
   /// Returns `true` if the files were removed with success, `false` otherwise.
-  Future<bool?> clearTemporaryFiles() =>
-      FilePickerPlatform.instance.clearTemporaryFiles();
+  static Future<bool?> clearTemporaryFiles() {
+    return FilePickerPlatform.instance.clearTemporaryFiles();
+  }
 
   /// Selects a directory and returns its absolute path.
   ///
@@ -175,16 +157,17 @@ class FilePicker {
   /// could not be instantiated or the dialog result could not be interpreted.
   /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
   /// Note: The User Selected File Read entitlement is required on macOS.
-  Future<String?> getDirectoryPath({
+  static Future<String?> getDirectoryPath({
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-  }) =>
-      FilePickerPlatform.instance.getDirectoryPath(
-        dialogTitle: dialogTitle,
-        lockParentWindow: lockParentWindow,
-        initialDirectory: initialDirectory,
-      );
+  }) {
+    return FilePickerPlatform.instance.getDirectoryPath(
+      dialogTitle: dialogTitle,
+      lockParentWindow: lockParentWindow,
+      initialDirectory: initialDirectory,
+    );
+  }
 
   /// Opens a save file dialog which lets the user select a file path and a file
   /// name to save a file.
@@ -224,7 +207,7 @@ class FilePicker {
   ///
   /// Returns `null` if aborted. Returns a [Future<String?>] which resolves to
   /// the absolute path of the selected file, if the user selected a file.
-  Future<String?> saveFile({
+  static Future<String?> saveFile({
     String? dialogTitle,
     String? fileName,
     String? initialDirectory,
@@ -232,14 +215,15 @@ class FilePicker {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     bool lockParentWindow = false,
-  }) =>
-      FilePickerPlatform.instance.saveFile(
-        dialogTitle: dialogTitle,
-        fileName: fileName,
-        initialDirectory: initialDirectory,
-        type: type,
-        allowedExtensions: allowedExtensions,
-        bytes: bytes,
-        lockParentWindow: lockParentWindow,
-      );
+  }) {
+    return FilePickerPlatform.instance.saveFile(
+      dialogTitle: dialogTitle,
+      fileName: fileName,
+      initialDirectory: initialDirectory,
+      type: type,
+      allowedExtensions: allowedExtensions,
+      bytes: bytes,
+      lockParentWindow: lockParentWindow,
+    );
+  }
 }

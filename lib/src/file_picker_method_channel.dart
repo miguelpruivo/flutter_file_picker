@@ -6,8 +6,8 @@ import 'package:file_picker/src/platform_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import 'file_picker.dart';
 import 'file_picker_platform_interface.dart';
+import 'file_picker_types.dart';
 
 /// An implementation of [FilePickerPlatform] that uses method channels.
 class MethodChannelFilePicker extends FilePickerPlatform {

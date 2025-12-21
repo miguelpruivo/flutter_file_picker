@@ -5,7 +5,7 @@ import 'package:file_picker/src/file_picker_method_channel.dart';
 import 'package:file_picker/src/file_picker_result.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'file_picker.dart';
+import 'package:file_picker/src/file_picker_types.dart';
 
 /// The interface that implementations of file_picker must implement.
 ///

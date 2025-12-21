@@ -76,3 +76,5 @@ bool isAlpha(String x) {
   return 'a'.codeUnitAt(0) <= codeUnit && codeUnit <= 'z'.codeUnitAt(0) ||
       'A'.codeUnitAt(0) <= codeUnit && codeUnit <= 'Z'.codeUnitAt(0);
 }
+
+const String defaultDialogTitle = 'File Picker';
