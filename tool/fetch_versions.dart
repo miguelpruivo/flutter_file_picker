@@ -5,7 +5,7 @@ Future<void> main() async {
   try {
     final json = await _fetchJson();
     final versions = parseVersions(json);
-    print('versions=${jsonEncode(versions)}');
+    stdout.write('versions=${jsonEncode(versions)}');
   } catch (e) {
     stderr.writeln('Error: $e');
     exit(1);
@@ -29,30 +29,62 @@ Future<Map<String, Object?>> _fetchJson() async {
   }
 }
 
+class FlutterRelease {
+  final String version;
+  final String channel;
+  final DateTime releaseDate;
+
+  FlutterRelease({
+    required this.version,
+    required this.channel,
+    required this.releaseDate,
+  });
+
+  factory FlutterRelease.fromJson(Map<String, Object?> json) {
+    final version = json['version'];
+    final channel = json['channel'];
+    final releaseDate = json['release_date'];
+
+    if (version is! String || channel is! String || releaseDate is! String) {
+      throw FormatException('Invalid release data: $json');
+    }
+
+    return FlutterRelease(
+      version: version,
+      channel: channel,
+      releaseDate: DateTime.parse(releaseDate),
+    );
+  }
+}
+
 List<String> parseVersions(Map<String, Object?> json) {
-  final releases = (json['releases'] as List).cast<Map<String, dynamic>>();
+  final releasesList = json['releases'];
+  if (releasesList is! List) {
+    throw const FormatException('Invalid JSON: releases is not a list');
+  }
+
+  final releases = releasesList
+      .whereType<Map<String, Object?>>()
+      .map(FlutterRelease.fromJson)
+      .toList();
 
   // Filter for stable channel
-  final stableReleases = releases.where((r) => r['channel'] == 'stable');
+  final stableReleases = releases.where((r) => r.channel == 'stable');
 
   // Group by Major.Minor (e.g. 3.38)
-  final Map<String, Map<String, Object?>> latestByMinor = {};
+  final Map<String, FlutterRelease> latestByMinor = {};
 
   for (final release in stableReleases) {
-    final version = release['version'] as String;
-    final parts = version.split('.');
+    final parts = release.version.split('.');
     if (parts.length < 2) continue;
     final minor = '${parts[0]}.${parts[1]}';
-
-    final releaseDate = DateTime.parse(release['release_date']);
 
     if (!latestByMinor.containsKey(minor)) {
       latestByMinor[minor] = release;
     } else {
       final currentBest = latestByMinor[minor]!;
-      final currentBestDate = DateTime.parse(currentBest['release_date']);
       // Keep the most recent patch
-      if (releaseDate.isAfter(currentBestDate)) {
+      if (release.releaseDate.isAfter(currentBest.releaseDate)) {
         latestByMinor[minor] = release;
       }
     }
@@ -60,14 +92,10 @@ List<String> parseVersions(Map<String, Object?> json) {
 
   // Sort groups by release date descending
   final sortedByDate = latestByMinor.values.toList()
-    ..sort((a, b) {
-      final dateA = DateTime.parse(a['release_date']);
-      final dateB = DateTime.parse(b['release_date']);
-      return dateB.compareTo(dateA);
-    });
+    ..sort((a, b) => b.releaseDate.compareTo(a.releaseDate));
 
   // Take the last 5 minor versions
-  final top5 = sortedByDate.take(5).map((r) => r['version'] as String).toList();
+  final top5 = sortedByDate.take(5).map((r) => r.version).toList();
 
   // Skip the first one (latest stable) to avoid duplication with 'stable' channel
   // Return the next 4
