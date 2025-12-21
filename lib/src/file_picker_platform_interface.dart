@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:file_picker/src/file_picker_method_channel.dart';
 import 'package:file_picker/src/file_picker_result.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -18,7 +19,7 @@ abstract class FilePickerPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static FilePickerPlatform _instance = _PlaceholderImplementation();
+  static FilePickerPlatform _instance = MethodChannelFilePicker();
 
   static FilePickerPlatform get instance => _instance;
 
@@ -79,5 +80,3 @@ abstract class FilePickerPlatform extends PlatformInterface {
   }) async =>
       throw UnimplementedError('saveFile() has not been implemented.');
 }
-
-class _PlaceholderImplementation extends FilePickerPlatform {}
