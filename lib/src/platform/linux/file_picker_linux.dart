@@ -5,7 +5,7 @@ import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/platform_file.dart';
-import 'package:file_picker/src/utils.dart';
+import 'package:file_picker/src/file_picker_utils.dart';
 import 'package:file_picker/src/platform/linux/xdp_filechooser.dart';
 import 'package:file_picker/src/platform/linux/xdp_request.dart';
 import 'package:file_picker/src/platform/linux/filters.dart';
@@ -81,7 +81,8 @@ class FilePickerLinux extends FilePickerPlatform {
 
     final filePaths = uriPaths.map((uri) => uri.toFilePath()).toList();
 
-    final List<PlatformFile> platformFiles = await filePathsToPlatformFiles(
+    final List<PlatformFile> platformFiles =
+        await FilePickerUtils.filePathsToPlatformFiles(
       filePaths,
       withReadStream,
       withData,
@@ -135,7 +136,8 @@ class FilePickerLinux extends FilePickerPlatform {
 
     final filePaths = uriPaths.map((uri) => uri.toFilePath()).toList();
 
-    final List<PlatformFile> platformFiles = await filePathsToPlatformFiles(
+    final List<PlatformFile> platformFiles =
+        await FilePickerUtils.filePathsToPlatformFiles(
       filePaths,
       false,
       false,
@@ -193,7 +195,7 @@ class FilePickerLinux extends FilePickerPlatform {
     final savedFilePaths = saveUris.map((uri) => uri.toFilePath()).toList();
     final savedFilePath = savedFilePaths.firstOrNull;
 
-    await saveBytesToFile(bytes, savedFilePath);
+    await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
 
     return savedFilePath;
   }

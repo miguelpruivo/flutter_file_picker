@@ -2,7 +2,7 @@
 library;
 
 import 'dart:io';
-import 'package:file_picker/src/utils.dart';
+import 'package:file_picker/src/file_picker_utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'common.dart';
@@ -29,8 +29,8 @@ void main() {
       final bytes = imageFile.readAsBytesSync();
       final readStream = imageFile.openRead();
 
-      final platformFile =
-          await createPlatformFile(imageFile, bytes, readStream);
+      final platformFile = await FilePickerUtils.createPlatformFile(
+          imageFile, bytes, readStream);
 
       expect(platformFile.bytes, equals(bytes));
       expect(platformFile.name, equals('test_utils.jpg'));
@@ -43,7 +43,8 @@ void main() {
         () async {
       final appFile = File(appTestFilePath);
 
-      final platformFile = await createPlatformFile(appFile, null, null);
+      final platformFile =
+          await FilePickerUtils.createPlatformFile(appFile, null, null);
 
       expect(platformFile.bytes, equals(null));
       expect(platformFile.name, equals('test_utils.app'));
@@ -61,8 +62,8 @@ void main() {
         () async {
       final filePaths = [imageTestFile, pdfTestFile, yamlTestFile];
 
-      final platformFiles =
-          await filePathsToPlatformFiles(filePaths, false, false);
+      final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
+          filePaths, false, false);
 
       expect(platformFiles.length, equals(filePaths.length));
 
@@ -96,7 +97,7 @@ void main() {
         () async {
       final filePaths = <String>[];
 
-      final platformFiles = await filePathsToPlatformFiles(
+      final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
         filePaths,
         false,
         false,
@@ -110,7 +111,7 @@ void main() {
         () async {
       final filePaths = <String>['test'];
 
-      final platformFiles = await filePathsToPlatformFiles(
+      final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
         filePaths,
         true,
         false,
@@ -124,7 +125,7 @@ void main() {
         () async {
       final filePaths = <String>['test/test_files/test.pdf'];
 
-      final platformFiles = await filePathsToPlatformFiles(
+      final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
         filePaths,
         false,
         true,
@@ -139,7 +140,7 @@ void main() {
       final filepath = '';
 
       expect(
-        () async => await isExecutableOnPath(filepath),
+        () async => await FilePickerUtils.isExecutableOnPath(filepath),
         throwsA(isA<Exception>()),
       );
     });
@@ -147,13 +148,13 @@ void main() {
 
   group('isAlpha()', () {
     test('should identify alpha chars', () async {
-      expect(isAlpha('a'), equals(true));
-      expect(isAlpha('A'), equals(true));
-      expect(isAlpha('z'), equals(true));
-      expect(isAlpha('Z'), equals(true));
-      expect(isAlpha('.'), equals(false));
-      expect(isAlpha('*'), equals(false));
-      expect(isAlpha(' '), equals(false));
+      expect(FilePickerUtils.isAlpha('a'), equals(true));
+      expect(FilePickerUtils.isAlpha('A'), equals(true));
+      expect(FilePickerUtils.isAlpha('z'), equals(true));
+      expect(FilePickerUtils.isAlpha('Z'), equals(true));
+      expect(FilePickerUtils.isAlpha('.'), equals(false));
+      expect(FilePickerUtils.isAlpha('*'), equals(false));
+      expect(FilePickerUtils.isAlpha(' '), equals(false));
     });
   });
 }

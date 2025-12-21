@@ -2,7 +2,7 @@ import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
-import 'package:file_picker/src/utils.dart';
+import 'package:file_picker/src/file_picker_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -68,7 +68,8 @@ class FilePickerMacOS extends FilePickerPlatform {
       return null;
     }
 
-    final List<PlatformFile> platformFiles = await filePathsToPlatformFiles(
+    final List<PlatformFile> platformFiles =
+        await FilePickerUtils.filePathsToPlatformFiles(
       filePaths,
       withReadStream,
       withData,
@@ -111,14 +112,15 @@ class FilePickerMacOS extends FilePickerPlatform {
     final String? savedFilePath = await methodChannel.invokeMethod<String>(
       'saveFile',
       <String, dynamic>{
-        'dialogTitle': escapeDialogTitle(dialogTitle ?? defaultDialogTitle),
+        'dialogTitle': escapeDialogTitle(
+            dialogTitle ?? FilePickerUtils.defaultDialogTitle),
         'fileName': fileName,
         'initialDirectory': escapeInitialDirectory(initialDirectory),
         'allowedExtensions': fileFilter,
       },
     );
 
-    await saveBytesToFile(bytes, savedFilePath);
+    await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
     return savedFilePath;
   }
 

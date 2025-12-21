@@ -11,7 +11,7 @@ import 'package:file_picker/src/api/file_picker_result.dart';
 
 import 'package:file_picker/src/api/exceptions.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
-import 'package:file_picker/src/utils.dart';
+import 'package:file_picker/src/file_picker_utils.dart';
 import 'package:file_picker/src/platform/windows/file_picker_windows_ffi_types.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
@@ -53,7 +53,7 @@ class FilePickerWindows extends FilePickerPlatform {
     FilePickerResult? returnValue;
     if (fileNames != null) {
       final filePaths = fileNames;
-      final platformFiles = await filePathsToPlatformFiles(
+      final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
         filePaths,
         withReadStream,
         withData,
@@ -138,7 +138,7 @@ class FilePickerWindows extends FilePickerPlatform {
         free(optionsPointer);
       }
 
-      final title = TEXT(dialogTitle ?? defaultDialogTitle);
+      final title = TEXT(dialogTitle ?? FilePickerUtils.defaultDialogTitle);
       try {
         hr = fileDialog.setTitle(title);
         if (!SUCCEEDED(hr)) throw WindowsException(hr);
@@ -217,7 +217,7 @@ class FilePickerWindows extends FilePickerPlatform {
           confirmOverwrite: true,
         ));
     final savedFilePath = (await port.first) as String?;
-    await saveBytesToFile(bytes, savedFilePath);
+    await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
     return savedFilePath;
   }
 
@@ -332,7 +332,8 @@ class FilePickerWindows extends FilePickerPlatform {
 
     openFileNameW.ref.lStructSize = sizeOf<OPENFILENAMEW>();
     openFileNameW.ref.lpstrTitle =
-        (args.dialogTitle ?? defaultDialogTitle).toNativeUtf16();
+        (args.dialogTitle ?? FilePickerUtils.defaultDialogTitle)
+            .toNativeUtf16();
     openFileNameW.ref.lpstrFile = calloc.allocate<Utf16>(lpstrFileBufferSize);
     openFileNameW.ref.lpstrFilter =
         fileTypeToFileFilter(args.type, args.allowedExtensions).toNativeUtf16();
