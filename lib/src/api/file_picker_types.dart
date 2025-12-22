@@ -1,29 +1,29 @@
 /// Type of file to pick.
 enum FileType {
-  /// any - Select any file.
+  /// Select any file.
   any,
 
-  /// media - Select video and image files.
+  /// Select video and image files.
   media,
 
-  /// image - Select image files.
+  /// Select image files.
   image,
 
-  /// video - Select video files.
+  /// Select video files.
   video,
 
-  /// audio - Select audio files.
+  /// Select audio files.
   audio,
 
-  /// custom - Select files with custom extensions.
+  /// Select files with specific extensions.
   custom,
 }
 
 /// Status of the file picker.
 enum FilePickerStatus {
-  /// picking - The picker is currently active/open.
+  /// The file picker is currently active/open.
   picking,
 
-  /// done - The picking process is complete.
+  /// The file picking process is complete.
   done,
 }
