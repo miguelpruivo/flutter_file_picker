@@ -1,23 +1,32 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-final MethodChannel _channel = MethodChannel(
-  'miguelruivo.flutter.plugins.filepicker',
-  Platform.isLinux || Platform.isWindows || Platform.isMacOS
-      ? const JSONMethodCodec()
-      : const StandardMethodCodec(),
-);
+import 'package:file_picker/src/api/file_picker_result.dart';
+import 'package:file_picker/src/api/file_picker_types.dart';
+import 'package:file_picker/src/api/platform_file.dart';
+import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 
-const EventChannel _eventChannel =
-    EventChannel('miguelruivo.flutter.plugins.filepickerevent');
+/// An implementation of [FilePickerPlatform] that uses method channels.
+class MethodChannelFilePicker extends FilePickerPlatform {
+  /// The method channel used to interact with the native platform.
+  @visibleForTesting
+  final methodChannel = MethodChannel(
+    'miguelruivo.flutter.plugins.filepicker',
+    const StandardMethodCodec(),
+  );
 
-/// An implementation of [FilePicker] that uses method channels.
-class FilePickerIO extends FilePicker {
+  /// The event channel used to receive real-time updates from the native platform.
+  @visibleForTesting
+  final eventChannel = const EventChannel(
+    'miguelruivo.flutter.plugins.filepickerevent',
+  );
+
+  /// Registers this class as the default instance of [FilePickerPlatform].
   static void registerWith() {
-    FilePicker.platform = FilePickerIO();
+    FilePickerPlatform.instance = MethodChannelFilePicker();
   }
 
   static const String _tag = 'MethodChannelFilePicker';
@@ -30,9 +39,6 @@ class FilePickerIO extends FilePicker {
     String? dialogTitle,
     String? initialDirectory,
     Function(FilePickerStatus)? onFileLoading,
-    @Deprecated(
-        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
-    bool? allowCompression = false,
     bool allowMultiple = false,
     bool? withData = false,
     int compressionQuality = 0,
@@ -43,7 +49,6 @@ class FilePickerIO extends FilePicker {
       _getPath(
         type,
         allowMultiple,
-        allowCompression,
         allowedExtensions,
         onFileLoading,
         withData,
@@ -53,7 +58,7 @@ class FilePickerIO extends FilePicker {
 
   @override
   Future<bool?> clearTemporaryFiles() async =>
-      _channel.invokeMethod<bool>('clear');
+      methodChannel.invokeMethod<bool>('clear');
 
   @override
   Future<String?> getDirectoryPath({
@@ -62,7 +67,7 @@ class FilePickerIO extends FilePicker {
     String? initialDirectory,
   }) async {
     try {
-      return await _channel.invokeMethod('dir', {});
+      return await methodChannel.invokeMethod('dir', {});
     } on PlatformException catch (ex) {
       if (ex.code == "unknown_path") {
         print(
@@ -75,7 +80,6 @@ class FilePickerIO extends FilePicker {
   Future<FilePickerResult?> _getPath(
     FileType fileType,
     bool allowMultipleSelection,
-    bool? allowCompression,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
     bool? withData,
@@ -94,7 +98,7 @@ class FilePickerIO extends FilePicker {
     try {
       await _eventSubscription?.cancel();
       if (onFileLoading != null) {
-        _eventSubscription = _eventChannel.receiveBroadcastStream().listen(
+        _eventSubscription = eventChannel.receiveBroadcastStream().listen(
           (data) {
             if (data is! bool) return;
             onFileLoading(
@@ -104,10 +108,9 @@ class FilePickerIO extends FilePicker {
         );
       }
 
-      final List<Map>? result = await _channel.invokeListMethod(type, {
+      final List<Map>? result = await methodChannel.invokeListMethod(type, {
         'allowMultipleSelection': allowMultipleSelection,
         'allowedExtensions': allowedExtensions,
-        'allowCompression': allowCompression,
         'withData': withData,
         'compressionQuality': compressionQuality,
       });
@@ -149,28 +152,17 @@ class FilePickerIO extends FilePicker {
       List<String>? allowedExtensions,
       Uint8List? bytes,
       bool lockParentWindow = false}) {
-    if (Platform.isIOS || Platform.isAndroid) {
-      if (bytes == null) {
-        throw ArgumentError(
-            'Bytes are required on Android & iOS when saving a file.');
-      }
-
-      return _channel.invokeMethod("save", {
-        "fileName": fileName,
-        "fileType": type.name,
-        "initialDirectory": initialDirectory,
-        "allowedExtensions": allowedExtensions,
-        "bytes": bytes,
-      });
+    if (bytes == null) {
+      throw ArgumentError(
+          'The "bytes" parameter is required on Android & iOS when calling "saveFile".');
     }
-    return super.saveFile(
-      dialogTitle: dialogTitle,
-      fileName: fileName,
-      initialDirectory: initialDirectory,
-      type: type,
-      allowedExtensions: allowedExtensions,
-      bytes: bytes,
-      lockParentWindow: lockParentWindow,
-    );
+
+    return methodChannel.invokeMethod("save", {
+      "fileName": fileName,
+      "fileType": type.name,
+      "initialDirectory": initialDirectory,
+      "allowedExtensions": allowedExtensions,
+      "bytes": bytes,
+    });
   }
 }

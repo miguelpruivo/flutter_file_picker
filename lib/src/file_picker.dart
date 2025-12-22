@@ -1,46 +1,11 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:file_picker/src/file_picker_result.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
+import 'package:file_picker/src/api/file_picker_result.dart';
+import 'package:file_picker/src/api/file_picker_types.dart';
 
-const String defaultDialogTitle = '';
-
-enum FileType {
-  any,
-  media,
-  image,
-  video,
-  audio,
-  custom,
-}
-
-enum FilePickerStatus {
-  picking,
-  done,
-}
-
-/// The interface that implementations of file_picker must implement.
-///
-/// Platform implementations should extend this class rather than implement it as `file_picker`
-/// does not consider newly added methods to be breaking changes. Extending this class
-/// (using `extends`) ensures that the subclass will get the default implementation, while
-/// platform implementations that `implements` this interface will be broken by newly added
-/// [FilePicker] methods.
-abstract class FilePicker extends PlatformInterface {
-  FilePicker() : super(token: _token);
-
-  static final Object _token = Object();
-
-  static late FilePicker _instance;
-
-  static FilePicker get platform => _instance;
-
-  static set platform(FilePicker instance) {
-    PlatformInterface.verifyToken(instance, _token);
-    _instance = instance;
-  }
-
+abstract final class FilePicker {
   /// Retrieves the file(s) from the underlying platform
   ///
   /// Default [type] set to [FileType.any] with [allowMultiple] set to `false`.
@@ -60,10 +25,6 @@ abstract class FilePicker extends PlatformInterface {
   /// cached (particularly those picked from cloud providers), you may want to set [onFileLoading] handler
   /// that will give you the current status of picking.
   /// Not supported on macOS.
-  ///
-  /// If [allowCompression] is set, it will allow media to apply the default OS compression.
-  /// Defaults to `false`.
-  /// **Deprecated:** This option has no effect. Use [compressionQuality] instead.
   ///
   /// If [lockParentWindow] is set, the child window (file picker window) will
   /// stay in front of the Flutter window until it is closed (like a modal
@@ -90,23 +51,33 @@ abstract class FilePicker extends PlatformInterface {
   /// Note: This requires the User Selected File Read entitlement on macOS.
   ///
   /// Returns `null` if aborted.
-  Future<FilePickerResult?> pickFiles({
+  static Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
-    @Deprecated(
-        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
-    bool allowCompression = false,
     int compressionQuality = 0,
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
-  }) async =>
-      throw UnimplementedError('pickFiles() has not been implemented.');
+  }) {
+    return FilePickerPlatform.instance.pickFiles(
+      dialogTitle: dialogTitle,
+      initialDirectory: initialDirectory,
+      type: type,
+      allowedExtensions: allowedExtensions,
+      onFileLoading: onFileLoading,
+      compressionQuality: compressionQuality,
+      allowMultiple: allowMultiple,
+      withData: withData,
+      withReadStream: withReadStream,
+      lockParentWindow: lockParentWindow,
+      readSequential: readSequential,
+    );
+  }
 
   /// Displays a dialog that allows the user to select both files and
   /// directories simultaneously, returning their absolute paths.
@@ -126,13 +97,17 @@ abstract class FilePicker extends PlatformInterface {
   /// Returns a [Future<List<String>?>] that resolves to a list of absolute
   /// paths for the selected files and directories. If the user cancels the
   /// dialog or if the paths cannot be resolved, the method returns `null`.
-  Future<List<String>?> pickFileAndDirectoryPaths({
+  static Future<List<String>?> pickFileAndDirectoryPaths({
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-  }) async =>
-      throw UnimplementedError(
-          'pickFileAndDirectoryPaths() has not been implemented.');
+  }) {
+    return FilePickerPlatform.instance.pickFileAndDirectoryPaths(
+      initialDirectory: initialDirectory,
+      type: type,
+      allowedExtensions: allowedExtensions,
+    );
+  }
 
   /// Asks the underlying platform to remove any temporary files created by this plugin.
   ///
@@ -143,8 +118,9 @@ abstract class FilePicker extends PlatformInterface {
   /// This method is only available on mobile platforms (Android & iOS).
   ///
   /// Returns `true` if the files were removed with success, `false` otherwise.
-  Future<bool?> clearTemporaryFiles() async => throw UnimplementedError(
-      'clearTemporaryFiles() has not been implemented.');
+  static Future<bool?> clearTemporaryFiles() {
+    return FilePickerPlatform.instance.clearTemporaryFiles();
+  }
 
   /// Selects a directory and returns its absolute path.
   ///
@@ -173,12 +149,17 @@ abstract class FilePicker extends PlatformInterface {
   /// could not be instantiated or the dialog result could not be interpreted.
   /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
   /// Note: The User Selected File Read entitlement is required on macOS.
-  Future<String?> getDirectoryPath({
+  static Future<String?> getDirectoryPath({
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-  }) async =>
-      throw UnimplementedError('getDirectoryPath() has not been implemented.');
+  }) {
+    return FilePickerPlatform.instance.getDirectoryPath(
+      dialogTitle: dialogTitle,
+      lockParentWindow: lockParentWindow,
+      initialDirectory: initialDirectory,
+    );
+  }
 
   /// Opens a save file dialog which lets the user select a file path and a file
   /// name to save a file.
@@ -218,7 +199,7 @@ abstract class FilePicker extends PlatformInterface {
   ///
   /// Returns `null` if aborted. Returns a [Future<String?>] which resolves to
   /// the absolute path of the selected file, if the user selected a file.
-  Future<String?> saveFile({
+  static Future<String?> saveFile({
     String? dialogTitle,
     String? fileName,
     String? initialDirectory,
@@ -226,6 +207,15 @@ abstract class FilePicker extends PlatformInterface {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     bool lockParentWindow = false,
-  }) async =>
-      throw UnimplementedError('saveFile() has not been implemented.');
+  }) {
+    return FilePickerPlatform.instance.saveFile(
+      dialogTitle: dialogTitle,
+      fileName: fileName,
+      initialDirectory: initialDirectory,
+      type: type,
+      allowedExtensions: allowedExtensions,
+      bytes: bytes,
+      lockParentWindow: lockParentWindow,
+    );
+  }
 }

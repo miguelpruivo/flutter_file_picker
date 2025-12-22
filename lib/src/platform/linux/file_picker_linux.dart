@@ -1,18 +1,19 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:file_picker/src/file_picker.dart';
-import 'package:file_picker/src/file_picker_result.dart';
-import 'package:file_picker/src/platform_file.dart';
-import 'package:file_picker/src/utils.dart';
-import 'package:file_picker/src/linux/xdp_filechooser.dart';
-import 'package:file_picker/src/linux/xdp_request.dart';
-import 'package:file_picker/src/linux/filters.dart';
+import 'package:file_picker/src/api/file_picker_types.dart';
+import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
+import 'package:file_picker/src/api/file_picker_result.dart';
+import 'package:file_picker/src/api/platform_file.dart';
+import 'package:file_picker/src/file_picker_utils.dart';
+import 'package:file_picker/src/platform/linux/xdp_filechooser.dart';
+import 'package:file_picker/src/platform/linux/xdp_request.dart';
+import 'package:file_picker/src/platform/linux/filters.dart';
 import 'package:dbus/dbus.dart';
 
-class FilePickerLinux extends FilePicker {
+class FilePickerLinux extends FilePickerPlatform {
   static void registerWith() {
-    FilePicker.platform = FilePickerLinux();
+    FilePickerPlatform.instance = FilePickerLinux();
   }
 
   final destination = "org.freedesktop.portal.Desktop";
@@ -32,9 +33,6 @@ class FilePickerLinux extends FilePicker {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
-    @Deprecated(
-        'allowCompression is deprecated and has no effect. Use compressionQuality instead.')
-    bool allowCompression = false,
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
@@ -83,7 +81,8 @@ class FilePickerLinux extends FilePicker {
 
     final filePaths = uriPaths.map((uri) => uri.toFilePath()).toList();
 
-    final List<PlatformFile> platformFiles = await filePathsToPlatformFiles(
+    final List<PlatformFile> platformFiles =
+        await FilePickerUtils.filePathsToPlatformFiles(
       filePaths,
       withReadStream,
       withData,
@@ -137,7 +136,8 @@ class FilePickerLinux extends FilePicker {
 
     final filePaths = uriPaths.map((uri) => uri.toFilePath()).toList();
 
-    final List<PlatformFile> platformFiles = await filePathsToPlatformFiles(
+    final List<PlatformFile> platformFiles =
+        await FilePickerUtils.filePathsToPlatformFiles(
       filePaths,
       false,
       false,
@@ -195,7 +195,7 @@ class FilePickerLinux extends FilePicker {
     final savedFilePaths = saveUris.map((uri) => uri.toFilePath()).toList();
     final savedFilePath = savedFilePaths.firstOrNull;
 
-    await saveBytesToFile(bytes, savedFilePath);
+    await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
 
     return savedFilePath;
   }
