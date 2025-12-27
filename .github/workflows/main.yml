@@ -99,6 +99,7 @@ jobs:
           flutter pub get
           flutter build linux
 
+
       # Windows build (example app)
       - name: Enable Windows desktop
         if: matrix.os == 'windows-latest'
@@ -122,3 +123,24 @@ jobs:
         run: |
           flutter pub get
           flutter build macos
+
+  build_web:
+    needs: test_flutter_versions
+    runs-on: ubuntu-latest
+    name: Build Web (example app)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter --version
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Enable Web
+        run: flutter config --enable-web
+      - name: Build Web example
+        working-directory: example
+        run: |
+          flutter pub get
+          flutter build web
+
