@@ -43,10 +43,7 @@ flutter:
       macos:
         pluginClass: FilePickerPlugin
         dartPluginClass: FilePickerMacOS
-        fileName: file_picker_macos.dart
       windows:
         dartPluginClass: FilePickerWindows
-        fileName: file_picker_windows.dart
       linux:
         dartPluginClass: FilePickerLinux
-        fileName: file_picker_linux.dart
