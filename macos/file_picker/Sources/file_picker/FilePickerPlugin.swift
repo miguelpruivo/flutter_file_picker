@@ -55,9 +55,9 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
         let dialog = NSOpenPanel()
         let args = call.arguments as! [String: Any]
         
-        dialog.directoryURL = URL(
-            fileURLWithPath: args["initialDirectory"] as? String ?? ""
-        )
+        if let initialDirectory = args["initialDirectory"] as? String, !initialDirectory.isEmpty {
+            dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
+        }
         dialog.showsHiddenFiles = false
         let allowMultiple = args["allowMultiple"] as? Bool ?? false
         dialog.allowsMultipleSelection = allowMultiple
@@ -107,9 +107,9 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
         let dialog: NSOpenPanel = NSOpenPanel()
         let args = call.arguments as! [String: Any]
         
-        dialog.directoryURL = URL(
-            fileURLWithPath: args["initialDirectory"] as? String ?? ""
-        )
+        if let initialDirectory = args["initialDirectory"] as? String, !initialDirectory.isEmpty {
+            dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
+        }
         dialog.showsHiddenFiles = false
         dialog.allowsMultipleSelection = true
         dialog.canChooseDirectories = true
@@ -149,9 +149,9 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
         let dialog = NSOpenPanel()
         let args = call.arguments as! [String: Any]
         
-        dialog.directoryURL = URL(
-            fileURLWithPath: args["initialDirectory"] as? String ?? ""
-        )
+        if let initialDirectory = args["initialDirectory"] as? String, !initialDirectory.isEmpty {
+            dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
+        }
         dialog.showsHiddenFiles = false
         dialog.allowsMultipleSelection = false
         dialog.canChooseDirectories = true
