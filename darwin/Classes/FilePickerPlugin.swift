@@ -1,13 +1,13 @@
+import UniformTypeIdentifiers
+
 #if os(iOS)
 import Flutter
 import UIKit
 import PhotosUI
 import MobileCoreServices
-import UniformTypeIdentifiers
 #elseif os(macOS)
 import FlutterMacOS
 import Cocoa
-import UniformTypeIdentifiers
 #endif
 
 public class FilePickerPlugin: NSObject, FlutterPlugin {
@@ -421,39 +421,9 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     // State for data loading
     private var loadData: Bool = false
     
-    private func resolveResult(urls: [URL], withData: Bool) -> [[String: Any?]] {
-        return urls.compactMap { url -> [String: Any?]? in
-             var size: UInt64 = 0
-             do {
-                 let resources = try url.resourceValues(forKeys: [.fileSizeKey])
-                 size = UInt64(resources.fileSize ?? 0)
-             } catch {
-                 print("Error getting file size: \(error)")
-             }
-             
-             var bytes: FlutterStandardTypedData? = nil
-             if withData {
-                 do {
-                     let data = try Data(contentsOf: url)
-                     bytes = FlutterStandardTypedData(bytes: data)
-                 } catch {
-                     print("Error reading file data: \(error)")
-                 }
-             }
-             
-             return [
-                 "name": url.lastPathComponent,
-                 "path": url.path,
-                 "size": size,
-                 "bytes": bytes,
-                 "identifier": url.absoluteString // Helper for cache?
-             ]
-        }
-    }
     #endif
     
-    // Shared resolve func for macOS too
-    #if os(macOS)
+    // MARK: - Shared Implementation
     private func resolveResult(urls: [URL], withData: Bool) -> [[String: Any?]] {
         return urls.compactMap { url -> [String: Any?]? in
              var size: UInt64 = 0
@@ -483,7 +453,6 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
              ]
         }
     }
-    #endif
 }
 
 // MARK: - Extensions for Delegates
@@ -624,5 +593,3 @@ extension FilePickerPlugin: FlutterStreamHandler {
         return nil
     }
 }
-
-
