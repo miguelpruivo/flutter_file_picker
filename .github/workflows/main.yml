@@ -99,7 +99,6 @@ jobs:
           flutter pub get
           flutter build linux
 
-
       # Windows build (example app)
       - name: Enable Windows desktop
         if: matrix.os == 'windows-latest'
