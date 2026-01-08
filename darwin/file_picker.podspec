@@ -12,7 +12,7 @@ A flutter plugin to show native file picker dialogs.
   s.license               = { :file => '../LICENSE' }
   s.author                = 'Miguel Ruivo'
   s.source                = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'file_picker/Sources/file_picker/**/*.swift'
   s.ios.dependency 'Flutter'
   s.osx.dependency 'FlutterMacOS'
   s.ios.deployment_target = '14.0'
@@ -22,7 +22,6 @@ A flutter plugin to show native file picker dialogs.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
   s.swift_version = '5.0'
 
-
-  s.resource_bundles = {'file_picker_ios_privacy' => ['PrivacyInfo.xcprivacy']}
+  s.resource_bundles = {'file_picker_privacy' => ['file_picker/Sources/file_picker/PrivacyInfo.xcprivacy']}
 
 end
