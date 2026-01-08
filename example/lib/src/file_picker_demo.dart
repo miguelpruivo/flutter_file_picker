@@ -293,6 +293,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     setState(() {
       _isLoading = true;
       _userAborted = true;
+      pickedFiles = [];
     });
   }
 
