@@ -47,13 +47,16 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool readSequential = false,
   }) =>
       _getPath(
-        type,
-        allowMultiple,
-        allowedExtensions,
-        onFileLoading,
-        withData,
-        withReadStream,
-        compressionQuality,
+        fileType: type,
+        allowMultipleSelection: allowMultiple,
+        allowedExtensions: allowedExtensions,
+        onFileLoading: onFileLoading,
+        withData: withData,
+        withReadStream: withReadStream,
+        compressionQuality: compressionQuality,
+        dialogTitle: dialogTitle,
+        initialDirectory: initialDirectory,
+        lockParentWindow: lockParentWindow,
       );
 
   @override
@@ -67,7 +70,11 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     String? initialDirectory,
   }) async {
     try {
-      return await methodChannel.invokeMethod('dir', {});
+      return await methodChannel.invokeMethod('dir', {
+        'dialogTitle': dialogTitle,
+        'initialDirectory': initialDirectory,
+        'lockParentWindow': lockParentWindow,
+      });
     } on PlatformException catch (ex) {
       if (ex.code == "unknown_path") {
         print(
@@ -77,15 +84,18 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     return null;
   }
 
-  Future<FilePickerResult?> _getPath(
-    FileType fileType,
-    bool allowMultipleSelection,
+  Future<FilePickerResult?> _getPath({
+    required FileType fileType,
+    required bool allowMultipleSelection,
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
     bool? withData,
     bool? withReadStream,
     int? compressionQuality,
-  ) async {
+    String? dialogTitle,
+    String? initialDirectory,
+    bool lockParentWindow = false,
+  }) async {
     final String type = fileType.name;
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
       throw ArgumentError.value(
@@ -113,6 +123,9 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         'allowedExtensions': allowedExtensions,
         'withData': withData,
         'compressionQuality': compressionQuality,
+        'dialogTitle': dialogTitle,
+        'initialDirectory': initialDirectory,
+        'lockParentWindow': lockParentWindow,
       });
 
       if (result == null) {
