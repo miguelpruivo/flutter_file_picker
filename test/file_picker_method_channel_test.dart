@@ -49,6 +49,9 @@ void main() {
         'allowedExtensions': ['pdf'],
         'withData': false,
         'compressionQuality': 0,
+        'dialogTitle': null,
+        'initialDirectory': null,
+        'lockParentWindow': false,
       });
     });
 
