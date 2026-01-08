@@ -16,7 +16,7 @@ A flutter plugin to show native file picker dialogs.
   s.ios.dependency 'Flutter'
   s.osx.dependency 'FlutterMacOS'
   s.ios.deployment_target = '14.0'
-  s.osx.deployment_target = '10.14'
+  s.osx.deployment_target = '10.13'
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
   s.swift_version = '5.0'
