@@ -77,17 +77,11 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
              result(true)
              #endif
         case "any", "custom":
-             // Unified entry point for file picking with type filters if distinct from pickFiles in some logic, 
-             // but usually mapped to pickFiles in Dart. 
-             // Wait, the Dart code calls 'pickFiles' which sends 'any', 'custom', 'audio', etc. as method names ONLY in legacy code or strictly typed calls?
-             // Checking Dart code: MethodChannelFilePicker invokes `methodChannel.invokeListMethod(type, ...)`
-             // So 'type' IS the method name.
             handleFileSelection(call, result: result)
         case "video", "image", "media":
             #if os(iOS)
             handleMediaSelection(call, result: result)
             #else
-            // On macOS these are just file filters in `pickFiles` usually, but if sent as method name:
             handleFileSelection(call, result: result)
             #endif
         case "audio":
