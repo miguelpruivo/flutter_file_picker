@@ -172,6 +172,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   void _clearCachedFiles() async {
+    pickedFiles = [];
     _resetState();
     try {
       bool? result = await FilePicker.clearTemporaryFiles();
@@ -293,7 +294,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     setState(() {
       _isLoading = true;
       _userAborted = true;
-      pickedFiles = [];
     });
   }
 
