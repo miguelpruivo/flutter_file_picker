@@ -1,3 +1,10 @@
+## 10.3.10
+
+#### Android
+
+- Fixed missing Kotlin compiler options for AGP 9.0 compatibility.
+- Fixed Android build by enable kotlin-android plugin so FilePickerPlugin is compiled under current Flutter tooling.
+
 ## 10.3.9
 
 #### Android
