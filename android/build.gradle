@@ -24,7 +24,6 @@ rootProject.allprojects {
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     compileSdk flutter.compileSdkVersion
@@ -39,8 +38,8 @@ android {
     }
     
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     
     dependencies {
@@ -48,9 +47,6 @@ android {
         implementation 'androidx.annotation:annotation:1.9.1'
         implementation "androidx.lifecycle:lifecycle-runtime:2.8.7"
         implementation "org.apache.tika:tika-core:3.2.0"
-    }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
     if (project.android.hasProperty("namespace")) {
