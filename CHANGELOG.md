@@ -2,8 +2,9 @@
 
 #### Android
 
-- Security: Updated Apache Tika to 3.2.3 to address CVE-2025-66516 and
+- Updated Apache Tika to 3.2.3 to address CVE-2025-66516 and
   CVE-2025-54988 (Critical XXE vulnerability).
+- Support Gradle 9
 
 ## 10.3.8
 ### iOS
