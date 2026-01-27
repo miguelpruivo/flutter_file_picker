@@ -141,5 +141,5 @@ jobs:
         working-directory: example
         run: |
           flutter pub get
-          flutter build web
+          flutter build web --wasm
 
