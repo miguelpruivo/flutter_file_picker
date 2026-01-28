@@ -1,9 +1,12 @@
-## 10.3.9
-
+## 10.3.10
+#### General
+- Reverted breaking changes accidentally introduced in 10.3.9 to maintain Semantic Versioning compliance.
 #### Android
+- Updated Tika library to resolve vulnerability CVE-2025-66516 and CVE-2025-54988 (Critical XXE vulnerability).
 
-- Updated Apache Tika to 3.2.3 to address CVE-2025-66516 and
-  CVE-2025-54988 (Critical XXE vulnerability).
+## 10.3.9
+#### Android
+- Updated Apache Tika to 3.2.3 to address CVE-2025-66516 and CVE-2025-54988 (Critical XXE vulnerability).
 - Support Gradle 9
 
 ## 10.3.8
