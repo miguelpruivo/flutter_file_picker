@@ -1,3 +1,14 @@
+## 10.3.10
+#### Android
+- Updated Tika library to resolve vulnerability [ID].
+- Reverted breaking changes accidentally introduced in 10.3.9 to maintain Semantic Versioning compliance.
+
+## 10.3.9
+#### Android
+- Updated Apache Tika to 3.2.3 to address CVE-2025-66516 and
+CVE-2025-54988 (Critical XXE vulnerability).
+- Support Gradle 9
+
 ## 10.3.8
 ### iOS
 - Rename FileUtils to FilePickerUtils [#1921](https://github.com/miguelpruivo/flutter_file_picker/issues/1921)
