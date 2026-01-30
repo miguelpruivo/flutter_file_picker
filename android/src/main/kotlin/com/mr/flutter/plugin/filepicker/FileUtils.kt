@@ -467,6 +467,14 @@ object FileUtils {
     private fun isDownloadsDocument(uri: Uri): Boolean {
         return uri.authority == "com.android.providers.downloads.documents"
     }
+    
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is in External Storage Documents.
+     */
+    fun isExternalStorageDocument(uri: Uri): Boolean {
+        return uri.authority == "com.android.externalstorage.documents"
+    }
 
     @JvmStatic
     fun clearCache(context: Context): Boolean {
@@ -587,6 +595,27 @@ object FileUtils {
         }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            if (isExternalStorageDocument(treeUri)) {
+                val docId = DocumentsContract.getDocumentId(treeUri)
+                val split = docId.split(":")
+                val type = split[0]
+
+                if ((Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q && "home".equals(type, ignoreCase = true)) || "primary".equals(type, ignoreCase = true)) {
+                    return "${Environment.getExternalStorageDirectory()}/Documents/${split[1]}"
+                } else if ("primary".equals(type, ignoreCase = true)) {
+                    return "${Environment.getExternalStorageDirectory()}/${split[1]}"
+                } else {
+                    val externalStorageVolumes = con.getExternalFilesDirs(null)
+                    for (externalFile in externalStorageVolumes) {
+                        val path = externalFile.absolutePath
+                        if (path.contains(type)) {
+                            val subPath = path.substringBefore("/Android")
+                            return "$subPath/${split[1]}"
+                        }
+                    }
+                }
+            }
+
             if (isDownloadsDocument(treeUri)) {
                 val docId = DocumentsContract.getDocumentId(treeUri)
                 val extPath =
