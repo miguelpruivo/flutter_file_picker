@@ -168,8 +168,23 @@ object FileUtils {
                     intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions)
                 }
             }
-            else if (type == "audio/*" || type == "video/*"){
+            else if (type == "audio/*" ){
                 // Utilizza ACTION_GET_CONTENT per media (immagini, audio, video)
+                intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    this.type = this@startFileExplorer.type
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this@startFileExplorer.isMultipleSelection)
+                    putExtra("multi-pick", this@startFileExplorer.isMultipleSelection)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        // Otteniamo l'URI della cartella Audio specifica per il DocumentsProvider
+                        val authority = "com.android.providers.media.documents"
+                        val audioRootUri = DocumentsContract.buildRootUri(authority, "audio_root")
+
+                        // Questo è il suggerimento più forte che puoi dare al sistema
+                        putExtra(DocumentsContract.EXTRA_INITIAL_URI, audioRootUri)
+                    }
+                }
+            } else if(type == "video"){
                 intent = Intent(Intent.ACTION_GET_CONTENT).apply {
                     this.type = this@startFileExplorer.type
                     addCategory(Intent.CATEGORY_OPENABLE)
@@ -184,8 +199,7 @@ object FileUtils {
                 intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes) // Filtra solo i media
                 intent.addCategory(Intent.CATEGORY_OPENABLE)
                 intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection)
-            }
-            else {
+            } else {
                 // Use ACTION_OPEN_DOCUMENT to allow selecting files from any document provider (SAF).
                 // We prefer ACTION_OPEN_DOCUMENT over ACTION_GET_CONTENT because it offers persistent
                 // access to the files via URI permissions, which is crucial for some use cases
@@ -202,10 +216,7 @@ object FileUtils {
                     putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
                     putExtra("multi-pick", isMultipleSelection)
                 }
-
             }
-
-
         }
         if (intent.resolveActivity(activity.packageManager) != null) {
             activity.startActivityForResult(intent, REQUEST_CODE)
