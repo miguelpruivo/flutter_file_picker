@@ -182,7 +182,7 @@ object FileUtils {
                         putExtra(DocumentsContract.EXTRA_INITIAL_URI, audioRootUri)
                     }
                 }
-            } else if(type == "video"){
+            } else if(type == "video/*"){
                 intent = Intent(Intent.ACTION_GET_CONTENT).apply {
                     this.type = this@startFileExplorer.type
                     addCategory(Intent.CATEGORY_OPENABLE)
