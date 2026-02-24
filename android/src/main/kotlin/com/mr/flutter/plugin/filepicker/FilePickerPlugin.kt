@@ -39,7 +39,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 "audio" -> "audio/*"
                 "image" -> "image/*"
                 "video" -> "video/*"
-                "media" -> "image/*,video/*"
+                "media" -> "media"
                 "any", "custom" -> "*/*"
                 "dir" -> "dir"
                 else -> null

@@ -151,8 +151,7 @@ object FileUtils {
             intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         } else {
             if (type == "image/*") {
-                // Use ACTION_PICK for images to allow using the Gallery app, which provides a better UX for image selection.
-                intent = Intent(Intent.ACTION_PICK)
+                intent = Intent(Intent.ACTION_GET_CONTENT)
                 val uri = (Environment.getExternalStorageDirectory().path + File.separator).toUri()
                 intent.setDataAndType(uri, type)
                 intent.type = this.type
@@ -167,12 +166,38 @@ object FileUtils {
                 if (allowedExtensions != null) {
                     intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions)
                 }
+            }
+            else if (type == "audio/*" ){
+                intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    this.type = this@startFileExplorer.type
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this@startFileExplorer.isMultipleSelection)
+                    putExtra("multi-pick", this@startFileExplorer.isMultipleSelection)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        // Otteniamo l'URI della cartella Audio specifica per il DocumentsProvider
+                        val authority = "com.android.providers.media.documents"
+                        val audioRootUri = DocumentsContract.buildRootUri(authority, "audio_root")
+
+                        // Questo è il suggerimento più forte che puoi dare al sistema
+                        putExtra(DocumentsContract.EXTRA_INITIAL_URI, audioRootUri)
+                    }
+                }
+            } else if(type == "video/*"){
+                intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    this.type = this@startFileExplorer.type
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this@startFileExplorer.isMultipleSelection)
+                    putExtra("multi-pick", this@startFileExplorer.isMultipleSelection)
+                }
+            }
+            else if (type == "media") {
+                intent = Intent(Intent.ACTION_GET_CONTENT)
+                intent.type = "*/*"
+                val mimeTypes = arrayOf("image/*", "video/*", "audio/*")
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes) // Filtra solo i media
+                intent.addCategory(Intent.CATEGORY_OPENABLE)
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection)
             } else {
-                // Use ACTION_OPEN_DOCUMENT to allow selecting files from any document provider (SAF).
-                // We prefer ACTION_OPEN_DOCUMENT over ACTION_GET_CONTENT because it offers persistent
-                // access to the files via URI permissions, which is crucial for some use cases
-                // (e.g. caching, repeated access). ACTION_GET_CONTENT is more suitable for
-                // "importing" content and might not provide a persistent URI.
                 intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
                     type = this@startFileExplorer.type
@@ -184,10 +209,7 @@ object FileUtils {
                     putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
                     putExtra("multi-pick", isMultipleSelection)
                 }
-
             }
-
-
         }
         if (intent.resolveActivity(activity.packageManager) != null) {
             activity.startActivityForResult(intent, REQUEST_CODE)
