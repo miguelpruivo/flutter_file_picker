@@ -51,24 +51,52 @@ If you have any feature that you want to see in this package, please feel free t
 
 See the [API section of the File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api) or the [official API reference on pub.dev](https://pub.dev/documentation/file_picker/latest/file_picker/FilePicker-class.html) for further details.
 
+## Getting Started
 
-## Documentation
-See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** for every detail on about how to install, setup and use it.
+For detailed setup docuemnt see [Setup document](https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup)
 
-### File Picker Wiki
+### Android
 
-1. [Installation](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Installation)
-2. [Setup](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup)
-   * [Android](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup#android)
-   * [iOS](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup#ios)
-   * [Web](https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#--web)
-   * [Desktop](https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#--desktop)
-3. [API](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/api)
-   * [Filters](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/API#filters)
-   * [Parameters](https://github.com/miguelpruivo/flutter_file_picker/wiki/API#parameters)
-   * [Methods](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/API#methods)
-4. [FAQ](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
-5. [Troubleshooting](https://github.com/miguelpruivo/flutter_file_picker/wiki/Troubleshooting)
+- For Android 11+, ensure gradle compatibility. See [here](https://github.com/miguelpruivo/flutter_file_picker/wiki/Troubleshooting#-issue) for details.
+- If you override `onActivityResult`, call `super.onActivityResult(...)`
+
+### iOS
+
+- Make sure `use_frameworks!` is included on your `ios/Podfile` file like this:
+  ```
+  target 'Runner' do
+  use_frameworks!
+  ```
+- See [iOS Wiki Setup](https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#ios) for full list of optional permissions
+
+### Web
+
+You are good to go as long as you are on `Flutter 2.0` or above.
+
+### Widnows & Linux
+
+You can enable Windows & Linux platform development in your application with this command
+```bash
+flutter config --enable-windows-desktop   # Windows
+flutter config --enable-linux-desktop     # Linux
+```
+
+### macOS
+You can enable macOS platform development in your application with this command
+```bash
+flutter config --enable-macos-desktop
+```
+
+It is **necessary** to enable the "Read" User Selected File entitlement for selecting files and "Read/Write" for saving:
+
+![macOS setup](https://github.com/user-attachments/assets/921cc8dd-8fa1-41f0-a924-8aa49d4d3cf5)
+
+Or you can enable it by adding:
+```
+<key>com.apple.security.files.user-selected.read-write</key>
+<true/>
+```
+to `DebugProfile.entitlements` and `Release.entitlements` files.
 
 ## Usage
 Quick simple usage example:
@@ -181,9 +209,5 @@ For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flu
 #### Windows
 ![DemoWindows](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_windows.gif?raw=true)
 
-## Getting Started
-
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
-
-For help on editing plugin code, view the [documentation](https://flutter.io/platform-plugins/#edit-code).
+## Documentation
+See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** for every detail on about how to install, setup and use it.
