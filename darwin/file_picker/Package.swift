@@ -6,6 +6,7 @@ import PackageDescription
 let package = Package(
     name: "file_picker",
     platforms: [
+        .iOS("14.0"),
         .macOS("10.13")
     ],
     products: [
@@ -17,7 +18,7 @@ let package = Package(
             name: "file_picker",
             dependencies: [],
             resources: [
-                .process("PrivacyInfo.xcprivacy")
+                .process("PrivacyInfo.xcprivacy"),
             ]
         )
     ]
