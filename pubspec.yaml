@@ -20,7 +20,7 @@ dependencies:
   web: ^1.1.0
 
 dev_dependencies:
-  lints: ^5.1.1
+  lints: ^6.1.0
   flutter_test:
     sdk: flutter
 
