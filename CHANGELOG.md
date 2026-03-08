@@ -1,3 +1,16 @@
+## 11.0.0
+### General
+- **BREAKING CHANGE**: Refactored `FilePicker` class to use `static` methods instead of an instance-based approach. Users should now call `FilePicker.pickFiles()`, `FilePicker.getDirectoryPath()`, and `FilePicker.saveFile()` directly.
+- Added `cancelUploadOnWindowBlur` to the public `pickFiles` API (Web only). [#1961](https://github.com/miguelpruivo/flutter_file_picker/issues/1961)
+- Reordered and cleaned up exports in `file_picker.dart`.
+
+### Web
+- Added WASM support for the web file picker. [#1950](https://github.com/miguelpruivo/flutter_file_picker/pull/1950)
+
+### Android
+- Fixed an issue where file type selection (`audio`, `video`, `media`) was not being considered correctly on Android. [#1959](https://github.com/miguelpruivo/flutter_file_picker/pull/1959)
+- Updated Android example app to use Flutter-managed SDK versions (Gradle 8+, Kotlin, targetSdk 36).
+
 ## 10.3.10
 #### General
 - Reverted breaking changes accidentally introduced in 10.3.9 to maintain Semantic Versioning compliance.

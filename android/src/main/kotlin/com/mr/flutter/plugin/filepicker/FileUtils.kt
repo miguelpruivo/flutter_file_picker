@@ -134,7 +134,7 @@ object FileUtils {
     /**
      * Creates and launches an intent for the given file type.
      *
-     * This method is responsible for creating the appropriate intent based on the [type] of file
+     * This method is responsible for creating the appropriate intent based on the type of file
      * that is requested to be picked.
      *
      * This may be either a directory, a regular file, or a gallery pick.
@@ -174,11 +174,8 @@ object FileUtils {
                     putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this@startFileExplorer.isMultipleSelection)
                     putExtra("multi-pick", this@startFileExplorer.isMultipleSelection)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        // Otteniamo l'URI della cartella Audio specifica per il DocumentsProvider
                         val authority = "com.android.providers.media.documents"
                         val audioRootUri = DocumentsContract.buildRootUri(authority, "audio_root")
-
-                        // Questo è il suggerimento più forte che puoi dare al sistema
                         putExtra(DocumentsContract.EXTRA_INITIAL_URI, audioRootUri)
                     }
                 }
@@ -194,7 +191,7 @@ object FileUtils {
                 intent = Intent(Intent.ACTION_GET_CONTENT)
                 intent.type = "*/*"
                 val mimeTypes = arrayOf("image/*", "video/*", "audio/*")
-                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes) // Filtra solo i media
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
                 intent.addCategory(Intent.CATEGORY_OPENABLE)
                 intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection)
             } else {
