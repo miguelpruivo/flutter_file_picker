@@ -39,6 +39,7 @@ class FilePickerLinux extends FilePickerPlatform {
     bool lockParentWindow = false,
     bool readSequential = false,
     int compressionQuality = 0,
+    bool cancelUploadOnWindowBlur = true,
   }) async {
     final filter = Filter(type, allowedExtensions);
     Map<String, DBusValue> xdpOption = {

@@ -43,6 +43,9 @@ abstract final class FilePicker {
   /// [readSequential] can be optionally set on web to keep the import file order during import.
   /// Not supported on macOS.
   ///
+  /// [cancelUploadOnWindowBlur] prevents upload cancellation when window focus is lost.
+  /// Only supported on web.
+  ///
   /// The result is wrapped in a [FilePickerResult] which contains helper getters
   /// with useful information regarding the picked [List<PlatformFile>].
   ///
@@ -63,6 +66,7 @@ abstract final class FilePicker {
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
+    bool cancelUploadOnWindowBlur = true,
   }) {
     return FilePickerPlatform.instance.pickFiles(
       dialogTitle: dialogTitle,
@@ -76,6 +80,7 @@ abstract final class FilePicker {
       withReadStream: withReadStream,
       lockParentWindow: lockParentWindow,
       readSequential: readSequential,
+      cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
     );
   }
 

@@ -50,6 +50,7 @@ class FilePickerMacOS extends FilePickerPlatform {
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
+    bool cancelUploadOnWindowBlur = true,
   }) async {
     final fileFilter = fileTypeToFileFilter(
       type,

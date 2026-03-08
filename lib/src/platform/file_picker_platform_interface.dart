@@ -40,6 +40,7 @@ abstract class FilePickerPlatform extends PlatformInterface {
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
+    bool cancelUploadOnWindowBlur = true,
   }) async {
     throw UnimplementedError('pickFiles() has not been implemented.');
   }
