@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:file_picker/src/file_picker.dart';
@@ -50,11 +51,7 @@ class FilePickerLinux extends FilePicker {
       'filters': filter.toDBusArray(),
     };
     if (initialDirectory != null) {
-      List<int> tmp = [];
-      for (var i = 0; i < initialDirectory.length; i++) {
-        tmp.add(initialDirectory[i].codeUnitAt(0));
-      }
-      tmp.add(0);
+      final List<int> tmp = utf8.encode(initialDirectory).toList()..add(0);
       DBusArray directory = DBusArray.byte(tmp);
       xdpOption["current_folder"] = directory;
     }
@@ -104,11 +101,7 @@ class FilePickerLinux extends FilePicker {
       'modal': DBusBoolean(lockParentWindow),
     };
     if (initialDirectory != null) {
-      List<int> tmp = [];
-      for (var i = 0; i < initialDirectory.length; i++) {
-        tmp.add(initialDirectory[i].codeUnitAt(0));
-      }
-      tmp.add(0);
+      final List<int> tmp = utf8.encode(initialDirectory).toList()..add(0);
       DBusArray directory = DBusArray.byte(tmp);
       xdpOption["current_folder"] = directory;
     }
@@ -162,11 +155,7 @@ class FilePickerLinux extends FilePicker {
       'modal': DBusBoolean(lockParentWindow),
     };
     if (initialDirectory != null) {
-      List<int> tmp = [];
-      for (var i = 0; i < initialDirectory.length; i++) {
-        tmp.add(initialDirectory[i].codeUnitAt(0));
-      }
-      tmp.add(0);
+      final List<int> tmp = utf8.encode(initialDirectory).toList()..add(0);
       DBusArray directory = DBusArray.byte(tmp);
       xdpOption["current_folder"] = directory;
     }
