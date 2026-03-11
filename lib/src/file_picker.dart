@@ -223,4 +223,14 @@ abstract final class FilePicker {
       lockParentWindow: lockParentWindow,
     );
   }
+
+  /// Skips the entitlements checks on macOS, allowing the plugin to be used without Sandbox enabled.
+  ///
+  /// This is only relevant for macOS. On other platforms, this method does nothing.
+  /// Call this method before any other file picking method to ensure that the entitlements checks are skipped.
+  ///
+  /// Note: Skipping entitlements checks may lead to unexpected behavior or security issues. Use with caution.
+  static Future<void> skipEntitlementsChecks() {
+    return FilePickerPlatform.instance.skipEntitlementsChecks();
+  }
 }
