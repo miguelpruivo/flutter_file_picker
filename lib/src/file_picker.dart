@@ -230,7 +230,7 @@ abstract final class FilePicker {
   /// Call this method before any other file picking method to ensure that the entitlements checks are skipped.
   ///
   /// Note: Skipping entitlements checks may lead to unexpected behavior or security issues. Use with caution.
-  Future<void> skipEntitlementsChecks() {
+  static Future<void> skipEntitlementsChecks() {
     return FilePickerPlatform.instance.skipEntitlementsChecks();
   }
 }
