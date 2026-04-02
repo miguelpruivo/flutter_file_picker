@@ -1,3 +1,7 @@
+## 10.3.11
+### Linux
+- Fixed a crash when initialDirectory contains special characters [#1963](https://github.com/miguelpruivo/flutter_file_picker/pull/1963)
+
 ## 10.3.10
 #### Android
 - Reverted breaking changes accidentally introduced in 10.3.9 to maintain Semantic Versioning compliance.
