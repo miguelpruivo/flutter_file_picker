@@ -51,7 +51,7 @@ class FilePickerLinux extends FilePicker {
       'filters': filter.toDBusArray(),
     };
     if (initialDirectory != null) {
-      final List<int> tmp = utf8.encode(initialDirectory).toList()..add(0);
+      final Uint8List tmp = utf8.encode(initialDirectory)..add(0);
       DBusArray directory = DBusArray.byte(tmp);
       xdpOption["current_folder"] = directory;
     }
@@ -101,7 +101,7 @@ class FilePickerLinux extends FilePicker {
       'modal': DBusBoolean(lockParentWindow),
     };
     if (initialDirectory != null) {
-      final List<int> tmp = utf8.encode(initialDirectory).toList()..add(0);
+      final Uint8List tmp = utf8.encode(initialDirectory)..add(0);
       DBusArray directory = DBusArray.byte(tmp);
       xdpOption["current_folder"] = directory;
     }
@@ -155,7 +155,7 @@ class FilePickerLinux extends FilePicker {
       'modal': DBusBoolean(lockParentWindow),
     };
     if (initialDirectory != null) {
-      final List<int> tmp = utf8.encode(initialDirectory).toList()..add(0);
+      final Uint8List tmp = utf8.encode(initialDirectory)..add(0);
       DBusArray directory = DBusArray.byte(tmp);
       xdpOption["current_folder"] = directory;
     }
