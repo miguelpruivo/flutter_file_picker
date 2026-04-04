@@ -814,13 +814,13 @@ Adds `getDirectoryPath()` method that allows you to select and pick directory pa
 Adds a temporary workaround on Android where it can trigger `onRequestPermissionsResult` twice, related to Flutter issue [49365](https://github.com/flutter/flutter/issues/49365) for anyone affected in Flutter versions below 1.14.6.
 
 ## 1.9.0
-Adds `clearTemporaryFiles()` that allows you to explicitly remove cached files â€” on Android applies typically to those picked from remote providers, on iOS _all_ picked files are cached.
+Adds `clearTemporaryFiles()` that allows you to explicitly remove cached files - on Android applies typically to those picked from remote providers, on iOS _all_ picked files are cached.
 
 ## 1.8.0+2
 Updates podspec to use only PhotoGallery from DKImagePickerController (thanks @jamesdixon!)
 
 ## 1.8.0+1
-Minor fix on `getFile()` method â€” should affect only those on 1.8.0.
+Minor fix on `getFile()` method - should affect only those on 1.8.0.
 
 ## 1.8.0
 Adds `FileType.media` that will allow you to pick video and images at the same time. On iOS, this will let you pick directly from Photos app (gallery), if you want to use Files app, you _must_ use `FileType.custom` with desired extensions.
@@ -831,7 +831,7 @@ Updates iOS multi gallery picker dependency and adds a modal loading while fetch
 ## 1.7.0
 **Breaking change**
 
-Added support for multi-picks of videos and photos from Photos app on iOS through [DKImagePicker](https://github.com/zhangao0086/DKImagePickerController) â€” use any of the `getMulti` methods with `FileType.image` or `FileType.video`. From now on, you'll need to add `use_frameworks!` in your ios/Podfile.
+Added support for multi-picks of videos and photos from Photos app on iOS through [DKImagePicker](https://github.com/zhangao0086/DKImagePickerController) - use any of the `getMulti` methods with `FileType.image` or `FileType.video`. From now on, you'll need to add `use_frameworks!` in your ios/Podfile.
 
 ## 1.6.3+2
 * Fixes a crash on Android when a file has an id that can't be resolved and uses a name instead (#221);
