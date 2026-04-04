@@ -83,4 +83,9 @@ abstract class FilePickerPlatform extends PlatformInterface {
   }) async {
     throw UnimplementedError('saveFile() has not been implemented.');
   }
+
+  Future<void> skipEntitlementsChecks() async {
+    // By default, do nothing.
+    // This is only relevant for macOS, and the method is overridden there.
+  }
 }

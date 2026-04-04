@@ -125,6 +125,11 @@ class FilePickerMacOS extends FilePickerPlatform {
     return savedFilePath;
   }
 
+  @override
+  Future<void> skipEntitlementsChecks() async {
+    await methodChannel.invokeMethod('skipEntitlementsChecks');
+  }
+
   List<String> fileTypeToFileFilter(
       FileType type, List<String>? allowedExtensions) {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
