@@ -6,9 +6,6 @@
   <a href="https://github.com/Solido/awesome-flutter">
     <img alt="Awesome Flutter" src="https://img.shields.io/badge/Awesome-Flutter-blue.svg?longCache=true&style=flat-square">
   </a>
-  <a href="https://www.buymeacoffee.com/gQyz2MR">
-    <img alt="Buy me a coffee" src="https://img.shields.io/badge/Donate-Buy%20Me%20A%20Coffee-yellow.svg">
-  </a>
   <a href="https://github.com/miguelpruivo/flutter_file_picker/issues">
     <img src="https://img.shields.io/github/issues/miguelpruivo/flutter_file_picker" alt="GitHub issues badge">
   </a>
