@@ -17,6 +17,10 @@
 ### Desktop (macOS)
 - Added a new method, `skipEntitlementsChecks()`, to allow users to bypass entitlements checks on macOS when using the plugin without Sandbox enabled. [#1845](https://github.com/miguelpruivo/flutter_file_picker/issues/1845)
 
+## 10.3.11
+### Linux
+- Fixed a crash when initialDirectory contains special characters [#1963](https://github.com/miguelpruivo/flutter_file_picker/pull/1963)
+
 ## 10.3.10
 ### General
 - Reverted breaking changes accidentally introduced in 10.3.9 to maintain Semantic Versioning compliance.
