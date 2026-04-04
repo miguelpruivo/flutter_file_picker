@@ -23,6 +23,8 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     
     private let registrar: FlutterPluginRegistrar
     
+    private var skipEntitlementsChecks: Bool = false
+    
     init(registrar: FlutterPluginRegistrar) {
         self.registrar = registrar
         super.init()
@@ -41,6 +43,10 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
             
         case "saveFile":
             handleSaveFile(call, result: result)
+            
+        case "skipEntitlementsChecks":
+            skipEntitlementsChecks = true
+            result(nil)
             
         default:
             result(FlutterMethodNotImplemented)
@@ -221,6 +227,10 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
     
     /// Checks if the  entitlements file contains the required entitlement for save files.
     private func checkEntitlement(requiredMode: EntitlementMode) -> FlutterError? {
+        if skipEntitlementsChecks {
+            return nil
+        }
+        
         guard let task = SecTaskCreateFromSelf(nil) else {
             return FlutterError(code: "ENTITLEMENT_CHECK_FAILED", message: "Failed to verify file_picker entitlements.", details: nil)
         }
