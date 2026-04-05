@@ -23,11 +23,15 @@ rootProject.allprojects {
     }
 }
 
+def isAgp9OrAbove = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0].toInteger() >= 9
+
 apply plugin: 'com.android.library'
-apply plugin: 'org.jetbrains.kotlin.android'
+if (!isAgp9OrAbove) {
+    apply plugin: 'org.jetbrains.kotlin.android'
+}
 
 android {
-    compileSdk flutter.compileSdkVersion
+    compileSdk (project.hasProperty('flutter') ? flutter.compileSdkVersion : 36)
 
     defaultConfig {
         minSdk 21
@@ -43,8 +47,10 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+    if (!isAgp9OrAbove) {
+        kotlinOptions {
+            jvmTarget = JavaVersion.VERSION_17.toString()
+        }
     }
     
     dependencies {
