@@ -13,7 +13,7 @@
 
 ### Android
 - Fixed an issue where file type selection (`audio`, `video`, `media`) was not being considered correctly on Android. [#1959](https://github.com/miguelpruivo/flutter_file_picker/pull/1959)
-- Updated Android example app to use Flutter-managed SDK versions (Gradle 8+, Kotlin, targetSdk 36 and Java 17).
+- Updated Android package to support AGP 9. [#1942](https://github.com/miguelpruivo/flutter_file_picker/issues/1942)
 
 ### Desktop (macOS)
 - Added a new method, `skipEntitlementsChecks()`, to allow users to bypass entitlements checks on macOS when using the plugin without Sandbox enabled. [#1845](https://github.com/miguelpruivo/flutter_file_picker/issues/1845)
