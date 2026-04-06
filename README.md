@@ -72,7 +72,7 @@ Quick simple usage example:
 
 #### Single file
 ```dart
-FilePickerResult? result = await FilePicker.platform.pickFiles();
+FilePickerResult? result = await FilePicker.pickFiles();
 
 if (result != null) {
   File file = File(result.files.single.path!);
@@ -82,7 +82,7 @@ if (result != null) {
 ```
 #### Multiple files
 ```dart
-FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
+FilePickerResult? result = await FilePicker.pickFiles(allowMultiple: true);
 
 if (result != null) {
   List<File> files = result.paths.map((path) => File(path!)).toList();
@@ -92,7 +92,7 @@ if (result != null) {
 ```
 #### Multiple files with extension filter
 ```dart
-FilePickerResult? result = await FilePicker.platform.pickFiles(
+FilePickerResult? result = await FilePicker.pickFiles(
   allowMultiple: true,
   type: FileType.custom,
   allowedExtensions: ['jpg', 'pdf', 'doc'],
@@ -100,7 +100,7 @@ FilePickerResult? result = await FilePicker.platform.pickFiles(
 ```
 #### Pick a directory
 ```dart
-String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+String? selectedDirectory = await FilePicker.getDirectoryPath();
 
 if (selectedDirectory == null) {
   // User canceled the picker
@@ -108,7 +108,7 @@ if (selectedDirectory == null) {
 ```
 #### Save-file / save-as dialog
 ```dart
-String? outputFile = await FilePicker.platform.saveFile(
+String? outputFile = await FilePicker.saveFile(
   dialogTitle: 'Please select an output file:',
   fileName: 'output-file.pdf',
 );
@@ -119,7 +119,7 @@ if (outputFile == null) {
 ```
 ### Load result and file details
 ```dart
-FilePickerResult? result = await FilePicker.platform.pickFiles();
+FilePickerResult? result = await FilePicker.pickFiles();
 
 if (result != null) {
   PlatformFile file = result.files.first;
@@ -135,7 +135,7 @@ if (result != null) {
 ```
 ### Retrieve all files as XFiles or individually
 ```dart
-FilePickerResult? result = await FilePicker.platform.pickFiles();
+FilePickerResult? result = await FilePicker.pickFiles();
 
 if (result != null) {
   // All files
@@ -149,7 +149,7 @@ if (result != null) {
 ```
 #### Pick and upload a file to Firebase Storage with Flutter Web
 ```dart
-FilePickerResult? result = await FilePicker.platform.pickFiles();
+FilePickerResult? result = await FilePicker.pickFiles();
 
 if (result != null) {
   Uint8List fileBytes = result.files.first.bytes;
@@ -169,7 +169,7 @@ For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flu
 #### iOS
 ![DemoMultiFilters](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_ios.gif?raw=true)
 
-#### MacOS
+#### macOS
 ![DemoMacOS](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_macos.gif?raw=true)
 
 #### Linux
@@ -181,6 +181,6 @@ For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flu
 ## Getting Started
 
 For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
+[documentation](https://flutter.dev).
 
-For help on editing plugin code, view the [documentation](https://flutter.io/platform-plugins/#edit-code).
+For help on editing plugin code, view the [documentation](https://flutter.dev/platform-plugins/#edit-code).
