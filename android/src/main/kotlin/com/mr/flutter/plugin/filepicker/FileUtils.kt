@@ -63,48 +63,52 @@ object FileUtils {
 
             val files = mutableListOf<FileInfo>()
 
-            when {
-                data.clipData != null -> {
-                    for (i in 0 until data.clipData!!.itemCount) {
-                        var uri = data.clipData!!.getItemAt(i).uri
-                        uri = processUri(activity, uri, compressionQuality)
-                        addFile(activity, uri, loadDataToMemory, files)
-                    }
-                    finishWithSuccess(files)
-                }
-
-                data.data != null -> {
-                    var uri = processUri(activity, data.data!!, compressionQuality)
-
-                    if (type == "dir") {
-                        uri = DocumentsContract.buildDocumentUriUsingTree(
-                            uri,
-                            DocumentsContract.getTreeDocumentId(uri)
-                        )
-                        val dirPath = getFullPathFromTreeUri(uri, activity)
-                        if (dirPath != null) {
-                            finishWithSuccess(dirPath)
-                        } else {
-                            finishWithError("unknown_path", "Failed to retrieve directory path.")
+            try {
+                when {
+                    data.clipData != null -> {
+                        for (i in 0 until data.clipData!!.itemCount) {
+                            var uri = data.clipData!!.getItemAt(i).uri
+                            uri = processUri(activity, uri, compressionQuality)
+                            addFile(activity, uri, loadDataToMemory, files)
                         }
-                    } else {
-                        addFile(activity, uri, loadDataToMemory, files)
-                        handleFileResult(files)
+                        finishWithSuccess(files)
                     }
-                }
 
-                data.extras?.containsKey("selectedItems") == true -> {
-                    val fileUris = getSelectedItems(data.extras!!)
-                    fileUris?.filterIsInstance<Uri>()?.forEach { uri ->
-                        addFile(activity, uri, loadDataToMemory, files)
+                    data.data != null -> {
+                        var uri = processUri(activity, data.data!!, compressionQuality)
+
+                        if (type == "dir") {
+                            uri = DocumentsContract.buildDocumentUriUsingTree(
+                                uri,
+                                DocumentsContract.getTreeDocumentId(uri)
+                            )
+                            val dirPath = getFullPathFromTreeUri(uri, activity)
+                            if (dirPath != null) {
+                                finishWithSuccess(dirPath)
+                            } else {
+                                finishWithError("unknown_path", "Failed to retrieve directory path.")
+                            }
+                        } else {
+                            addFile(activity, uri, loadDataToMemory, files)
+                            handleFileResult(files)
+                        }
                     }
-                    finishWithSuccess(files)
-                }
 
-                else -> finishWithError(
-                    "unknown_activity",
-                    "Unknown activity error, please fill an issue."
-                )
+                    data.extras?.containsKey("selectedItems") == true -> {
+                        val fileUris = getSelectedItems(data.extras!!)
+                        fileUris?.filterIsInstance<Uri>()?.forEach { uri ->
+                            addFile(activity, uri, loadDataToMemory, files)
+                        }
+                        finishWithSuccess(files)
+                    }
+
+                    else -> finishWithError(
+                        "unknown_activity",
+                        "Unknown activity error, please fill an issue."
+                    )
+                }
+            } catch (e: Exception) {
+                finishWithError("file_picker_error", e.message ?: "Unknown error")
             }
         }
     }
@@ -536,6 +540,11 @@ object FileUtils {
                 ?: "unamed")
 
         val file = File(path)
+        
+        val safeDir = File(context.cacheDir.absolutePath + "/file_picker/").canonicalPath
+        if (!file.canonicalPath.startsWith(safeDir)) {
+            throw SecurityException("Path traversal detected. Escaping the intended cache directory is not allowed.")
+        }
 
         if (!file.exists()) {
             try {
