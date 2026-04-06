@@ -1,4 +1,7 @@
 ## 11.0.2
+### Android
+- Fixed a Path Traversal vulnerability (CWE-22) when resolving file paths from external content providers. [#1967](https://github.com/miguelpruivo/flutter_file_picker/issues/1967)
+
 ### Linux
 - Fixed "Cannot add to a fixed-length list" crash when opening or saving files with an initial directory on Linux. [#1976](https://github.com/miguelpruivo/flutter_file_picker/issues/1976)
 
