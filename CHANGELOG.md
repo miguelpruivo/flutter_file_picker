@@ -1,3 +1,7 @@
+## 11.1.0
+### Windows
+- Migrated `win32` dependency to `6.0.0` and updated the Windows folder picker implementation to match the new Win32/COM APIs. [#1980](https://github.com/miguelpruivo/flutter_file_picker/issues/1980)
+
 ## 11.0.2
 ### Android
 - Fixed a Path Traversal vulnerability (CWE-22) when resolving file paths from external content providers. [#1967](https://github.com/miguelpruivo/flutter_file_picker/issues/1967)
