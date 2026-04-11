@@ -1,3 +1,10 @@
+## 11.0.2
+### Android
+- Fixed a Path Traversal vulnerability (CWE-22) when resolving file paths from external content providers. [#1967](https://github.com/miguelpruivo/flutter_file_picker/issues/1967)
+
+### Linux
+- Fixed "Cannot add to a fixed-length list" crash when opening or saving files with an initial directory on Linux. [#1976](https://github.com/miguelpruivo/flutter_file_picker/issues/1976)
+
 ## 11.0.1
 ### Android
 - Fixed backward compatibility with Android Gradle Plugin (AGP) versions below 9.0. [#1973](https://github.com/miguelpruivo/flutter_file_picker/issues/1973)

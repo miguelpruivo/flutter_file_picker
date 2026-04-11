@@ -191,6 +191,6 @@ class FilePickerLinux extends FilePickerPlatform {
   }
 
   Uint8List _encodeDirectory(String initialDirectory) {
-    return utf8.encode(initialDirectory)..add(0);
+    return Uint8List.fromList([...utf8.encode(initialDirectory), 0]);
   }
 }
