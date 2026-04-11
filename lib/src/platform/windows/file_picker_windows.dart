@@ -112,83 +112,60 @@ class FilePickerWindows extends FilePickerPlatform {
     String? initialDirectory = args['initialDirectory'] as String?;
     bool lockParentWindow = args['lockParentWindow'] as bool? ?? false;
 
-    int hr = CoInitializeEx(
-      nullptr,
-      COINIT.COINIT_APARTMENTTHREADED | COINIT.COINIT_DISABLE_OLE1DDE,
+    final hr = CoInitializeEx(
+      COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE,
     );
 
-    if (!SUCCEEDED(hr)) {
+    if (hr.isError) {
       throw WindowsException(hr);
     }
 
     try {
-      final fileDialog = FileOpenDialog.createInstance();
+      return using((arena) {
+        final fileDialog = arena.com<IFileOpenDialog>(FileOpenDialog);
 
-      final optionsPointer = calloc<Uint32>();
-      try {
-        hr = fileDialog.getOptions(optionsPointer);
-        if (!SUCCEEDED(hr)) throw WindowsException(hr);
+        final options = fileDialog.getOptions() |
+            FOS_PICKFOLDERS |
+            FOS_FORCEFILESYSTEM |
+            FOS_NOCHANGEDIR;
+        fileDialog.setOptions(FILEOPENDIALOGOPTIONS(options));
 
-        final options = optionsPointer.value |
-            FILEOPENDIALOGOPTIONS.FOS_PICKFOLDERS |
-            FILEOPENDIALOGOPTIONS.FOS_FORCEFILESYSTEM |
-            FILEOPENDIALOGOPTIONS.FOS_NOCHANGEDIR;
-        hr = fileDialog.setOptions(options);
-        if (!SUCCEEDED(hr)) throw WindowsException(hr);
-      } finally {
-        free(optionsPointer);
-      }
+        fileDialog.setTitle(
+          arena.pcwstr(dialogTitle ?? FilePickerUtils.defaultDialogTitle),
+        );
 
-      final title = TEXT(dialogTitle ?? FilePickerUtils.defaultDialogTitle);
-      try {
-        hr = fileDialog.setTitle(title);
-        if (!SUCCEEDED(hr)) throw WindowsException(hr);
-      } finally {
-        free(title);
-      }
-
-      if (initialDirectory != null) {
-        final folder = TEXT(initialDirectory);
-        final riid = convertToIID(IID_IShellItem);
-        final ppv = calloc<Pointer>();
+        if (initialDirectory != null) {
+          final item = arena.adopt(
+            SHCreateItemFromParsingName<IShellItem>(
+              arena.pcwstr(initialDirectory),
+              null,
+            ),
+          );
+          fileDialog.setFolder(item);
+        }
 
         try {
-          hr = SHCreateItemFromParsingName(folder, nullptr, riid, ppv);
-          if (!SUCCEEDED(hr) || ppv.value == nullptr) {
-            throw WindowsException(hr);
+          fileDialog.show(lockParentWindow ? GetForegroundWindow() : null);
+        } on WindowsException catch (e) {
+          if (e.hr == HRESULT_FROM_WIN32(ERROR_CANCELLED)) {
+            return null;
           }
+          rethrow;
+        }
 
-          final item = IShellItem(ppv.cast());
-          hr = fileDialog.setFolder(item.ptr.cast<Pointer<COMObject>>().value);
-          if (!SUCCEEDED(hr)) throw WindowsException(hr);
+        final selectedItem = fileDialog.getResult();
+        if (selectedItem == null) {
+          return null;
+        }
+
+        final item = arena.adopt(selectedItem);
+        final pathPtr = item.getDisplayName(SIGDN_FILESYSPATH);
+        try {
+          return pathPtr.toDartString();
         } finally {
-          free(folder);
-          free(riid);
-          free(ppv);
+          CoTaskMemFree(pathPtr);
         }
-      }
-
-      final hwndOwner = lockParentWindow ? GetForegroundWindow() : NULL;
-      hr = fileDialog.show(hwndOwner);
-      if (!SUCCEEDED(hr)) return null;
-
-      final ppv = calloc<Pointer<COMObject>>();
-      String? selectedPath;
-      try {
-        hr = fileDialog.getResult(ppv);
-        if (!SUCCEEDED(hr)) throw WindowsException(hr);
-
-        final item = IShellItem(ppv.cast());
-        final pathPtr = calloc<Pointer<Utf16>>();
-        hr = item.getDisplayName(SIGDN.SIGDN_FILESYSPATH, pathPtr);
-        if (SUCCEEDED(hr)) {
-          selectedPath = pathPtr.value.toDartString();
-        }
-        free(pathPtr);
-      } finally {
-        free(ppv);
-      }
-      return selectedPath;
+      });
     } finally {
       CoUninitialize();
     }
