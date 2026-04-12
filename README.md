@@ -48,6 +48,12 @@ If you have any feature that you want to see in this package, please feel free t
 
 See the [API section of the File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api) or the [official API reference on pub.dev](https://pub.dev/documentation/file_picker/latest/file_picker/FilePicker-class.html) for further details.
 
+### Darwin implementation notes
+
+The iOS and macOS native implementations now live under the shared Darwin source tree. The iOS implementation requires iOS 14.0 or newer because it uses `PHPickerViewController` and `PHPickerResult`.
+
+The old iOS compile-time flags (`PICKER_MEDIA`, `PICKER_AUDIO`, `PICKER_DOCUMENT`) were part of the legacy Objective-C implementation and are no longer used in the Darwin source path.
+
 
 ## Documentation
 See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** for every detail on about how to install, setup and use it.
