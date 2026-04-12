@@ -5,6 +5,11 @@
 ### Windows
 - Migrated `win32` dependency to `6.0.0` and updated the Windows folder picker implementation to match the new Win32/COM APIs. [#1980](https://github.com/miguelpruivo/flutter_file_picker/issues/1980)
 
+### Darwin
+- Migrated the iOS and macOS native implementations to shared Darwin sources.
+- **BREAKING CHANGE**: The minimum supported iOS deployment target is now 14.0.
+- Removed the DKImagePickerController / DKPhotoGallery dependency chain from the Darwin iOS path.
+
 ## 11.0.2
 ### Android
 - Fixed a Path Traversal vulnerability (CWE-22) when resolving file paths from external content providers. [#1967](https://github.com/miguelpruivo/flutter_file_picker/issues/1967)

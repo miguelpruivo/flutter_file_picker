@@ -40,11 +40,13 @@ flutter:
         pluginClass: FilePickerPlugin
       ios:
         pluginClass: FilePickerPlugin
+        sharedDarwinSource: true
       web:
         pluginClass: FilePickerWeb
         fileName: src/platform/web/file_picker_web.dart
       macos:
         pluginClass: FilePickerPlugin
+        sharedDarwinSource: true
         dartPluginClass: FilePickerMacOS
       windows:
         dartPluginClass: FilePickerWindows
