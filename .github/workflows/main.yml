@@ -53,8 +53,10 @@ jobs:
       - name: Show formatting changes
         if: ${{ matrix.flutter == 'stable' && steps.verify_formatting_flutter_versions.outcome == 'failure' }}
         run: |
+          dart format .
           git status --porcelain
           git diff --name-only
+          git --no-pager diff --stat
 
       - name: Fail when formatting changes are detected
         if: ${{ matrix.flutter == 'stable' && steps.verify_formatting_flutter_versions.outcome == 'failure' }}
@@ -92,8 +94,10 @@ jobs:
       - name: Show formatting changes
         if: ${{ steps.verify_formatting_os_matrix.outcome == 'failure' }}
         run: |
+          dart format .
           git status --porcelain
           git diff --name-only
+          git --no-pager diff --stat
 
       - name: Fail when formatting changes are detected
         if: ${{ steps.verify_formatting_os_matrix.outcome == 'failure' }}
