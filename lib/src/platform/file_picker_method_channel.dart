@@ -72,7 +72,8 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     } on PlatformException catch (ex) {
       if (ex.code == "unknown_path") {
         print(
-            '[$_tag] Could not resolve directory path. Maybe it\'s a protected one or unsupported (such as Downloads folder). If you are on Android, make sure that you are on SDK 21 or above.');
+          '[$_tag] Could not resolve directory path. Maybe it\'s a protected one or unsupported (such as Downloads folder). If you are on Android, make sure that you are on SDK 21 or above.',
+        );
       }
     }
     return null;
@@ -99,14 +100,14 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     try {
       await _eventSubscription?.cancel();
       if (onFileLoading != null) {
-        _eventSubscription = eventChannel.receiveBroadcastStream().listen(
-          (data) {
-            if (data is! bool) return;
-            onFileLoading(
-                data ? FilePickerStatus.picking : FilePickerStatus.done);
-          },
-          onError: (error) => throw Exception(error),
-        );
+        _eventSubscription = eventChannel.receiveBroadcastStream().listen((
+          data,
+        ) {
+          if (data is! bool) return;
+          onFileLoading(
+            data ? FilePickerStatus.picking : FilePickerStatus.done,
+          );
+        }, onError: (error) => throw Exception(error));
       }
 
       final List<Map>? result = await methodChannel.invokeListMethod(type, {
@@ -139,23 +140,26 @@ class MethodChannelFilePicker extends FilePickerPlatform {
       rethrow;
     } catch (e) {
       print(
-          '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
+        '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e',
+      );
       rethrow;
     }
   }
 
   @override
-  Future<String?> saveFile(
-      {String? dialogTitle,
-      String? fileName,
-      String? initialDirectory,
-      FileType type = FileType.any,
-      List<String>? allowedExtensions,
-      Uint8List? bytes,
-      bool lockParentWindow = false}) {
+  Future<String?> saveFile({
+    String? dialogTitle,
+    String? fileName,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Uint8List? bytes,
+    bool lockParentWindow = false,
+  }) {
     if (bytes == null) {
       throw ArgumentError(
-          'The "bytes" parameter is required on Android & iOS when calling "saveFile".');
+        'The "bytes" parameter is required on Android & iOS when calling "saveFile".',
+      );
     }
 
     return methodChannel.invokeMethod("save", {

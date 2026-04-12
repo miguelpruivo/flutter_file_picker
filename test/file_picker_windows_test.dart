@@ -24,7 +24,8 @@ void main() {
       expect(
         picker.fileTypeToFileFilter(FileType.audio, null),
         equals(
-            'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav,*.m4a)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav;*.m4a\x00\x00'),
+          'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav,*.m4a)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav;*.m4a\x00\x00',
+        ),
       );
 
       expect(
@@ -50,77 +51,107 @@ void main() {
     });
 
     test(
-        'should return the file filter when given a list of custom file extensions',
-        () {
-      final picker = FilePickerWindows();
+      'should return the file filter when given a list of custom file extensions',
+      () {
+        final picker = FilePickerWindows();
 
-      expect(
-        picker.fileTypeToFileFilter(FileType.custom, ['dart']),
-        equals('Files (*.dart)\x00*.dart\x00\x00'),
-      );
+        expect(
+          picker.fileTypeToFileFilter(FileType.custom, ['dart']),
+          equals('Files (*.dart)\x00*.dart\x00\x00'),
+        );
 
-      expect(
-        picker.fileTypeToFileFilter(FileType.custom, ['dart', 'html']),
-        equals('Files (*.dart,*.html)\x00*.dart;*.html\x00\x00'),
-      );
-    });
+        expect(
+          picker.fileTypeToFileFilter(FileType.custom, ['dart', 'html']),
+          equals('Files (*.dart,*.html)\x00*.dart;*.html\x00\x00'),
+        );
+      },
+    );
   });
 
   group('validateFileName()', () {
-    test('should throw an exception if the file name contains a < (less than)',
-        () {
-      expect(() => FilePickerWindows().validateFileName('file with < .txt'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
-    });
     test(
-        'should throw an exception if the file name contains a > (greater than)',
-        () {
-      expect(() => FilePickerWindows().validateFileName('file>.csv'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
-    });
+      'should throw an exception if the file name contains a < (less than)',
+      () {
+        expect(
+          () => FilePickerWindows().validateFileName('file with < .txt'),
+          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+        );
+      },
+    );
+    test(
+      'should throw an exception if the file name contains a > (greater than)',
+      () {
+        expect(
+          () => FilePickerWindows().validateFileName('file>.csv'),
+          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+        );
+      },
+    );
     test('should throw an exception if the file name contains a : (colon)', () {
-      expect(() => FilePickerWindows().validateFileName('fi:le.csv'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
-    });
-    test(
-        'should throw an exception if the file name contains a " (double quote)',
-        () {
-      expect(() => FilePickerWindows().validateFileName('"output.csv'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
-    });
-    test(
-        'should throw an exception if the file name contains a / (forward slash)',
-        () {
-      expect(() => FilePickerWindows().validateFileName('my-output/-file.csv'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
-    });
-    test('should throw an exception if the file name contains a \\ (backslash)',
-        () {
       expect(
+        () => FilePickerWindows().validateFileName('fi:le.csv'),
+        throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+      );
+    });
+    test(
+      'should throw an exception if the file name contains a " (double quote)',
+      () {
+        expect(
+          () => FilePickerWindows().validateFileName('"output.csv'),
+          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+        );
+      },
+    );
+    test(
+      'should throw an exception if the file name contains a / (forward slash)',
+      () {
+        expect(
+          () => FilePickerWindows().validateFileName('my-output/-file.csv'),
+          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+        );
+      },
+    );
+    test(
+      'should throw an exception if the file name contains a \\ (backslash)',
+      () {
+        expect(
           () =>
               FilePickerWindows().validateFileName('invalid-\\-file-name.csv'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
-    });
+          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+        );
+      },
+    );
     test('should throw an exception if the file name contains a | (pipe)', () {
-      expect(() => FilePickerWindows().validateFileName('download|.pdf'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
+      expect(
+        () => FilePickerWindows().validateFileName('download|.pdf'),
+        throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+      );
     });
     test(
-        'should throw an exception if the file name contains a ? (question mark)',
-        () {
-      expect(() => FilePickerWindows().validateFileName('bill?-2021-12-18.pdf'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
-    });
-    test('should throw an exception if the file name contains a * (asterisk)',
-        () {
-      expect(() => FilePickerWindows().validateFileName('*.txt'),
-          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()));
-    });
+      'should throw an exception if the file name contains a ? (question mark)',
+      () {
+        expect(
+          () => FilePickerWindows().validateFileName('bill?-2021-12-18.pdf'),
+          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+        );
+      },
+    );
+    test(
+      'should throw an exception if the file name contains a * (asterisk)',
+      () {
+        expect(
+          () => FilePickerWindows().validateFileName('*.txt'),
+          throwsA(TypeMatcher<IllegalCharacterInFileNameException>()),
+        );
+      },
+    );
     test('should return normally given a valid file name', () {
       expect(
-          () => FilePickerWindows()
-              .validateFileName('0123456789,;.-_+#\'äöüß!§\$%&(){}[]=`´.txt'),
-          returnsNormally);
+        () => FilePickerWindows().validateFileName(
+          '0123456789,;.-_+#\'äöüß!§\$%&(){}[]=`´.txt',
+        ),
+        returnsNormally,
+      );
     });
   });
 
@@ -135,8 +166,10 @@ void main() {
           .extractSelectedFilesFromOpenFileNameW(openFileNameW.ref);
 
       expect(filePaths, hasLength(1));
-      expect(filePaths[0],
-          equals("C:\\Program Files\\Sublime Text 3\\changelog.txt"));
+      expect(
+        filePaths[0],
+        equals("C:\\Program Files\\Sublime Text 3\\changelog.txt"),
+      );
     });
 
     test('should parse the result of picking multiple files', () {
@@ -157,20 +190,22 @@ void main() {
 
   /** See https://github.com/miguelpruivo/flutter_file_picker/issues/1257 for reconstructing this special case. */
   test(
-      'should parse the result of the save-file dialog when the dialog was instantiated with a long '
-      'default file name that is contained - in parts - in the result separated by only one null character',
-      () {
-    final Pointer<OPENFILENAMEW> x = calloc<OPENFILENAMEW>();
-    x.ref.lpstrFile =
-        "C:\\Users\\John\\Desktop\\test.txt\x00qrstuvwxyz0123456789.png\x00\x00"
-            .toNativeUtf16();
+    'should parse the result of the save-file dialog when the dialog was instantiated with a long '
+    'default file name that is contained - in parts - in the result separated by only one null character',
+    () {
+      final Pointer<OPENFILENAMEW> x = calloc<OPENFILENAMEW>();
+      x.ref.lpstrFile =
+          "C:\\Users\\John\\Desktop\\test.txt\x00qrstuvwxyz0123456789.png\x00\x00"
+              .toNativeUtf16();
 
-    final filePaths = FilePickerWindows().extractSelectedFilesFromOpenFileNameW(
-      x.ref,
-      isResultFromSaveFileDialog: true,
-    );
+      final filePaths =
+          FilePickerWindows().extractSelectedFilesFromOpenFileNameW(
+        x.ref,
+        isResultFromSaveFileDialog: true,
+      );
 
-    expect(filePaths, hasLength(1));
-    expect(filePaths[0], equals("C:\\Users\\John\\Desktop\\test.txt"));
-  });
+      expect(filePaths, hasLength(1));
+      expect(filePaths[0], equals("C:\\Users\\John\\Desktop\\test.txt"));
+    },
+  );
 }

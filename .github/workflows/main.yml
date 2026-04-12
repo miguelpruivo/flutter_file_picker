@@ -47,7 +47,7 @@ jobs:
       - name: Verify formatting
         if: matrix.flutter == 'stable'
         run: dart format --output=none --set-exit-if-changed .
-        
+
       - name: Analyze project source
         run: flutter analyze
 
@@ -142,4 +142,3 @@ jobs:
         run: |
           flutter pub get
           flutter build web --wasm
-

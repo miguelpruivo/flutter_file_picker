@@ -10,7 +10,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   final MethodChannel channel = MethodChannel(
-      'miguelruivo.flutter.plugins.filepicker', const StandardMethodCodec());
+    'miguelruivo.flutter.plugins.filepicker',
+    const StandardMethodCodec(),
+  );
   final List<MethodCall> log = <MethodCall>[];
 
   group('MethodChannelFilePicker', () {
@@ -28,7 +30,7 @@ void main() {
               'name': 'test.txt',
               'size': 1024,
               'bytes': null,
-            }
+            },
           ];
         }
         return null;
@@ -37,10 +39,7 @@ void main() {
     });
 
     test('pickFiles calls invokeMethod with correct arguments', () async {
-      await picker.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf'],
-      );
+      await picker.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
 
       expect(log, hasLength(1));
       expect(log.first.method, 'custom');
@@ -52,15 +51,15 @@ void main() {
       });
     });
 
-    test('pickFiles throws ArgumentError for invalid custom extension usage',
-        () async {
-      expect(
-        () => picker.pickFiles(
-          type: FileType.any,
-          allowedExtensions: ['pdf'],
-        ),
-        throwsArgumentError,
-      );
-    });
+    test(
+      'pickFiles throws ArgumentError for invalid custom extension usage',
+      () async {
+        expect(
+          () =>
+              picker.pickFiles(type: FileType.any, allowedExtensions: ['pdf']),
+          throwsArgumentError,
+        );
+      },
+    );
   });
 }

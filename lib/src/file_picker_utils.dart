@@ -24,9 +24,9 @@ class FilePickerUtils {
     bool withData,
   ) {
     return Future.wait(
-      filePaths
-          .where((String filePath) => filePath.isNotEmpty)
-          .map((String filePath) async {
+      filePaths.where((String filePath) => filePath.isNotEmpty).map((
+        String filePath,
+      ) async {
         final file = File(filePath);
 
         if (withReadStream) {
@@ -84,9 +84,7 @@ class FilePickerUtils {
   static Future<String> isExecutableOnPath(String executable) async {
     final path = await runExecutableWithArguments('which', [executable]);
     if (path == null) {
-      throw Exception(
-        'Couldn\'t find the executable $executable in the path.',
-      );
+      throw Exception('Couldn\'t find the executable $executable in the path.');
     }
     return path;
   }

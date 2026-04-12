@@ -23,9 +23,7 @@ typedef GetOpenFileNameW = Int8 Function(
 );
 
 /// Dart equivalent of [GetOpenFileNameW].
-typedef GetOpenFileNameWDart = int Function(
-  Pointer unnamedParam1,
-);
+typedef GetOpenFileNameWDart = int Function(Pointer unnamedParam1);
 
 /// Function from Win32 API to convert an item identifier list to a file system path.
 ///
@@ -45,9 +43,7 @@ typedef SHGetPathFromIDListW = Int8 Function(
 
 /// Dart equivalent of [SHGetPathFromIDListW].
 typedef SHGetPathFromIDListWDart = int Function(
-  Pointer pidl,
-  Pointer<Utf16> pszPath,
-);
+    Pointer pidl, Pointer<Utf16> pszPath);
 
 /// Function from Win32 API to create a save dialog box that lets the user
 /// specify the drive, directory, and name of a file to save.
@@ -62,9 +58,7 @@ typedef GetSaveFileNameW = Int8 Function(
 );
 
 /// Dart equivalent of [GetSaveFileNameW]
-typedef GetSaveFileNameWDart = int Function(
-  Pointer unnamedParam1,
-);
+typedef GetSaveFileNameWDart = int Function(Pointer unnamedParam1);
 
 /// Struct from Win32 API that contains parameters for the [SHBrowseForFolderW] function and receives
 /// information about the folder selected by the user.
