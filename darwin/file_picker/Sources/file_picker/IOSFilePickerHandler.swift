@@ -48,7 +48,11 @@ final class IOSFilePickerHandler: NSObject,
         }
 
         guard let arguments = call.arguments as? [String: Any] else {
-            self.result?(nil)
+            self.result?(
+                FlutterError(
+                    code: "invalid_arguments",
+                    message: "Expected method arguments as a map.",
+                    details: nil))
             self.result = nil
             return
         }
