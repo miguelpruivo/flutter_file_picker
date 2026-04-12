@@ -46,22 +46,8 @@ jobs:
 
       - name: Verify formatting
         if: matrix.flutter == 'stable'
-        id: verify_formatting_flutter_versions
-        continue-on-error: true
         run: dart format --output=none --set-exit-if-changed .
 
-      - name: Show formatting changes
-        if: ${{ matrix.flutter == 'stable' && steps.verify_formatting_flutter_versions.outcome == 'failure' }}
-        run: |
-          dart format .
-          git status --porcelain
-          git diff --name-only
-          git --no-pager diff --stat
-
-      - name: Fail when formatting changes are detected
-        if: ${{ matrix.flutter == 'stable' && steps.verify_formatting_flutter_versions.outcome == 'failure' }}
-        run: exit 1
-        
       - name: Analyze project source
         run: flutter analyze
 
@@ -87,21 +73,7 @@ jobs:
         run: flutter pub get
 
       - name: Verify formatting
-        id: verify_formatting_os_matrix
-        continue-on-error: true
         run: dart format --output=none --set-exit-if-changed .
-
-      - name: Show formatting changes
-        if: ${{ steps.verify_formatting_os_matrix.outcome == 'failure' }}
-        run: |
-          dart format .
-          git status --porcelain
-          git diff --name-only
-          git --no-pager diff --stat
-
-      - name: Fail when formatting changes are detected
-        if: ${{ steps.verify_formatting_os_matrix.outcome == 'failure' }}
-        run: exit 1
 
       - name: Analyze project source
         run: flutter analyze
@@ -170,4 +142,3 @@ jobs:
         run: |
           flutter pub get
           flutter build web --wasm
-
