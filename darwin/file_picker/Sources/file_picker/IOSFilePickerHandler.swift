@@ -85,7 +85,7 @@ final class IOSFilePickerHandler: NSObject,
                 allowsMultipleSelection: allowMultipleSelection,
                 asDirectoryPicker: false)
         case "image", "video", "media":
-            presentPhotoPicker(
+            presentMediaPicker(
                 type: call.method,
                 allowsMultipleSelection: allowMultipleSelection)
         case "audio":
