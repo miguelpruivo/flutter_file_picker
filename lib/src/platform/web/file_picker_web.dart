@@ -231,8 +231,8 @@ class FilePickerWeb extends FilePickerPlatform {
     // Start a download by using a click event on an anchor element that contains the Blob.
     HTMLAnchorElement()
       ..href = url
-      ..target =
-          'blank' // Always open the file in a new tab.
+      // Always open the file in a new tab.
+      ..target = 'blank'
       ..download = fileName
       ..click();
 
