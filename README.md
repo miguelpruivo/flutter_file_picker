@@ -52,7 +52,7 @@ See the [API section of the File Picker Wiki](https://github.com/miguelpruivo/fl
 
 The iOS and macOS native implementations now live under the shared Darwin source tree. The iOS implementation requires iOS 14.0 or newer because it uses `PHPickerViewController` and `PHPickerResult`.
 
-The old iOS compile-time flags (`PICKER_MEDIA`, `PICKER_AUDIO`, `PICKER_DOCUMENT`) belong to the legacy Objective-C implementation and are no longer part of the recommended setup for the Darwin source path. They are kept only for the legacy iOS sources in case you need to inspect historical behavior.
+The old iOS compile-time flags (`PICKER_MEDIA`, `PICKER_AUDIO`, `PICKER_DOCUMENT`) were part of the legacy Objective-C implementation and are no longer used in the Darwin source path.
 
 
 ## Documentation
