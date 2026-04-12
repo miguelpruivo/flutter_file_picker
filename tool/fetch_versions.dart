@@ -75,12 +75,12 @@ List<String> parseVersions(Map<String, Object?> json) {
   final sortedByDate = latestByMinor.values.toList()
     ..sort((a, b) => b.releaseDate.compareTo(a.releaseDate));
 
-  // Take the last 5 minor versions
-  final top5 = sortedByDate.take(5).map((r) => r.version).toList();
+  // Take the last 3 minor versions
+  final top3 = sortedByDate.take(3).map((r) => r.version).toList();
 
   // Skip the first one (latest stable) to avoid duplication with 'stable' channel
-  // Return the next 4
-  final historicVersions = top5.skip(1).toList();
+  // Return the next 2
+  final historicVersions = top3.skip(1).toList();
 
   return [...historicVersions, 'stable', 'beta'];
 }
