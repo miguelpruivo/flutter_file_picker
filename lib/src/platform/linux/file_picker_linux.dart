@@ -23,8 +23,11 @@ class FilePickerLinux extends FilePickerPlatform {
 
   FilePickerLinux() : super() {
     _client = DBusClient.session();
-    _xdpChooser = OrgFreedesktopPortalFileChooser(_client, destination,
-        path: DBusObjectPath("/org/freedesktop/portal/desktop"));
+    _xdpChooser = OrgFreedesktopPortalFileChooser(
+      _client,
+      destination,
+      path: DBusObjectPath("/org/freedesktop/portal/desktop"),
+    );
   }
 
   @override
@@ -55,12 +58,18 @@ class FilePickerLinux extends FilePickerPlatform {
       xdpOption["current_folder"] = directory;
     }
     final replyPath = await _xdpChooser.callOpenFile(
-        "", dialogTitle ?? "flutter picker", xdpOption);
+      "",
+      dialogTitle ?? "flutter picker",
+      xdpOption,
+    );
 
     List<Uri> uriPaths = [];
 
-    final request =
-        OrgFreedesktopPortalRequest(_client, destination, path: replyPath);
+    final request = OrgFreedesktopPortalRequest(
+      _client,
+      destination,
+      path: replyPath,
+    );
 
     await for (var response in request.response) {
       final status = response.response;
@@ -69,7 +78,8 @@ class FilePickerLinux extends FilePickerPlatform {
         return null;
       }
       final result = response.results;
-      uriPaths = result["uris"]
+      uriPaths =
+          result["uris"]
               ?.asArray()
               .map((data) => Uri.parse(data.asString()))
               .toList() ??
@@ -81,10 +91,10 @@ class FilePickerLinux extends FilePickerPlatform {
 
     final List<PlatformFile> platformFiles =
         await FilePickerUtils.filePathsToPlatformFiles(
-      filePaths,
-      withReadStream,
-      withData,
-    );
+          filePaths,
+          withReadStream,
+          withData,
+        );
 
     return FilePickerResult(platformFiles);
   }
@@ -106,12 +116,18 @@ class FilePickerLinux extends FilePickerPlatform {
       xdpOption["current_folder"] = directory;
     }
     final replyPath = await _xdpChooser.callOpenFile(
-        "", dialogTitle ?? "flutter picker", xdpOption);
+      "",
+      dialogTitle ?? "flutter picker",
+      xdpOption,
+    );
 
     List<Uri> uriPaths = [];
 
-    final request =
-        OrgFreedesktopPortalRequest(_client, destination, path: replyPath);
+    final request = OrgFreedesktopPortalRequest(
+      _client,
+      destination,
+      path: replyPath,
+    );
 
     await for (var response in request.response) {
       final status = response.response;
@@ -120,7 +136,8 @@ class FilePickerLinux extends FilePickerPlatform {
         return null;
       }
       final result = response.results;
-      uriPaths = result["uris"]
+      uriPaths =
+          result["uris"]
               ?.asArray()
               .map((data) => Uri.parse(data.asString()))
               .toList() ??
@@ -131,11 +148,7 @@ class FilePickerLinux extends FilePickerPlatform {
     final filePaths = uriPaths.map((uri) => uri.toFilePath()).toList();
 
     final List<PlatformFile> platformFiles =
-        await FilePickerUtils.filePathsToPlatformFiles(
-      filePaths,
-      false,
-      false,
-    );
+        await FilePickerUtils.filePathsToPlatformFiles(filePaths, false, false);
 
     return platformFiles.firstOrNull?.path;
   }
@@ -162,9 +175,15 @@ class FilePickerLinux extends FilePickerPlatform {
     }
 
     final replyPath = await _xdpChooser.callSaveFile(
-        "", dialogTitle ?? "flutter picker", xdpOption);
-    final request =
-        OrgFreedesktopPortalRequest(_client, destination, path: replyPath);
+      "",
+      dialogTitle ?? "flutter picker",
+      xdpOption,
+    );
+    final request = OrgFreedesktopPortalRequest(
+      _client,
+      destination,
+      path: replyPath,
+    );
 
     List<Uri> saveUris = [];
     await for (var response in request.response) {
@@ -174,7 +193,8 @@ class FilePickerLinux extends FilePickerPlatform {
         return null;
       }
       final result = response.results;
-      saveUris = result["uris"]
+      saveUris =
+          result["uris"]
               ?.asArray()
               .map((data) => Uri.parse(data.asString()))
               .toList() ??

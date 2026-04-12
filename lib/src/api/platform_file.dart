@@ -88,11 +88,11 @@ class PlatformFile {
     return kIsWeb
         ? 0
         : path.hashCode ^
-            name.hashCode ^
-            bytes.hashCode ^
-            readStream.hashCode ^
-            identifier.hashCode ^
-            size.hashCode;
+              name.hashCode ^
+              bytes.hashCode ^
+              readStream.hashCode ^
+              identifier.hashCode ^
+              size.hashCode;
   }
 
   @override

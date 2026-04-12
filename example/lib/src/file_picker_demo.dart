@@ -34,17 +34,12 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           child: SizedBox(
             width: 300,
             child: ListTile(
-              leading: Icon(
-                Icons.error_outline,
-              ),
+              leading: Icon(Icons.error_outline),
               contentPadding: EdgeInsets.symmetric(vertical: 40.0),
               title: Text('No action taken yet'),
               subtitle: Text(
                 'Please use on one of the buttons above to get started',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ),
           ),
@@ -56,8 +51,9 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   @override
   void initState() {
     super.initState();
-    _fileExtensionController
-        .addListener(() => _extension = _fileExtensionController.text);
+    _fileExtensionController.addListener(
+      () => _extension = _fileExtensionController.text,
+    );
   }
 
   Widget _buildFilePickerResultsWidget({
@@ -109,8 +105,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _resultsWidget = _buildFilePickerResultsWidget(
         itemCount: pickedFiles?.length ?? 0,
         itemBuilder: (BuildContext context, int index) {
-          final path =
-              pickedFiles!.map((e) => e.path).toList()[index].toString();
+          final path = pickedFiles!
+              .map((e) => e.path)
+              .toList()[index]
+              .toString();
           return ListTile(
             leading: Text(
               index.toString(),
@@ -183,9 +181,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
             (result!
                 ? 'Temporary files removed with success.'
                 : 'Failed to clean temporary files'),
-            style: const TextStyle(
-              color: Colors.white,
-            ),
+            style: const TextStyle(color: Colors.white),
           ),
         ),
       );
@@ -278,12 +274,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
     _scaffoldMessengerKey.currentState?.showSnackBar(
       SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(
-            color: Colors.white,
-          ),
-        ),
+        content: Text(message, style: const TextStyle(color: Colors.white)),
       ),
     );
   }
@@ -305,15 +296,11 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       darkTheme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
-        snackBarTheme: SnackBarThemeData(
-          backgroundColor: Colors.deepPurple,
-        ),
+        snackBarTheme: SnackBarThemeData(backgroundColor: Colors.deepPurple),
       ),
       home: Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          title: const Text('File Picker example app'),
-        ),
+        appBar: AppBar(title: const Text('File Picker example app')),
         body: Padding(
           padding: const EdgeInsets.only(left: 5.0, right: 5.0),
           child: SingleChildScrollView(
@@ -329,9 +316,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                     fontSize: 20,
                   ),
                 ),
-                SizedBox(
-                  height: 20.0,
-                ),
+                SizedBox(height: 20.0),
                 Wrap(
                   spacing: 10.0,
                   runSpacing: 10.0,
@@ -383,14 +368,12 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                               ),
                             )
                             .toList(),
-                        onChanged: (value) => setState(
-                          () {
-                            _pickingType = value!;
-                            if (_pickingType != FileType.custom) {
-                              _fileExtensionController.text = _extension = '';
-                            }
-                          },
-                        ),
+                        onChanged: (value) => setState(() {
+                          _pickingType = value!;
+                          if (_pickingType != FileType.custom) {
+                            _fileExtensionController.text = _extension = '';
+                          }
+                        }),
                       ),
                     ),
                     _pickingType == FileType.custom
@@ -398,9 +381,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                             width: 400,
                             child: TextFormField(
                               decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  labelText: 'File Extension',
-                                  hintText: 'jpg, png, gif'),
+                                border: OutlineInputBorder(),
+                                labelText: 'File Extension',
+                                hintText: 'jpg, png, gif',
+                              ),
                               autovalidateMode: AutovalidateMode.always,
                               controller: _fileExtensionController,
                               keyboardType: TextInputType.text,
@@ -410,9 +394,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                         : SizedBox(),
                   ],
                 ),
-                SizedBox(
-                  height: 20.0,
-                ),
+                SizedBox(height: 20.0),
                 Wrap(
                   alignment: WrapAlignment.start,
                   runAlignment: WrapAlignment.start,
@@ -447,13 +429,9 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: 20.0,
-                ),
+                SizedBox(height: 20.0),
                 Divider(),
-                SizedBox(
-                  height: 20.0,
-                ),
+                SizedBox(height: 20.0),
                 Text(
                   'Actions',
                   textAlign: TextAlign.start,
@@ -512,9 +490,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                   ),
                 ),
                 Divider(),
-                SizedBox(
-                  height: 20.0,
-                ),
+                SizedBox(height: 20.0),
                 Text(
                   'File Picker Result',
                   textAlign: TextAlign.start,
@@ -540,33 +516,29 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                           ],
                         )
                       : _userAborted
-                          ? Row(
-                              children: [
-                                Expanded(
-                                  child: Center(
-                                    child: SizedBox(
-                                      width: 300,
-                                      child: ListTile(
-                                        leading: Icon(
-                                          Icons.error_outline,
-                                        ),
-                                        contentPadding: EdgeInsets.symmetric(
-                                          vertical: 40.0,
-                                        ),
-                                        title: const Text(
-                                          'User has aborted the dialog',
-                                        ),
-                                      ),
+                      ? Row(
+                          children: [
+                            Expanded(
+                              child: Center(
+                                child: SizedBox(
+                                  width: 300,
+                                  child: ListTile(
+                                    leading: Icon(Icons.error_outline),
+                                    contentPadding: EdgeInsets.symmetric(
+                                      vertical: 40.0,
+                                    ),
+                                    title: const Text(
+                                      'User has aborted the dialog',
                                     ),
                                   ),
                                 ),
-                              ],
-                            )
-                          : _resultsWidget,
+                              ),
+                            ),
+                          ],
+                        )
+                      : _resultsWidget,
                 ),
-                const SizedBox(
-                  height: 10.0,
-                ),
+                const SizedBox(height: 10.0),
               ],
             ),
           ),

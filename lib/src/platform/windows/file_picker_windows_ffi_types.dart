@@ -5,27 +5,27 @@ import 'package:ffi/ffi.dart';
 ///
 /// Reference:
 /// https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shbrowseforfolderw
-typedef SHBrowseForFolderW = Pointer Function(
-  /// A pointer to a [BROWSEINFOA] structure that contains information used to display the dialog box.
-  Pointer lpbi,
-);
+typedef SHBrowseForFolderW =
+    Pointer Function(
+      /// A pointer to a [BROWSEINFOA] structure that contains information used to display the dialog box.
+      Pointer lpbi,
+    );
 
 /// Function from Win32 API to create an Open dialog box that lets the user specify the drive,
 /// directory, and the name of a file or set of files to be opened.
 ///
 /// Reference:
 /// https://docs.microsoft.com/en-us/windows/win32/api/commdlg/nf-commdlg-getopenfilenamew
-typedef GetOpenFileNameW = Int8 Function(
-  /// A pointer to an [OPENFILENAMEW] structure that contains information used to initialize the
-  /// dialog box. When GetOpenFileName returns, this structure contains information about the user's
-  /// file selection.
-  Pointer unnamedParam1,
-);
+typedef GetOpenFileNameW =
+    Int8 Function(
+      /// A pointer to an [OPENFILENAMEW] structure that contains information used to initialize the
+      /// dialog box. When GetOpenFileName returns, this structure contains information about the user's
+      /// file selection.
+      Pointer unnamedParam1,
+    );
 
 /// Dart equivalent of [GetOpenFileNameW].
-typedef GetOpenFileNameWDart = int Function(
-  Pointer unnamedParam1,
-);
+typedef GetOpenFileNameWDart = int Function(Pointer unnamedParam1);
 
 /// Function from Win32 API to convert an item identifier list to a file system path.
 ///
@@ -33,38 +33,36 @@ typedef GetOpenFileNameWDart = int Function(
 ///
 /// Reference:
 /// https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shgetpathfromidlistw
-typedef SHGetPathFromIDListW = Int8 Function(
-  /// The address of an item identifier list that specifies a file or directory location relative to
-  /// the root of the namespace (the desktop).
-  Pointer pidl,
+typedef SHGetPathFromIDListW =
+    Int8 Function(
+      /// The address of an item identifier list that specifies a file or directory location relative to
+      /// the root of the namespace (the desktop).
+      Pointer pidl,
 
-  /// The address of a buffer to receive the file system path. This buffer must be at least
-  /// [maximumPathLength] characters in size.
-  Pointer<Utf16> pszPath,
-);
+      /// The address of a buffer to receive the file system path. This buffer must be at least
+      /// [maximumPathLength] characters in size.
+      Pointer<Utf16> pszPath,
+    );
 
 /// Dart equivalent of [SHGetPathFromIDListW].
-typedef SHGetPathFromIDListWDart = int Function(
-  Pointer pidl,
-  Pointer<Utf16> pszPath,
-);
+typedef SHGetPathFromIDListWDart =
+    int Function(Pointer pidl, Pointer<Utf16> pszPath);
 
 /// Function from Win32 API to create a save dialog box that lets the user
 /// specify the drive, directory, and name of a file to save.
 /// Reference:
 /// https://docs.microsoft.com/en-us/windows/win32/api/commdlg/nf-commdlg-getsavefilenamew
-typedef GetSaveFileNameW = Int8 Function(
-  /// A pointer to an [OPENFILENAMEW] structure that contains information used
-  /// to initialize the dialog box. When the function [GetSaveFileNameW]
-  /// returns, this structure contains information about the user's file
-  /// selection.
-  Pointer unnamedParam1,
-);
+typedef GetSaveFileNameW =
+    Int8 Function(
+      /// A pointer to an [OPENFILENAMEW] structure that contains information used
+      /// to initialize the dialog box. When the function [GetSaveFileNameW]
+      /// returns, this structure contains information about the user's file
+      /// selection.
+      Pointer unnamedParam1,
+    );
 
 /// Dart equivalent of [GetSaveFileNameW]
-typedef GetSaveFileNameWDart = int Function(
-  Pointer unnamedParam1,
-);
+typedef GetSaveFileNameWDart = int Function(Pointer unnamedParam1);
 
 /// Struct from Win32 API that contains parameters for the [SHBrowseForFolderW] function and receives
 /// information about the folder selected by the user.

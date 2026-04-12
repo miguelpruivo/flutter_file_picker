@@ -10,10 +10,7 @@ void main() {
     test('should return the file filter', () {
       final picker = FilePickerMacOS();
 
-      expect(
-        picker.fileTypeToFileFilter(FileType.any, null),
-        equals([]),
-      );
+      expect(picker.fileTypeToFileFilter(FileType.any, null), equals([]));
 
       expect(
         picker.fileTypeToFileFilter(FileType.audio, null),
@@ -27,49 +24,56 @@ void main() {
 
       expect(
         picker.fileTypeToFileFilter(FileType.media, null),
-        equals(
-          [
-            "avi",
-            "flv",
-            "m4v",
-            "mkv",
-            "mov",
-            "mp4",
-            "mpeg",
-            "webm",
-            "wmv",
-            "bmp",
-            "gif",
-            "jpeg",
-            "jpg",
-            "png"
-          ],
-        ),
+        equals([
+          "avi",
+          "flv",
+          "m4v",
+          "mkv",
+          "mov",
+          "mp4",
+          "mpeg",
+          "webm",
+          "wmv",
+          "bmp",
+          "gif",
+          "jpeg",
+          "jpg",
+          "png",
+        ]),
       );
 
       expect(
         picker.fileTypeToFileFilter(FileType.video, null),
-        equals(
-          ["avi", "flv", "mkv", "mov", "mp4", "m4v", "mpeg", "webm", "wmv"],
-        ),
+        equals([
+          "avi",
+          "flv",
+          "mkv",
+          "mov",
+          "mp4",
+          "m4v",
+          "mpeg",
+          "webm",
+          "wmv",
+        ]),
       );
     });
 
     test(
-        'should return the file filter when given a list of custom file extensions',
-        () {
-      final picker = FilePickerMacOS();
+      'should return the file filter when given a list of custom file extensions',
+      () {
+        final picker = FilePickerMacOS();
 
-      expect(
-        picker.fileTypeToFileFilter(FileType.custom, ['dart']),
-        equals(["dart"]),
-      );
+        expect(
+          picker.fileTypeToFileFilter(FileType.custom, ['dart']),
+          equals(["dart"]),
+        );
 
-      expect(
-        picker.fileTypeToFileFilter(FileType.custom, ['dart', 'html']),
-        equals(["dart", "html"]),
-      );
-    });
+        expect(
+          picker.fileTypeToFileFilter(FileType.custom, ['dart', 'html']),
+          equals(["dart", "html"]),
+        );
+      },
+    );
   });
 
   group('escapeDialogTitle()', () {
@@ -80,12 +84,7 @@ void main() {
         'Please select files that contain a \\:',
       );
 
-      expect(
-        escapedTitle,
-        equals(
-          'Please select files that contain a \\\\:',
-        ),
-      );
+      expect(escapedTitle, equals('Please select files that contain a \\\\:'));
     });
 
     test('should escape line breaks in the title of the dialog', () {
@@ -97,9 +96,7 @@ void main() {
 
       expect(
         escapedTitle,
-        equals(
-          'Please continue reading\\\nafter the line break:',
-        ),
+        equals('Please continue reading\\\nafter the line break:'),
       );
     });
 
@@ -126,17 +123,11 @@ void main() {
     });
 
     test('should remove ~/ from the beginning of the path', () {
-      expect(
-        picker.escapeInitialDirectory('~/Documents'),
-        equals('Documents'),
-      );
+      expect(picker.escapeInitialDirectory('~/Documents'), equals('Documents'));
     });
 
     test('should remove single ~ from the beginning of the path', () {
-      expect(
-        picker.escapeInitialDirectory('~Documents'),
-        equals('Documents'),
-      );
+      expect(picker.escapeInitialDirectory('~Documents'), equals('Documents'));
     });
 
     test('should not modify path without tilde', () {
@@ -147,10 +138,7 @@ void main() {
     });
 
     test('should handle empty string', () {
-      expect(
-        picker.escapeInitialDirectory(''),
-        equals(''),
-      );
+      expect(picker.escapeInitialDirectory(''), equals(''));
     });
   });
 }
