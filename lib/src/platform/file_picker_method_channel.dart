@@ -46,15 +46,16 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool lockParentWindow = false,
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
-  }) => _getPath(
-    type,
-    allowMultiple,
-    allowedExtensions,
-    onFileLoading,
-    withData,
-    withReadStream,
-    compressionQuality,
-  );
+  }) =>
+      _getPath(
+        type,
+        allowMultiple,
+        allowedExtensions,
+        onFileLoading,
+        withData,
+        withReadStream,
+        compressionQuality,
+      );
 
   @override
   Future<bool?> clearTemporaryFiles() async =>

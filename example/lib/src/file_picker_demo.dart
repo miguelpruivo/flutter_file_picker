@@ -105,10 +105,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _resultsWidget = _buildFilePickerResultsWidget(
         itemCount: pickedFiles?.length ?? 0,
         itemBuilder: (BuildContext context, int index) {
-          final path = pickedFiles!
-              .map((e) => e.path)
-              .toList()[index]
-              .toString();
+          final path =
+              pickedFiles!.map((e) => e.path).toList()[index].toString();
           return ListTile(
             leading: Text(
               index.toString(),
@@ -516,27 +514,27 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                           ],
                         )
                       : _userAborted
-                      ? Row(
-                          children: [
-                            Expanded(
-                              child: Center(
-                                child: SizedBox(
-                                  width: 300,
-                                  child: ListTile(
-                                    leading: Icon(Icons.error_outline),
-                                    contentPadding: EdgeInsets.symmetric(
-                                      vertical: 40.0,
-                                    ),
-                                    title: const Text(
-                                      'User has aborted the dialog',
+                          ? Row(
+                              children: [
+                                Expanded(
+                                  child: Center(
+                                    child: SizedBox(
+                                      width: 300,
+                                      child: ListTile(
+                                        leading: Icon(Icons.error_outline),
+                                        contentPadding: EdgeInsets.symmetric(
+                                          vertical: 40.0,
+                                        ),
+                                        title: const Text(
+                                          'User has aborted the dialog',
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : _resultsWidget,
+                              ],
+                            )
+                          : _resultsWidget,
                 ),
                 const SizedBox(height: 10.0),
               ],

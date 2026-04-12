@@ -69,10 +69,10 @@ class FilePickerWindows extends FilePickerPlatform {
   List<String>? _pickFiles(_OpenSaveFileArgs args) {
     final comdlg32 = DynamicLibrary.open('comdlg32.dll');
 
-    final getOpenFileNameW = comdlg32
-        .lookupFunction<GetOpenFileNameW, GetOpenFileNameWDart>(
-          'GetOpenFileNameW',
-        );
+    final getOpenFileNameW =
+        comdlg32.lookupFunction<GetOpenFileNameW, GetOpenFileNameWDart>(
+      'GetOpenFileNameW',
+    );
 
     final Pointer<OPENFILENAMEW> openFileNameW = _instantiateOpenFileNameW(
       args,
@@ -131,8 +131,7 @@ class FilePickerWindows extends FilePickerPlatform {
         hr = fileDialog.getOptions(optionsPointer);
         if (!SUCCEEDED(hr)) throw WindowsException(hr);
 
-        final options =
-            optionsPointer.value |
+        final options = optionsPointer.value |
             FILEOPENDIALOGOPTIONS.FOS_PICKFOLDERS |
             FILEOPENDIALOGOPTIONS.FOS_FORCEFILESYSTEM |
             FILEOPENDIALOGOPTIONS.FOS_NOCHANGEDIR;
@@ -229,10 +228,10 @@ class FilePickerWindows extends FilePickerPlatform {
   String? _saveFile(_OpenSaveFileArgs args) {
     final comdlg32 = DynamicLibrary.open('comdlg32.dll');
 
-    final getSaveFileNameW = comdlg32
-        .lookupFunction<GetSaveFileNameW, GetSaveFileNameWDart>(
-          'GetSaveFileNameW',
-        );
+    final getSaveFileNameW =
+        comdlg32.lookupFunction<GetSaveFileNameW, GetSaveFileNameWDart>(
+      'GetSaveFileNameW',
+    );
 
     final Pointer<OPENFILENAMEW> openFileNameW = _instantiateOpenFileNameW(
       args,
@@ -348,8 +347,8 @@ class FilePickerWindows extends FilePickerPlatform {
       args.allowedExtensions,
     ).toNativeUtf16();
     openFileNameW.ref.nMaxFile = lpstrFileBufferSize;
-    openFileNameW.ref.lpstrInitialDir = (args.initialDirectory ?? '')
-        .toNativeUtf16();
+    openFileNameW.ref.lpstrInitialDir =
+        (args.initialDirectory ?? '').toNativeUtf16();
     openFileNameW.ref.flags =
         ofnExplorer | ofnFileMustExist | ofnHideReadOnly | ofnNoChangeDir;
 
@@ -386,11 +385,10 @@ class FilePickerWindows extends FilePickerPlatform {
   Pointer _getWindowHandle() {
     final user32 = DynamicLibrary.open('user32.dll');
 
-    final findWindowA = user32
-        .lookupFunction<
-          Int32 Function(Pointer<Utf8> lpClassName, Pointer<Utf8> lpWindowName),
-          int Function(Pointer<Utf8> lpClassName, Pointer<Utf8> lpWindowName)
-        >('FindWindowA');
+    final findWindowA = user32.lookupFunction<
+        Int32 Function(Pointer<Utf8> lpClassName, Pointer<Utf8> lpWindowName),
+        int Function(Pointer<Utf8> lpClassName,
+            Pointer<Utf8> lpWindowName)>('FindWindowA');
 
     int hWnd = findWindowA(
       'FLUTTER_RUNNER_WIN32_WINDOW'.toNativeUtf8(),

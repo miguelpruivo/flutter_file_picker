@@ -198,11 +198,11 @@ void main() {
           "C:\\Users\\John\\Desktop\\test.txt\x00qrstuvwxyz0123456789.png\x00\x00"
               .toNativeUtf16();
 
-      final filePaths = FilePickerWindows()
-          .extractSelectedFilesFromOpenFileNameW(
-            x.ref,
-            isResultFromSaveFileDialog: true,
-          );
+      final filePaths =
+          FilePickerWindows().extractSelectedFilesFromOpenFileNameW(
+        x.ref,
+        isResultFromSaveFileDialog: true,
+      );
 
       expect(filePaths, hasLength(1));
       expect(filePaths[0], equals("C:\\Users\\John\\Desktop\\test.txt"));

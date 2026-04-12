@@ -22,19 +22,19 @@ void main() {
       picker = MethodChannelFilePicker();
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-            log.add(methodCall);
-            if (methodCall.method == 'custom') {
-              return [
-                {
-                  'path': '/tmp/test.txt',
-                  'name': 'test.txt',
-                  'size': 1024,
-                  'bytes': null,
-                },
-              ];
-            }
-            return null;
-          });
+        log.add(methodCall);
+        if (methodCall.method == 'custom') {
+          return [
+            {
+              'path': '/tmp/test.txt',
+              'name': 'test.txt',
+              'size': 1024,
+              'bytes': null,
+            },
+          ];
+        }
+        return null;
+      });
       log.clear();
     });
 
