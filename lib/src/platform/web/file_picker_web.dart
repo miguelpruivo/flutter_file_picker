@@ -55,7 +55,8 @@ class FilePickerWeb extends FilePickerPlatform {
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
-          'You are setting a type [$type]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.');
+        'You are setting a type [$type]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.',
+      );
     }
 
     Completer<List<PlatformFile>?>? filesCompleter =
@@ -92,18 +93,22 @@ class FilePickerWeb extends FilePickerPlatform {
       ) {
         String? blobUrl;
         if (bytes != null && bytes.isNotEmpty) {
-          final blob =
-              Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
+          final blob = Blob(
+            [bytes.toJS].toJS,
+            BlobPropertyBag(type: file.type),
+          );
 
           blobUrl = URL.createObjectURL(blob);
         }
-        pickedFiles.add(PlatformFile(
-          name: file.name,
-          path: path ?? blobUrl,
-          size: bytes != null ? bytes.length : file.size,
-          bytes: bytes,
-          readStream: readStream,
-        ));
+        pickedFiles.add(
+          PlatformFile(
+            name: file.name,
+            path: path ?? blobUrl,
+            size: bytes != null ? bytes.length : file.size,
+            bytes: bytes,
+            readStream: readStream,
+          ),
+        );
 
         if (pickedFiles.length >= files.length) {
           if (onFileLoading != null) {
@@ -226,7 +231,8 @@ class FilePickerWeb extends FilePickerPlatform {
     // Start a download by using a click event on an anchor element that contains the Blob.
     HTMLAnchorElement()
       ..href = url
-      ..target = 'blank' // Always open the file in a new tab.
+      ..target =
+          'blank' // Always open the file in a new tab.
       ..download = fileName
       ..click();
 
@@ -253,8 +259,10 @@ class FilePickerWeb extends FilePickerPlatform {
         return 'video/*|image/*';
 
       case FileType.custom:
-        return allowedExtensions!
-            .fold('', (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next');
+        return allowedExtensions!.fold(
+          '',
+          (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next',
+        );
     }
   }
 

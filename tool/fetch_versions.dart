@@ -22,7 +22,8 @@ Future<void> main() async {
 /// Fetches the JSON data from the Flutter infrastructure releases URL.
 Future<Map<String, Object?>> _fetchJson() async {
   final url = Uri.parse(
-      'https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json');
+    'https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json',
+  );
   final httpClient = HttpClient();
   try {
     final request = await httpClient.getUrl(url);
