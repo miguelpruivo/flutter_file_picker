@@ -85,7 +85,7 @@ final class IOSFilePickerHandler: NSObject,
                 allowsMultipleSelection: allowMultipleSelection,
                 asDirectoryPicker: false)
         case "image", "video", "media":
-            presentPhotoPicker(
+            presentMediaPicker(
                 type: call.method,
                 allowsMultipleSelection: allowMultipleSelection)
         case "audio":
@@ -212,7 +212,7 @@ final class IOSFilePickerHandler: NSObject,
         result = nil
     }
 
-    private func presentPhotoPicker(type: String, allowsMultipleSelection: Bool) {
+    private func presentMediaPicker(type: String, allowsMultipleSelection: Bool) {
         var configuration = PHPickerConfiguration(photoLibrary: .shared())
         configuration.selectionLimit = allowsMultipleSelection ? 0 : 1
 
