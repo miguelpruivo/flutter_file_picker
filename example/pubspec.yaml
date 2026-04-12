@@ -5,6 +5,9 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 environment:
   sdk: ">=3.10.0 <4.0.0"
 
+formatter:
+  page_width: 80
+
 dependencies:
   flutter:
     sdk: flutter
