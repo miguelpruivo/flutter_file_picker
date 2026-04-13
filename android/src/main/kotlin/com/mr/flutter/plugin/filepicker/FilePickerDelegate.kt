@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import com.mr.flutter.plugin.filepicker.FileUtils.maybeRenameGenericMimeDuplicate
 import com.mr.flutter.plugin.filepicker.FileUtils.processFiles
 import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.MethodChannel
@@ -34,6 +35,8 @@ class FilePickerDelegate(
     var allowedExtensions: ArrayList<String>? = null
     var eventSink: EventSink? = null
     var bytes: ByteArray? = null
+    var saveFileName: String? = null
+    var saveMimeType: String? = null
 
     fun setEventHandler(eventSink: EventSink?) {
         this.eventSink = eventSink
@@ -68,8 +71,14 @@ class FilePickerDelegate(
         uri ?: return false
         dispatchEventStatus(true)
         return try {
-            val newUri = FileUtils.writeBytesData(context = activity, uri, bytes) ?: uri
-            finishWithSuccess(newUri.path)
+            val savedUri = FileUtils.writeBytesData(context = activity, uri, bytes) ?: uri
+            val renamedUri = maybeRenameGenericMimeDuplicate(
+                context = activity,
+                uri = savedUri,
+                originalFileName = saveFileName,
+                mimeType = saveMimeType
+            )
+            finishWithSuccess(renamedUri.path)
             true
         } catch (e: IOException) {
             Log.e(TAG, "Error while saving file", e)

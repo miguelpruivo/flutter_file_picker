@@ -37,6 +37,7 @@ import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.regex.Pattern
 
 object FileUtils {
     private const val TAG = "FilePickerUtils"
@@ -303,11 +304,14 @@ object FileUtils {
             intent.putExtra(Intent.EXTRA_TITLE, fileName)
         }
         this.bytes = bytes
+        this.saveFileName = fileName
         if ("dir" != type) {
             try {
                 intent.type = getMimeTypeForBytes(fileName = fileName, bytes = bytes)
+                this.saveMimeType = intent.type
             } catch (t: Throwable) {
                 intent.type = "*/*"
+                this.saveMimeType = intent.type
                 Log.e(
                     FilePickerDelegate.TAG,
                     "Failed to detect mime type. $t"
@@ -327,6 +331,51 @@ object FileUtils {
                 "Can't find a valid activity to handle the request. Make sure you've a file explorer installed."
             )
             finishWithError("invalid_format_type", "Can't handle the provided file type.")
+        }
+    }
+
+    fun maybeRenameGenericMimeDuplicate(
+        context: Context,
+        uri: Uri,
+        originalFileName: String?,
+        mimeType: String?
+    ): Uri {
+        if (originalFileName.isNullOrBlank()) {
+            return uri
+        }
+
+        val extension = originalFileName.substringAfterLast('.', "")
+        if (extension.isBlank()) {
+            return uri
+        }
+
+        val currentName = getFileName(uri, context) ?: return uri
+        val escapedExtension = Pattern.quote(extension)
+        val duplicatedExtensionPattern = Regex("^(.*)\\.${escapedExtension} \\((\\d+)\\)$")
+        val alreadyNormalizedPattern = Regex("^.* \\((\\d+)\\)\\.${escapedExtension}$")
+        val hasExtensionPattern = Regex("^.*\\.${escapedExtension}$")
+
+        val targetName = when {
+            duplicatedExtensionPattern.matches(currentName) -> {
+                val match = duplicatedExtensionPattern.matchEntire(currentName) ?: return uri
+                "${match.groupValues[1]} (${match.groupValues[2]}).$extension"
+            }
+
+            alreadyNormalizedPattern.matches(currentName) || hasExtensionPattern.matches(currentName) -> {
+                return uri
+            }
+
+            else -> "$currentName.$extension"
+        }
+
+        return try {
+            DocumentsContract.renameDocument(context.contentResolver, uri, targetName) ?: uri
+        } catch (ex: Exception) {
+            Log.w(
+                TAG,
+                "Failed to normalize saved document name from '$currentName' to '$targetName'. MIME=$mimeType, error=$ex"
+            )
+            uri
         }
     }
 
