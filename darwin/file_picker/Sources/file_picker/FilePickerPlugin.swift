@@ -1,10 +1,11 @@
 #if os(iOS)
 import Flutter
-#elseif os(macOS)
+#elseif os(macOS) && canImport(FlutterMacOS)
 import FlutterMacOS
 #endif
 import Foundation
 
+#if os(iOS) || (os(macOS) && canImport(FlutterMacOS))
 public class FilePickerPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
 #if os(iOS)
@@ -19,7 +20,7 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
         let instance = FilePickerPlugin(registrar: registrar)
         registrar.addMethodCallDelegate(instance, channel: channel)
         eventChannel.setStreamHandler(instance.handler)
-#elseif os(macOS)
+#elseif os(macOS) && canImport(FlutterMacOS)
         let channel = FlutterMethodChannel(
             name: "miguelruivo.flutter.plugins.filepicker",
             binaryMessenger: registrar.messenger)
@@ -31,14 +32,14 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
 
 #if os(iOS)
     private let handler: IOSFilePickerHandler
-#elseif os(macOS)
+#elseif os(macOS) && canImport(FlutterMacOS)
     private let handler: MacOSFilePickerHandler
 #endif
 
     init(registrar: FlutterPluginRegistrar) {
 #if os(iOS)
         handler = IOSFilePickerHandler()
-#elseif os(macOS)
+#elseif os(macOS) && canImport(FlutterMacOS)
         handler = MacOSFilePickerHandler(registrar: registrar)
 #endif
         super.init()
@@ -48,3 +49,4 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
         handler.handle(call, result: result)
     }
 }
+#endif
