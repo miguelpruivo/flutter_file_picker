@@ -4,6 +4,9 @@
 - **BREAKING CHANGE**: The minimum supported iOS deployment target is now 14.0.
 - Removed the DKImagePickerController / DKPhotoGallery dependency chain from the Darwin iOS path.
 
+### Android
+- Improved `saveFile` naming behavior when a duplicate file exists, normalizing duplicate names to keep the extension suffix (for example, `file (1).bak` instead of `file.bak (1)`). [#1947](https://github.com/miguelpruivo/flutter_file_picker/issues/1947)
+
 ## 11.0.2
 ### Android
 - Fixed a Path Traversal vulnerability (CWE-22) when resolving file paths from external content providers. [#1967](https://github.com/miguelpruivo/flutter_file_picker/issues/1967)
