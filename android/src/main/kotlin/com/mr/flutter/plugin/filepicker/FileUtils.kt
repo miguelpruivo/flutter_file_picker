@@ -351,8 +351,11 @@ object FileUtils {
 
         val currentName = getFileName(uri, context) ?: return uri
         val escapedExtension = Pattern.quote(extension)
+        // Android duplicate style "name.ext (N)" that we normalize.
         val duplicatedExtensionPattern = Regex("^(.*)\\.${escapedExtension} \\((\\d+)\\)$")
+        // Desired style "name (N).ext"; leave unchanged.
         val alreadyNormalizedPattern = Regex("^.* \\((\\d+)\\)\\.${escapedExtension}$")
+        // Regular "name.ext"; leave unchanged.
         val hasExtensionPattern = Regex("^.*\\.${escapedExtension}$")
 
         val targetName = when {
@@ -365,6 +368,7 @@ object FileUtils {
                 return uri
             }
 
+            // Provider returned a name without extension, so append it.
             else -> "$currentName.$extension"
         }
 
