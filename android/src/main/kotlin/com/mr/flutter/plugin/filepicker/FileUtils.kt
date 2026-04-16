@@ -40,6 +40,7 @@ import java.util.Locale
 
 object FileUtils {
     private const val TAG = "FilePickerUtils"
+    private const val MAX_RENAME_ATTEMPTS = 20
     // On Android, the CSV mime type from getMimeTypeFromExtension() returns
     // "text/comma-separated-values" which is non-standard and doesn't filter
     // CSV files in Google Drive.
@@ -351,47 +352,18 @@ object FileUtils {
         val currentName = getFileName(uri, context) ?: return uri
         val escapedExtension = Regex.escape(extension)
 
-        // Android duplicate style "name.ext (N)" that we normalize.
-        val androidCollisionRegex = Regex("^(.*)\\.$escapedExtension \\((\\d+)\\)$")
-        // Desired style "name (N).ext"
-        val normalizedCollisionRegex = Regex("^(.*) \\((\\d+)\\)\\.$escapedExtension$")
-        // Regular "name.ext"
-        val plainNameRegex = Regex("^(.*)\\.$escapedExtension$")
+        var (baseName, suffix) = extractBaseNameAndSuffix(currentName, escapedExtension)
 
-        var (baseName, suffix) = when {
-            androidCollisionRegex.matches(currentName) -> {
-                val match = androidCollisionRegex.matchEntire(currentName)!!
-                match.groupValues[1] to match.groupValues[2].toInt()
-            }
-            normalizedCollisionRegex.matches(currentName) -> {
-                val match = normalizedCollisionRegex.matchEntire(currentName)!!
-                match.groupValues[1] to match.groupValues[2].toInt()
-            }
-            plainNameRegex.matches(currentName) -> {
-                val match = plainNameRegex.matchEntire(currentName)!!
-                match.groupValues[1] to null
-            }
-            else -> {
-                currentName to null
-            }
-        }
-
-        // Clean up baseName if it already has one or more " (M)" suffixes to prevent nesting
-        val baseNameSuffixRegex = Regex("^(.*) \\((\\d+)\\)$")
-        while (true) {
-            val baseMatch = baseNameSuffixRegex.matchEntire(baseName) ?: break
-
-            val realBase = baseMatch.groupValues[1]
-            val baseSuffix = baseMatch.groupValues[2].toInt()
-            baseName = realBase
-            suffix = (suffix ?: 0) + baseSuffix
-        }
+        // Clean up baseName if it already has one or more " (M)" suffixes to prevent nesting.
+        val normalized = normalizeBaseNameAndSuffix(baseName, suffix)
+        baseName = normalized.first
+        suffix = normalized.second
 
         var finalUri = uri
         var success = false
         var currentSuffix = suffix ?: 0
         var attempts = 0
-        val maxAttempts = 100
+        val maxAttempts = MAX_RENAME_ATTEMPTS
 
         while (!success && attempts < maxAttempts) {
             val targetName = when {
@@ -434,6 +406,52 @@ object FileUtils {
         }
 
         return finalUri
+    }
+
+    private fun extractBaseNameAndSuffix(currentName: String, escapedExtension: String): Pair<String, Int?> {
+        // Android duplicate style "name.ext (N)" that we normalize. Example: "report.pdf (1)"
+        val androidCollisionRegex = Regex("^(.*)\\.$escapedExtension \\((\\d+)\\)$")
+        // Desired style "name (N).ext"
+        val normalizedCollisionRegex = Regex("^(.*) \\((\\d+)\\)\\.$escapedExtension$")
+        // Regular "name.ext"
+        val plainNameRegex = Regex("^(.*)\\.$escapedExtension$")
+
+        return when {
+            androidCollisionRegex.matches(currentName) -> {
+                val match = androidCollisionRegex.matchEntire(currentName)!!
+                match.groupValues[1] to match.groupValues[2].toInt()
+            }
+            normalizedCollisionRegex.matches(currentName) -> {
+                val match = normalizedCollisionRegex.matchEntire(currentName)!!
+                match.groupValues[1] to match.groupValues[2].toInt()
+            }
+            plainNameRegex.matches(currentName) -> {
+                val match = plainNameRegex.matchEntire(currentName)!!
+                match.groupValues[1] to null
+            }
+            else -> {
+                currentName to null
+            }
+        }
+    }
+
+    private fun normalizeBaseNameAndSuffix(baseName: String, suffix: Int?): Pair<String, Int?> {
+        var normalizedBaseName = baseName
+        var normalizedSuffix = suffix
+        // Trailing numeric suffix chunk "name (N)" we repeatedly strip and accumulate.
+        // Example: "report (1)" -> base "report", suffix +1
+        val baseNameSuffixRegex = Regex("^(.*) \\((\\d+)\\)$")
+
+        while (true) {
+            val baseMatch = baseNameSuffixRegex.matchEntire(normalizedBaseName) ?: break
+
+            val realBase = baseMatch.groupValues[1]
+            val baseSuffix = baseMatch.groupValues[2].toInt()
+            normalizedBaseName = realBase
+            normalizedSuffix = (normalizedSuffix ?: 0) + baseSuffix
+        }
+
+        return normalizedBaseName to normalizedSuffix
     }
 
     private fun processUri(activity: Activity, uri: Uri, compressionQuality: Int): Uri {
