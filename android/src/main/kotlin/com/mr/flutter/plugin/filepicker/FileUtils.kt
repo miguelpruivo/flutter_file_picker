@@ -37,7 +37,6 @@ import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.regex.Pattern
 
 object FileUtils {
     private const val TAG = "FilePickerUtils"
@@ -350,37 +349,91 @@ object FileUtils {
         }
 
         val currentName = getFileName(uri, context) ?: return uri
-        val escapedExtension = Pattern.quote(extension)
-        // Android duplicate style "name.ext (N)" that we normalize.
-        val duplicatedExtensionPattern = Regex("^(.*)\\.${escapedExtension} \\((\\d+)\\)$")
-        // Desired style "name (N).ext"; leave unchanged.
-        val alreadyNormalizedPattern = Regex("^.* \\((\\d+)\\)\\.${escapedExtension}$")
-        // Regular "name.ext"; leave unchanged.
-        val hasExtensionPattern = Regex("^.*\\.${escapedExtension}$")
+        val escapedExtension = Regex.escape(extension)
 
-        val targetName = when {
-            duplicatedExtensionPattern.matches(currentName) -> {
-                val match = duplicatedExtensionPattern.matchEntire(currentName) ?: return uri
-                "${match.groupValues[1]} (${match.groupValues[2]}).$extension"
+        // Android duplicate style "name.ext (N)" that we normalize.
+        val androidCollisionRegex = Regex("^(.*)\\.$escapedExtension \\((\\d+)\\)$")
+        // Desired style "name (N).ext"
+        val normalizedCollisionRegex = Regex("^(.*) \\((\\d+)\\)\\.$escapedExtension$")
+        // Regular "name.ext"
+        val plainNameRegex = Regex("^(.*)\\.$escapedExtension$")
+
+        var (baseName, suffix) = when {
+            androidCollisionRegex.matches(currentName) -> {
+                val match = androidCollisionRegex.matchEntire(currentName)!!
+                match.groupValues[1] to match.groupValues[2].toInt()
+            }
+            normalizedCollisionRegex.matches(currentName) -> {
+                val match = normalizedCollisionRegex.matchEntire(currentName)!!
+                match.groupValues[1] to match.groupValues[2].toInt()
+            }
+            plainNameRegex.matches(currentName) -> {
+                val match = plainNameRegex.matchEntire(currentName)!!
+                match.groupValues[1] to null
+            }
+            else -> {
+                currentName to null
+            }
+        }
+
+        // Clean up baseName if it already has one or more " (M)" suffixes to prevent nesting
+        val baseNameSuffixRegex = Regex("^(.*) \\((\\d+)\\)$")
+        while (true) {
+            val baseMatch = baseNameSuffixRegex.matchEntire(baseName) ?: break
+
+            val realBase = baseMatch.groupValues[1]
+            val baseSuffix = baseMatch.groupValues[2].toInt()
+            baseName = realBase
+            suffix = (suffix ?: 0) + baseSuffix
+        }
+
+        var finalUri = uri
+        var success = false
+        var currentSuffix = suffix ?: 0
+        var attempts = 0
+        val maxAttempts = 100
+
+        while (!success && attempts < maxAttempts) {
+            val targetName = when {
+                currentSuffix > 0 -> "$baseName ($currentSuffix).$extension"
+                else -> "$baseName.$extension"
             }
 
-            alreadyNormalizedPattern.matches(currentName) || hasExtensionPattern.matches(currentName) -> {
+            if (targetName == currentName && attempts == 0) {
                 return uri
             }
 
-            // Provider returned a name without extension, so append it.
-            else -> "$currentName.$extension"
+            try {
+                val newUri = DocumentsContract.renameDocument(context.contentResolver, finalUri, targetName)
+                if (newUri != null) {
+                    val actualName = getFileName(newUri, context)
+                    if (actualName == targetName) {
+                        finalUri = newUri
+                        success = true
+                    } else {
+                        // The provider likely auto-suffixed because targetName exists (e.g., "file (1).ext" -> "file (1) (1).ext").
+                        // Update finalUri and increment our suffix to try to find a "clean" one ourselves.
+                        finalUri = newUri
+                        currentSuffix++
+                        attempts++
+                    }
+                } else {
+                    currentSuffix++
+                    attempts++
+                }
+            } catch (ex: Exception) {
+                currentSuffix++
+                attempts++
+                if (attempts >= maxAttempts) {
+                    Log.w(
+                        TAG,
+                        "Failed to normalize saved document name from '$currentName' to '$targetName' after $maxAttempts attempts. MIME=$mimeType, error=$ex"
+                    )
+                }
+            }
         }
 
-        return try {
-            DocumentsContract.renameDocument(context.contentResolver, uri, targetName) ?: uri
-        } catch (ex: Exception) {
-            Log.w(
-                TAG,
-                "Failed to normalize saved document name from '$currentName' to '$targetName'. MIME=$mimeType, error=$ex"
-            )
-            uri
-        }
+        return finalUri
     }
 
     private fun processUri(activity: Activity, uri: Uri, compressionQuality: Int): Uri {
