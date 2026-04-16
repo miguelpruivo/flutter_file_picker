@@ -8,7 +8,7 @@
 - Improved `saveFile` naming behavior when a duplicate file exists, normalizing duplicate names to keep the extension suffix (for example, `file (1).bak` instead of `file.bak (1)`). [#1947](https://github.com/miguelpruivo/flutter_file_picker/issues/1947)
 
 ### Web
-- Fixed `pickFiles()` default `withData` behavior in the public API to correctly default to `true` on web when not explicitly provided, as agreed when `cancelUploadOnWindowBlur` was introduced. [#1987](https://github.com/miguelpruivo/flutter_file_picker/issues/1987) [#1961](https://github.com/miguelpruivo/flutter_file_picker/issues/1961)
+- Fixed `pickFiles()` default `withData` behavior in the public API to correctly default to `true` on web when not explicitly provided. [#1987](https://github.com/miguelpruivo/flutter_file_picker/issues/1987)
 
 ## 11.0.2
 ### Android
