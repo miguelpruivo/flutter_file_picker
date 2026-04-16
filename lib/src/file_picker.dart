@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
@@ -62,7 +62,7 @@ abstract final class FilePicker {
     Function(FilePickerStatus)? onFileLoading,
     int compressionQuality = 0,
     bool allowMultiple = false,
-    bool withData = false,
+    bool withData = kIsWeb,
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
