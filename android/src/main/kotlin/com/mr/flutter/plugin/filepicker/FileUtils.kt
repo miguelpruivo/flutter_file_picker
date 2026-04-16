@@ -363,9 +363,8 @@ object FileUtils {
         var success = false
         var currentSuffix = suffix ?: 0
         var attempts = 0
-        val maxAttempts = MAX_RENAME_ATTEMPTS
 
-        while (!success && attempts < maxAttempts) {
+        while (!success && attempts < MAX_RENAME_ATTEMPTS) {
             val targetName = when {
                 currentSuffix > 0 -> "$baseName ($currentSuffix).$extension"
                 else -> "$baseName.$extension"
@@ -396,10 +395,10 @@ object FileUtils {
             } catch (ex: Exception) {
                 currentSuffix++
                 attempts++
-                if (attempts >= maxAttempts) {
+                if (attempts >= MAX_RENAME_ATTEMPTS) {
                     Log.w(
                         TAG,
-                        "Failed to normalize saved document name from '$currentName' to '$targetName' after $maxAttempts attempts. MIME=$mimeType, error=$ex"
+                        "Failed to normalize saved document name from '$currentName' to '$targetName' after $MAX_RENAME_ATTEMPTS attempts. MIME=$mimeType, error=$ex"
                     )
                 }
             }
