@@ -12,7 +12,7 @@ jobs:
     outputs:
       flutter-versions: ${{ steps.id_flutter_versions.outputs.versions }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dart-lang/setup-dart@v1
       - name: Fetch Flutter versions
         id: id_flutter_versions
@@ -27,7 +27,7 @@ jobs:
         flutter: ${{ fromJson(needs.setup_flutter_versions.outputs.flutter-versions) }}
     name: Tests on Flutter ${{ matrix.flutter }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: subosito/flutter-action@v2
         if: matrix.flutter == 'stable' || matrix.flutter == 'beta'
@@ -62,7 +62,7 @@ jobs:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
     name: Tests & Builds on ${{ matrix.os }} (channel stable)
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -128,7 +128,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build Web (example app)
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: subosito/flutter-action@v2
         with:
           channel: stable

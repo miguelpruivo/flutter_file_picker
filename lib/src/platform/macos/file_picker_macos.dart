@@ -54,20 +54,20 @@ class FilePickerMacOS extends FilePickerPlatform {
 
     final filePaths = await methodChannel
         .invokeListMethod<String>('pickFiles', <String, dynamic>{
-      'allowedExtensions': fileFilter,
-      'initialDirectory': escapeInitialDirectory(initialDirectory),
-      'allowMultiple': allowMultiple,
-    });
+          'allowedExtensions': fileFilter,
+          'initialDirectory': escapeInitialDirectory(initialDirectory),
+          'allowMultiple': allowMultiple,
+        });
     if (filePaths == null) {
       return null;
     }
 
     final List<PlatformFile> platformFiles =
         await FilePickerUtils.filePathsToPlatformFiles(
-      filePaths,
-      withReadStream,
-      withData,
-    );
+          filePaths,
+          withReadStream,
+          withData,
+        );
 
     return FilePickerResult(platformFiles);
   }
@@ -100,15 +100,15 @@ class FilePickerMacOS extends FilePickerPlatform {
   }) async {
     final fileFilter = fileTypeToFileFilter(type, allowedExtensions);
 
-    final String? savedFilePath =
-        await methodChannel.invokeMethod<String>('saveFile', <String, dynamic>{
-      'dialogTitle': escapeDialogTitle(
-        dialogTitle ?? FilePickerUtils.defaultDialogTitle,
-      ),
-      'fileName': fileName,
-      'initialDirectory': escapeInitialDirectory(initialDirectory),
-      'allowedExtensions': fileFilter,
-    });
+    final String? savedFilePath = await methodChannel
+        .invokeMethod<String>('saveFile', <String, dynamic>{
+          'dialogTitle': escapeDialogTitle(
+            dialogTitle ?? FilePickerUtils.defaultDialogTitle,
+          ),
+          'fileName': fileName,
+          'initialDirectory': escapeInitialDirectory(initialDirectory),
+          'allowedExtensions': fileFilter,
+        });
 
     await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
     return savedFilePath;

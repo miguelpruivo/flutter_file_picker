@@ -52,14 +52,13 @@ class FilePickerUtils {
     File file,
     Uint8List? bytes,
     Stream<List<int>>? readStream,
-  ) async =>
-      PlatformFile(
-        bytes: bytes,
-        name: basename(file.path),
-        path: file.path,
-        readStream: readStream,
-        size: file.existsSync() ? file.lengthSync() : 0,
-      );
+  ) async => PlatformFile(
+    bytes: bytes,
+    name: basename(file.path),
+    path: file.path,
+    readStream: readStream,
+    size: file.existsSync() ? file.lengthSync() : 0,
+  );
 
   /// Runs an executable with the given arguments and returns the output.
   ///

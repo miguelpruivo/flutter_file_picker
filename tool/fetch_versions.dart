@@ -41,7 +41,7 @@ Future<Map<String, Object?>> _fetchJson() async {
 /// Parses the JSON response to extract relevant Flutter versions.
 ///
 /// Filters for stable releases, groups them by major.minor version, keeps
-/// the latest patch for each group, and returns the last 5 minor versions
+/// the latest patch for each group, and returns the last 3 minor versions
 /// (excluding the very latest stable one which overlaps with 'stable' channel).
 List<String> parseVersions(Map<String, Object?> json) {
   final releasesList = json['releases'];
@@ -76,12 +76,13 @@ List<String> parseVersions(Map<String, Object?> json) {
   final sortedByDate = latestByMinor.values.toList()
     ..sort((a, b) => b.releaseDate.compareTo(a.releaseDate));
 
-  // Take the last 5 minor versions
-  final top5 = sortedByDate.take(5).map((r) => r.version).toList();
+  // Take the last 3 minor versions
+  final top3 = sortedByDate.take(3).map((r) => r.version).toList();
 
-  // Skip the first one (latest stable) to avoid duplication with 'stable' channel
-  // Return the next 4
-  final historicVersions = top5.skip(1).toList();
+  // Skip the first one (latest stable) to avoid duplication with 'stable' channel.
+  // Keep only the next 2 explicit versions so support effectively covers
+  // the latest 3 stables: stable + 2 previous minor releases.
+  final historicVersions = top3.skip(1).toList();
 
   return [...historicVersions, 'stable', 'beta'];
 }
