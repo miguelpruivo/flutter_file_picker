@@ -128,7 +128,7 @@ class AndroidPlatformFile extends PlatformFile {
           identifier: file.identifier,
         );
 
-  /// The SAF handle representing the URI grant on Android in case it's a persistent grant.
+  /// The handle to the Storage Access Framework URI.
   /// Available if `AndroidSAFOptions` enabled `grant: AndroidSAFGrant.persist`.
   final AndroidSAFHandle safHandle;
 
