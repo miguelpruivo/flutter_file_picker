@@ -113,7 +113,7 @@ class PlatformFile {
   }
 }
 
-/// An extension of [PlatformFile] that includes Android's Storage Access Framework
+/// A [PlatformFile] implementation that includes a handle to a Android's Storage Access Framework document URI.
 /// specifics, returned when picking files on Android 10+ with SAF options enabled.
 class AndroidPlatformFile extends PlatformFile {
   AndroidPlatformFile({
