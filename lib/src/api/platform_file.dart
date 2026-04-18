@@ -113,7 +113,7 @@ class PlatformFile {
   }
 }
 
-/// An extension of [PlatformFile] that includes Android's Storage Access Framework
+/// A [PlatformFile] implementation that includes a handle to a Android's Storage Access Framework document URI.
 /// specifics, returned when picking files on Android 10+ with SAF options enabled.
 class AndroidPlatformFile extends PlatformFile {
   AndroidPlatformFile({
@@ -128,7 +128,7 @@ class AndroidPlatformFile extends PlatformFile {
           identifier: file.identifier,
         );
 
-  /// The SAF handle representing the URI grant on Android in case it's a persistent grant.
+  /// The handle to the Storage Access Framework URI.
   /// Available if `AndroidSAFOptions` enabled `grant: AndroidSAFGrant.persist`.
   final AndroidSAFHandle safHandle;
 
