@@ -135,9 +135,8 @@ class AndroidPlatformFile extends PlatformFile {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return super == other &&
-        other is AndroidPlatformFile &&
-        other.safHandle == safHandle;
+    if (other is! AndroidPlatformFile) return false;
+    return super == other && other.safHandle == safHandle;
   }
 
   @override
