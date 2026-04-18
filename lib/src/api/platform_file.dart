@@ -99,12 +99,14 @@ class PlatformFile {
   int get hashCode {
     return kIsWeb
         ? 0
-        : path.hashCode ^
-            name.hashCode ^
-            bytes.hashCode ^
-            readStream.hashCode ^
-            identifier.hashCode ^
-            size.hashCode;
+        : Object.hash(
+            path,
+            name,
+            bytes,
+            readStream,
+            identifier,
+            size,
+          );
   }
 
   @override
@@ -140,9 +142,7 @@ class AndroidPlatformFile extends PlatformFile {
   }
 
   @override
-  int get hashCode {
-    return super.hashCode ^ safHandle.hashCode;
-  }
+  int get hashCode => Object.hash(super.hashCode, safHandle);
 
   @override
   String toString() {
