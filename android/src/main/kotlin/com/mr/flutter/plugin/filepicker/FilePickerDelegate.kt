@@ -37,6 +37,7 @@ class FilePickerDelegate(
     var bytes: ByteArray? = null
     var saveFileName: String? = null
     var saveMimeType: String? = null
+    var androidSafOptions: java.util.HashMap<*, *>? = null
 
     fun setEventHandler(eventSink: EventSink?) {
         this.eventSink = eventSink
@@ -91,7 +92,7 @@ class FilePickerDelegate(
         return when (resultCode) {
             Activity.RESULT_OK -> {
                 dispatchEventStatus(true)
-                processFiles(activity, data, compressionQuality, loadDataToMemory, type.orEmpty())
+                processFiles(activity, data, compressionQuality, loadDataToMemory, type.orEmpty(), androidSafOptions)
                 true
             }
 

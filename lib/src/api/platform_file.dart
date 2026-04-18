@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
 
+import 'android_saf_handle.dart';
+
 class PlatformFile {
   PlatformFile({
     this.path,
@@ -14,7 +16,7 @@ class PlatformFile {
   });
 
   factory PlatformFile.fromMap(Map data, {Stream<List<int>>? readStream}) {
-    return PlatformFile(
+    final file = PlatformFile(
       name: data['name'],
       path: data['path'],
       bytes: data['bytes'],
@@ -22,6 +24,16 @@ class PlatformFile {
       identifier: data['identifier'],
       readStream: readStream,
     );
+
+    if (data.containsKey('safHandle') && data['safHandle'] != null) {
+      return AndroidPlatformFile(
+        file: file,
+        safHandle: AndroidSAFHandle.fromMap(
+            Map<String, dynamic>.from(data['safHandle'])),
+      );
+    }
+
+    return file;
   }
 
   /// The absolute path for a cached copy of this file. It can be used to create a
@@ -98,5 +110,43 @@ class PlatformFile {
   @override
   String toString() {
     return 'PlatformFile(${kIsWeb ? '' : 'path $path'}, name: $name, bytes: $bytes, readStream: $readStream, size: $size)';
+  }
+}
+
+/// An extension of [PlatformFile] that includes Android's Storage Access Framework
+/// specifics, returned when picking files on Android 10+ with SAF options enabled.
+class AndroidPlatformFile extends PlatformFile {
+  AndroidPlatformFile({
+    required PlatformFile file,
+    required this.safHandle,
+  }) : super(
+          path: file.path,
+          name: file.name,
+          size: file.size,
+          bytes: file.bytes,
+          readStream: file.readStream,
+          identifier: file.identifier,
+        );
+
+  /// The SAF handle representing the URI grant on Android in case it's a persistent grant.
+  /// Available if `AndroidSAFOptions` enabled `grant: AndroidSAFGrant.persist`.
+  final AndroidSAFHandle safHandle;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return super == other &&
+        other is AndroidPlatformFile &&
+        other.safHandle == safHandle;
+  }
+
+  @override
+  int get hashCode {
+    return super.hashCode ^ safHandle.hashCode;
+  }
+
+  @override
+  String toString() {
+    return 'AndroidPlatformFile(${kIsWeb ? '' : 'path $path'}, name: $name, bytes: $bytes, readStream: $readStream, size: $size, safHandle: $safHandle)';
   }
 }

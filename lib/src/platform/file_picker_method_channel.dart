@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/platform_file.dart';
+import 'package:file_picker/src/api/android_saf_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 
 /// An implementation of [FilePickerPlatform] that uses method channels.
@@ -46,6 +47,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool lockParentWindow = false,
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
+    AndroidSAFOptions? androidSafOptions,
   }) =>
       _getPath(
         type,
@@ -55,7 +57,13 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         withData,
         withReadStream,
         compressionQuality,
+        androidSafOptions,
       );
+
+  @override
+  Future<void> releaseSAFGrant(String uri) async {
+    await methodChannel.invokeMethod('releaseSafHandle', {'uri': uri});
+  }
 
   @override
   Future<bool?> clearTemporaryFiles() async =>
@@ -66,9 +74,12 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
+    AndroidSAFOptions? androidSafOptions,
   }) async {
     try {
-      return await methodChannel.invokeMethod('dir', {});
+      return await methodChannel.invokeMethod('dir', {
+        if (androidSafOptions != null) 'androidSafOptions': androidSafOptions.toMap(),
+      });
     } on PlatformException catch (ex) {
       if (ex.code == "unknown_path") {
         print(
@@ -87,6 +98,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool? withData,
     bool? withReadStream,
     int? compressionQuality,
+    AndroidSAFOptions? androidSafOptions,
   ) async {
     final String type = fileType.name;
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -115,6 +127,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         'allowedExtensions': allowedExtensions,
         'withData': withData,
         'compressionQuality': compressionQuality,
+        if (androidSafOptions != null) 'androidSafOptions': androidSafOptions.toMap(),
       });
 
       if (result == null) {
