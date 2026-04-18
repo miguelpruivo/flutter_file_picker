@@ -78,7 +78,8 @@ class MethodChannelFilePicker extends FilePickerPlatform {
   }) async {
     try {
       return await methodChannel.invokeMethod('dir', {
-        if (androidSafOptions != null) 'androidSafOptions': androidSafOptions.toMap(),
+        if (androidSafOptions != null)
+          'androidSafOptions': androidSafOptions.toMap(),
       });
     } on PlatformException catch (ex) {
       if (ex.code == "unknown_path") {
@@ -127,7 +128,8 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         'allowedExtensions': allowedExtensions,
         'withData': withData,
         'compressionQuality': compressionQuality,
-        if (androidSafOptions != null) 'androidSafOptions': androidSafOptions.toMap(),
+        if (androidSafOptions != null)
+          'androidSafOptions': androidSafOptions.toMap(),
       });
 
       if (result == null) {

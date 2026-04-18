@@ -122,7 +122,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
             return ListTile(
               leading: Text(
                 index.toString(),
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
               title: Text(
                   "File path (SAF Grant: ${pickedFiles![index] is AndroidPlatformFile}):"),
@@ -135,7 +136,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                             .safHandle
                             .releaseGrant();
                         _scaffoldMessengerKey.currentState?.showSnackBar(
-                          const SnackBar(content: Text("SAF Permission Released!")),
+                          const SnackBar(
+                              content: Text("SAF Permission Released!")),
                         );
                         setState(() {
                           pickedFiles!.removeAt(index);
