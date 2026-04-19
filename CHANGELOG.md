@@ -5,6 +5,7 @@
 - Removed the DKImagePickerController / DKPhotoGallery dependency chain from the Darwin iOS path.
 
 ### Android
+- Updated the Android Gradle Wrapper to `8.7` to ensure compatibility with Android Gradle Plugin (AGP) `8.5.1`.
 - Improved `saveFile` naming behavior when a duplicate file exists, normalizing duplicate names to keep the extension suffix (for example, `file (1).bak` instead of `file.bak (1)`). [#1947](https://github.com/miguelpruivo/flutter_file_picker/issues/1947)
 
 ### Web
