@@ -89,4 +89,13 @@ abstract class FilePickerPlatform extends PlatformInterface {
     // By default, do nothing.
     // This is only relevant for macOS, and the method is overridden there.
   }
+
+
+  Future<List<String>?> pickDirectoryPaths({
+    String? dialogTitle,
+    String? initialDirectory,
+    bool allowMultiple = false,
+  }) async {
+    throw UnimplementedError('pickDirectoryPaths() has not been implemented.');
+  }
 }
