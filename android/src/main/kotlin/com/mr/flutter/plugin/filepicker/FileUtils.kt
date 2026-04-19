@@ -54,12 +54,35 @@ object FileUtils {
         data: Intent?,
         compressionQuality: Int,
         loadDataToMemory: Boolean,
-        type: String
+        type: String,
+        androidSafOptions: java.util.HashMap<*, *>?
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             if (data == null) {
                 finishWithError("unknown_activity", "Unknown activity error, please fill an issue.")
                 return@launch
+            }
+
+            val grantStr = androidSafOptions?.get("grant") as? String
+            val accessStr = androidSafOptions?.get("access") as? String
+            val autoPersist = (androidSafOptions?.get("autoPersist") as? Boolean) ?: true
+            
+            val isPersist = grantStr == "persist"
+            val isReadWrite = accessStr == "readWrite"
+
+            fun maybeTakePersistableUriPermission(uri: Uri) {
+                 if (isPersist && autoPersist) {
+                     try {
+                         val flags = if (isReadWrite) {
+                            android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                         } else {
+                            android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                         }
+                         activity.contentResolver.takePersistableUriPermission(uri, flags)
+                     } catch (e: SecurityException) {
+                         Log.e(TAG, "Failed to take persistable URI permission for $uri", e)
+                     }
+                 }
             }
 
             val files = mutableListOf<FileInfo>()
@@ -69,8 +92,9 @@ object FileUtils {
                     data.clipData != null -> {
                         for (i in 0 until data.clipData!!.itemCount) {
                             var uri = data.clipData!!.getItemAt(i).uri
+                            maybeTakePersistableUriPermission(uri)
                             uri = processUri(activity, uri, compressionQuality)
-                            addFile(activity, uri, loadDataToMemory, files)
+                            addFile(activity, uri, loadDataToMemory, files, isPersist, isReadWrite)
                         }
                         finishWithSuccess(files)
                     }
@@ -79,18 +103,24 @@ object FileUtils {
                         var uri = processUri(activity, data.data!!, compressionQuality)
 
                         if (type == "dir") {
-                            uri = DocumentsContract.buildDocumentUriUsingTree(
-                                uri,
-                                DocumentsContract.getTreeDocumentId(uri)
-                            )
-                            val dirPath = getFullPathFromTreeUri(uri, activity)
-                            if (dirPath != null) {
-                                finishWithSuccess(dirPath)
+                            maybeTakePersistableUriPermission(data.data!!)
+                            if (androidSafOptions != null) {
+                                finishWithSuccess(data.data!!.toString())
                             } else {
-                                finishWithError("unknown_path", "Failed to retrieve directory path.")
+                                uri = DocumentsContract.buildDocumentUriUsingTree(
+                                    uri,
+                                    DocumentsContract.getTreeDocumentId(uri)
+                                )
+                                val dirPath = getFullPathFromTreeUri(uri, activity)
+                                if (dirPath != null) {
+                                    finishWithSuccess(dirPath)
+                                } else {
+                                    finishWithError("unknown_path", "Failed to retrieve directory path.")
+                                }
                             }
                         } else {
-                            addFile(activity, uri, loadDataToMemory, files)
+                            maybeTakePersistableUriPermission(data.data!!)
+                            addFile(activity, uri, loadDataToMemory, files, isPersist, isReadWrite)
                             handleFileResult(files)
                         }
                     }
@@ -98,7 +128,8 @@ object FileUtils {
                     data.extras?.containsKey("selectedItems") == true -> {
                         val fileUris = getSelectedItems(data.extras!!)
                         fileUris?.filterIsInstance<Uri>()?.forEach { uri ->
-                            addFile(activity, uri, loadDataToMemory, files)
+                            maybeTakePersistableUriPermission(uri)
+                            addFile(activity, uri, loadDataToMemory, files, isPersist, isReadWrite)
                         }
                         finishWithSuccess(files)
                     }
@@ -240,6 +271,7 @@ object FileUtils {
         withData: Boolean?,
         allowedExtensions: ArrayList<String>,
         compressionQuality: Int? = 0,
+        androidSafOptions: java.util.HashMap<*, *>?,
         result: MethodChannel.Result
     ) {
         if (this?.setPendingMethodCallResult(result) == false) {
@@ -256,6 +288,9 @@ object FileUtils {
         this?.allowedExtensions = allowedExtensions
         if (compressionQuality != null) {
             this?.compressionQuality = compressionQuality
+        }
+        if (androidSafOptions != null) {
+            this?.androidSafOptions = androidSafOptions
         }
 
         this?.startFileExplorer()
@@ -465,9 +500,11 @@ object FileUtils {
         activity: Activity,
         uri: Uri,
         loadDataToMemory: Boolean,
-        files: MutableList<FileInfo>
+        files: MutableList<FileInfo>,
+        isPersist: Boolean = false,
+        isReadWrite: Boolean = false
     ) {
-        openFileStream(activity, uri, loadDataToMemory)?.let { file ->
+        openFileStream(activity, uri, loadDataToMemory, isPersist, isReadWrite)?.let { file ->
             files.add(file)
         }
     }
@@ -653,7 +690,13 @@ object FileUtils {
     }
 
     @JvmStatic
-    fun openFileStream(context: Context, uri: Uri, withData: Boolean): FileInfo? {
+    fun openFileStream(
+        context: Context, 
+        uri: Uri, 
+        withData: Boolean,
+        isPersist: Boolean = false,
+        isReadWrite: Boolean = false
+    ): FileInfo? {
         var fileInputStream: InputStream? = null
         var fileOutputStream: FileOutputStream? = null
         val fileInfo = FileInfo.Builder()
@@ -707,6 +750,13 @@ object FileUtils {
             .withName(fileName)
             .withUri(uri)
             .withSize(file.length())
+
+        if (isPersist) {
+            val safHandleMap = java.util.HashMap<String, Any>()
+            safHandleMap["uri"] = uri.toString()
+            safHandleMap["access"] = if (isReadWrite) "readWrite" else "readOnly"
+            fileInfo.withSafHandle(safHandleMap)
+        }
 
         return fileInfo.build()
     }

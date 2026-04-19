@@ -25,6 +25,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   bool _lockParentWindow = false;
   bool _userAborted = false;
   bool _multiPick = false;
+  bool _safPersist = false;
+  bool _safReadWrite = false;
   FileType _pickingType = FileType.any;
   List<PlatformFile>? pickedFiles;
   Widget _resultsWidget = const Row(
@@ -88,6 +90,14 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
         withData: true,
+        androidSafOptions: AndroidSAFOptions(
+          grant: _safPersist
+              ? AndroidSAFGrant.lifetime
+              : AndroidSAFGrant.transient,
+          accessMode: _safReadWrite
+              ? AndroidSAFAccessMode.readWrite
+              : AndroidSAFAccessMode.readOnly,
+        ),
       );
       printInDebug("pickedFiles: $result");
       pickedFiles = result?.files;
@@ -102,21 +112,45 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     setState(() {
       _isLoading = false;
       _userAborted = hasUserAborted;
-      _resultsWidget = _buildFilePickerResultsWidget(
-        itemCount: pickedFiles?.length ?? 0,
-        itemBuilder: (BuildContext context, int index) {
-          final path =
-              pickedFiles!.map((e) => e.path).toList()[index].toString();
-          return ListTile(
-            leading: Text(
-              index.toString(),
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-            ),
-            title: Text("File path:"),
-            subtitle: Text(path),
-          );
-        },
-      );
+
+      void updateResults() {
+        _resultsWidget = _buildFilePickerResultsWidget(
+          itemCount: pickedFiles?.length ?? 0,
+          itemBuilder: (BuildContext context, int index) {
+            final path = '${pickedFiles![index].path}';
+            return ListTile(
+              leading: Text(
+                index.toString(),
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+              title: Text(
+                  "File path (SAF Grant: ${pickedFiles![index] is AndroidPlatformFile}):"),
+              subtitle: Text(path),
+              trailing: pickedFiles![index] is AndroidPlatformFile
+                  ? IconButton(
+                      icon: const Icon(Icons.delete_forever),
+                      onPressed: () {
+                        (pickedFiles![index] as AndroidPlatformFile)
+                            .safHandle
+                            .releaseGrant();
+                        _scaffoldMessengerKey.currentState?.showSnackBar(
+                          const SnackBar(
+                              content: Text("SAF Permission Released!")),
+                        );
+                        setState(() {
+                          pickedFiles!.removeAt(index);
+                          updateResults();
+                        });
+                      },
+                    )
+                  : null,
+            );
+          },
+        );
+      }
+
+      updateResults();
     });
   }
 
@@ -203,6 +237,14 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         dialogTitle: _dialogTitleController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
+        androidSafOptions: AndroidSAFOptions(
+          grant: _safPersist
+              ? AndroidSAFGrant.lifetime
+              : AndroidSAFGrant.transient,
+          accessMode: _safReadWrite
+              ? AndroidSAFAccessMode.readWrite
+              : AndroidSAFAccessMode.readOnly,
+        ),
       );
       hasUserAborted = pickedDirectoryPath == null;
     } on PlatformException catch (e) {
@@ -215,15 +257,40 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     setState(() {
       _isLoading = false;
       _userAborted = hasUserAborted;
-      _resultsWidget = _buildFilePickerResultsWidget(
-        itemCount: pickedDirectoryPath != null ? 1 : 0,
-        itemBuilder: (BuildContext context, int index) {
-          return ListTile(
-            title: const Text('Directory path:'),
-            subtitle: Text(pickedDirectoryPath ?? ''),
-          );
-        },
-      );
+
+      void updateResults() {
+        _resultsWidget = _buildFilePickerResultsWidget(
+          itemCount: pickedDirectoryPath != null ? 1 : 0,
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              title: const Text('Directory path:'),
+              subtitle: Text(pickedDirectoryPath ?? ''),
+              trailing: pickedDirectoryPath != null &&
+                      pickedDirectoryPath!.startsWith('content://')
+                  ? IconButton(
+                      icon: const Icon(Icons.delete_forever),
+                      onPressed: () {
+                        AndroidSAFHandle(
+                          uri: Uri.parse(pickedDirectoryPath!),
+                          accessMode: AndroidSAFAccessMode.readWrite,
+                        ).releaseGrant();
+                        _scaffoldMessengerKey.currentState?.showSnackBar(
+                          const SnackBar(
+                              content: Text("SAF Permission Released!")),
+                        );
+                        setState(() {
+                          pickedDirectoryPath = null;
+                          updateResults();
+                        });
+                      },
+                    )
+                  : null,
+            );
+          },
+        );
+      }
+
+      updateResults();
     });
   }
 
@@ -423,6 +490,30 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                         onChanged: (bool value) =>
                             setState(() => _multiPick = value),
                         value: _multiPick,
+                      ),
+                    ),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints.tightFor(width: 400.0),
+                      child: SwitchListTile.adaptive(
+                        title: Text(
+                          'SAF Persist (Android 10+)',
+                          textAlign: TextAlign.left,
+                        ),
+                        onChanged: (bool value) =>
+                            setState(() => _safPersist = value),
+                        value: _safPersist,
+                      ),
+                    ),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints.tightFor(width: 400.0),
+                      child: SwitchListTile.adaptive(
+                        title: Text(
+                          'SAF ReadWrite (Android 10+)',
+                          textAlign: TextAlign.left,
+                        ),
+                        onChanged: (bool value) =>
+                            setState(() => _safReadWrite = value),
+                        value: _safReadWrite,
                       ),
                     ),
                   ],
