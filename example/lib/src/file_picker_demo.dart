@@ -90,13 +90,17 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
         withData: true,
-        androidSafOptions: AndroidSAFOptions(
-          grant: _safPersist
-              ? AndroidSAFGrant.lifetime
-              : AndroidSAFGrant.transient,
-          accessMode: _safReadWrite
-              ? AndroidSAFAccessMode.readWrite
-              : AndroidSAFAccessMode.readOnly,
+        options: FilePickerOptions(
+          androidOptions: FilePickerAndroidOptions(
+            safOptions: AndroidSAFOptions(
+              grant: _safPersist
+                  ? AndroidSAFGrant.lifetime
+                  : AndroidSAFGrant.transient,
+              accessMode: _safReadWrite
+                  ? AndroidSAFAccessMode.readWrite
+                  : AndroidSAFAccessMode.readOnly,
+            ),
+          ),
         ),
       );
       printInDebug("pickedFiles: $result");

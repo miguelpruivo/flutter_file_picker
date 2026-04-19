@@ -5,7 +5,7 @@ import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
-
+import 'package:file_picker/src/api/file_picker_options.dart';
 abstract final class FilePicker {
   /// Retrieves the file(s) from the underlying platform
   ///
@@ -15,37 +15,42 @@ abstract final class FilePicker {
   /// If [withData] is set, picked files will have its byte data immediately available on memory as `Uint8List`
   /// which can be useful if you are picking it for server upload or similar. However, have in mind that
   /// enabling this on IO (iOS & Android) may result in out of memory issues if you allow multiple picks or
-  /// pick huge files. Use [withReadStream] instead. Defaults to `true` on web, `false` otherwise.
-  /// Not supported on macOS.
+  /// pick huge files. Use [withReadStream] instead.
+  /// Applies to: Web, Linux, Windows, Android, iOS. Not supported on macOS. Defaults to `true` on web, `false` otherwise.
   ///
   /// If [withReadStream] is set, picked files will have its byte data available as a [Stream<List<int>>]
-  /// which can be useful for uploading and processing large files. Defaults to `false`.
-  /// Not supported on macOS.
+  /// which can be useful for uploading and processing large files.
+  /// Applies to: Web, Linux, Windows, Android, iOS. Not supported on macOS. Defaults to `false`.
   ///
   /// If you want to track picking status, for example, because some files may take some time to be
   /// cached (particularly those picked from cloud providers), you may want to set [onFileLoading] handler
   /// that will give you the current status of picking.
-  /// Not supported on macOS.
+  /// Applies to: Web, Linux, Windows, Android, iOS. Not supported on macOS.
   ///
-  /// If [lockParentWindow] is set, the child window (file picker window) will
-  /// stay in front of the Flutter window until it is closed (like a modal
-  /// window). This parameter works only on Windows desktop.
-  /// On macOS the parent window will be locked and this parameter is ignored.
-  ///
-  /// [dialogTitle] can be optionally set on desktop platforms to set the modal window title.
-  /// Not supported on macOS. It will be ignored on other platforms.
+  /// [dialogTitle] can be optionally set to specify the modal window title.
+  /// Applies to: Linux, Windows. It will be ignored on other platforms.
   ///
   /// [initialDirectory] can be optionally set to an absolute path to specify
-  /// where the dialog should open. Only supported on Linux, macOS, and Windows.
+  /// where the dialog should open.
+  /// Applies to: Linux, macOS, Windows.
   /// On macOS the home directory shortcut (~/) is not necessary and passing it will be ignored.
   /// On macOS if the [initialDirectory] is invalid the user directory or previously valid directory
   /// will be used.
   ///
-  /// [readSequential] can be optionally set on web to keep the import file order during import.
-  /// Not supported on macOS.
+  /// [compressionQuality] can be optionally set to compress images when they are picked.
+  /// Applies to: iOS, Android. It will be ignored on other platforms.
   ///
-  /// [cancelUploadOnWindowBlur] prevents upload cancellation when window focus is lost.
-  /// Only supported on web.
+  /// If [lockParentWindow] is set, the child window (file picker window) will
+  /// stay in front of the Flutter window until it is closed (like a modal
+  /// window). 
+  /// Applies to: Windows, Linux. It will be ignored on other platforms.
+  ///
+  /// By default, file picking applies no platform-specific options. To configure platform-specific
+  /// boundaries, you can use the [options] parameter.
+  /// 
+  /// *Deprecated Details:*
+  /// [readSequential] Please use [options.webOptions.readSequential] instead.
+  /// [cancelUploadOnWindowBlur] Please use [webOptions] instead.
   ///
   /// The result is wrapped in a [FilePickerResult] which contains helper getters
   /// with useful information regarding the picked [List<PlatformFile>].
@@ -66,10 +71,21 @@ abstract final class FilePicker {
     bool withData = kIsWeb,
     bool withReadStream = false,
     bool lockParentWindow = false,
+    @Deprecated('Use FilePickerOptions(webOptions: FilePickerWebOptions(readSequential: ...)) instead.')
     bool readSequential = false,
+    @Deprecated('Use FilePickerOptions(webOptions: FilePickerWebOptions(cancelUploadOnWindowBlur: ...)) instead.')
     bool cancelUploadOnWindowBlur = true,
-    AndroidSAFOptions? androidSafOptions,
+    FilePickerOptions options = const FilePickerOptions(),
   }) {
+    // If deprecated options are passed, use them if the new options aren't provided.
+    final FilePickerWebOptions resolvedWebOptions = options.webOptions == const FilePickerWebOptions()
+        ? FilePickerWebOptions(
+            readSequential: readSequential,
+            cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
+          )
+        : options.webOptions;
+    final FilePickerWindowsOptions resolvedWindowsOptions = options.windowsOptions;
+
     return FilePickerPlatform.instance.pickFiles(
       dialogTitle: dialogTitle,
       initialDirectory: initialDirectory,
@@ -81,9 +97,14 @@ abstract final class FilePicker {
       withData: withData,
       withReadStream: withReadStream,
       lockParentWindow: lockParentWindow,
-      readSequential: readSequential,
-      cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
-      androidSafOptions: androidSafOptions,
+      options: FilePickerOptions(
+        androidOptions: options.androidOptions,
+        iosOptions: options.iosOptions,
+        webOptions: resolvedWebOptions,
+        windowsOptions: resolvedWindowsOptions,
+        macosOptions: options.macosOptions,
+        linuxOptions: options.linuxOptions,
+      ),
     );
   }
 

@@ -8,6 +8,7 @@ import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
+import 'package:file_picker/src/api/file_picker_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 
 /// An implementation of [FilePickerPlatform] that uses method channels.
@@ -35,19 +36,17 @@ class MethodChannelFilePicker extends FilePickerPlatform {
 
   @override
   Future<FilePickerResult?> pickFiles({
-    FileType type = FileType.any,
-    List<String>? allowedExtensions,
     String? dialogTitle,
     String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
+    int compressionQuality = 0,
     bool allowMultiple = false,
     bool? withData = false,
-    int compressionQuality = 0,
     bool? withReadStream = false,
     bool lockParentWindow = false,
-    bool readSequential = false,
-    bool cancelUploadOnWindowBlur = true,
-    AndroidSAFOptions? androidSafOptions,
+    FilePickerOptions options = const FilePickerOptions(),
   }) =>
       _getPath(
         type,
@@ -57,7 +56,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         withData,
         withReadStream,
         compressionQuality,
-        androidSafOptions,
+        options.androidOptions,
       );
 
   @override
@@ -99,7 +98,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool? withData,
     bool? withReadStream,
     int? compressionQuality,
-    AndroidSAFOptions? androidSafOptions,
+    FilePickerAndroidOptions? androidOptions,
   ) async {
     final String type = fileType.name;
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -128,8 +127,8 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         'allowedExtensions': allowedExtensions,
         'withData': withData,
         'compressionQuality': compressionQuality,
-        if (androidSafOptions != null)
-          'androidSafOptions': androidSafOptions.toMap(),
+        if (androidOptions?.safOptions != null)
+          'androidSafOptions': androidOptions!.safOptions!.toMap(),
       });
 
       if (result == null) {

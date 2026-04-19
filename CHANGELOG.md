@@ -1,4 +1,8 @@
 ## 12.0.0
+### General
+- Introduced `FilePickerOptions` class to encapsulate platform-specific properties for smoother scalability and avoiding breaking changes.
+- Deprecated `readSequential` and `cancelUploadOnWindowBlur` parameters from `pickFiles` in favor of `FilePickerOptions.webOptions`. 
+
 ### Darwin
 - Migrated the iOS and macOS native implementations to shared Darwin sources.
 - **BREAKING CHANGE**: The minimum supported iOS deployment target is now 14.0.
