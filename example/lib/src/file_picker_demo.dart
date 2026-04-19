@@ -117,8 +117,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         _resultsWidget = _buildFilePickerResultsWidget(
           itemCount: pickedFiles?.length ?? 0,
           itemBuilder: (BuildContext context, int index) {
-            final path =
-                pickedFiles!.map((e) => e.path).toList()[index].toString();
+            final path = '${pickedFiles![index].path}';
             return ListTile(
               leading: Text(
                 index.toString(),
