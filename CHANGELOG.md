@@ -1,10 +1,17 @@
 ## 12.0.0
+### General
+- Introduced `FilePickerOptions` class to encapsulate platform-specific properties for smoother scalability and avoiding breaking changes.
+- Deprecated `readSequential` and `cancelUploadOnWindowBlur` parameters from `pickFiles` in favor of `FilePickerOptions.webOptions`. 
+
 ### Darwin
 - Migrated the iOS and macOS native implementations to shared Darwin sources.
 - **BREAKING CHANGE**: The minimum supported iOS deployment target is now 14.0.
 - Removed the DKImagePickerController / DKPhotoGallery dependency chain from the Darwin iOS path.
 
 ### Android
+- Implemented support for Android Storage Access Framework (SAF) Persistable URI Grants, allowing long-term access to files and directories across device reboots. [#1825](https://github.com/miguelpruivo/flutter_file_picker/issues/1825) [#721](https://github.com/miguelpruivo/flutter_file_picker/issues/721)
+- Added `AndroidSAFOptions` and `AndroidSAFHandle` to configure and manage persistent permissions.
+- Introduced `AndroidPlatformFile` as a subclass of `PlatformFile` to encapsulate SAF-specific metadata.
 - Improved `saveFile` naming behavior when a duplicate file exists, normalizing duplicate names to keep the extension suffix (for example, `file (1).bak` instead of `file.bak (1)`). [#1947](https://github.com/miguelpruivo/flutter_file_picker/issues/1947)
 
 ### Web

@@ -130,6 +130,17 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 result.success(activity?.applicationContext?.let { clearCache(it) })
             }
 
+            "releaseSafHandle" -> {
+                val uriStr = arguments?.get("uri") as? String
+                if (uriStr != null) {
+                    val uri = android.net.Uri.parse(uriStr)
+                    val flags = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                            android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    activity?.applicationContext?.contentResolver?.releasePersistableUriPermission(uri, flags)
+                }
+                result.success(null)
+            }
+
             "save" -> {
                 val type = resolveType(arguments?.get("fileType") as String)
                 val initialDirectory = arguments?.get("initialDirectory") as String?
@@ -146,12 +157,14 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
             "custom" -> {
                 val allowedExtensions =
                     getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?)
+                val androidSafOptions = arguments?.get("androidSafOptions") as? java.util.HashMap<*, *>
                 delegate?.startFileExplorer(
                     resolveType(method),
                     arguments?.get("allowMultipleSelection") as Boolean?,
                     arguments?.get("withData") as Boolean?,
                     allowedExtensions,
                     arguments?.get("compressionQuality") as Int?,
+                    androidSafOptions,
                     result
                 )
             }
@@ -163,12 +176,14 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                     return
                 }
 
+                val androidSafOptions = arguments?.get("androidSafOptions") as? java.util.HashMap<*, *>
                 delegate?.startFileExplorer(
                     fileType,
                     arguments?.get("allowMultipleSelection") as Boolean?,
                     arguments?.get("withData") as Boolean?,
                     getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?),
                     arguments?.get("compressionQuality") as Int?,
+                    androidSafOptions,
                     result
                 )
             }
