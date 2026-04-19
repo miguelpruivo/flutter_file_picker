@@ -6,6 +6,7 @@ import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
 import 'package:file_picker/src/api/file_picker_options.dart';
+
 abstract final class FilePicker {
   /// Retrieves the file(s) from the underlying platform
   ///
@@ -42,12 +43,12 @@ abstract final class FilePicker {
   ///
   /// If [lockParentWindow] is set, the child window (file picker window) will
   /// stay in front of the Flutter window until it is closed (like a modal
-  /// window). 
+  /// window).
   /// Applies to: Windows, Linux. It will be ignored on other platforms.
   ///
   /// By default, file picking applies no platform-specific options. To configure platform-specific
   /// boundaries, you can use the [options] parameter.
-  /// 
+  ///
   /// *Deprecated Details:*
   /// [readSequential] Please use [options.webOptions.readSequential] instead.
   /// [cancelUploadOnWindowBlur] Please use [webOptions] instead.
@@ -71,20 +72,24 @@ abstract final class FilePicker {
     bool withData = kIsWeb,
     bool withReadStream = false,
     bool lockParentWindow = false,
-    @Deprecated('Use FilePickerOptions(webOptions: FilePickerWebOptions(readSequential: ...)) instead.')
+    @Deprecated(
+        'Use FilePickerOptions(webOptions: FilePickerWebOptions(readSequential: ...)) instead.')
     bool readSequential = false,
-    @Deprecated('Use FilePickerOptions(webOptions: FilePickerWebOptions(cancelUploadOnWindowBlur: ...)) instead.')
+    @Deprecated(
+        'Use FilePickerOptions(webOptions: FilePickerWebOptions(cancelUploadOnWindowBlur: ...)) instead.')
     bool cancelUploadOnWindowBlur = true,
     FilePickerOptions options = const FilePickerOptions(),
   }) {
     // If deprecated options are passed, use them if the new options aren't provided.
-    final FilePickerWebOptions resolvedWebOptions = options.webOptions == const FilePickerWebOptions()
-        ? FilePickerWebOptions(
-            readSequential: readSequential,
-            cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
-          )
-        : options.webOptions;
-    final FilePickerWindowsOptions resolvedWindowsOptions = options.windowsOptions;
+    final FilePickerWebOptions resolvedWebOptions =
+        options.webOptions == const FilePickerWebOptions()
+            ? FilePickerWebOptions(
+                readSequential: readSequential,
+                cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
+              )
+            : options.webOptions;
+    final FilePickerWindowsOptions resolvedWindowsOptions =
+        options.windowsOptions;
 
     return FilePickerPlatform.instance.pickFiles(
       dialogTitle: dialogTitle,
