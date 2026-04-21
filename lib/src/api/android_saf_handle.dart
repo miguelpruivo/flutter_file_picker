@@ -8,7 +8,7 @@ final class AndroidSAFHandle {
     required this.uri,
   });
 
-  factory AndroidSAFHandle.fromMap(Map<String, Object?> map) {
+  factory AndroidSAFHandle.fromMap(Map map) {
     return AndroidSAFHandle(
       uri: Uri.parse(map['uri'] as String),
       accessMode: map['access'] == 'readWrite'

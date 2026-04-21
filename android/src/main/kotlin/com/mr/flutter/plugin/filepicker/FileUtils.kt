@@ -67,8 +67,10 @@ object FileUtils {
             val accessStr = androidSafOptions?.get("access") as? String
             val autoPersist = (androidSafOptions?.get("autoPersist") as? Boolean) ?: true
             
-            val isPersist = grantStr == "persist"
+            val isPersist = grantStr == "lifetime"
             val isReadWrite = accessStr == "readWrite"
+
+            val hasSafOptions = androidSafOptions != null
 
             fun maybeTakePersistableUriPermission(uri: Uri) {
                  if (isPersist && autoPersist) {
@@ -94,7 +96,7 @@ object FileUtils {
                             var uri = data.clipData!!.getItemAt(i).uri
                             maybeTakePersistableUriPermission(uri)
                             uri = processUri(activity, uri, compressionQuality)
-                            addFile(activity, uri, loadDataToMemory, files, isPersist, isReadWrite)
+                            addFile(activity, uri, loadDataToMemory, files, hasSafOptions, isReadWrite)
                         }
                         finishWithSuccess(files)
                     }
@@ -120,7 +122,7 @@ object FileUtils {
                             }
                         } else {
                             maybeTakePersistableUriPermission(data.data!!)
-                            addFile(activity, uri, loadDataToMemory, files, isPersist, isReadWrite)
+                            addFile(activity, uri, loadDataToMemory, files, hasSafOptions, isReadWrite)
                             handleFileResult(files)
                         }
                     }
@@ -129,7 +131,7 @@ object FileUtils {
                         val fileUris = getSelectedItems(data.extras!!)
                         fileUris?.filterIsInstance<Uri>()?.forEach { uri ->
                             maybeTakePersistableUriPermission(uri)
-                            addFile(activity, uri, loadDataToMemory, files, isPersist, isReadWrite)
+                            addFile(activity, uri, loadDataToMemory, files, hasSafOptions, isReadWrite)
                         }
                         finishWithSuccess(files)
                     }
@@ -289,9 +291,7 @@ object FileUtils {
         if (compressionQuality != null) {
             this?.compressionQuality = compressionQuality
         }
-        if (androidSafOptions != null) {
-            this?.androidSafOptions = androidSafOptions
-        }
+        this?.androidSafOptions = androidSafOptions
 
         this?.startFileExplorer()
     }
@@ -501,10 +501,10 @@ object FileUtils {
         uri: Uri,
         loadDataToMemory: Boolean,
         files: MutableList<FileInfo>,
-        isPersist: Boolean = false,
+        hasSafOptions: Boolean = false,
         isReadWrite: Boolean = false
     ) {
-        openFileStream(activity, uri, loadDataToMemory, isPersist, isReadWrite)?.let { file ->
+        openFileStream(activity, uri, loadDataToMemory, hasSafOptions, isReadWrite)?.let { file ->
             files.add(file)
         }
     }
@@ -694,7 +694,7 @@ object FileUtils {
         context: Context, 
         uri: Uri, 
         withData: Boolean,
-        isPersist: Boolean = false,
+        hasSafOptions: Boolean = false,
         isReadWrite: Boolean = false
     ): FileInfo? {
         var fileInputStream: InputStream? = null
@@ -751,7 +751,7 @@ object FileUtils {
             .withUri(uri)
             .withSize(file.length())
 
-        if (isPersist) {
+        if (hasSafOptions) {
             val safHandleMap = java.util.HashMap<String, Any>()
             safHandleMap["uri"] = uri.toString()
             safHandleMap["access"] = if (isReadWrite) "readWrite" else "readOnly"

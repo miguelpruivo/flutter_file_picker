@@ -25,11 +25,10 @@ class PlatformFile {
       readStream: readStream,
     );
 
-    if (data.containsKey('safHandle') && data['safHandle'] != null) {
+    if (data case {'safHandle': final Map<Object?, Object?> safHandle}) {
       return AndroidPlatformFile(
         file: file,
-        safHandle: AndroidSAFHandle.fromMap(
-            Map<String, dynamic>.from(data['safHandle'])),
+        safHandle: AndroidSAFHandle.fromMap(safHandle),
       );
     }
 
@@ -116,7 +115,6 @@ class PlatformFile {
 }
 
 /// A [PlatformFile] implementation that includes a handle to a Android's Storage Access Framework document URI.
-/// specifics, returned when picking files on Android 10+ with SAF options enabled.
 class AndroidPlatformFile extends PlatformFile {
   AndroidPlatformFile({
     required PlatformFile file,
@@ -131,7 +129,6 @@ class AndroidPlatformFile extends PlatformFile {
         );
 
   /// The handle to the Storage Access Framework URI.
-  /// Available if `AndroidSAFOptions` enabled `grant: AndroidSAFGrant.persist`.
   final AndroidSAFHandle safHandle;
 
   @override

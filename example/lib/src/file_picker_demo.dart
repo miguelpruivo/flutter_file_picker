@@ -6,6 +6,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'file_picker_results.dart';
+import 'picked_directory_result.dart';
+import 'picked_files_results.dart';
+
 class FilePickerDemo extends StatefulWidget {
   const FilePickerDemo({super.key});
 
@@ -27,6 +31,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   bool _multiPick = false;
   bool _safPersist = false;
   bool _safReadWrite = false;
+  bool _supportsSafOptions = false;
   FileType _pickingType = FileType.any;
   List<PlatformFile>? pickedFiles;
   Widget _resultsWidget = const Row(
@@ -56,20 +61,9 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _fileExtensionController.addListener(
       () => _extension = _fileExtensionController.text,
     );
-  }
-
-  Widget _buildFilePickerResultsWidget({
-    required int itemCount,
-    required Widget Function(BuildContext, int) itemBuilder,
-  }) {
-    return SizedBox(
-      height: MediaQuery.sizeOf(context).height * 0.50,
-      child: ListView.separated(
-        itemCount: itemCount,
-        itemBuilder: itemBuilder,
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
-      ),
-    );
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      _supportsSafOptions = true;
+    }
   }
 
   void _pickFiles() async {
@@ -92,14 +86,16 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         withData: true,
         options: FilePickerOptions(
           androidOptions: FilePickerAndroidOptions(
-            safOptions: AndroidSAFOptions(
-              grant: _safPersist
-                  ? AndroidSAFGrant.lifetime
-                  : AndroidSAFGrant.transient,
-              accessMode: _safReadWrite
-                  ? AndroidSAFAccessMode.readWrite
-                  : AndroidSAFAccessMode.readOnly,
-            ),
+            safOptions: (_safPersist || _safReadWrite)
+                ? AndroidSAFOptions(
+                    grant: _safPersist
+                        ? AndroidSAFGrant.lifetime
+                        : AndroidSAFGrant.transient,
+                    accessMode: _safReadWrite
+                        ? AndroidSAFAccessMode.readWrite
+                        : AndroidSAFAccessMode.readOnly,
+                  )
+                : null,
           ),
         ),
       );
@@ -118,38 +114,20 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _userAborted = hasUserAborted;
 
       void updateResults() {
-        _resultsWidget = _buildFilePickerResultsWidget(
-          itemCount: pickedFiles?.length ?? 0,
-          itemBuilder: (BuildContext context, int index) {
-            final path = '${pickedFiles![index].path}';
-            return ListTile(
-              leading: Text(
-                index.toString(),
-                style:
-                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+        _resultsWidget = PickedFilesResults(
+          pickedFiles: pickedFiles,
+          onRemoveAndroidFile:
+              (int index, AndroidPlatformFile androidPlatformFile) {
+            androidPlatformFile.safHandle.releaseGrant();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
+              const SnackBar(
+                content: Text("SAF Permission Released!"),
               ),
-              title: Text(
-                  "File path (SAF Grant: ${pickedFiles![index] is AndroidPlatformFile}):"),
-              subtitle: Text(path),
-              trailing: pickedFiles![index] is AndroidPlatformFile
-                  ? IconButton(
-                      icon: const Icon(Icons.delete_forever),
-                      onPressed: () {
-                        (pickedFiles![index] as AndroidPlatformFile)
-                            .safHandle
-                            .releaseGrant();
-                        _scaffoldMessengerKey.currentState?.showSnackBar(
-                          const SnackBar(
-                              content: Text("SAF Permission Released!")),
-                        );
-                        setState(() {
-                          pickedFiles!.removeAt(index);
-                          updateResults();
-                        });
-                      },
-                    )
-                  : null,
             );
+            setState(() {
+              pickedFiles!.removeAt(index);
+              updateResults();
+            });
           },
         );
       }
@@ -182,7 +160,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     setState(() {
       _isLoading = false;
       _userAborted = hasUserAborted;
-      _resultsWidget = _buildFilePickerResultsWidget(
+      _resultsWidget = FilePickerResultsList(
         itemCount: pickedFilesAndDirectories?.length ?? 0,
         itemBuilder: (BuildContext context, int index) {
           String name = 'File path:';
@@ -241,14 +219,16 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         dialogTitle: _dialogTitleController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
-        androidSafOptions: AndroidSAFOptions(
-          grant: _safPersist
-              ? AndroidSAFGrant.lifetime
-              : AndroidSAFGrant.transient,
-          accessMode: _safReadWrite
-              ? AndroidSAFAccessMode.readWrite
-              : AndroidSAFAccessMode.readOnly,
-        ),
+        androidSafOptions: (_safPersist || _safReadWrite)
+            ? AndroidSAFOptions(
+                grant: _safPersist
+                    ? AndroidSAFGrant.lifetime
+                    : AndroidSAFGrant.transient,
+                accessMode: _safReadWrite
+                    ? AndroidSAFAccessMode.readWrite
+                    : AndroidSAFAccessMode.readOnly,
+              )
+            : null,
       );
       hasUserAborted = pickedDirectoryPath == null;
     } on PlatformException catch (e) {
@@ -261,35 +241,20 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     setState(() {
       _isLoading = false;
       _userAborted = hasUserAborted;
-
       void updateResults() {
-        _resultsWidget = _buildFilePickerResultsWidget(
-          itemCount: pickedDirectoryPath != null ? 1 : 0,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: const Text('Directory path:'),
-              subtitle: Text(pickedDirectoryPath ?? ''),
-              trailing: pickedDirectoryPath != null &&
-                      pickedDirectoryPath!.startsWith('content://')
-                  ? IconButton(
-                      icon: const Icon(Icons.delete_forever),
-                      onPressed: () {
-                        AndroidSAFHandle(
-                          uri: Uri.parse(pickedDirectoryPath!),
-                          accessMode: AndroidSAFAccessMode.readWrite,
-                        ).releaseGrant();
-                        _scaffoldMessengerKey.currentState?.showSnackBar(
-                          const SnackBar(
-                              content: Text("SAF Permission Released!")),
-                        );
-                        setState(() {
-                          pickedDirectoryPath = null;
-                          updateResults();
-                        });
-                      },
-                    )
-                  : null,
+        _resultsWidget = PickedDirectoryResult(
+          pickedDirectoryPath: pickedDirectoryPath,
+          readWriteAccess: _safReadWrite,
+          onDirectoryRemoved: () {
+            _scaffoldMessengerKey.currentState?.showSnackBar(
+              const SnackBar(
+                content: Text("SAF Permission Released!"),
+              ),
             );
+            setState(() {
+              pickedDirectoryPath = null;
+              updateResults();
+            });
           },
         );
       }
@@ -326,7 +291,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     setState(() {
       _isLoading = false;
       _userAborted = hasUserAborted;
-      _resultsWidget = _buildFilePickerResultsWidget(
+      _resultsWidget = FilePickerResultsList(
         itemCount: pickedSaveFilePath != null ? 1 : 0,
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
@@ -359,13 +324,231 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final fileTypeItems = <DropdownMenuItem<FileType>>[
+      for (final fileType in FileType.values)
+        DropdownMenuItem<FileType>(
+          value: fileType,
+          child: Text(fileType.toString()),
+        ),
+    ];
+
+    final configurationFields = <Widget>[
+      SizedBox(
+        width: 400,
+        child: TextField(
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Dialog Title',
+          ),
+          controller: _dialogTitleController,
+        ),
+      ),
+      SizedBox(
+        width: 400,
+        child: TextField(
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Initial Directory',
+          ),
+          controller: _initialDirectoryController,
+        ),
+      ),
+      SizedBox(
+        width: 400,
+        child: TextField(
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Default File Name',
+          ),
+          controller: _defaultFileNameController,
+        ),
+      ),
+      SizedBox(
+        width: 400,
+        child: DropdownButtonFormField<FileType>(
+          value: _pickingType,
+          icon: const Icon(Icons.expand_more),
+          alignment: Alignment.centerLeft,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+          ),
+          items: fileTypeItems,
+          onChanged: (value) {
+            if (value != null) {
+              setState(() {
+                _pickingType = value;
+                if (_pickingType != FileType.custom) {
+                  _fileExtensionController.text = _extension = '';
+                }
+              });
+            }
+          },
+        ),
+      ),
+      if (_pickingType == FileType.custom)
+        SizedBox(
+          width: 400,
+          child: TextFormField(
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'File Extension',
+              hintText: 'jpg, png, gif',
+            ),
+            autovalidateMode: AutovalidateMode.always,
+            controller: _fileExtensionController,
+            keyboardType: TextInputType.text,
+            maxLength: 15,
+          ),
+        ),
+    ];
+
+    final optionsFields = <Widget>[
+      SizedBox(
+        width: 400.0,
+        child: SwitchListTile.adaptive(
+          title: const Text(
+            'Lock parent window',
+            textAlign: TextAlign.left,
+          ),
+          onChanged: (value) => setState(() => _lockParentWindow = value),
+          value: _lockParentWindow,
+        ),
+      ),
+      ConstrainedBox(
+        constraints: const BoxConstraints.tightFor(width: 400.0),
+        child: SwitchListTile.adaptive(
+          title: const Text(
+            'Pick multiple files',
+            textAlign: TextAlign.left,
+          ),
+          onChanged: (value) => setState(() => _multiPick = value),
+          value: _multiPick,
+        ),
+      ),
+      ConstrainedBox(
+        constraints: const BoxConstraints.tightFor(width: 400.0),
+        child: SwitchListTile.adaptive(
+          title: const Text(
+            'SAF Persist (Android 10+)',
+            textAlign: TextAlign.left,
+          ),
+          onChanged: _supportsSafOptions
+              ? (value) => setState(() => _safPersist = value)
+              : null,
+          value: _safPersist,
+        ),
+      ),
+      ConstrainedBox(
+        constraints: const BoxConstraints.tightFor(width: 400.0),
+        child: SwitchListTile.adaptive(
+          title: const Text(
+            'SAF ReadWrite (Android 10+)',
+            textAlign: TextAlign.left,
+          ),
+          onChanged: _supportsSafOptions
+              ? (value) => setState(() => _safReadWrite = value)
+              : null,
+          value: _safReadWrite,
+        ),
+      ),
+    ];
+
+    final actionButtons = <Widget>[
+      SizedBox(
+        width: 120,
+        child: FloatingActionButton.extended(
+          onPressed: _pickFiles,
+          label: Text(_multiPick ? 'Pick files' : 'Pick file'),
+          icon: const Icon(Icons.description),
+        ),
+      ),
+      SizedBox(
+        width: 120,
+        child: FloatingActionButton.extended(
+          onPressed: _selectFolder,
+          label: const Text('Pick folder'),
+          icon: const Icon(Icons.folder),
+        ),
+      ),
+      SizedBox(
+        width: 250,
+        child: FloatingActionButton.extended(
+          onPressed: _pickFileAndDirectoryPaths,
+          label: const Text('Pick files and directories'),
+          icon: const Icon(Icons.folder_open),
+        ),
+      ),
+      SizedBox(
+        width: 120,
+        child: FloatingActionButton.extended(
+          onPressed: _saveFile,
+          label: const Text('Save file'),
+          icon: const Icon(Icons.save_as),
+        ),
+      ),
+      SizedBox(
+        width: 200,
+        child: FloatingActionButton.extended(
+          onPressed: _clearCachedFiles,
+          label: const Text('Clear temporary files'),
+          icon: const Icon(Icons.delete_forever),
+        ),
+      ),
+    ];
+
+    final loadingIndicator = Row(
+      children: const [
+        Expanded(
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: 40.0,
+              ),
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        ),
+      ],
+    );
+
+    final userAbortedContent = Row(
+      children: const [
+        Expanded(
+          child: Center(
+            child: SizedBox(
+              width: 300,
+              child: ListTile(
+                leading: Icon(Icons.error_outline),
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 40.0,
+                ),
+                title: Text(
+                  'User has aborted the dialog',
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+
+    late final Widget resultsContent;
+    if (_isLoading) {
+      resultsContent = loadingIndicator;
+    } else if (_userAborted) {
+      resultsContent = userAbortedContent;
+    } else {
+      resultsContent = _resultsWidget;
+    }
+
     return MaterialApp(
       scaffoldMessengerKey: _scaffoldMessengerKey,
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
-        snackBarTheme: SnackBarThemeData(backgroundColor: Colors.deepPurple),
+        snackBarTheme:
+            const SnackBarThemeData(backgroundColor: Colors.deepPurple),
       ),
       home: Scaffold(
         key: _scaffoldKey,
@@ -378,92 +561,20 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(
+                const Text(
                   'Configuration',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),
                 ),
-                SizedBox(height: 20.0),
+                const SizedBox(height: 20.0),
                 Wrap(
                   spacing: 10.0,
                   runSpacing: 10.0,
-                  children: [
-                    SizedBox(
-                      width: 400,
-                      child: TextField(
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Dialog Title',
-                        ),
-                        controller: _dialogTitleController,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 400,
-                      child: TextField(
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Initial Directory',
-                        ),
-                        controller: _initialDirectoryController,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 400,
-                      child: TextField(
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Default File Name',
-                        ),
-                        controller: _defaultFileNameController,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 400,
-                      child: DropdownButtonFormField<FileType>(
-                        value: _pickingType,
-                        icon: const Icon(Icons.expand_more),
-                        alignment: Alignment.centerLeft,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
-                        items: FileType.values
-                            .map(
-                              (fileType) => DropdownMenuItem<FileType>(
-                                value: fileType,
-                                child: Text(fileType.toString()),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (value) => setState(() {
-                          _pickingType = value!;
-                          if (_pickingType != FileType.custom) {
-                            _fileExtensionController.text = _extension = '';
-                          }
-                        }),
-                      ),
-                    ),
-                    _pickingType == FileType.custom
-                        ? SizedBox(
-                            width: 400,
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'File Extension',
-                                hintText: 'jpg, png, gif',
-                              ),
-                              autovalidateMode: AutovalidateMode.always,
-                              controller: _fileExtensionController,
-                              keyboardType: TextInputType.text,
-                              maxLength: 15,
-                            ),
-                          )
-                        : SizedBox(),
-                  ],
+                  children: configurationFields,
                 ),
-                SizedBox(height: 20.0),
+                const SizedBox(height: 20.0),
                 Wrap(
                   alignment: WrapAlignment.start,
                   runAlignment: WrapAlignment.start,
@@ -471,64 +582,15 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                   direction: Axis.horizontal,
                   spacing: 10.0,
                   runSpacing: 10.0,
-                  children: [
-                    SizedBox(
-                      width: 400.0,
-                      child: SwitchListTile.adaptive(
-                        title: Text(
-                          'Lock parent window',
-                          textAlign: TextAlign.left,
-                        ),
-                        onChanged: (bool value) =>
-                            setState(() => _lockParentWindow = value),
-                        value: _lockParentWindow,
-                      ),
-                    ),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints.tightFor(width: 400.0),
-                      child: SwitchListTile.adaptive(
-                        title: Text(
-                          'Pick multiple files',
-                          textAlign: TextAlign.left,
-                        ),
-                        onChanged: (bool value) =>
-                            setState(() => _multiPick = value),
-                        value: _multiPick,
-                      ),
-                    ),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints.tightFor(width: 400.0),
-                      child: SwitchListTile.adaptive(
-                        title: Text(
-                          'SAF Persist (Android 10+)',
-                          textAlign: TextAlign.left,
-                        ),
-                        onChanged: (bool value) =>
-                            setState(() => _safPersist = value),
-                        value: _safPersist,
-                      ),
-                    ),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints.tightFor(width: 400.0),
-                      child: SwitchListTile.adaptive(
-                        title: Text(
-                          'SAF ReadWrite (Android 10+)',
-                          textAlign: TextAlign.left,
-                        ),
-                        onChanged: (bool value) =>
-                            setState(() => _safReadWrite = value),
-                        value: _safReadWrite,
-                      ),
-                    ),
-                  ],
+                  children: optionsFields,
                 ),
-                SizedBox(height: 20.0),
-                Divider(),
-                SizedBox(height: 20.0),
-                Text(
+                const SizedBox(height: 20.0),
+                const Divider(),
+                const SizedBox(height: 20.0),
+                const Text(
                   'Actions',
                   textAlign: TextAlign.start,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),
@@ -538,99 +600,20 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                   child: Wrap(
                     spacing: 10.0,
                     runSpacing: 10.0,
-                    children: <Widget>[
-                      SizedBox(
-                        width: 120,
-                        child: FloatingActionButton.extended(
-                          onPressed: () => _pickFiles(),
-                          label: Text(_multiPick ? 'Pick files' : 'Pick file'),
-                          icon: const Icon(Icons.description),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 120,
-                        child: FloatingActionButton.extended(
-                          onPressed: () => _selectFolder(),
-                          label: const Text('Pick folder'),
-                          icon: const Icon(Icons.folder),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 250,
-                        child: FloatingActionButton.extended(
-                          onPressed: () => _pickFileAndDirectoryPaths(),
-                          label: Text('Pick files and directories'),
-                          icon: const Icon(Icons.folder_open),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 120,
-                        child: FloatingActionButton.extended(
-                          onPressed: () => _saveFile(),
-                          label: const Text('Save file'),
-                          icon: const Icon(Icons.save_as),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 200,
-                        child: FloatingActionButton.extended(
-                          onPressed: () => _clearCachedFiles(),
-                          label: const Text('Clear temporary files'),
-                          icon: const Icon(Icons.delete_forever),
-                        ),
-                      ),
-                    ],
+                    children: actionButtons,
                   ),
                 ),
-                Divider(),
-                SizedBox(height: 20.0),
-                Text(
+                const Divider(),
+                const SizedBox(height: 20.0),
+                const Text(
                   'File Picker Result',
                   textAlign: TextAlign.start,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),
                 ),
-                Builder(
-                  builder: (BuildContext context) => _isLoading
-                      ? Row(
-                          children: [
-                            Expanded(
-                              child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 40.0,
-                                  ),
-                                  child: const CircularProgressIndicator(),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : _userAborted
-                          ? Row(
-                              children: [
-                                Expanded(
-                                  child: Center(
-                                    child: SizedBox(
-                                      width: 300,
-                                      child: ListTile(
-                                        leading: Icon(Icons.error_outline),
-                                        contentPadding: EdgeInsets.symmetric(
-                                          vertical: 40.0,
-                                        ),
-                                        title: const Text(
-                                          'User has aborted the dialog',
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                          : _resultsWidget,
-                ),
+                resultsContent,
                 const SizedBox(height: 10.0),
               ],
             ),
