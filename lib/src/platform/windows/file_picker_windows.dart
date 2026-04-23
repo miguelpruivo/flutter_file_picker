@@ -8,6 +8,7 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
+import 'package:file_picker/src/api/android_saf_options.dart';
 
 import 'package:file_picker/src/api/exceptions.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
@@ -36,6 +37,7 @@ class FilePickerWindows extends FilePickerPlatform {
     bool readSequential = false,
     int compressionQuality = 0,
     bool cancelUploadOnWindowBlur = true,
+    AndroidSAFOptions? androidSafOptions,
   }) async {
     final port = ReceivePort();
     await Isolate.spawn(
@@ -101,6 +103,7 @@ class FilePickerWindows extends FilePickerPlatform {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
+    AndroidSAFOptions? androidSafOptions,
   }) async {
     return compute(_getDirectoryPathIsolate, {
       'dialogTitle': dialogTitle,

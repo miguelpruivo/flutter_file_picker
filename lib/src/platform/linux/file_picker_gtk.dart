@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:file_picker/src/api/android_saf_options.dart';
 import 'package:file_picker/src/file_picker_utils.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:flutter/services.dart';
@@ -29,6 +30,7 @@ class FilePickerGTK extends FilePickerPlatform {
     bool readSequential = false,
     int compressionQuality = 0,
     bool cancelUploadOnWindowBlur = true,
+    AndroidSAFOptions? androidSafOptions,
   }) async {
     final List<String>? pickedFilePaths = await methodChannel
         .invokeListMethod<String>('pickFiles', <String, dynamic>{
@@ -58,6 +60,7 @@ class FilePickerGTK extends FilePickerPlatform {
     String? dialogTitle,
     bool lockParentWindow = true,
     String? initialDirectory,
+    AndroidSAFOptions? androidSafOptions,
   }) async {
     final List<String>? directoryPaths = await pickDirectoryPaths(
       dialogTitle: dialogTitle,

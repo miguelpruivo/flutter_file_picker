@@ -7,7 +7,8 @@ class FileInfo(
     val name: String?,
     val uri: Uri?,
     val size: Long,
-    val bytes: ByteArray?
+    val bytes: ByteArray?,
+    val safHandle: java.util.HashMap<String, Any>? = null
 ) {
     class Builder {
         private var path: String? = null
@@ -15,6 +16,7 @@ class FileInfo(
         private var uri: Uri? = null
         private var size: Long = 0
         private var bytes: ByteArray? = null
+        private var safHandle: java.util.HashMap<String, Any>? = null
 
         fun withPath(path: String?): Builder {
             this.path = path
@@ -41,13 +43,19 @@ class FileInfo(
             return this
         }
 
+        fun withSafHandle(safHandle: java.util.HashMap<String, Any>?): Builder {
+            this.safHandle = safHandle
+            return this
+        }
+
         fun build(): FileInfo {
             return FileInfo(
                 this.path,
                 this.name,
                 this.uri,
                 this.size,
-                this.bytes
+                this.bytes,
+                this.safHandle
             )
         }
     }
@@ -58,7 +66,8 @@ class FileInfo(
             Pair("name", name),
             Pair("size", size),
             Pair("bytes", bytes),
-            Pair("identifier", uri.toString())
+            Pair("identifier", uri.toString()),
+            Pair("safHandle", safHandle)
         )
     }
 }
