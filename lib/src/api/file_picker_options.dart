@@ -5,6 +5,7 @@ import 'package:file_picker/src/api/android_saf_options.dart';
 /// This groups all platform-specific configurations into a single object, mitigating
 /// breaking changes when new options or new platforms are added.
 class FilePickerOptions {
+  /// Create a new [FilePickerOptions] instance.
   const FilePickerOptions({
     this.androidOptions = const FilePickerAndroidOptions(),
     this.iosOptions = const FilePickerIosOptions(),
