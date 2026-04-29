@@ -6,6 +6,13 @@ import 'package:file_picker/src/api/android_saf_options.dart';
 /// breaking changes when new options or new platforms are added.
 class FilePickerOptions {
   /// Create a new [FilePickerOptions] instance.
+  ///
+  /// [androidOptions] specifies Android-specific configurations.
+  /// [iosOptions] specifies iOS-specific configurations.
+  /// [webOptions] specifies Web-specific configurations.
+  /// [windowsOptions] specifies Windows-specific configurations.
+  /// [macosOptions] specifies macOS-specific configurations.
+  /// [linuxOptions] specifies Linux-specific configurations.
   const FilePickerOptions({
     this.androidOptions = const FilePickerAndroidOptions(),
     this.iosOptions = const FilePickerIosOptions(),
@@ -15,11 +22,22 @@ class FilePickerOptions {
     this.linuxOptions = const FilePickerLinuxOptions(),
   });
 
+  /// Options for Android.
   final FilePickerAndroidOptions androidOptions;
+
+  /// Options for iOS.
   final FilePickerIosOptions iosOptions;
+
+  /// Options for Web.
   final FilePickerWebOptions webOptions;
+
+  /// Options for Windows.
   final FilePickerWindowsOptions windowsOptions;
+
+  /// Options for macOS.
   final FilePickerMacosOptions macosOptions;
+
+  /// Options for Linux.
   final FilePickerLinuxOptions linuxOptions;
 }
 
@@ -46,10 +64,14 @@ class FilePickerWebOptions {
     this.cancelUploadOnWindowBlur = true,
   });
 
-  /// Keeps the file loading sequentially if true.
+  /// Whether to read files sequentially.
+  ///
+  /// Defaults to `false`.
   final bool readSequential;
 
   /// Whether to prevent upload cancellation when window focus is lost.
+  ///
+  /// Defaults to `true`.
   final bool cancelUploadOnWindowBlur;
 }
 
