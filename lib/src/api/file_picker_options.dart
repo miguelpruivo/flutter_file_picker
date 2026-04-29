@@ -49,7 +49,7 @@ class FilePickerWebOptions {
   /// Keeps the file loading sequentially if true.
   final bool readSequential;
 
-  /// Prevents upload cancellation when window focus is lost.
+  /// Whether to prevent upload cancellation when window focus is lost.
   final bool cancelUploadOnWindowBlur;
 }
 
