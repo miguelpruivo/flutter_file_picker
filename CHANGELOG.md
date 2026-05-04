@@ -1,11 +1,11 @@
-## 12.0.0
+## 12.0.0-beta.1
 ### General
 - Introduced `FilePickerOptions` class to encapsulate platform-specific properties for smoother scalability and avoiding breaking changes.
 - Deprecated `readSequential` and `cancelUploadOnWindowBlur` parameters from `pickFiles` in favor of `FilePickerOptions.webOptions`. 
 - Raised the minimum supported Flutter/Dart version to Flutter 3.38 / Dart 3.10 across all platforms. [#1980](https://github.com/miguelpruivo/flutter_file_picker/issues/1980)
 
 ### Windows
-- Migrated `win32` dependency to `6.0.0` and updated the Windows folder picker implementation to match the new Win32/COM APIs. [#1980](https://github.com/miguelpruivo/flutter_file_picker/issues/1980)
+- Migrated `win32` dependency to `6.0.0` and updated the Windows file picker implementation to match the new Win32/COM APIs. [#1980](https://github.com/miguelpruivo/flutter_file_picker/issues/1980)
 
 ### Darwin
 - Migrated the iOS and macOS native implementations to shared Darwin sources.
