@@ -9,13 +9,13 @@ class OrgFreedesktopPortalRequestResponse extends DBusSignal {
   Map<String, DBusValue> get results => values[1].asStringVariantDict();
 
   OrgFreedesktopPortalRequestResponse(DBusSignal signal)
-      : super(
-          sender: signal.sender,
-          path: signal.path,
-          interface: signal.interface,
-          name: signal.name,
-          values: signal.values,
-        );
+    : super(
+        sender: signal.sender,
+        path: signal.path,
+        interface: signal.interface,
+        name: signal.name,
+        values: signal.values,
+      );
 }
 
 class OrgFreedesktopPortalRequest extends DBusRemoteObject {
@@ -27,12 +27,13 @@ class OrgFreedesktopPortalRequest extends DBusRemoteObject {
     String destination, {
     super.path = const DBusObjectPath.unchecked('/'),
   }) : super(name: destination) {
-    response = DBusRemoteObjectSignalStream(
-      object: this,
-      interface: 'org.freedesktop.portal.Request',
-      name: 'Response',
-      signature: DBusSignature('ua{sv}'),
-    ).asBroadcastStream().map(
+    response =
+        DBusRemoteObjectSignalStream(
+          object: this,
+          interface: 'org.freedesktop.portal.Request',
+          name: 'Response',
+          signature: DBusSignature('ua{sv}'),
+        ).asBroadcastStream().map(
           (signal) => OrgFreedesktopPortalRequestResponse(signal),
         );
   }

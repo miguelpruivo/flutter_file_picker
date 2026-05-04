@@ -118,17 +118,15 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           pickedFiles: pickedFiles,
           onRemoveAndroidFile:
               (int index, AndroidPlatformFile androidPlatformFile) {
-            androidPlatformFile.safHandle.releaseGrant();
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              const SnackBar(
-                content: Text("SAF Permission Released!"),
-              ),
-            );
-            setState(() {
-              pickedFiles!.removeAt(index);
-              updateResults();
-            });
-          },
+                androidPlatformFile.safHandle.releaseGrant();
+                _scaffoldMessengerKey.currentState?.showSnackBar(
+                  const SnackBar(content: Text("SAF Permission Released!")),
+                );
+                setState(() {
+                  pickedFiles!.removeAt(index);
+                  updateResults();
+                });
+              },
         );
       }
 
@@ -247,9 +245,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           readWriteAccess: _safReadWrite,
           onDirectoryRemoved: () {
             _scaffoldMessengerKey.currentState?.showSnackBar(
-              const SnackBar(
-                content: Text("SAF Permission Released!"),
-              ),
+              const SnackBar(content: Text("SAF Permission Released!")),
             );
             setState(() {
               pickedDirectoryPath = null;
@@ -369,9 +365,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           value: _pickingType,
           icon: const Icon(Icons.expand_more),
           alignment: Alignment.centerLeft,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-          ),
+          decoration: const InputDecoration(border: OutlineInputBorder()),
           items: fileTypeItems,
           onChanged: (value) {
             if (value != null) {
@@ -406,10 +400,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       SizedBox(
         width: 400.0,
         child: SwitchListTile.adaptive(
-          title: const Text(
-            'Lock parent window',
-            textAlign: TextAlign.left,
-          ),
+          title: const Text('Lock parent window', textAlign: TextAlign.left),
           onChanged: (value) => setState(() => _lockParentWindow = value),
           value: _lockParentWindow,
         ),
@@ -417,10 +408,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       ConstrainedBox(
         constraints: const BoxConstraints.tightFor(width: 400.0),
         child: SwitchListTile.adaptive(
-          title: const Text(
-            'Pick multiple files',
-            textAlign: TextAlign.left,
-          ),
+          title: const Text('Pick multiple files', textAlign: TextAlign.left),
           onChanged: (value) => setState(() => _multiPick = value),
           value: _multiPick,
         ),
@@ -501,9 +489,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         Expanded(
           child: Center(
             child: Padding(
-              padding: EdgeInsets.symmetric(
-                vertical: 40.0,
-              ),
+              padding: EdgeInsets.symmetric(vertical: 40.0),
               child: CircularProgressIndicator(),
             ),
           ),
@@ -519,12 +505,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
               width: 300,
               child: ListTile(
                 leading: Icon(Icons.error_outline),
-                contentPadding: EdgeInsets.symmetric(
-                  vertical: 40.0,
-                ),
-                title: Text(
-                  'User has aborted the dialog',
-                ),
+                contentPadding: EdgeInsets.symmetric(vertical: 40.0),
+                title: Text('User has aborted the dialog'),
               ),
             ),
           ),
@@ -547,8 +529,9 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       darkTheme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
-        snackBarTheme:
-            const SnackBarThemeData(backgroundColor: Colors.deepPurple),
+        snackBarTheme: const SnackBarThemeData(
+          backgroundColor: Colors.deepPurple,
+        ),
       ),
       home: Scaffold(
         key: _scaffoldKey,
@@ -563,10 +546,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
               children: <Widget>[
                 const Text(
                   'Configuration',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 ),
                 const SizedBox(height: 20.0),
                 Wrap(
@@ -590,10 +570,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                 const Text(
                   'Actions',
                   textAlign: TextAlign.start,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
@@ -608,10 +585,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                 const Text(
                   'File Picker Result',
                   textAlign: TextAlign.start,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 ),
                 resultsContent,
                 const SizedBox(height: 10.0),

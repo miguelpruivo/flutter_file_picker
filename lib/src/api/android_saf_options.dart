@@ -4,7 +4,7 @@ enum AndroidSAFAccessMode {
   readOnly,
 
   /// Allow both read and write permissions for a URI.
-  readWrite;
+  readWrite,
 }
 
 /// The grant type for an Android Storage Access Framework grant.
@@ -13,7 +13,7 @@ enum AndroidSAFGrant {
   transient,
 
   /// Grant permission to the requested URI, until permission is explicitly revoked.
-  lifetime;
+  lifetime,
 }
 
 /// The configuration options for working with Android's Storage Access Framework.

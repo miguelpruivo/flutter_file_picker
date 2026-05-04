@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'file_picker_results.dart';
 
-typedef OnRemoveAndroidFile = void Function(
-  int index,
-  AndroidPlatformFile androidPlatformFile,
-);
+typedef OnRemoveAndroidFile =
+    void Function(int index, AndroidPlatformFile androidPlatformFile);
 
 class PickedFilesResults extends StatelessWidget {
   const PickedFilesResults({
@@ -40,9 +38,7 @@ class PickedFilesResults extends StatelessWidget {
             index.toString(),
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
           ),
-          title: Text(
-            'File path (SAF Grant: ${androidPlatformFile != null}):',
-          ),
+          title: Text('File path (SAF Grant: ${androidPlatformFile != null}):'),
           subtitle: Text(path),
           trailing: trailingWidget,
         );
