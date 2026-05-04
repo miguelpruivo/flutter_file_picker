@@ -1,7 +1,10 @@
-## 12.0.0-beta.1
+## 12.0.0-beta.2
 ### General
 - Introduced `FilePickerOptions` class to encapsulate platform-specific properties for smoother scalability and avoiding breaking changes.
 - Deprecated `readSequential` and `cancelUploadOnWindowBlur` parameters from `pickFiles` in favor of `FilePickerOptions.webOptions`. 
+
+## 12.0.0-beta.1
+### General
 - Raised the minimum supported Flutter/Dart version to Flutter 3.38 / Dart 3.10 across all platforms. [#1980](https://github.com/miguelpruivo/flutter_file_picker/issues/1980)
 
 ### Windows
