@@ -1,12 +1,9 @@
 ## 12.0.0-beta.2
-<<<<<<< feature/model-separation
 ### General
 - Introduced `FilePickerOptions` class to encapsulate platform-specific properties for smoother scalability and avoiding breaking changes.
 - Deprecated `readSequential` and `cancelUploadOnWindowBlur` parameters from `pickFiles` in favor of `FilePickerOptions.webOptions`. 
-=======
 ### Android
 - Added a controlled `out_of_memory` error when picking large files with `withData`, avoiding Android crashes and recommending `withReadStream` as a safer alternative for large or multiple selections. [#1997](https://github.com/miguelpruivo/flutter_file_picker/issues/1997)
->>>>>>> master
 
 ## 12.0.0-beta.1
 ### General
