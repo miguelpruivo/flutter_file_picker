@@ -84,8 +84,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         dialogTitle: _dialogTitleController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
-<<<<<<< feature/model-separation
-        withData: true,
+        withData: _withData,
         options: FilePickerOptions(
           androidOptions: FilePickerAndroidOptions(
             safOptions: (_safPersist || _safReadWrite)
@@ -100,19 +99,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                 : null,
           ),
         ),
-=======
-        withData: _withData,
-        androidSafOptions: (_safPersist || _safReadWrite)
-            ? AndroidSAFOptions(
-                grant: _safPersist
-                    ? AndroidSAFGrant.lifetime
-                    : AndroidSAFGrant.transient,
-                accessMode: _safReadWrite
-                    ? AndroidSAFAccessMode.readWrite
-                    : AndroidSAFAccessMode.readOnly,
-              )
-            : null,
->>>>>>> master
       );
       printInDebug("pickedFiles: $result");
       pickedFiles = result?.files;
