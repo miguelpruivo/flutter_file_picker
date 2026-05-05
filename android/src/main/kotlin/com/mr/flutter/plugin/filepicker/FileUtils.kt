@@ -141,6 +141,12 @@ object FileUtils {
                         "Unknown activity error, please fill an issue."
                     )
                 }
+            } catch (oom: OutOfMemoryError) {
+                Log.e(TAG, "Out of memory while processing selected files.", oom)
+                finishWithError(
+                    "out_of_memory",
+                    "Selected files are too large to load into memory. Disable withData or use withReadStream."
+                )
             } catch (e: Exception) {
                 finishWithError("file_picker_error", e.message ?: "Unknown error")
             }
