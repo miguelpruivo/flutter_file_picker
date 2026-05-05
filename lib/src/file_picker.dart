@@ -73,21 +73,23 @@ abstract final class FilePicker {
     bool withReadStream = false,
     bool lockParentWindow = false,
     @Deprecated(
-        'Use FilePickerOptions(webOptions: FilePickerWebOptions(readSequential: ...)) instead.')
+      'Use FilePickerOptions(webOptions: FilePickerWebOptions(readSequential: ...)) instead.',
+    )
     bool readSequential = false,
     @Deprecated(
-        'Use FilePickerOptions(webOptions: FilePickerWebOptions(cancelUploadOnWindowBlur: ...)) instead.')
+      'Use FilePickerOptions(webOptions: FilePickerWebOptions(cancelUploadOnWindowBlur: ...)) instead.',
+    )
     bool cancelUploadOnWindowBlur = true,
     FilePickerOptions options = const FilePickerOptions(),
   }) {
     // If deprecated options are passed, use them if the new options aren't provided.
     final FilePickerWebOptions resolvedWebOptions =
         options.webOptions == const FilePickerWebOptions()
-            ? FilePickerWebOptions(
-                readSequential: readSequential,
-                cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
-              )
-            : options.webOptions;
+        ? FilePickerWebOptions(
+            readSequential: readSequential,
+            cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
+          )
+        : options.webOptions;
     final FilePickerWindowsOptions resolvedWindowsOptions =
         options.windowsOptions;
 

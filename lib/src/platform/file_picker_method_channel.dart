@@ -47,17 +47,16 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool? withReadStream = false,
     bool lockParentWindow = false,
     FilePickerOptions options = const FilePickerOptions(),
-  }) =>
-      _getPath(
-        type,
-        allowMultiple,
-        allowedExtensions,
-        onFileLoading,
-        withData,
-        withReadStream,
-        compressionQuality,
-        options.androidOptions,
-      );
+  }) => _getPath(
+    type,
+    allowMultiple,
+    allowedExtensions,
+    onFileLoading,
+    withData,
+    withReadStream,
+    compressionQuality,
+    options.androidOptions,
+  );
 
   @override
   Future<void> releaseSAFGrant(String uri) async {

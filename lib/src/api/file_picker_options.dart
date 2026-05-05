@@ -43,9 +43,7 @@ class FilePickerOptions {
 
 /// Platform-specific options for Android.
 class FilePickerAndroidOptions {
-  const FilePickerAndroidOptions({
-    this.safOptions,
-  });
+  const FilePickerAndroidOptions({this.safOptions});
 
   /// Options for the Storage Access Framework (SAF).
   final AndroidSAFOptions? safOptions;
