@@ -195,20 +195,13 @@ object FileUtils {
             intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         } else {
             if (type == "image/*") {
-                intent = Intent(Intent.ACTION_GET_CONTENT)
-                val uri = (Environment.getExternalStorageDirectory().path + File.separator).toUri()
-                intent.setDataAndType(uri, type)
-                intent.type = this.type
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection)
-                intent.putExtra("multi-pick", this.isMultipleSelection)
-
-                type?.takeIf { it.contains(",") }
-                    ?.split(",")
-                    ?.filter { it.isNotEmpty() }
-                    ?.let { allowedExtensions = ArrayList(it) }
-
-                if (allowedExtensions != null) {
-                    intent.putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions)
+                intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    type = this@startFileExplorer.type
+                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this@startFileExplorer.isMultipleSelection)
+                    putExtra("multi-pick", this@startFileExplorer.isMultipleSelection)
+                    if (!allowedExtensions.isNullOrEmpty()) {
+                        putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions!!.toTypedArray())
+                    }
                 }
             }
             else if (type == "audio/*" ){

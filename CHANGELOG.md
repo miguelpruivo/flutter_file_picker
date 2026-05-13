@@ -1,9 +1,16 @@
-## 12.0.0-beta.2
-### General
+## 12.0.0-beta.3
+### Android
+- Fixed Android plugin registration when using AGP 9+ with `android.builtInKotlin=false`, while preserving support for older AGP setups.
 - Introduced `FilePickerOptions` class to encapsulate platform-specific properties for smoother scalability and avoiding breaking changes.
 - Deprecated `readSequential` and `cancelUploadOnWindowBlur` parameters from `pickFiles` in favor of `FilePickerOptions.webOptions`. 
+
+## 12.0.0-beta.2
+### General
+- Updated dependencies: `flutter_plugin_android_lifecycle` to `2.0.34`, `path` to `1.9.1`, `win32` to `6.2.0`, `cross_file` to `0.3.5+2`, `web` to `1.1.1`, and `dbus` to `0.7.12`.
+
 ### Android
 - Added a controlled `out_of_memory` error when picking large files with `withData`, avoiding Android crashes and recommending `withReadStream` as a safer alternative for large or multiple selections. [#1997](https://github.com/miguelpruivo/flutter_file_picker/issues/1997)
+**Breaking Change**: `FileType.image` now opens the native image gallery instead of the document picker, ignoring `allowedExtensions` on Android. [#2004](https://github.com/miguelpruivo/flutter_file_picker/pull/2004)
 
 ## 12.0.0-beta.1
 ### General

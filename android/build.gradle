@@ -24,9 +24,12 @@ rootProject.allprojects {
 }
 
 def isAgp9OrAbove = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0].toInteger() >= 9
+def builtInKotlinProperty = providers.gradleProperty('android.builtInKotlin').orNull
+def isBuiltInKotlinEnabled = isAgp9OrAbove && (builtInKotlinProperty == null || builtInKotlinProperty.toBoolean())
+def shouldApplyKotlinAndroidPlugin = !isAgp9OrAbove || !isBuiltInKotlinEnabled
 
 apply plugin: 'com.android.library'
-if (!isAgp9OrAbove) {
+if (shouldApplyKotlinAndroidPlugin) {
     apply plugin: 'org.jetbrains.kotlin.android'
 }
 
@@ -47,7 +50,7 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    if (!isAgp9OrAbove) {
+    if (shouldApplyKotlinAndroidPlugin) {
         kotlinOptions {
             jvmTarget = JavaVersion.VERSION_17.toString()
         }
