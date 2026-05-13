@@ -49,7 +49,7 @@ class FilePickerMacOS extends FilePickerPlatform {
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
-    FilePickerOptions options = const FilePickerOptions(),
+    PickFilesOptions options = const PickFilesOptions(),
   }) async {
     final fileFilter = fileTypeToFileFilter(type, allowedExtensions);
 

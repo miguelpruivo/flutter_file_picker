@@ -41,7 +41,7 @@ abstract class FilePickerPlatform extends PlatformInterface {
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
-    FilePickerOptions options = const FilePickerOptions(),
+    PickFilesOptions options = const PickFilesOptions(),
   }) async {
     throw UnimplementedError('pickFiles() has not been implemented.');
   }

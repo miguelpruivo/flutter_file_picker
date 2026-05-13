@@ -36,7 +36,7 @@ class FilePickerWindows extends FilePickerPlatform {
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
-    FilePickerOptions options = const FilePickerOptions(),
+    PickFilesOptions options = const PickFilesOptions(),
   }) async {
     final port = ReceivePort();
     await Isolate.spawn(

@@ -85,7 +85,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
         withData: _withData,
-        options: FilePickerOptions(
+        options: PickFilesOptions(
           androidOptions: FilePickerAndroidOptions(
             safOptions: (_safPersist || _safReadWrite)
                 ? AndroidSAFOptions(

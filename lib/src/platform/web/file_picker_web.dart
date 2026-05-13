@@ -62,7 +62,7 @@ class FilePickerWeb extends FilePickerPlatform {
     bool withData = true,
     bool withReadStream = false,
     bool lockParentWindow = false,
-    FilePickerOptions options = const FilePickerOptions(),
+    PickFilesOptions options = const PickFilesOptions(),
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(

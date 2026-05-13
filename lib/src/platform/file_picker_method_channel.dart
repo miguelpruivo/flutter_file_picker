@@ -46,7 +46,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool? withData = false,
     bool? withReadStream = false,
     bool lockParentWindow = false,
-    FilePickerOptions options = const FilePickerOptions(),
+    PickFilesOptions options = const PickFilesOptions(),
   }) => _getPath(
     type,
     allowMultiple,

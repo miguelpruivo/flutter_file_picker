@@ -73,14 +73,14 @@ abstract final class FilePicker {
     bool withReadStream = false,
     bool lockParentWindow = false,
     @Deprecated(
-      'Use FilePickerOptions(webOptions: FilePickerWebOptions(readSequential: ...)) instead.',
+      'Use PickFilesOptions(webOptions: FilePickerWebOptions(readSequential: ...)) instead.',
     )
     bool readSequential = false,
     @Deprecated(
-      'Use FilePickerOptions(webOptions: FilePickerWebOptions(cancelUploadOnWindowBlur: ...)) instead.',
+      'Use PickFilesOptions(webOptions: FilePickerWebOptions(cancelUploadOnWindowBlur: ...)) instead.',
     )
     bool cancelUploadOnWindowBlur = true,
-    FilePickerOptions options = const FilePickerOptions(),
+    PickFilesOptions options = const PickFilesOptions(),
   }) {
     // If deprecated options are passed, use them if the new options aren't provided.
     final FilePickerWebOptions resolvedWebOptions =
@@ -104,7 +104,7 @@ abstract final class FilePicker {
       withData: withData,
       withReadStream: withReadStream,
       lockParentWindow: lockParentWindow,
-      options: FilePickerOptions(
+      options: PickFilesOptions(
         androidOptions: options.androidOptions,
         iosOptions: options.iosOptions,
         webOptions: resolvedWebOptions,
