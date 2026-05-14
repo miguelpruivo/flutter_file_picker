@@ -76,6 +76,57 @@ See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker
 ## Usage
 Quick simple usage example:
 
+### Method-specific options models
+
+This package is moving to a consistent configuration pattern where each public
+method owns its own options model. This keeps APIs explicit per use case and
+helps evolve platform-specific features with fewer breaking changes.
+
+Current method option models:
+
+* `FilePicker.pickFiles(...)` -> `PickFilesOptions`
+* `FilePicker.getDirectoryPath(...)` -> `GetDirectoryPathOptions`
+
+Example for `pickFiles` options:
+
+```dart
+final result = await FilePicker.pickFiles(
+  type: FileType.custom,
+  allowedExtensions: ['pdf', 'jpg'],
+  options: PickFilesOptions(
+    webOptions: FilePickerWebOptions(
+      readSequential: true,
+      cancelUploadOnWindowBlur: true,
+    ),
+    androidOptions: FilePickerAndroidOptions(
+      safOptions: AndroidSAFOptions(
+        grant: AndroidSAFGrant.transient,
+        accessMode: AndroidSAFAccessMode.readOnly,
+      ),
+    ),
+  ),
+);
+```
+
+Example for `getDirectoryPath` options:
+
+```dart
+final selectedDirectory = await FilePicker.getDirectoryPath(
+  options: GetDirectoryPathOptions(
+    androidOptions: GetDirectoryPathAndroidOptions(
+      safOptions: AndroidSAFOptions(
+        grant: AndroidSAFGrant.lifetime,
+        accessMode: AndroidSAFAccessMode.readWrite,
+      ),
+    ),
+  ),
+);
+```
+
+`GetDirectoryPathOptions` already includes platform option containers for
+Android, iOS, web, Windows, macOS, and Linux. Most are intentionally empty for
+now and are reserved for future method-specific settings.
+
 ### Memory usage recommendation
 When picking multiple or large files on mobile/desktop, avoid loading all bytes in memory (`withData: true`) as it can cause out of memory errors.
 
@@ -121,7 +172,9 @@ FilePickerResult? result = await FilePicker.pickFiles(
 ```
 #### Pick a directory
 ```dart
-String? selectedDirectory = await FilePicker.getDirectoryPath();
+String? selectedDirectory = await FilePicker.getDirectoryPath(
+  options: GetDirectoryPathOptions(),
+);
 
 if (selectedDirectory == null) {
   // User canceled the picker

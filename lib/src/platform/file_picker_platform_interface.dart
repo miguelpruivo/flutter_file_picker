@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
+import 'package:file_picker/src/api/get_directory_path_options.dart';
 import 'package:file_picker/src/api/file_picker_options.dart';
 import 'package:file_picker/src/platform/file_picker_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -73,7 +73,7 @@ abstract class FilePickerPlatform extends PlatformInterface {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-    AndroidSAFOptions? androidSafOptions,
+    GetDirectoryPathOptions options = const GetDirectoryPathOptions(),
   }) async {
     throw UnimplementedError('getDirectoryPath() has not been implemented.');
   }

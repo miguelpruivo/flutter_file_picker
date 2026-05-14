@@ -8,7 +8,7 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
+import 'package:file_picker/src/api/get_directory_path_options.dart';
 import 'package:file_picker/src/api/file_picker_options.dart';
 
 import 'package:file_picker/src/api/exceptions.dart';
@@ -102,7 +102,7 @@ class FilePickerWindows extends FilePickerPlatform {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-    AndroidSAFOptions? androidSafOptions,
+    GetDirectoryPathOptions options = const GetDirectoryPathOptions(),
   }) async {
     return compute(_getDirectoryPathIsolate, {
       'dialogTitle': dialogTitle,

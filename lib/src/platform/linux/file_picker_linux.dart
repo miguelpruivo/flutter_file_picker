@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:file_picker/src/api/file_picker_types.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
+import 'package:file_picker/src/api/get_directory_path_options.dart';
 import 'package:file_picker/src/api/file_picker_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
@@ -105,7 +105,7 @@ class FilePickerLinux extends FilePickerPlatform {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-    AndroidSAFOptions? androidSafOptions,
+    GetDirectoryPathOptions options = const GetDirectoryPathOptions(),
   }) async {
     Map<String, DBusValue> xdpOption = {
       'handle_token': DBusString('flutter_picker'),

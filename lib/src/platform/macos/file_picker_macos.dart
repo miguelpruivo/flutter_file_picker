@@ -1,7 +1,7 @@
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
+import 'package:file_picker/src/api/get_directory_path_options.dart';
 import 'package:file_picker/src/api/file_picker_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/file_picker_utils.dart';
@@ -78,7 +78,7 @@ class FilePickerMacOS extends FilePickerPlatform {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-    AndroidSAFOptions? androidSafOptions,
+    GetDirectoryPathOptions options = const GetDirectoryPathOptions(),
   }) async {
     final String? directoryPath = await methodChannel.invokeMethod<String>(
       'getDirectoryPath',

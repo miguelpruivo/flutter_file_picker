@@ -218,16 +218,20 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         dialogTitle: _dialogTitleController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
-        androidSafOptions: (_safPersist || _safReadWrite)
-            ? AndroidSAFOptions(
-                grant: _safPersist
-                    ? AndroidSAFGrant.lifetime
-                    : AndroidSAFGrant.transient,
-                accessMode: _safReadWrite
-                    ? AndroidSAFAccessMode.readWrite
-                    : AndroidSAFAccessMode.readOnly,
-              )
-            : null,
+        options: GetDirectoryPathOptions(
+          androidOptions: GetDirectoryPathAndroidOptions(
+            safOptions: (_safPersist || _safReadWrite)
+                ? AndroidSAFOptions(
+                    grant: _safPersist
+                        ? AndroidSAFGrant.lifetime
+                        : AndroidSAFGrant.transient,
+                    accessMode: _safReadWrite
+                        ? AndroidSAFAccessMode.readWrite
+                        : AndroidSAFAccessMode.readOnly,
+                  )
+                : null,
+          ),
+        ),
       );
       hasUserAborted = pickedDirectoryPath == null;
     } on PlatformException catch (e) {

@@ -5,6 +5,7 @@ import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
+import 'package:file_picker/src/api/get_directory_path_options.dart';
 import 'package:file_picker/src/api/file_picker_options.dart';
 
 abstract final class FilePicker {
@@ -185,19 +186,35 @@ abstract final class FilePicker {
   /// could not be instantiated or the dialog result could not be interpreted.
   /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
   /// Note: The User Selected File Read entitlement is required on macOS.
-  /// Note: On Android, if [androidSafOptions] is provided, the returned string will be a
+  /// Note: On Android, if [options.androidOptions.safOptions] is provided, the returned string will be a
   /// `content://` document tree URI instead of an absolute path.
   static Future<String?> getDirectoryPath({
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
+    @Deprecated(
+      'Use GetDirectoryPathOptions(androidOptions: GetDirectoryPathAndroidOptions(safOptions: ...)) instead.',
+    )
     AndroidSAFOptions? androidSafOptions,
+    GetDirectoryPathOptions options = const GetDirectoryPathOptions(),
   }) {
+    final GetDirectoryPathAndroidOptions resolvedAndroidOptions =
+        options.androidOptions == const GetDirectoryPathAndroidOptions()
+        ? GetDirectoryPathAndroidOptions(safOptions: androidSafOptions)
+        : options.androidOptions;
+
     return FilePickerPlatform.instance.getDirectoryPath(
       dialogTitle: dialogTitle,
       lockParentWindow: lockParentWindow,
       initialDirectory: initialDirectory,
-      androidSafOptions: androidSafOptions,
+      options: GetDirectoryPathOptions(
+        androidOptions: resolvedAndroidOptions,
+        webOptions: options.webOptions,
+        iosOptions: options.iosOptions,
+        windowsOptions: options.windowsOptions,
+        macosOptions: options.macosOptions,
+        linuxOptions: options.linuxOptions,
+      ),
     );
   }
 

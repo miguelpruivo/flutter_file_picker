@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/platform_file.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
+import 'package:file_picker/src/api/get_directory_path_options.dart';
 import 'package:file_picker/src/api/file_picker_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 
@@ -72,12 +72,12 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-    AndroidSAFOptions? androidSafOptions,
+    GetDirectoryPathOptions options = const GetDirectoryPathOptions(),
   }) async {
     try {
       return await methodChannel.invokeMethod('dir', {
-        if (androidSafOptions != null)
-          'androidSafOptions': androidSafOptions.toMap(),
+        if (options.androidOptions.safOptions != null)
+          'androidSafOptions': options.androidOptions.safOptions!.toMap(),
       });
     } on PlatformException catch (ex) {
       if (ex.code == "unknown_path") {
