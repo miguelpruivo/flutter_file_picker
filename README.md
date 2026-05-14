@@ -86,6 +86,7 @@ Current method option models:
 
 * `FilePicker.pickFiles(...)` -> `PickFilesOptions`
 * `FilePicker.getDirectoryPath(...)` -> `GetDirectoryPathOptions`
+* `FilePicker.saveFile(...)` -> `SaveFileOptions`
 
 Example for `pickFiles` options:
 
@@ -119,6 +120,18 @@ final selectedDirectory = await FilePicker.getDirectoryPath(
         accessMode: AndroidSAFAccessMode.readWrite,
       ),
     ),
+  ),
+);
+```
+
+Example for `saveFile` options:
+
+```dart
+final savedPath = await FilePicker.saveFile(
+  fileName: 'report.pdf',
+  bytes: bytes,
+  options: SaveFileOptions(
+    androidOptions: SaveFileAndroidOptions(),
   ),
 );
 ```

@@ -2,6 +2,7 @@ import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/get_directory_path_options.dart';
+import 'package:file_picker/src/api/save_file_options.dart';
 import 'package:file_picker/src/api/file_picker_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/file_picker_utils.dart';
@@ -99,6 +100,7 @@ class FilePickerMacOS extends FilePickerPlatform {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     bool lockParentWindow = false,
+    SaveFileOptions options = const SaveFileOptions(),
   }) async {
     final fileFilter = fileTypeToFileFilter(type, allowedExtensions);
 

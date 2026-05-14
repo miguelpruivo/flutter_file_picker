@@ -9,6 +9,7 @@ import 'package:ffi/ffi.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/get_directory_path_options.dart';
+import 'package:file_picker/src/api/save_file_options.dart';
 import 'package:file_picker/src/api/file_picker_options.dart';
 
 import 'package:file_picker/src/api/exceptions.dart';
@@ -185,6 +186,7 @@ class FilePickerWindows extends FilePickerPlatform {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     bool lockParentWindow = false,
+    SaveFileOptions options = const SaveFileOptions(),
   }) async {
     final port = ReceivePort();
     await Isolate.spawn(

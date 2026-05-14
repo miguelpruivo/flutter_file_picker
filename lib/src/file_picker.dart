@@ -6,6 +6,7 @@ import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
 import 'package:file_picker/src/api/get_directory_path_options.dart';
+import 'package:file_picker/src/api/save_file_options.dart';
 import 'package:file_picker/src/api/file_picker_options.dart';
 
 abstract final class FilePicker {
@@ -250,6 +251,8 @@ abstract final class FilePicker {
   /// parameters are just a proposal to the user as the save file dialog does
   /// not enforce these restrictions.
   ///
+  /// To provide platform-specific behavior, use [options].
+  ///
   /// If [lockParentWindow] is set, the child window (file picker window) will
   /// stay in front of the Flutter window until it is closed (like a modal
   /// window). This parameter works only on Windows desktop.
@@ -264,6 +267,7 @@ abstract final class FilePicker {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     bool lockParentWindow = false,
+    SaveFileOptions options = const SaveFileOptions(),
   }) {
     return FilePickerPlatform.instance.saveFile(
       dialogTitle: dialogTitle,
@@ -273,6 +277,7 @@ abstract final class FilePicker {
       allowedExtensions: allowedExtensions,
       bytes: bytes,
       lockParentWindow: lockParentWindow,
+      options: options,
     );
   }
 
