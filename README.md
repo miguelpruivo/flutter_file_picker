@@ -85,6 +85,7 @@ helps evolve platform-specific features with fewer breaking changes.
 Current method option models:
 
 * `FilePicker.pickFiles(...)` -> `PickFilesOptions`
+* `FilePicker.pickFileAndDirectoryPaths(...)` -> `PickFileAndDirectoryPathsOptions`
 * `FilePicker.getDirectoryPath(...)` -> `GetDirectoryPathOptions`
 * `FilePicker.saveFile(...)` -> `SaveFileOptions`
 
@@ -124,6 +125,16 @@ final selectedDirectory = await FilePicker.getDirectoryPath(
 );
 ```
 
+Example for `pickFileAndDirectoryPaths` options:
+
+```dart
+final selectedPaths = await FilePicker.pickFileAndDirectoryPaths(
+  options: PickFileAndDirectoryPathsOptions(
+    macosOptions: PickFileAndDirectoryPathsMacosOptions(),
+  ),
+);
+```
+
 Example for `saveFile` options:
 
 ```dart
@@ -136,9 +147,10 @@ final savedPath = await FilePicker.saveFile(
 );
 ```
 
-`GetDirectoryPathOptions` already includes platform option containers for
-Android, iOS, web, Windows, macOS, and Linux. Most are intentionally empty for
-now and are reserved for future method-specific settings.
+`PickFileAndDirectoryPathsOptions`, `GetDirectoryPathOptions`, and
+`SaveFileOptions` include platform option containers for Android, iOS, web,
+Windows, macOS, and Linux. Most are intentionally empty for now and are
+reserved for future method-specific settings.
 
 ### Memory usage recommendation
 When picking multiple or large files on mobile/desktop, avoid loading all bytes in memory (`withData: true`) as it can cause out of memory errors.

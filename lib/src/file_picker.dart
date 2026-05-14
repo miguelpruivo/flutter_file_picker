@@ -6,6 +6,7 @@ import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
 import 'package:file_picker/src/api/get_directory_path_options.dart';
+import 'package:file_picker/src/api/pick_file_and_directory_paths_options.dart';
 import 'package:file_picker/src/api/save_file_options.dart';
 import 'package:file_picker/src/api/file_picker_options.dart';
 
@@ -132,6 +133,8 @@ abstract final class FilePicker {
   /// The file type filter [type] defaults to [FileType.any]. Optionally,
   /// [allowedExtensions] might be provided (e.g. `["pdf", "svg", "jpg"]`).
   ///
+  /// To provide platform-specific behavior, use [options].
+  ///
   /// Returns a [Future<List<String>?>] that resolves to a list of absolute
   /// paths for the selected files and directories. If the user cancels the
   /// dialog or if the paths cannot be resolved, the method returns `null`.
@@ -139,11 +142,14 @@ abstract final class FilePicker {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
+    PickFileAndDirectoryPathsOptions options =
+        const PickFileAndDirectoryPathsOptions(),
   }) {
     return FilePickerPlatform.instance.pickFileAndDirectoryPaths(
       initialDirectory: initialDirectory,
       type: type,
       allowedExtensions: allowedExtensions,
+      options: options,
     );
   }
 
