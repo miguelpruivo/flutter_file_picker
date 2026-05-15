@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
+import 'package:file_picker/src/api/android_saf_options.dart';
 
 abstract final class FilePicker {
   /// Retrieves the file(s) from the underlying platform
@@ -43,6 +44,9 @@ abstract final class FilePicker {
   /// [readSequential] can be optionally set on web to keep the import file order during import.
   /// Not supported on macOS.
   ///
+  /// [cancelUploadOnWindowBlur] prevents upload cancellation when window focus is lost.
+  /// Only supported on web.
+  ///
   /// The result is wrapped in a [FilePickerResult] which contains helper getters
   /// with useful information regarding the picked [List<PlatformFile>].
   ///
@@ -59,10 +63,12 @@ abstract final class FilePicker {
     Function(FilePickerStatus)? onFileLoading,
     int compressionQuality = 0,
     bool allowMultiple = false,
-    bool withData = false,
+    bool withData = kIsWeb,
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
+    bool cancelUploadOnWindowBlur = true,
+    AndroidSAFOptions? androidSafOptions,
   }) {
     return FilePickerPlatform.instance.pickFiles(
       dialogTitle: dialogTitle,
@@ -76,6 +82,8 @@ abstract final class FilePicker {
       withReadStream: withReadStream,
       lockParentWindow: lockParentWindow,
       readSequential: readSequential,
+      cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
+      androidSafOptions: androidSafOptions,
     );
   }
 
@@ -98,11 +106,13 @@ abstract final class FilePicker {
   /// paths for the selected files and directories. If the user cancels the
   /// dialog or if the paths cannot be resolved, the method returns `null`.
   static Future<List<String>?> pickFileAndDirectoryPaths({
+    String? dialogTitle,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
   }) {
     return FilePickerPlatform.instance.pickFileAndDirectoryPaths(
+      dialogTitle: dialogTitle,
       initialDirectory: initialDirectory,
       type: type,
       allowedExtensions: allowedExtensions,
@@ -141,7 +151,7 @@ abstract final class FilePicker {
   /// On macOS if the [initialDirectory] is invalid the user directory or previously valid directory
   /// will be used.
   ///
-  /// Returns a [Future<String?>] which resolves to  the absolute path of the selected directory,
+  /// Returns a [Future<String?>] which resolves to the absolute path of the selected directory,
   /// if the user selected a directory. Returns `null` if the user aborted the dialog or if the
   /// folder path couldn't be resolved.
   ///
@@ -149,15 +159,19 @@ abstract final class FilePicker {
   /// could not be instantiated or the dialog result could not be interpreted.
   /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
   /// Note: The User Selected File Read entitlement is required on macOS.
+  /// Note: On Android, if [androidSafOptions] is provided, the returned string will be a
+  /// `content://` document tree URI instead of an absolute path.
   static Future<String?> getDirectoryPath({
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
+    AndroidSAFOptions? androidSafOptions,
   }) {
     return FilePickerPlatform.instance.getDirectoryPath(
       dialogTitle: dialogTitle,
       lockParentWindow: lockParentWindow,
       initialDirectory: initialDirectory,
+      androidSafOptions: androidSafOptions,
     );
   }
 
@@ -206,6 +220,7 @@ abstract final class FilePicker {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Uint8List? bytes,
+    Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) {
     return FilePickerPlatform.instance.saveFile(
@@ -215,7 +230,18 @@ abstract final class FilePicker {
       type: type,
       allowedExtensions: allowedExtensions,
       bytes: bytes,
+      onFileLoading: onFileLoading,
       lockParentWindow: lockParentWindow,
     );
+  }
+
+  /// Skips the entitlements checks on macOS, allowing the plugin to be used without Sandbox enabled.
+  ///
+  /// This is only relevant for macOS. On other platforms, this method does nothing.
+  /// Call this method before any other file picking method to ensure that the entitlements checks are skipped.
+  ///
+  /// Note: Skipping entitlements checks may lead to unexpected behavior or security issues. Use with caution.
+  static Future<void> skipEntitlementsChecks() {
+    return FilePickerPlatform.instance.skipEntitlementsChecks();
   }
 }

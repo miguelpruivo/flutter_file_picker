@@ -9,10 +9,7 @@ class FlutterRelease {
   final DateTime releaseDate;
 
   /// Creates a [FlutterRelease] instance.
-  FlutterRelease({
-    required this.version,
-    required this.releaseDate,
-  });
+  FlutterRelease({required this.version, required this.releaseDate});
 
   /// Tries to parse a JSON object into a [FlutterRelease].
   ///
@@ -22,12 +19,11 @@ class FlutterRelease {
   ///
   /// Note: The logic requires 'channel': 'stable' to be present.
   static FlutterRelease? tryParse(Object? json) {
-    if (json
-        case {
-          'channel': 'stable',
-          'version': final String version,
-          'release_date': final String releaseDateString
-        }) {
+    if (json case {
+      'channel': 'stable',
+      'version': final String version,
+      'release_date': final String releaseDateString,
+    }) {
       return FlutterRelease(
         version: version,
         releaseDate: DateTime.parse(releaseDateString),

@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:file_picker/src/api/file_picker_types.dart';
+import 'package:file_picker/src/api/android_saf_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/platform_file.dart';
@@ -22,8 +24,11 @@ class FilePickerLinux extends FilePickerPlatform {
 
   FilePickerLinux() : super() {
     _client = DBusClient.session();
-    _xdpChooser = OrgFreedesktopPortalFileChooser(_client, destination,
-        path: DBusObjectPath("/org/freedesktop/portal/desktop"));
+    _xdpChooser = OrgFreedesktopPortalFileChooser(
+      _client,
+      destination,
+      path: DBusObjectPath("/org/freedesktop/portal/desktop"),
+    );
   }
 
   @override
@@ -39,6 +44,8 @@ class FilePickerLinux extends FilePickerPlatform {
     bool lockParentWindow = false,
     bool readSequential = false,
     int compressionQuality = 0,
+    bool cancelUploadOnWindowBlur = true,
+    AndroidSAFOptions? androidSafOptions,
   }) async {
     final filter = Filter(type, allowedExtensions);
     Map<String, DBusValue> xdpOption = {
@@ -48,21 +55,23 @@ class FilePickerLinux extends FilePickerPlatform {
       'filters': filter.toDBusArray(),
     };
     if (initialDirectory != null) {
-      List<int> tmp = [];
-      for (var i = 0; i < initialDirectory.length; i++) {
-        tmp.add(initialDirectory[i].codeUnitAt(0));
-      }
-      tmp.add(0);
+      final Uint8List tmp = _encodeDirectory(initialDirectory);
       DBusArray directory = DBusArray.byte(tmp);
       xdpOption["current_folder"] = directory;
     }
     final replyPath = await _xdpChooser.callOpenFile(
-        "", dialogTitle ?? "flutter picker", xdpOption);
+      "",
+      dialogTitle ?? "flutter picker",
+      xdpOption,
+    );
 
     List<Uri> uriPaths = [];
 
-    final request =
-        OrgFreedesktopPortalRequest(_client, destination, path: replyPath);
+    final request = OrgFreedesktopPortalRequest(
+      _client,
+      destination,
+      path: replyPath,
+    );
 
     await for (var response in request.response) {
       final status = response.response;
@@ -71,7 +80,8 @@ class FilePickerLinux extends FilePickerPlatform {
         return null;
       }
       final result = response.results;
-      uriPaths = result["uris"]
+      uriPaths =
+          result["uris"]
               ?.asArray()
               .map((data) => Uri.parse(data.asString()))
               .toList() ??
@@ -83,10 +93,10 @@ class FilePickerLinux extends FilePickerPlatform {
 
     final List<PlatformFile> platformFiles =
         await FilePickerUtils.filePathsToPlatformFiles(
-      filePaths,
-      withReadStream,
-      withData,
-    );
+          filePaths,
+          withReadStream,
+          withData,
+        );
 
     return FilePickerResult(platformFiles);
   }
@@ -96,6 +106,7 @@ class FilePickerLinux extends FilePickerPlatform {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
+    AndroidSAFOptions? androidSafOptions,
   }) async {
     Map<String, DBusValue> xdpOption = {
       'handle_token': DBusString('flutter_picker'),
@@ -103,21 +114,23 @@ class FilePickerLinux extends FilePickerPlatform {
       'modal': DBusBoolean(lockParentWindow),
     };
     if (initialDirectory != null) {
-      List<int> tmp = [];
-      for (var i = 0; i < initialDirectory.length; i++) {
-        tmp.add(initialDirectory[i].codeUnitAt(0));
-      }
-      tmp.add(0);
+      final Uint8List tmp = _encodeDirectory(initialDirectory);
       DBusArray directory = DBusArray.byte(tmp);
       xdpOption["current_folder"] = directory;
     }
     final replyPath = await _xdpChooser.callOpenFile(
-        "", dialogTitle ?? "flutter picker", xdpOption);
+      "",
+      dialogTitle ?? "flutter picker",
+      xdpOption,
+    );
 
     List<Uri> uriPaths = [];
 
-    final request =
-        OrgFreedesktopPortalRequest(_client, destination, path: replyPath);
+    final request = OrgFreedesktopPortalRequest(
+      _client,
+      destination,
+      path: replyPath,
+    );
 
     await for (var response in request.response) {
       final status = response.response;
@@ -126,7 +139,8 @@ class FilePickerLinux extends FilePickerPlatform {
         return null;
       }
       final result = response.results;
-      uriPaths = result["uris"]
+      uriPaths =
+          result["uris"]
               ?.asArray()
               .map((data) => Uri.parse(data.asString()))
               .toList() ??
@@ -137,11 +151,7 @@ class FilePickerLinux extends FilePickerPlatform {
     final filePaths = uriPaths.map((uri) => uri.toFilePath()).toList();
 
     final List<PlatformFile> platformFiles =
-        await FilePickerUtils.filePathsToPlatformFiles(
-      filePaths,
-      false,
-      false,
-    );
+        await FilePickerUtils.filePathsToPlatformFiles(filePaths, false, false);
 
     return platformFiles.firstOrNull?.path;
   }
@@ -154,6 +164,7 @@ class FilePickerLinux extends FilePickerPlatform {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Uint8List? bytes,
+    Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
     Map<String, DBusValue> xdpOption = {
@@ -162,19 +173,21 @@ class FilePickerLinux extends FilePickerPlatform {
       'modal': DBusBoolean(lockParentWindow),
     };
     if (initialDirectory != null) {
-      List<int> tmp = [];
-      for (var i = 0; i < initialDirectory.length; i++) {
-        tmp.add(initialDirectory[i].codeUnitAt(0));
-      }
-      tmp.add(0);
+      final Uint8List tmp = _encodeDirectory(initialDirectory);
       DBusArray directory = DBusArray.byte(tmp);
       xdpOption["current_folder"] = directory;
     }
 
     final replyPath = await _xdpChooser.callSaveFile(
-        "", dialogTitle ?? "flutter picker", xdpOption);
-    final request =
-        OrgFreedesktopPortalRequest(_client, destination, path: replyPath);
+      "",
+      dialogTitle ?? "flutter picker",
+      xdpOption,
+    );
+    final request = OrgFreedesktopPortalRequest(
+      _client,
+      destination,
+      path: replyPath,
+    );
 
     List<Uri> saveUris = [];
     await for (var response in request.response) {
@@ -184,7 +197,8 @@ class FilePickerLinux extends FilePickerPlatform {
         return null;
       }
       final result = response.results;
-      saveUris = result["uris"]
+      saveUris =
+          result["uris"]
               ?.asArray()
               .map((data) => Uri.parse(data.asString()))
               .toList() ??
@@ -198,5 +212,9 @@ class FilePickerLinux extends FilePickerPlatform {
     await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
 
     return savedFilePath;
+  }
+
+  Uint8List _encodeDirectory(String initialDirectory) {
+    return Uint8List.fromList([...utf8.encode(initialDirectory), 0]);
   }
 }

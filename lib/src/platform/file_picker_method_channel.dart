@@ -7,7 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/platform_file.dart';
+import 'package:file_picker/src/api/android_saf_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
+import 'package:file_picker/src/file_picker_utils.dart';
 
 /// An implementation of [FilePickerPlatform] that uses method channels.
 class MethodChannelFilePicker extends FilePickerPlatform {
@@ -45,16 +47,23 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool? withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
-  }) =>
-      _getPath(
-        type,
-        allowMultiple,
-        allowedExtensions,
-        onFileLoading,
-        withData,
-        withReadStream,
-        compressionQuality,
-      );
+    bool cancelUploadOnWindowBlur = true,
+    AndroidSAFOptions? androidSafOptions,
+  }) => _getPath(
+    type,
+    allowMultiple,
+    allowedExtensions,
+    onFileLoading,
+    withData,
+    withReadStream,
+    compressionQuality,
+    androidSafOptions,
+  );
+
+  @override
+  Future<void> releaseSAFGrant(String uri) async {
+    await methodChannel.invokeMethod('releaseSafGrant', {'uri': uri});
+  }
 
   @override
   Future<bool?> clearTemporaryFiles() async =>
@@ -65,13 +74,18 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
+    AndroidSAFOptions? androidSafOptions,
   }) async {
     try {
-      return await methodChannel.invokeMethod('dir', {});
+      return await methodChannel.invokeMethod('dir', {
+        if (androidSafOptions != null)
+          'androidSafOptions': androidSafOptions.toMap(),
+      });
     } on PlatformException catch (ex) {
       if (ex.code == "unknown_path") {
         print(
-            '[$_tag] Could not resolve directory path. Maybe it\'s a protected one or unsupported (such as Downloads folder). If you are on Android, make sure that you are on SDK 21 or above.');
+          '[$_tag] Could not resolve directory path. Maybe it\'s a protected one or unsupported (such as Downloads folder). If you are on Android, make sure that you are on SDK 21 or above.',
+        );
       }
     }
     return null;
@@ -85,6 +99,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool? withData,
     bool? withReadStream,
     int? compressionQuality,
+    AndroidSAFOptions? androidSafOptions,
   ) async {
     final String type = fileType.name;
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -96,16 +111,15 @@ class MethodChannelFilePicker extends FilePickerPlatform {
       );
     }
     try {
-      await _eventSubscription?.cancel();
       if (onFileLoading != null) {
-        _eventSubscription = eventChannel.receiveBroadcastStream().listen(
-          (data) {
-            if (data is! bool) return;
-            onFileLoading(
-                data ? FilePickerStatus.picking : FilePickerStatus.done);
-          },
-          onError: (error) => throw Exception(error),
-        );
+        _eventSubscription = eventChannel.receiveBroadcastStream().listen((
+          data,
+        ) {
+          if (data is! bool) return;
+          onFileLoading(
+            data ? FilePickerStatus.picking : FilePickerStatus.done,
+          );
+        }, onError: (error) => throw Exception(error));
       }
 
       final List<Map>? result = await methodChannel.invokeListMethod(type, {
@@ -113,6 +127,8 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         'allowedExtensions': allowedExtensions,
         'withData': withData,
         'compressionQuality': compressionQuality,
+        if (androidSafOptions != null)
+          'androidSafOptions': androidSafOptions.toMap(),
       });
 
       if (result == null) {
@@ -133,36 +149,63 @@ class MethodChannelFilePicker extends FilePickerPlatform {
       }
 
       return FilePickerResult(platformFiles);
-    } on PlatformException catch (e) {
-      print('[$_tag] Platform exception: $e');
-      rethrow;
     } catch (e) {
-      print(
-          '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
       rethrow;
+    } finally {
+      await _eventSubscription?.cancel();
+      _eventSubscription = null;
     }
   }
 
   @override
-  Future<String?> saveFile(
-      {String? dialogTitle,
-      String? fileName,
-      String? initialDirectory,
-      FileType type = FileType.any,
-      List<String>? allowedExtensions,
-      Uint8List? bytes,
-      bool lockParentWindow = false}) {
+  Future<String?> saveFile({
+    String? dialogTitle,
+    String? fileName,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Uint8List? bytes,
+    Function(FilePickerStatus)? onFileLoading,
+    bool lockParentWindow = false,
+  }) async {
     if (bytes == null) {
       throw ArgumentError(
-          'The "bytes" parameter is required on Android & iOS when calling "saveFile".');
+        'The "bytes" parameter is required on Android & iOS when calling "saveFile".',
+      );
     }
 
-    return methodChannel.invokeMethod("save", {
-      "fileName": fileName,
-      "fileType": type.name,
-      "initialDirectory": initialDirectory,
-      "allowedExtensions": allowedExtensions,
-      "bytes": bytes,
-    });
+    try {
+      if (onFileLoading != null) {
+        onFileLoading(FilePickerStatus.picking);
+        _eventSubscription = eventChannel.receiveBroadcastStream().listen((
+          data,
+        ) {
+          if (data is! bool) return;
+          onFileLoading(
+            data ? FilePickerStatus.picking : FilePickerStatus.done,
+          );
+        }, onError: (error) => throw Exception(error));
+      }
+
+      final String? savedPath = await methodChannel
+          .invokeMethod<String>("save", {
+            "fileName": fileName,
+            "fileType": type.name,
+            "initialDirectory": initialDirectory,
+            "allowedExtensions": allowedExtensions,
+          });
+
+      await FilePickerUtils.saveBytesToFile(bytes, savedPath);
+
+      if (onFileLoading != null) {
+        onFileLoading(FilePickerStatus.done);
+      }
+
+      return savedPath;
+    } catch (e) {
+      rethrow;
+    } finally {
+      await _eventSubscription?.cancel();
+    }
   }
 }

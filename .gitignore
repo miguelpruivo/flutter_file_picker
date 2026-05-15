@@ -2,6 +2,9 @@
 .atom/
 .idea/
 .vscode/
+.project
+.classpath
+.settings/
 
 .packages
 .pub/

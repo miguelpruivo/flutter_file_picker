@@ -12,12 +12,8 @@ void setUpTestFiles(
   File(
     './test/test_files/franz-michael-schneeberger-unsplash.jpg',
   ).copySync(imageTestFilePath);
-  File(
-    './test/test_files/test.pdf',
-  ).copySync(pdfTestFilePath);
-  File(
-    './test/test_files/test.yml',
-  ).copySync(yamlTestFilePath);
+  File('./test/test_files/test.pdf').copySync(pdfTestFilePath);
+  File('./test/test_files/test.yml').copySync(yamlTestFilePath);
 }
 
 void tearDownTestFiles(

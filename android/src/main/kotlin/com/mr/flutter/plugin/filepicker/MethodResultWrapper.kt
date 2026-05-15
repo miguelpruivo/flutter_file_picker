@@ -12,9 +12,17 @@ class MethodResultWrapper(private val methodResult: MethodChannel.Result) :
 
     override fun success(result: Any?) {
         handler.post {
-            methodResult.success(
-                result
-            )
+            try {
+                methodResult.success(
+                    result
+                )
+            } catch (oom: OutOfMemoryError) {
+                methodResult.error(
+                    "out_of_memory",
+                    "Selected files are too large to return in memory. Disable withData or use withReadStream.",
+                    null
+                )
+            }
         }
     }
 

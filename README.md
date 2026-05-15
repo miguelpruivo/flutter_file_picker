@@ -6,9 +6,6 @@
   <a href="https://github.com/Solido/awesome-flutter">
     <img alt="Awesome Flutter" src="https://img.shields.io/badge/Awesome-Flutter-blue.svg?longCache=true&style=flat-square">
   </a>
-  <a href="https://www.buymeacoffee.com/gQyz2MR">
-    <img alt="Buy me a coffee" src="https://img.shields.io/badge/Donate-Buy%20Me%20A%20Coffee-yellow.svg">
-  </a>
   <a href="https://github.com/miguelpruivo/flutter_file_picker/issues">
     <img src="https://img.shields.io/github/issues/miguelpruivo/flutter_file_picker" alt="GitHub issues badge">
   </a>
@@ -51,6 +48,12 @@ If you have any feature that you want to see in this package, please feel free t
 
 See the [API section of the File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api) or the [official API reference on pub.dev](https://pub.dev/documentation/file_picker/latest/file_picker/FilePicker-class.html) for further details.
 
+### Darwin implementation notes
+
+The iOS and macOS native implementations now live under the shared Darwin source tree. The iOS implementation requires iOS 14.0 or newer because it uses `PHPickerViewController` and `PHPickerResult`.
+
+The old iOS compile-time flags (`PICKER_MEDIA`, `PICKER_AUDIO`, `PICKER_DOCUMENT`) were part of the legacy Objective-C implementation and are no longer used in the Darwin source path.
+
 
 ## Documentation
 See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** for every detail on about how to install, setup and use it.
@@ -73,9 +76,24 @@ See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker
 ## Usage
 Quick simple usage example:
 
+### Memory usage recommendation
+When picking multiple or large files on mobile/desktop, avoid loading all bytes in memory (`withData: true`) as it can cause out of memory errors.
+
+Prefer `withReadStream: true` and keep `withData: false`:
+
+```dart
+FilePickerResult? result = await FilePicker.pickFiles(
+  allowMultiple: true,
+  withData: false,
+  withReadStream: true,
+);
+```
+
+You can still use `withData: true` for small files or single selections when immediate byte access is required.
+
 #### Single file
 ```dart
-FilePickerResult? result = await FilePicker.platform.pickFiles();
+FilePickerResult? result = await FilePicker.pickFiles();
 
 if (result != null) {
   File file = File(result.files.single.path!);
@@ -85,7 +103,7 @@ if (result != null) {
 ```
 #### Multiple files
 ```dart
-FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
+FilePickerResult? result = await FilePicker.pickFiles(allowMultiple: true);
 
 if (result != null) {
   List<File> files = result.paths.map((path) => File(path!)).toList();
@@ -95,7 +113,7 @@ if (result != null) {
 ```
 #### Multiple files with extension filter
 ```dart
-FilePickerResult? result = await FilePicker.platform.pickFiles(
+FilePickerResult? result = await FilePicker.pickFiles(
   allowMultiple: true,
   type: FileType.custom,
   allowedExtensions: ['jpg', 'pdf', 'doc'],
@@ -103,7 +121,7 @@ FilePickerResult? result = await FilePicker.platform.pickFiles(
 ```
 #### Pick a directory
 ```dart
-String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+String? selectedDirectory = await FilePicker.getDirectoryPath();
 
 if (selectedDirectory == null) {
   // User canceled the picker
@@ -111,7 +129,7 @@ if (selectedDirectory == null) {
 ```
 #### Save-file / save-as dialog
 ```dart
-String? outputFile = await FilePicker.platform.saveFile(
+String? outputFile = await FilePicker.saveFile(
   dialogTitle: 'Please select an output file:',
   fileName: 'output-file.pdf',
 );
@@ -122,7 +140,7 @@ if (outputFile == null) {
 ```
 ### Load result and file details
 ```dart
-FilePickerResult? result = await FilePicker.platform.pickFiles();
+FilePickerResult? result = await FilePicker.pickFiles();
 
 if (result != null) {
   PlatformFile file = result.files.first;
@@ -138,7 +156,7 @@ if (result != null) {
 ```
 ### Retrieve all files as XFiles or individually
 ```dart
-FilePickerResult? result = await FilePicker.platform.pickFiles();
+FilePickerResult? result = await FilePicker.pickFiles();
 
 if (result != null) {
   // All files
@@ -152,7 +170,7 @@ if (result != null) {
 ```
 #### Pick and upload a file to Firebase Storage with Flutter Web
 ```dart
-FilePickerResult? result = await FilePicker.platform.pickFiles();
+FilePickerResult? result = await FilePicker.pickFiles();
 
 if (result != null) {
   Uint8List fileBytes = result.files.first.bytes;
@@ -172,7 +190,7 @@ For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flu
 #### iOS
 ![DemoMultiFilters](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_ios.gif?raw=true)
 
-#### MacOS
+#### macOS
 ![DemoMacOS](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_macos.gif?raw=true)
 
 #### Linux
@@ -184,6 +202,6 @@ For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flu
 ## Getting Started
 
 For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
+[documentation](https://flutter.dev).
 
-For help on editing plugin code, view the [documentation](https://flutter.io/platform-plugins/#edit-code).
+For help on editing plugin code, view the [documentation](https://flutter.dev/platform-plugins/#edit-code).

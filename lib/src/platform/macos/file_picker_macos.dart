@@ -1,6 +1,7 @@
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
+import 'package:file_picker/src/api/android_saf_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/file_picker_utils.dart';
 import 'package:flutter/foundation.dart';
@@ -12,25 +13,27 @@ class FilePickerMacOS extends FilePickerPlatform {
   }
 
   @visibleForTesting
-  final methodChannel =
-      const MethodChannel('miguelruivo.flutter.plugins.filepicker');
+  final methodChannel = const MethodChannel(
+    'miguelruivo.flutter.plugins.filepicker',
+  );
 
   @override
   Future<List<String>?> pickFileAndDirectoryPaths({
+    String? dialogTitle,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
   }) async {
-    final fileFilter = fileTypeToFileFilter(
-      type,
-      allowedExtensions,
-    );
+    final fileFilter = fileTypeToFileFilter(type, allowedExtensions);
 
     final filePaths = await methodChannel.invokeListMethod<String>(
       'pickFileAndDirectoryPaths',
       <String, dynamic>{
         'allowedExtensions': fileFilter,
         'initialDirectory': escapeInitialDirectory(initialDirectory),
+        'dialogTitle': dialogTitle == null
+            ? null
+            : escapeDialogTitle(dialogTitle),
       },
     );
 
@@ -50,30 +53,28 @@ class FilePickerMacOS extends FilePickerPlatform {
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
+    bool cancelUploadOnWindowBlur = true,
+    AndroidSAFOptions? androidSafOptions,
   }) async {
-    final fileFilter = fileTypeToFileFilter(
-      type,
-      allowedExtensions,
-    );
+    final fileFilter = fileTypeToFileFilter(type, allowedExtensions);
 
-    final filePaths = await methodChannel.invokeListMethod<String>(
-      'pickFiles',
-      <String, dynamic>{
-        'allowedExtensions': fileFilter,
-        'initialDirectory': escapeInitialDirectory(initialDirectory),
-        'allowMultiple': allowMultiple,
-      },
-    );
+    final filePaths = await methodChannel
+        .invokeListMethod<String>('pickFiles', <String, dynamic>{
+          'allowedExtensions': fileFilter,
+          'dialogTitle': dialogTitle,
+          'initialDirectory': escapeInitialDirectory(initialDirectory),
+          'allowMultiple': allowMultiple,
+        });
     if (filePaths == null) {
       return null;
     }
 
     final List<PlatformFile> platformFiles =
         await FilePickerUtils.filePathsToPlatformFiles(
-      filePaths,
-      withReadStream,
-      withData,
-    );
+          filePaths,
+          withReadStream,
+          withData,
+        );
 
     return FilePickerResult(platformFiles);
   }
@@ -83,6 +84,7 @@ class FilePickerMacOS extends FilePickerPlatform {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
+    AndroidSAFOptions? androidSafOptions,
   }) async {
     final String? directoryPath = await methodChannel.invokeMethod<String>(
       'getDirectoryPath',
@@ -102,30 +104,34 @@ class FilePickerMacOS extends FilePickerPlatform {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Uint8List? bytes,
+    Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
-    final fileFilter = fileTypeToFileFilter(
-      type,
-      allowedExtensions,
-    );
+    final fileFilter = fileTypeToFileFilter(type, allowedExtensions);
 
-    final String? savedFilePath = await methodChannel.invokeMethod<String>(
-      'saveFile',
-      <String, dynamic>{
-        'dialogTitle': escapeDialogTitle(
-            dialogTitle ?? FilePickerUtils.defaultDialogTitle),
-        'fileName': fileName,
-        'initialDirectory': escapeInitialDirectory(initialDirectory),
-        'allowedExtensions': fileFilter,
-      },
-    );
+    final String? savedFilePath = await methodChannel
+        .invokeMethod<String>('saveFile', <String, dynamic>{
+          'dialogTitle': escapeDialogTitle(
+            dialogTitle ?? FilePickerUtils.defaultDialogTitle,
+          ),
+          'fileName': fileName,
+          'initialDirectory': escapeInitialDirectory(initialDirectory),
+          'allowedExtensions': fileFilter,
+        });
 
     await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
     return savedFilePath;
   }
 
+  @override
+  Future<void> skipEntitlementsChecks() async {
+    await methodChannel.invokeMethod('skipEntitlementsChecks');
+  }
+
   List<String> fileTypeToFileFilter(
-      FileType type, List<String>? allowedExtensions) {
+    FileType type,
+    List<String>? allowedExtensions,
+  ) {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw ArgumentError.value(
         allowedExtensions,
@@ -158,7 +164,7 @@ class FilePickerMacOS extends FilePickerPlatform {
           "gif",
           "jpeg",
           "jpg",
-          "png"
+          "png",
         ];
       case FileType.video:
         return [
@@ -170,7 +176,7 @@ class FilePickerMacOS extends FilePickerPlatform {
           "m4v",
           "mpeg",
           "webm",
-          "wmv"
+          "wmv",
         ];
     }
   }

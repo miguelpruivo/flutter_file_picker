@@ -15,12 +15,20 @@ void main() {
 
   setUpAll(
     () => setUpTestFiles(
-        appTestFilePath, imageTestFile, pdfTestFile, yamlTestFile),
+      appTestFilePath,
+      imageTestFile,
+      pdfTestFile,
+      yamlTestFile,
+    ),
   );
 
   tearDownAll(
     () => tearDownTestFiles(
-        appTestFilePath, imageTestFile, pdfTestFile, yamlTestFile),
+      appTestFilePath,
+      imageTestFile,
+      pdfTestFile,
+      yamlTestFile,
+    ),
   );
 
   group('createPlatformFile()', () {
@@ -30,7 +38,10 @@ void main() {
       final readStream = imageFile.openRead();
 
       final platformFile = await FilePickerUtils.createPlatformFile(
-          imageFile, bytes, readStream);
+        imageFile,
+        bytes,
+        readStream,
+      );
 
       expect(platformFile.bytes, equals(bytes));
       expect(platformFile.name, equals('test_utils.jpg'));
@@ -39,100 +50,112 @@ void main() {
     });
 
     test(
-        'should not throw an exception when picking .app files on macOS (.app files on macOS are actually directories but they are treated as files, similar to .exe files on Windows)',
-        () async {
-      final appFile = File(appTestFilePath);
+      'should not throw an exception when picking .app files on macOS (.app files on macOS are actually directories but they are treated as files, similar to .exe files on Windows)',
+      () async {
+        final appFile = File(appTestFilePath);
 
-      final platformFile =
-          await FilePickerUtils.createPlatformFile(appFile, null, null);
+        final platformFile = await FilePickerUtils.createPlatformFile(
+          appFile,
+          null,
+          null,
+        );
 
-      expect(platformFile.bytes, equals(null));
-      expect(platformFile.name, equals('test_utils.app'));
-      expect(platformFile.readStream, equals(null));
-      expect(
-        platformFile.size,
-        equals(0),
-        reason: 'Expect size to be 0 because .app files are directories.',
-      );
-    });
+        expect(platformFile.bytes, equals(null));
+        expect(platformFile.name, equals('test_utils.app'));
+        expect(platformFile.readStream, equals(null));
+        expect(
+          platformFile.size,
+          equals(0),
+          reason: 'Expect size to be 0 because .app files are directories.',
+        );
+      },
+    );
   });
 
   group('filePathsToPlatformFiles()', () {
-    test('should transform a list of file paths into a list of PlatformFiles',
-        () async {
-      final filePaths = [imageTestFile, pdfTestFile, yamlTestFile];
+    test(
+      'should transform a list of file paths into a list of PlatformFiles',
+      () async {
+        final filePaths = [imageTestFile, pdfTestFile, yamlTestFile];
 
-      final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
-          filePaths, false, false);
+        final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
+          filePaths,
+          false,
+          false,
+        );
 
-      expect(platformFiles.length, equals(filePaths.length));
+        expect(platformFiles.length, equals(filePaths.length));
 
-      final imageFile = platformFiles.firstWhere(
-        (element) => element.name == 'test_utils.jpg',
-      );
-      expect(imageFile.extension, equals('jpg'));
-      expect(imageFile.name, equals('test_utils.jpg'));
-      expect(imageFile.path, equals(imageTestFile));
-      expect(imageFile.size, equals(4073378));
+        final imageFile = platformFiles.firstWhere(
+          (element) => element.name == 'test_utils.jpg',
+        );
+        expect(imageFile.extension, equals('jpg'));
+        expect(imageFile.name, equals('test_utils.jpg'));
+        expect(imageFile.path, equals(imageTestFile));
+        expect(imageFile.size, equals(4073378));
 
-      final pdfFile = platformFiles.firstWhere(
-        (element) => element.name == 'test_utils.pdf',
-      );
-      expect(pdfFile.extension, equals('pdf'));
-      expect(pdfFile.name, equals('test_utils.pdf'));
-      expect(pdfFile.path, equals(pdfTestFile));
-      expect(pdfFile.size, equals(7478));
+        final pdfFile = platformFiles.firstWhere(
+          (element) => element.name == 'test_utils.pdf',
+        );
+        expect(pdfFile.extension, equals('pdf'));
+        expect(pdfFile.name, equals('test_utils.pdf'));
+        expect(pdfFile.path, equals(pdfTestFile));
+        expect(pdfFile.size, equals(7478));
 
-      final yamlFile = platformFiles.firstWhere(
-        (element) => element.name == 'test_utils.yml',
-      );
-      expect(yamlFile.extension, equals('yml'));
-      expect(yamlFile.name, equals('test_utils.yml'));
-      expect(yamlFile.path, equals(yamlTestFile));
-      expect(yamlFile.size, equals(213));
-    });
+        final yamlFile = platformFiles.firstWhere(
+          (element) => element.name == 'test_utils.yml',
+        );
+        expect(yamlFile.extension, equals('yml'));
+        expect(yamlFile.name, equals('test_utils.yml'));
+        expect(yamlFile.path, equals(yamlTestFile));
+        expect(yamlFile.size, equals(213));
+      },
+    );
 
     test(
-        'should transform an empty list of file paths into an empty list of PlatformFiles',
-        () async {
-      final filePaths = <String>[];
+      'should transform an empty list of file paths into an empty list of PlatformFiles',
+      () async {
+        final filePaths = <String>[];
 
-      final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
-        filePaths,
-        false,
-        false,
-      );
+        final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
+          filePaths,
+          false,
+          false,
+        );
 
-      expect(platformFiles.length, equals(filePaths.length));
-    });
-
-    test(
-        'should transform a list of file paths containing a path into a list of PlatformFiles',
-        () async {
-      final filePaths = <String>['test'];
-
-      final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
-        filePaths,
-        true,
-        false,
-      );
-
-      expect(platformFiles.length, equals(filePaths.length));
-    });
+        expect(platformFiles.length, equals(filePaths.length));
+      },
+    );
 
     test(
-        'should transform a list of file paths containing a valid path into a list of PlatformFiles',
-        () async {
-      final filePaths = <String>['test/test_files/test.pdf'];
+      'should transform a list of file paths containing a path into a list of PlatformFiles',
+      () async {
+        final filePaths = <String>['test'];
 
-      final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
-        filePaths,
-        false,
-        true,
-      );
+        final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
+          filePaths,
+          true,
+          false,
+        );
 
-      expect(platformFiles.length, equals(filePaths.length));
-    });
+        expect(platformFiles.length, equals(filePaths.length));
+      },
+    );
+
+    test(
+      'should transform a list of file paths containing a valid path into a list of PlatformFiles',
+      () async {
+        final filePaths = <String>['test/test_files/test.pdf'];
+
+        final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
+          filePaths,
+          false,
+          true,
+        );
+
+        expect(platformFiles.length, equals(filePaths.length));
+      },
+    );
   });
 
   group('runExecutableWithArguments()', () {

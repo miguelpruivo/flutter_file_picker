@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/platform_file.dart';
+import 'package:file_picker/src/api/android_saf_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:path/path.dart' as p;
@@ -39,6 +40,16 @@ class FilePickerWeb extends FilePickerPlatform {
   }
 
   @override
+  Future<String?> getDirectoryPath({
+    String? dialogTitle,
+    bool lockParentWindow = false,
+    String? initialDirectory,
+    AndroidSAFOptions? androidSafOptions,
+  }) async {
+    throw UnimplementedError('getDirectoryPath() has not been implemented.');
+  }
+
+  @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
@@ -52,10 +63,12 @@ class FilePickerWeb extends FilePickerPlatform {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     int compressionQuality = 0,
+    AndroidSAFOptions? androidSafOptions,
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
-          'You are setting a type [$type]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.');
+        'You are setting a type [$type]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.',
+      );
     }
 
     Completer<List<PlatformFile>?>? filesCompleter =
@@ -92,18 +105,22 @@ class FilePickerWeb extends FilePickerPlatform {
       ) {
         String? blobUrl;
         if (bytes != null && bytes.isNotEmpty) {
-          final blob =
-              Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
+          final blob = Blob(
+            [bytes.toJS].toJS,
+            BlobPropertyBag(type: file.type),
+          );
 
           blobUrl = URL.createObjectURL(blob);
         }
-        pickedFiles.add(PlatformFile(
-          name: file.name,
-          path: path ?? blobUrl,
-          size: bytes != null ? bytes.length : file.size,
-          bytes: bytes,
-          readStream: readStream,
-        ));
+        pickedFiles.add(
+          PlatformFile(
+            name: file.name,
+            path: path ?? blobUrl,
+            size: bytes != null ? bytes.length : file.size,
+            bytes: bytes,
+            readStream: readStream,
+          ),
+        );
 
         if (pickedFiles.length >= files.length) {
           if (onFileLoading != null) {
@@ -200,6 +217,7 @@ class FilePickerWeb extends FilePickerPlatform {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Uint8List? bytes,
+    Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
     if (bytes == null || bytes.isEmpty) {
@@ -226,7 +244,8 @@ class FilePickerWeb extends FilePickerPlatform {
     // Start a download by using a click event on an anchor element that contains the Blob.
     HTMLAnchorElement()
       ..href = url
-      ..target = 'blank' // Always open the file in a new tab.
+      // Always open the file in a new tab.
+      ..target = 'blank'
       ..download = fileName
       ..click();
 
@@ -253,8 +272,10 @@ class FilePickerWeb extends FilePickerPlatform {
         return 'video/*|image/*';
 
       case FileType.custom:
-        return allowedExtensions!
-            .fold('', (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next');
+        return allowedExtensions!.fold(
+          '',
+          (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next',
+        );
     }
   }
 

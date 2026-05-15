@@ -53,7 +53,7 @@ class Filter {
           "*.gif",
           "*.jpeg",
           "*.jpg",
-          "*.png"
+          "*.png",
         ];
         List<(int, String)> mediaList = [];
         for (var filter in media) {
@@ -70,7 +70,7 @@ class Filter {
           "*.m4v",
           "*.mpeg",
           "*.webm",
-          "*.wmv"
+          "*.wmv",
         ];
         List<(int, String)> videoList = [];
         for (var filter in video) {
@@ -89,17 +89,20 @@ class Filter {
         tmpList.add(DBusStruct([pos, value]));
       }
       DBusValue dataArray = DBusArray(
-          DBusSignature.struct([DBusSignature.uint32, DBusSignature.string]),
-          tmpList);
+        DBusSignature.struct([DBusSignature.uint32, DBusSignature.string]),
+        tmpList,
+      );
       dataList.add(DBusStruct([DBusString(key), dataArray]));
     });
 
     return DBusArray(
-        DBusSignature.struct([
-          DBusSignature.string,
-          DBusSignature.array(DBusSignature.struct(
-              [DBusSignature.uint32, DBusSignature.string]))
-        ]),
-        dataList);
+      DBusSignature.struct([
+        DBusSignature.string,
+        DBusSignature.array(
+          DBusSignature.struct([DBusSignature.uint32, DBusSignature.string]),
+        ),
+      ]),
+      dataList,
+    );
   }
 }
