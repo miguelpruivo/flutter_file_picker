@@ -1,3 +1,8 @@
+## 12.0.0-beta.4
+
+### Android
+- Fixed `FileType.any` not showing subdirectories in the document picker due to `EXTRA_MIME_TYPES` being passed as a bare `String` instead of a `String[]`.
+
 ## 12.0.0-beta.3
 ### General
 - Added `onFileLoading` callback to `saveFile` and implemented status tracking via an event channel. `saveFile` now reports loading status (for example `FilePickerStatus.loading` and `FilePickerStatus.done`).

@@ -189,7 +189,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                     fileType,
                     arguments?.get("allowMultipleSelection") as Boolean?,
                     arguments?.get("withData") as Boolean?,
-                    arrayListOf(),
+                    getMimeTypes(null),
                     arguments?.get("compressionQuality") as Int?,
                     androidSafOptions,
                     result
