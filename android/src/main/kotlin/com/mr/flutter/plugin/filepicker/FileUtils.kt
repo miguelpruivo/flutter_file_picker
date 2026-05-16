@@ -238,7 +238,7 @@ object FileUtils {
                     if (!allowedExtensions.isNullOrEmpty()) {
                         putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions!!.toTypedArray())
                     } else {
-                        putExtra(Intent.EXTRA_MIME_TYPES, type)
+                        putExtra(Intent.EXTRA_MIME_TYPES, arrayOf(type))
                     }
                     putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
                     putExtra("multi-pick", isMultipleSelection)
@@ -252,7 +252,7 @@ object FileUtils {
                 FilePickerDelegate.TAG,
                 "Can't find a valid activity to handle the request. Make sure you've a file explorer installed."
             )
-            finishWithError("invalid_format_type", "Can't handle the provided file type.")
+            finishWithError("explorer_not_found", "Can't find a valid activity to handle the request. Make sure you have a file explorer installed.")
         }
     }
 
@@ -364,7 +364,7 @@ object FileUtils {
                 FilePickerDelegate.TAG,
                 "Can't find a valid activity to handle the request. Make sure you've a file explorer installed."
             )
-            finishWithError("invalid_format_type", "Can't handle the provided file type.")
+            finishWithError("explorer_not_found", "Can't find a valid activity to handle the request. Make sure you have a file explorer installed.")
         }
     }
 

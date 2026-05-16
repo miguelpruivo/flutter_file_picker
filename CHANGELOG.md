@@ -1,4 +1,13 @@
+## 12.0.0-beta.4
+### Android
+- Fixed an issue where `FileType.any` would prevent subdirectories from being listed in the system file explorer by ensuring `EXTRA_MIME_TYPES` is correctly passed as an array. [#2013](https://github.com/miguelpruivo/flutter_file_picker/issues/2013)
+
 ## 12.0.0-beta.3
+### General
+- Added `onFileLoading` callback to `saveFile` and implemented status tracking via an event channel. `saveFile` now reports loading status (for example `FilePickerStatus.loading` and `FilePickerStatus.done`).
+- Offloaded file saving (writing bytes) to a background isolate to avoid blocking the UI when saving large files.
+- Ensured the event subscription used for loading status is always cancelled in a `finally` block to prevent leaks and spurious events.
+
 ### Android
 - Fixed Android plugin registration when using AGP 9+ with `android.builtInKotlin=false`, while preserving support for older AGP setups.
 - Introduced `FilePickerOptions` class to encapsulate platform-specific properties for smoother scalability and avoiding breaking changes.

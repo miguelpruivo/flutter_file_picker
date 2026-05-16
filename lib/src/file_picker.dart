@@ -139,6 +139,7 @@ abstract final class FilePicker {
   /// paths for the selected files and directories. If the user cancels the
   /// dialog or if the paths cannot be resolved, the method returns `null`.
   static Future<List<String>?> pickFileAndDirectoryPaths({
+    String? dialogTitle,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
@@ -146,6 +147,7 @@ abstract final class FilePicker {
         const PickFileAndDirectoryPathsOptions(),
   }) {
     return FilePickerPlatform.instance.pickFileAndDirectoryPaths(
+      dialogTitle: dialogTitle,
       initialDirectory: initialDirectory,
       type: type,
       allowedExtensions: allowedExtensions,
@@ -272,6 +274,7 @@ abstract final class FilePicker {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Uint8List? bytes,
+    Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
     SaveFileOptions options = const SaveFileOptions(),
   }) {
@@ -282,6 +285,7 @@ abstract final class FilePicker {
       type: type,
       allowedExtensions: allowedExtensions,
       bytes: bytes,
+      onFileLoading: onFileLoading,
       lockParentWindow: lockParentWindow,
       options: options,
     );

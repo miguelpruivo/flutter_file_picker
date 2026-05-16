@@ -67,6 +67,15 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     }
   }
 
+  @override
+  void dispose() {
+    _defaultFileNameController.dispose();
+    _dialogTitleController.dispose();
+    _initialDirectoryController.dispose();
+    _fileExtensionController.dispose();
+    super.dispose();
+  }
+
   void _pickFiles() async {
     bool hasUserAborted = true;
     _resetState();
@@ -142,6 +151,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
 
     try {
       pickedFilesAndDirectories = await FilePicker.pickFileAndDirectoryPaths(
+        dialogTitle: _dialogTitleController.text,
         type: _pickingType,
         allowedExtensions: (_extension?.isNotEmpty ?? false)
             ? _extension?.replaceAll(' ', '').split(',')

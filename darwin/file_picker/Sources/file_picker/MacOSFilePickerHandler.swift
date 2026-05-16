@@ -61,6 +61,10 @@ final class MacOSFilePickerHandler {
            !initialDirectory.isEmpty {
             dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
         }
+        if let title = args["dialogTitle"] as? String {
+            dialog.title = title
+            dialog.message = title
+        }
         dialog.showsHiddenFiles = false
         let allowMultiple = args["allowMultiple"] as? Bool ?? false
         dialog.allowsMultipleSelection = allowMultiple
@@ -109,12 +113,17 @@ final class MacOSFilePickerHandler {
             result(entitlementError)
             return
         }
+
         let dialog: NSOpenPanel = NSOpenPanel()
         let args = call.arguments as! [String: Any]
 
         if let initialDirectory = args["initialDirectory"] as? String,
            !initialDirectory.isEmpty {
             dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
+        }
+        if let title = args["dialogTitle"] as? String {
+            dialog.title = title
+            dialog.message = title
         }
         dialog.showsHiddenFiles = false
         dialog.allowsMultipleSelection = true
@@ -160,6 +169,14 @@ final class MacOSFilePickerHandler {
         if let initialDirectory = args["initialDirectory"] as? String,
            !initialDirectory.isEmpty {
             dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
+        }
+        if let title = args["dialogTitle"] as? String {
+            dialog.title = title
+            if #available(macOS 10.10, *) {
+                dialog.titleVisibility = .visible
+                dialog.titlebarAppearsTransparent = false
+            }
+            dialog.message = title
         }
         dialog.showsHiddenFiles = false
         dialog.allowsMultipleSelection = false
