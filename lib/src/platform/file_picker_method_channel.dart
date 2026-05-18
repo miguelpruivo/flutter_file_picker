@@ -136,33 +136,15 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         return null;
       }
 
-      // Cancel the event subscription before the (potentially slow) isolate
-      // reads below so that no stale "done" event from the native side can
-      // prematurely hide the loading indicator.
       await _eventSubscription?.cancel();
       _eventSubscription = null;
 
-      // Build PlatformFile list.  When withData is true we read the bytes from
-      // the cached file using async I/O (File.readAsBytes) instead of receiving
-      // them via the method channel.  Transferring large byte arrays through
-      // StandardMethodCodec serialises them on the platform thread, blocking
-      // the UI for the full duration of the copy (e.g. ~2 s for a 20 MB file).
-      // Dart's async file I/O is non-blocking and does not stall the rasterizer.
-      // Files are processed sequentially to avoid saturating memory/IO when
-      // multiple large files are selected at once.
       final List<PlatformFile> platformFiles = [];
       for (final Map platformFileMap in result) {
         final String? path = platformFileMap['path'] as String?;
 
-        // Bytes that arrive over the channel (legacy / non-Android paths).
         Uint8List? bytes = platformFileMap['bytes'] as Uint8List?;
 
-        // If the native side omitted bytes but we need them and have a path,
-        // read them in a worker isolate via FilePickerUtils.readBytesFromFile.
-        // Using compute() (which powers readBytesFromFile) sends only the
-        // primitive String path across the isolate boundary — no closures,
-        // no widget-tree references — and keeps the main isolate's heap free
-        // from a large allocation that would stall the rasterizer.
         if ((withData ?? false) && bytes == null && path != null) {
           bytes = await FilePickerUtils.readBytesFromFile(path);
         }
@@ -217,16 +199,9 @@ class MethodChannelFilePicker extends FilePickerPlatform {
           if (data) {
             onFileLoading(FilePickerStatus.picking);
           }
-          // Intentionally ignore the native "done" (false) event here – we
-          // call onFileLoading(done) below once the full operation has finished.
         }, onError: (error) => throw Exception(error));
       }
 
-      // On Android & iOS the native side writes the bytes via the platform's
-      // content resolver / document picker (which handles SAF URIs correctly).
-      // We therefore send the bytes to the native layer so it can write them,
-      // and we must NOT call saveBytesToFile here – the path returned by the
-      // native side is a SAF/document URI path, not a real filesystem path.
       final String? savedPath = await methodChannel
           .invokeMethod<String>("save", {
             "fileName": fileName,

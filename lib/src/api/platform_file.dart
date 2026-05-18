@@ -103,9 +103,6 @@ class PlatformFile {
 
   @override
   String toString() {
-    // Intentionally omit the full bytes content from toString() to avoid
-    // accidentally converting large byte arrays to a string (e.g. via
-    // debugPrint / log calls), which would freeze the UI for large files.
     final bytesInfo = bytes == null ? 'null' : '${bytes!.length} bytes';
     return 'PlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytes: $bytesInfo, readStream: $readStream, size: $size)';
   }

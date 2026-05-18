@@ -74,8 +74,6 @@ class FilePickerDelegate(
     private fun saveFile(uri: Uri?): Boolean {
         uri ?: return false
         dispatchEventStatus(true)
-        // Perform the I/O work off the main thread so the UI never freezes
-        // while bytes are being written to the content-resolver output stream.
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val savedUri = FileUtils.writeBytesData(context = activity, uri, bytes) ?: uri
