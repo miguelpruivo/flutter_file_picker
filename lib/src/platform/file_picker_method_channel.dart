@@ -116,11 +116,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
           data,
         ) {
           if (data is! bool) return;
-          // Only forward "picking" (true) events to the caller.
-          // The "done" (false) event is emitted by the native side as soon as
-          // it finishes its own processing, but at that point Dart may still
-          // need to read bytes from the cache file in a background isolate.
-          // We call onFileLoading(done) ourselves once everything is ready.
           if (data) {
             onFileLoading(FilePickerStatus.picking);
           }
