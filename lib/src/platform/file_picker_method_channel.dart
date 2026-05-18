@@ -188,10 +188,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     try {
       if (onFileLoading != null) {
         onFileLoading(FilePickerStatus.picking);
-        // Listen only for intermediate "picking" state updates from the native
-        // side.  We handle the final "done" ourselves after the invoke returns,
-        // so we filter out the false (done) events to avoid a premature hide of
-        // the loading indicator while the native side is still writing bytes.
         _eventSubscription = eventChannel.receiveBroadcastStream().listen((
           data,
         ) {
