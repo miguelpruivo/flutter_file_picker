@@ -185,10 +185,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     try {
       if (onFileLoading != null) {
         onFileLoading(FilePickerStatus.picking);
-        // Listen only for intermediate "picking" state updates from the native
-        // side.  We handle the final "done" ourselves after the invoke returns,
-        // so we filter out the false (done) events to avoid a premature hide of
-        // the loading indicator while the native side is still writing bytes.
         _eventSubscription = eventChannel.receiveBroadcastStream().listen((
           data,
         ) {
@@ -196,16 +192,9 @@ class MethodChannelFilePicker extends FilePickerPlatform {
           if (data) {
             onFileLoading(FilePickerStatus.picking);
           }
-          // Intentionally ignore the native "done" (false) event here – we
-          // call onFileLoading(done) below once the full operation has finished.
         }, onError: (error) => throw Exception(error));
       }
 
-      // On Android & iOS the native side writes the bytes via the platform's
-      // content resolver / document picker (which handles SAF URIs correctly).
-      // We therefore send the bytes to the native layer so it can write them,
-      // and we must NOT call saveBytesToFile here – the path returned by the
-      // native side is a SAF/document URI path, not a real filesystem path.
       final String? savedPath = await methodChannel
           .invokeMethod<String>("save", {
             "fileName": fileName,
