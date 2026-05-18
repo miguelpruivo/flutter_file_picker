@@ -103,7 +103,8 @@ class PlatformFile {
 
   @override
   String toString() {
-    return 'PlatformFile(${kIsWeb ? '' : 'path $path'}, name: $name, bytes: $bytes, readStream: $readStream, size: $size)';
+    final bytesInfo = bytes == null ? 'null' : '${bytes!.length} bytes';
+    return 'PlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytes: $bytesInfo, readStream: $readStream, size: $size)';
   }
 }
 
@@ -134,6 +135,7 @@ class AndroidPlatformFile extends PlatformFile {
 
   @override
   String toString() {
-    return 'AndroidPlatformFile(${kIsWeb ? '' : 'path $path'}, name: $name, bytes: $bytes, readStream: $readStream, size: $size, safHandle: $safHandle)';
+    final bytesInfo = bytes == null ? 'null' : '${bytes!.length} bytes';
+    return 'AndroidPlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytes: $bytesInfo, readStream: $readStream, size: $size, safHandle: $safHandle)';
   }
 }
