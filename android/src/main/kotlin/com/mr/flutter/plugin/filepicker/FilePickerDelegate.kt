@@ -74,6 +74,8 @@ class FilePickerDelegate(
     private fun saveFile(uri: Uri?): Boolean {
         uri ?: return false
         dispatchEventStatus(true)
+        // Perform the I/O work off the main thread so the UI never freezes
+        // while bytes are being written to the content-resolver output stream.
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val savedUri = FileUtils.writeBytesData(context = activity, uri, bytes) ?: uri
@@ -83,6 +85,8 @@ class FilePickerDelegate(
                     originalFileName = saveFileName,
                     mimeType = saveMimeType
                 )
+                // finishWithSuccess must run on the main thread because it calls
+                // pendingResult.success() which requires the platform thread.
                 Handler(Looper.getMainLooper()).post {
                     finishWithSuccess(renamedUri.path)
                 }

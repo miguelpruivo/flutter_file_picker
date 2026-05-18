@@ -4,8 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart';
 
 /// Reads the file at [path] and returns its bytes.  Runs in a worker isolate.
-Future<Uint8List> _readBytesFromPath(String path) =>
-    File(path).readAsBytes();
+Future<Uint8List> _readBytesFromPath(String path) => File(path).readAsBytes();
 
 /// Writes [args[1]] (Uint8List) to the path [args[0]] (String).
 Future<void> _writeBytesToPath(List<Object> args) async {

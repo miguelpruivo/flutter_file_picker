@@ -61,6 +61,13 @@ class FileInfo(
     }
 
     fun toMap(): HashMap<String, Any?> {
+        // NOTE: bytes are intentionally NOT sent over the method channel.
+        // Serialising large byte arrays via StandardMethodCodec blocks the
+        // platform (UI) thread for the full duration of the copy, causing
+        // visible freezes for files larger than a few MB.
+        // Instead, the file is already cached on disk (see openFileStream) and
+        // Dart reads the bytes from the cache path using a background isolate
+        // when withData == true (see MethodChannelFilePicker._getPath).
         return hashMapOf<String, Any?>(
             Pair("path", path),
             Pair("name", name),
