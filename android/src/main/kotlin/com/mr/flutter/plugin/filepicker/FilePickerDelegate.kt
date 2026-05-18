@@ -83,8 +83,6 @@ class FilePickerDelegate(
                     originalFileName = saveFileName,
                     mimeType = saveMimeType
                 )
-                // finishWithSuccess must run on the main thread because it calls
-                // pendingResult.success() which requires the platform thread.
                 Handler(Looper.getMainLooper()).post {
                     finishWithSuccess(renamedUri.path)
                 }
