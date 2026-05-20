@@ -81,36 +81,45 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _resetState();
 
     try {
-      final result = await FilePicker.pickFiles(
-        type: _pickingType,
-        allowMultiple: _multiPick,
-        onFileLoading: (FilePickerStatus status) => setState(() {
-          _isLoading = status == FilePickerStatus.picking;
-        }),
-        allowedExtensions: (_extension?.isNotEmpty ?? false)
-            ? _extension?.replaceAll(' ', '').split(',')
-            : null,
-        dialogTitle: _dialogTitleController.text,
-        initialDirectory: _initialDirectoryController.text,
-        lockParentWindow: _lockParentWindow,
-        withData: _withData,
-        options: PickFilesOptions(
-          androidOptions: FilePickerAndroidOptions(
-            safOptions: (_safPersist || _safReadWrite)
-                ? AndroidSAFOptions(
-                    grant: _safPersist
-                        ? AndroidSAFGrant.lifetime
-                        : AndroidSAFGrant.transient,
-                    accessMode: _safReadWrite
-                        ? AndroidSAFAccessMode.readWrite
-                        : AndroidSAFAccessMode.readOnly,
-                  )
-                : null,
+      if (_multiPick) {
+        final result = await FilePicker.pickFiles(
+          type: _pickingType,
+          allowMultiple: _multiPick,
+          onFileLoading: (FilePickerStatus status) => setState(() {
+            _isLoading = status == FilePickerStatus.picking;
+          }),
+          allowedExtensions: (_extension?.isNotEmpty ?? false)
+              ? _extension?.replaceAll(' ', '').split(',')
+              : null,
+          dialogTitle: _dialogTitleController.text,
+          initialDirectory: _initialDirectoryController.text,
+          lockParentWindow: _lockParentWindow,
+          withData: _withData,
+          options: PickFilesOptions(
+            androidOptions: FilePickerAndroidOptions(
+              safOptions: _androidSafOptionsFromFlags(),
+            ),
           ),
-        ),
-      );
-      printInDebug("pickedFiles: $result");
-      pickedFiles = result?.files;
+        );
+        printInDebug("pickedFiles: $result");
+        pickedFiles = result?.files;
+      } else {
+        final file = await FilePicker.pickFile(
+          type: _pickingType,
+          onFileLoading: _onFileLoading,
+          allowedExtensions: _allowedExtensionsFromInput(),
+          dialogTitle: _dialogTitleController.text,
+          initialDirectory: _initialDirectoryController.text,
+          lockParentWindow: _lockParentWindow,
+          options: PickFilesOptions(
+            androidOptions: FilePickerAndroidOptions(
+              safOptions: _androidSafOptionsFromFlags(),
+            ),
+          ),
+        );
+        printInDebug("pickedFile: $file");
+        pickedFiles = file != null ? [file] : null;
+      }
       hasUserAborted = pickedFiles == null;
     } on PlatformException catch (e) {
       _logException('Unsupported operation: $e');
@@ -153,9 +162,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       pickedFilesAndDirectories = await FilePicker.pickFileAndDirectoryPaths(
         dialogTitle: _dialogTitleController.text,
         type: _pickingType,
-        allowedExtensions: (_extension?.isNotEmpty ?? false)
-            ? _extension?.replaceAll(' ', '').split(',')
-            : null,
+        allowedExtensions: _allowedExtensionsFromInput(),
         initialDirectory: _initialDirectoryController.text,
       );
       hasUserAborted = pickedFilesAndDirectories == null;
@@ -277,19 +284,30 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   Future<void> _saveFile() async {
     String? pickedSaveFilePath;
     bool hasUserAborted = true;
+
+    final file = pickedFiles?.firstOrNull;
+    final fileName = _defaultFileNameController.text;
+
+    if (file == null || fileName.isEmpty) {
+      _logException(
+        'Please pick a file first and provide a default file name.',
+      );
+      return;
+    }
+
+    final bytes = await file.readAsBytes();
+
     _resetState();
 
     try {
       pickedSaveFilePath = await FilePicker.saveFile(
-        allowedExtensions: (_extension?.isNotEmpty ?? false)
-            ? _extension?.replaceAll(' ', '').split(',')
-            : null,
+        allowedExtensions: _allowedExtensionsFromInput(),
         type: FileType.custom,
         dialogTitle: _dialogTitleController.text,
-        fileName: _defaultFileNameController.text,
+        fileName: fileName,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
-        bytes: pickedFiles?.first.bytes,
+        bytes: bytes,
       );
       hasUserAborted = pickedSaveFilePath == null;
     } on PlatformException catch (e) {
@@ -331,6 +349,31 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _isLoading = true;
       _userAborted = true;
     });
+  }
+
+  void _onFileLoading(FilePickerStatus status) {
+    setState(() {
+      _isLoading = status == FilePickerStatus.picking;
+    });
+  }
+
+  List<String>? _allowedExtensionsFromInput() {
+    return (_extension?.isNotEmpty ?? false)
+        ? _extension?.replaceAll(' ', '').split(',')
+        : null;
+  }
+
+  AndroidSAFOptions? _androidSafOptionsFromFlags() {
+    return (_safPersist || _safReadWrite)
+        ? AndroidSAFOptions(
+            grant: _safPersist
+                ? AndroidSAFGrant.lifetime
+                : AndroidSAFGrant.transient,
+            accessMode: _safReadWrite
+                ? AndroidSAFAccessMode.readWrite
+                : AndroidSAFAccessMode.readOnly,
+          )
+        : null;
   }
 
   @override

@@ -212,22 +212,22 @@ class FilePickerWeb extends FilePickerPlatform {
   @override
   Future<String?> saveFile({
     String? dialogTitle,
-    String? fileName,
+    required String fileName,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    Uint8List? bytes,
+    required Uint8List bytes,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
     SaveFileOptions options = const SaveFileOptions(),
   }) async {
-    if (bytes == null || bytes.isEmpty) {
+    if (bytes.isEmpty) {
       throw ArgumentError(
         'The bytes are required when saving a file on the web.',
       );
     }
 
-    if (fileName == null || fileName.isEmpty) {
+    if (fileName.isEmpty) {
       throw ArgumentError(
         'A file name is required when saving a file on the web.',
       );
