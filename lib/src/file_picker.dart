@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
+import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
 
@@ -38,7 +39,7 @@ abstract final class FilePicker {
   /// [initialDirectory] can be optionally set to an absolute path to specify
   /// where the dialog should open. Only supported on Linux, macOS, and Windows.
   /// On macOS the home directory shortcut (~/) is not necessary and passing it will be ignored.
-  /// On macOS if the [initialDirectory] is invalid the user directory or previously valid directory
+  /// On macOS if the [initialDirectory] is invalid, the user directory or previously valid directory
   /// will be used.
   ///
   /// [readSequential] can be optionally set on web to keep the import file order during import.
@@ -55,6 +56,11 @@ abstract final class FilePicker {
   /// Note: This requires the User Selected File Read entitlement on macOS.
   ///
   /// Returns `null` if aborted.
+  /// selection; `pickFiles` now implies multiple selection by default.
+  /// NOTE: `withData`, `withReadStream` and `readSequential` are deprecated.
+  /// Call `PlatformFile.readAsBytes()` or `PlatformFile.readAsByteStream()` on
+  /// the returned `PlatformFile` to load data on demand. These parameters
+  /// will be removed in a future release.
   static Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
@@ -62,10 +68,22 @@ abstract final class FilePicker {
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
     int compressionQuality = 0,
-    bool allowMultiple = false,
+    @Deprecated(
+      'use pickFile for single-file selection; this parameter will be removed in a future release',
+    )
+    bool allowMultiple = true,
+    @Deprecated(
+      'Use PlatformFile.readAsBytes(); this parameter will be removed in a future release',
+    )
     bool withData = kIsWeb,
+    @Deprecated(
+      'Use PlatformFile.readAsByteStream(); this parameter will be removed in a future release',
+    )
     bool withReadStream = false,
     bool lockParentWindow = false,
+    @Deprecated(
+      'Use PlatformFile.readAsByteStream(); this parameter will be removed in a future release',
+    )
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
@@ -85,6 +103,43 @@ abstract final class FilePicker {
       cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
       androidSafOptions: androidSafOptions,
     );
+  }
+
+  /// Opens a native file explorer and lets the user select a single file.
+  ///
+  /// This is a convenience wrapper around [pickFiles] for when you only need to
+  /// pick one file. It returns a [PlatformFile] directly, or `null` if the
+  /// user canceled the operation.
+  ///
+  /// For documentation on the parameters, see [pickFiles].
+  static Future<PlatformFile?> pickFile({
+    String? dialogTitle,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Function(FilePickerStatus)? onFileLoading,
+    int compressionQuality = 0,
+    bool lockParentWindow = false,
+    bool cancelUploadOnWindowBlur = true,
+    AndroidSAFOptions? androidSafOptions,
+  }) async {
+    final result = await FilePickerPlatform.instance.pickFiles(
+      dialogTitle: dialogTitle,
+      initialDirectory: initialDirectory,
+      type: type,
+      allowedExtensions: allowedExtensions,
+      onFileLoading: onFileLoading,
+      compressionQuality: compressionQuality,
+      allowMultiple: false,
+      withData: false,
+      withReadStream: false,
+      lockParentWindow: lockParentWindow,
+      readSequential: false,
+      cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
+      androidSafOptions: androidSafOptions,
+    );
+
+    return result?.files.firstOrNull;
   }
 
   /// Displays a dialog that allows the user to select both files and
@@ -148,7 +203,7 @@ abstract final class FilePicker {
   /// [initialDirectory] can be optionally set to an absolute path to specify
   /// where the dialog should open. Only supported on Linux, macOS, and Windows.
   /// On macOS the home directory shortcut (~/) is not necessary and passing it will be ignored.
-  /// On macOS if the [initialDirectory] is invalid the user directory or previously valid directory
+  /// On macOS if the [initialDirectory] is invalid, the user directory or previously valid directory
   /// will be used.
   ///
   /// Returns a [Future<String?>] which resolves to the absolute path of the selected directory,
@@ -175,31 +230,27 @@ abstract final class FilePicker {
     );
   }
 
-  /// Opens a save file dialog which lets the user select a file path and a file
-  /// name to save a file.
+  /// Opens a save file dialog to let the user select a location and a file name to
+  /// save [bytes] to.
   ///
-  /// For mobile, this function will save a file with the given [fileName] and [bytes] and return the path where the file was saved.
+  /// Returns a [Future<String?>] which resolves to the absolute path of the
+  /// saved file, or `null` if the user canceled the operation.
   ///
-  /// For desktop platforms, this function opens a dialog to let the user choose a location for the file and returns the selected path.
-  /// If the bytes are provided, then the bytes are written to a file at the chosen path.
-  ///
-  /// On the web, this function will start a download for the file with [bytes] and [fileName].
-  /// If the [bytes] or [fileName] are omitted, this will throw an [ArgumentError].
-  /// The returned path for the downloaded file will always be `null`, as the browser handles the download.
+  /// On the web, this starts a download and always returns `null`.
   ///
   /// The User Selected File Read/Write entitlement is required on macOS.
   ///
   /// [dialogTitle] can be set to display a custom title on desktop platforms.
   /// Not supported on macOS.
   ///
-  /// [fileName] can be set to a non-empty string to provide a default file
-  /// name. Throws an `IllegalCharacterInFileNameException` under Windows if the
+  /// [fileName] should be set to provide a default file name.
+  /// Throws an `IllegalCharacterInFileNameException` under Windows if the
   /// given [fileName] contains forbidden characters.
   ///
   /// [initialDirectory] can be optionally set to an absolute path to specify
   /// where the dialog should open. Only supported on Linux, macOS, and Windows.
   /// On macOS the home directory shortcut (~/) is not necessary and passing it will be ignored.
-  /// On macOS if the [initialDirectory] is invalid the user directory or previously valid directory
+  /// On macOS if the [initialDirectory] is invalid, the user directory or previously valid directory
   /// will be used.
   ///
   /// The file type filter [type] defaults to [FileType.any]. Optionally,
@@ -211,15 +262,14 @@ abstract final class FilePicker {
   /// stay in front of the Flutter window until it is closed (like a modal
   /// window). This parameter works only on Windows desktop.
   ///
-  /// Returns `null` if aborted. Returns a [Future<String?>] which resolves to
-  /// the absolute path of the selected file, if the user selected a file.
+  /// Returns `null` if aborted.
   static Future<String?> saveFile({
     String? dialogTitle,
-    String? fileName,
+    required String fileName,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    Uint8List? bytes,
+    required Uint8List bytes,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) {

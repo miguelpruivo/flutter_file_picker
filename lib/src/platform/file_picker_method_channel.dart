@@ -172,20 +172,14 @@ class MethodChannelFilePicker extends FilePickerPlatform {
   @override
   Future<String?> saveFile({
     String? dialogTitle,
-    String? fileName,
+    required String fileName,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    Uint8List? bytes,
+    required Uint8List bytes,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
-    if (bytes == null) {
-      throw ArgumentError(
-        'The "bytes" parameter is required on Android & iOS when calling "saveFile".',
-      );
-    }
-
     try {
       if (onFileLoading != null) {
         onFileLoading(FilePickerStatus.picking);
