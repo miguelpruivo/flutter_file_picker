@@ -84,13 +84,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       if (_multiPick) {
         final result = await FilePicker.pickFiles(
           type: _pickingType,
-          allowMultiple: _multiPick,
-          onFileLoading: (FilePickerStatus status) => setState(() {
-            _isLoading = status == FilePickerStatus.picking;
-          }),
-          allowedExtensions: (_extension?.isNotEmpty ?? false)
-              ? _extension?.replaceAll(' ', '').split(',')
-              : null,
+          onFileLoading: _onFileLoading,
+          allowedExtensions: _allowedExtensionsFromInput(),
           dialogTitle: _dialogTitleController.text,
           initialDirectory: _initialDirectoryController.text,
           lockParentWindow: _lockParentWindow,
