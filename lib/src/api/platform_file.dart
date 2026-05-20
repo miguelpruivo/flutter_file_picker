@@ -93,8 +93,20 @@ class PlatformFile {
   /// Retrieves this as a XFile
   XFile get xFile {
     if (kIsWeb) {
+      if (bytes == null) {
+        throw StateError(
+          'Cannot create XFile on web without bytes. '
+          'Call pickFiles() or pickFile() with withData: true.',
+        );
+      }
       return XFile.fromData(bytes!, name: name, length: size);
     } else {
+      if (path == null) {
+        throw StateError(
+          'Cannot create XFile without a path. '
+          'On Android SAF files without cache, use withData: true when picking.',
+        );
+      }
       return XFile(path!, name: name, bytes: bytes, length: size);
     }
   }

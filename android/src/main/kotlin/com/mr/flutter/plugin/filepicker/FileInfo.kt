@@ -66,6 +66,7 @@ class FileInfo(
             Pair("name", name),
             Pair("size", size),
             Pair("identifier", uri.toString()),
+            Pair("bytes", bytes),
             Pair("safHandle", safHandle)
         )
     }

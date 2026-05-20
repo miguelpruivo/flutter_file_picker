@@ -152,7 +152,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
             PlatformFile.fromMap({
               ...platformFileMap,
               'bytes': mutableBytes,
-            }, readStream: withReadStream! ? File(path!).openRead() : null),
+            }, readStream: (withReadStream ?? false) && path != null ? File(path).openRead() : null),
           );
           continue;
         }
