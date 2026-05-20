@@ -39,7 +39,7 @@ abstract final class FilePicker {
   /// [initialDirectory] can be optionally set to an absolute path to specify
   /// where the dialog should open. Only supported on Linux, macOS, and Windows.
   /// On macOS the home directory shortcut (~/) is not necessary and passing it will be ignored.
-  /// On macOS if the [initialDirectory] is invalid, the user directory or previously valid directory
+  /// On macOS if the [initialDirectory] is invalid the user directory or previously valid directory
   /// will be used.
   ///
   /// [readSequential] can be optionally set on web to keep the import file order during import.
@@ -131,8 +131,8 @@ abstract final class FilePicker {
       onFileLoading: onFileLoading,
       compressionQuality: compressionQuality,
       allowMultiple: false,
-      withData: false,
-      withReadStream: false,
+      withData: true,
+      withReadStream: true,
       lockParentWindow: lockParentWindow,
       readSequential: false,
       cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
@@ -269,7 +269,7 @@ abstract final class FilePicker {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    required Uint8List bytes,
+    Uint8List? bytes,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) {
