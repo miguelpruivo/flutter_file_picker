@@ -212,7 +212,7 @@ class FilePickerWeb extends FilePickerPlatform {
   @override
   Future<String?> saveFile({
     String? dialogTitle,
-    String? fileName,
+    required String fileName,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,

@@ -159,7 +159,7 @@ class FilePickerLinux extends FilePickerPlatform {
   @override
   Future<String?> saveFile({
     String? dialogTitle,
-    String? fileName,
+    required String fileName,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
@@ -169,7 +169,7 @@ class FilePickerLinux extends FilePickerPlatform {
   }) async {
     Map<String, DBusValue> xdpOption = {
       'handle_token': DBusString('flutter_picker'),
-      'current_name': DBusString(fileName ?? ''),
+      'current_name': DBusString(fileName),
       'modal': DBusBoolean(lockParentWindow),
     };
     if (initialDirectory != null) {

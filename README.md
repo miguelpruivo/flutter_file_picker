@@ -43,6 +43,7 @@ If you have any feature that you want to see in this package, please feel free t
 | `clearTemporaryFiles()`       | :white_check_mark: | :white_check_mark: | :x:                | :x:                | :x:                | :x:                |
 | `getDirectoryPath()`          | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x:                |
 | `pickFileAndDirectoryPaths()` | :x:                | :x:                | :x:                | :white_check_mark: | :x:                | :x:                |
+| `pickFile()`                  | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | `pickFiles()`                 | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | `saveFile()`                  | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 
@@ -93,10 +94,11 @@ You can still use `withData: true` for small files or single selections when imm
 
 #### Single file
 ```dart
-FilePickerResult? result = await FilePicker.pickFiles();
+PlatformFile? file = await FilePicker.pickFile();
 
-if (result != null) {
-  File file = File(result.files.single.path!);
+if (file != null) {
+  print(file.name);
+  print(file.size);
 } else {
   // User canceled the picker
 }
