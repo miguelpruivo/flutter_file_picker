@@ -8,9 +8,14 @@ Future<Uint8List> _readBytesFromPath(String path) => File(path).readAsBytes();
 
 /// Writes [args[1]] (Uint8List) to the path [args[0]] (String).
 Future<void> _writeBytesToPath(List<Object> args) async {
-  final path = args[0] as String;
-  final bytes = args[1] as Uint8List;
-  await File(path).writeAsBytes(bytes);
+  if (args case [String path, Uint8List bytes]) {
+    await File(path).writeAsBytes(bytes);
+    return;
+  }
+
+  throw ArgumentError(
+    'Invalid arguments passed to _writeBytesToPath. Expected [String, Uint8List].',
+  );
 }
 
 /// Utility class for [FilePicker] that provides common helper methods

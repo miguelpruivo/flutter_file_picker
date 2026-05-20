@@ -141,20 +141,21 @@ class MethodChannelFilePicker extends FilePickerPlatform {
 
       final List<PlatformFile> platformFiles = [];
       for (final Map platformFileMap in result) {
-        final String? path = platformFileMap['path'] as String?;
+        if (platformFileMap case {'path': String? path, 'bytes': Uint8List? bytes}) {
+          Uint8List? mutableBytes = bytes;
 
-        Uint8List? bytes = platformFileMap['bytes'] as Uint8List?;
+          if ((withData ?? false) && mutableBytes == null && path != null) {
+            mutableBytes = await FilePickerUtils.readBytesFromFile(path);
+          }
 
-        if ((withData ?? false) && bytes == null && path != null) {
-          bytes = await FilePickerUtils.readBytesFromFile(path);
+          platformFiles.add(
+            PlatformFile.fromMap({
+              ...platformFileMap,
+              'bytes': mutableBytes,
+            }, readStream: withReadStream! ? File(path!).openRead() : null),
+          );
+          continue;
         }
-
-        platformFiles.add(
-          PlatformFile.fromMap({
-            ...platformFileMap,
-            'bytes': bytes,
-          }, readStream: withReadStream! ? File(path!).openRead() : null),
-        );
       }
 
       onFileLoading?.call(FilePickerStatus.done);
