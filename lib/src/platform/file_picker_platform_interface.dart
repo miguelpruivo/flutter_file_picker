@@ -88,7 +88,7 @@ abstract class FilePickerPlatform extends PlatformInterface {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    required Uint8List bytes,
+    Uint8List? bytes,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
