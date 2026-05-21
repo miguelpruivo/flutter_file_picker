@@ -11,6 +11,9 @@ import com.mr.flutter.plugin.filepicker.FileUtils.processFiles
 import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry.ActivityResultListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.IOException
 
 class FilePickerDelegate(
@@ -72,15 +75,26 @@ class FilePickerDelegate(
         uri ?: return false
         dispatchEventStatus(true)
         return try {
-            val savedUri = FileUtils.writeBytesData(context = activity, uri, bytes) ?: uri
-            val renamedUri = maybeRenameGenericMimeDuplicate(
-                context = activity,
-                uri = savedUri,
-                originalFileName = saveFileName,
-                mimeType = saveMimeType
-            )
-            finishWithSuccess(renamedUri.path)
-            true
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val savedUri = FileUtils.writeBytesData(context = activity, uri, bytes) ?: uri
+                    val renamedUri = maybeRenameGenericMimeDuplicate(
+                        context = activity,
+                        uri = savedUri,
+                        originalFileName = saveFileName,
+                        mimeType = saveMimeType
+                    )
+                    Handler(Looper.getMainLooper()).post {
+                        finishWithSuccess(renamedUri.path)
+                    }
+                } catch (e: IOException) {
+                    Log.e(TAG, "Error while saving file", e)
+                    Handler(Looper.getMainLooper()).post {
+                        finishWithError("Error while saving file", e.message)
+                    }
+                }
+            }
+            return true
         } catch (e: IOException) {
             Log.e(TAG, "Error while saving file", e)
             finishWithError("Error while saving file", e.message)
