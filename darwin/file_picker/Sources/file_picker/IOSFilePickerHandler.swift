@@ -279,10 +279,6 @@ final class IOSFilePickerHandler: NSObject,
             return name
         }
 
-        if let ext = inferExtensionFromAllowed(arguments) {
-            return name + "." + ext
-        }
-
         if let fileType = arguments["fileType"] as? String, let ext = inferExtensionFromFileType(fileType) {
             return name + "." + ext
         }
@@ -292,13 +288,6 @@ final class IOSFilePickerHandler: NSObject,
         }
 
         return name
-    }
-
-    private func inferExtensionFromAllowed(_ arguments: [String: Any]) -> String? {
-        guard let allowed = arguments["allowedExtensions"] as? [String], let first = allowed.first, !first.isEmpty else {
-            return nil
-        }
-        return sanitizeExtension(first)
     }
 
     private func inferExtensionFromFileType(_ fileType: String) -> String? {
@@ -332,11 +321,6 @@ final class IOSFilePickerHandler: NSObject,
         }
 
         return nil
-    }
-
-    private func sanitizeExtension(_ ext: String) -> String {
-        let e = ext.hasPrefix(".") ? String(ext.dropFirst()) : ext
-        return e.lowercased()
     }
 
     private func writeTempFile(named fileName: String, data: Data?) throws -> URL {
