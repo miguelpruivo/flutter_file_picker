@@ -8,4 +8,3 @@ import 'dart:typed_data';
 ///
 /// This stub is a no-op on non-web platforms and returns null.
 Future<Uint8List?> fetchBytesFromWebPath(String? path) async => null;
-

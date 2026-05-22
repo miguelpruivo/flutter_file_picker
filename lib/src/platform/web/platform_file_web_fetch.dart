@@ -29,5 +29,3 @@ Future<Uint8List?> fetchBytesFromWebPath(String? path) async {
 
   return null;
 }
-
-

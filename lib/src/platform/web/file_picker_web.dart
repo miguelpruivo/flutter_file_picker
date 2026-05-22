@@ -209,7 +209,6 @@ class FilePickerWeb extends FilePickerPlatform {
     }
   }
 
-
   /// Triggers a browser download for [blob] with [fileName].
   void _downloadBlob(Blob blob, String fileName) {
     final url = URL.createObjectURL(blob);
