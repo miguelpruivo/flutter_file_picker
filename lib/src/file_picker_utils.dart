@@ -1,9 +1,8 @@
 import 'dart:io';
 import 'dart:isolate';
 
-
-import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mime/mime.dart';
 import 'package:path/path.dart';
 import 'package:tika/tika.dart';
