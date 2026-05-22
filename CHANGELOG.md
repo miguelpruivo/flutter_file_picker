@@ -1,3 +1,13 @@
+## NEXT
+
+### General
+- Restored `pickFile()` default data loading on web so single-file picks include bytes by default.
+- Improved `PlatformFile.readAsBytes()` on web to read from blob/data URLs when file bytes were not loaded eagerly, with clearer error messages when data is unavailable.
+
+### Web
+- Updated `saveFile()` to use the browser's native save dialog when supported, while keeping the download fallback for unsupported browsers.
+- `saveFile()` now appends the file extension automatically when the file name has none and a single allowed extension is provided.
+
 ## 12.0.0-beta.4
 ### General
 - Added `pickFile()` static method as a convenience wrapper for single file selection, returning `PlatformFile?` directly. [#1469](https://github.com/miguelpruivo/flutter_file_picker/issues/1469)
