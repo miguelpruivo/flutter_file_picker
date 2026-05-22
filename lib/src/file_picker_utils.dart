@@ -5,7 +5,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mime/mime.dart';
 import 'package:path/path.dart';
-import 'package:tika/tika.dart';
 
 /// Utility class for [FilePicker] that provides common helper methods
 /// used across different platform implementations.
@@ -135,51 +134,13 @@ class FilePickerUtils {
   static Future<String?> _inferExtensionFromBytes(Uint8List bytes) async {
     if (bytes.isEmpty) return null;
 
-    final tikaMimeType = await _detectMimeTypeWithTika(bytes);
     final fallbackMimeType = lookupMimeType('', headerBytes: bytes);
-    final mimeType = tikaMimeType ?? fallbackMimeType;
+    final mimeType = fallbackMimeType;
 
     if (mimeType == null || mimeType.isEmpty) return null;
     return extensionFromMime(mimeType)?.toLowerCase();
   }
 
-  static Future<String?> _detectMimeTypeWithTika(Uint8List bytes) async {
-    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
-      return null;
-    }
-
-    if (!await TikaClient.isSupported()) {
-      return null;
-    }
-
-    File? tempFile;
-    try {
-      tempFile = File(
-        '${Directory.systemTemp.path}${Platform.pathSeparator}${DateTime.now().microsecondsSinceEpoch}-file-picker.bin',
-      );
-      await tempFile.writeAsBytes(bytes, flush: true);
-
-      final result = await Process.run('tika', ['--mime-type', tempFile.path]);
-      if (result.exitCode != 0) {
-        return null;
-      }
-
-      final mimeType = result.stdout?.toString().trim();
-      if (mimeType == null || mimeType.isEmpty) {
-        return null;
-      }
-
-      return mimeType;
-    } catch (_) {
-      return null;
-    } finally {
-      if (tempFile != null && tempFile.existsSync()) {
-        try {
-          tempFile.deleteSync();
-        } catch (_) {}
-      }
-    }
-  }
 
   /// Checks if the start of the string [x] is an alphabetical character (a-z or A-Z).
   ///

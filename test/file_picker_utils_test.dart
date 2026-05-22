@@ -2,6 +2,8 @@
 library;
 
 import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:file_picker/src/file_picker_utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -168,6 +170,66 @@ void main() {
         () async => await FilePickerUtils.isExecutableOnPath(filepath),
         throwsA(isA<Exception>()),
       );
+    });
+  });
+
+  group('resolveSaveFileName()', () {
+    test('keeps existing extension when already present', () async {
+      final fileName = await FilePickerUtils.resolveSaveFileName(
+        fileName: 'document.pdf',
+        bytes: Uint8List.fromList([0x25, 0x50, 0x44, 0x46]),
+      );
+
+      expect(fileName, 'document.pdf');
+    });
+
+    test('infers png extension from signature', () async {
+      final fileName = await FilePickerUtils.resolveSaveFileName(
+        fileName: 'image',
+        bytes: Uint8List.fromList([
+          0x89,
+          0x50,
+          0x4E,
+          0x47,
+          0x0D,
+          0x0A,
+          0x1A,
+          0x0A,
+        ]),
+      );
+
+      expect(fileName, 'image.png');
+    });
+
+    test('infers mp4 family extension from ftyp brand', () async {
+      final fileName = await FilePickerUtils.resolveSaveFileName(
+        fileName: 'video',
+        bytes: Uint8List.fromList([
+          0x00,
+          0x00,
+          0x00,
+          0x18,
+          0x66,
+          0x74,
+          0x79,
+          0x70,
+          0x6D,
+          0x70,
+          0x34,
+          0x32,
+        ]),
+      );
+
+      expect(fileName, 'video.mp4');
+    });
+
+    test('falls back to original safe name when type is unknown', () async {
+      final fileName = await FilePickerUtils.resolveSaveFileName(
+        fileName: 'archive',
+        bytes: Uint8List.fromList([0x00, 0x11, 0x22, 0x33]),
+      );
+
+      expect(fileName, 'archive');
     });
   });
 
