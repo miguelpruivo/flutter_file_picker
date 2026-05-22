@@ -116,9 +116,9 @@ class MethodChannelFilePicker extends FilePickerPlatform {
           data,
         ) {
           if (data is! bool) return;
-          onFileLoading(
-            data ? FilePickerStatus.picking : FilePickerStatus.done,
-          );
+          if (data) {
+            onFileLoading(FilePickerStatus.picking);
+          }
         }, onError: (error) => throw Exception(error));
       }
 
@@ -132,21 +132,41 @@ class MethodChannelFilePicker extends FilePickerPlatform {
       });
 
       if (result == null) {
+        onFileLoading?.call(FilePickerStatus.done);
         return null;
       }
 
-      final List<PlatformFile> platformFiles = <PlatformFile>[];
+      await _eventSubscription?.cancel();
+      _eventSubscription = null;
+
+      final List<PlatformFile> platformFiles = [];
 
       for (final Map platformFileMap in result) {
-        platformFiles.add(
-          PlatformFile.fromMap(
-            platformFileMap,
-            readStream: withReadStream!
-                ? File(platformFileMap['path']).openRead()
-                : null,
-          ),
-        );
+        if (platformFileMap case {
+          'path': String? path,
+          'bytes': Uint8List? bytes,
+        }) {
+          Uint8List? mutableBytes = bytes;
+
+          if ((withData ?? false) && mutableBytes == null && path != null) {
+            mutableBytes = await FilePickerUtils.readBytesFromFile(path);
+          }
+
+          platformFiles.add(
+            PlatformFile.fromMap(
+              {
+                ...platformFileMap,
+                'bytes': mutableBytes,
+              },
+              readStream: (withReadStream ?? false) && path != null
+                  ? File(path).openRead()
+                  : null,
+            ),
+          );
+        }
       }
+
+      onFileLoading?.call(FilePickerStatus.done);
 
       return FilePickerResult(platformFiles);
     } catch (e) {
@@ -175,9 +195,9 @@ class MethodChannelFilePicker extends FilePickerPlatform {
           data,
         ) {
           if (data is! bool) return;
-          onFileLoading(
-            data ? FilePickerStatus.picking : FilePickerStatus.done,
-          );
+          if (data) {
+            onFileLoading(FilePickerStatus.picking);
+          }
         }, onError: (error) => throw Exception(error));
       }
 

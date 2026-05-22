@@ -1,21 +1,16 @@
 ## 12.0.0-beta.4
 ### General
+- Offloaded file I/O operations to background threads and isolates to improve UI responsiveness.
+- Removed redundant comments and internal implementation notes across multiple files.
 - Added `pickFile()` static method as a convenience wrapper for single file selection, returning `PlatformFile?` directly. [#1469](https://github.com/miguelpruivo/flutter_file_picker/issues/1469)
 - **BREAKING CHANGE**: Refactored `saveFile()` to make `fileName` and `bytes` required parameters across all platforms for a more consistent API. Improved the method's documentation for better clarity.
 - Improved documentation for `PlatformFile` properties (`path`, `bytes`, `readStream`) to clarify nullability and usage across platforms. [#1469](https://github.com/miguelpruivo/flutter_file_picker/issues/1469)
 - **BREAKING CHANGE**: The `allowMultiple` parameter on `pickFiles()` now defaults to `true`. Use `pickFile()` for single-file selection. (`allowMultiple` is deprecated and will be removed in a future release.)
 - Deprecated `withData`, `withReadStream`, and `readSequential` on `pickFiles()`/`pickFile()`. Users should call `PlatformFile.readAsBytes()` or `PlatformFile.readAsByteStream()` to load file data on demand. These parameters will be removed in a future release.
-- Improved `PlatformFile.toString()` output to display byte length instead of full content.
 
 ### Android
 - Fixed an issue where `FileType.any` would prevent subdirectories from being listed in the system file explorer by ensuring `EXTRA_MIME_TYPES` is correctly passed as an array. [#2013](https://github.com/miguelpruivo/flutter_file_picker/issues/2013)
-- Removed explicit Kotlin Gradle Plugin (KGP) application and dependencies from build files to resolve warnings under AGP 9.0+.
-- Updated Android build tooling and dependencies: Android Gradle Plugin bumped to `8.5.2`, `androidx.core:core` and `androidx.core:core-ktx` updated to `1.18.0`, `androidx.lifecycle:lifecycle-runtime` updated to `2.10.0`, and `org.apache.tika:tika-core` updated to `3.3.0`.
-- Migrated Android build files from Groovy to Kotlin DSL (`build.gradle.kts`, `settings.gradle.kts`).
-- Added Android AGP compatibility CI workflow.
-
-### Darwin
-- Added missing `FlutterFramework` dependency to `Package.swift` for Swift Package Manager (SPM) compatibility.
+- Updated `kotlinx-coroutines-android` dependency to version `1.11.0`.
 
 ## 12.0.0-beta.3
 ### General

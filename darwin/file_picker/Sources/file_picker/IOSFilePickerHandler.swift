@@ -18,6 +18,7 @@ final class IOSFilePickerHandler: NSObject,
     private var loadDataToMemory = false
     private var isDirectoryPicker = false
     private var isSaveFile = false
+    private var lastPickedFileExtension: String?
 
     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         if self.result != nil {
@@ -145,6 +146,7 @@ final class IOSFilePickerHandler: NSObject,
                 else {
                     return
                 }
+                self.updateLastPickedFileExtension(from: copiedURL)
                 if let fileInfo = self.makeFileInfo(from: copiedURL) {
                     resolved.append(fileInfo)
                 }
@@ -205,6 +207,7 @@ final class IOSFilePickerHandler: NSObject,
             else {
                 continue
             }
+            updateLastPickedFileExtension(from: copiedURL)
             resolved.append(fileInfo)
         }
 
@@ -247,96 +250,46 @@ final class IOSFilePickerHandler: NSObject,
 
     private func saveFile(_ arguments: [String: Any]) {
         isSaveFile = true
-
         let bytes = arguments["bytes"] as? FlutterStandardTypedData
+        let fileName = FilePickerUtils.buildSaveFileName(from: arguments, data: bytes?.data, lastPickedFileExtension: lastPickedFileExtension)
 
-        let finalFileName = inferFileName(from: arguments, bytes: bytes)
+        let tempFile = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(fileName)
 
         do {
-            let tempFile = try writeTempFile(named: finalFileName, data: bytes?.data)
-
-            let picker = UIDocumentPickerViewController(
-                forExporting: [tempFile],
-                asCopy: true)
-            picker.delegate = self
-            picker.presentationController?.delegate = self
-            topViewController()?.present(picker, animated: true)
+            if FileManager.default.fileExists(atPath: tempFile.path) {
+                try FileManager.default.removeItem(at: tempFile)
+            }
+            if let data = bytes?.data {
+                try data.write(to: tempFile, options: .atomic)
+            }
         } catch {
-            result?(FlutterError(
-                code: "Failed to write file",
-                message: error.localizedDescription,
-                details: nil))
+            result?(
+                FlutterError(
+                    code: "Failed to write file",
+                    message: error.localizedDescription,
+                    details: nil))
             result = nil
             isSaveFile = false
             return
         }
+
+        let picker = UIDocumentPickerViewController(
+            forExporting: [tempFile],
+            asCopy: true)
+        picker.delegate = self
+        picker.presentationController?.delegate = self
+        topViewController()?.present(picker, animated: true)
     }
 
-    private func inferFileName(from arguments: [String: Any], bytes: FlutterStandardTypedData?) -> String {
-        var name = (arguments["fileName"] as? String) ?? ""
+    // buildSaveFileName, inferSaveExtension and inferExtensionFromDataSignature
+    // have been moved to FilePickerUtils.swift to avoid duplication across handlers.
 
-        if !(name as NSString).pathExtension.isEmpty {
-            return name
+    private func updateLastPickedFileExtension(from fileURL: URL) {
+        let pathExtension = fileURL.pathExtension.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !pathExtension.isEmpty {
+            lastPickedFileExtension = pathExtension
         }
-
-        if let fileType = arguments["fileType"] as? String, let ext = inferExtensionFromFileType(fileType) {
-            return name + "." + ext
-        }
-
-        if let data = bytes?.data, let ext = inferExtensionFromBytes(data) {
-            return name + "." + ext
-        }
-
-        return name
-    }
-
-    private func inferExtensionFromFileType(_ fileType: String) -> String? {
-        switch fileType {
-        case "image": return "jpg"
-        case "video": return "mp4"
-        case "audio": return "mp3"
-        default: return nil
-        }
-    }
-
-    private func inferExtensionFromBytes(_ data: Data) -> String? {
-        if data.count >= 4, let header = String(data: data.subdata(in: 0..<4), encoding: .utf8), header == "%PDF" {
-            return "pdf"
-        }
-
-        let pngSignature: [UInt8] = [0x89, 0x50, 0x4E, 0x47]
-        if data.count >= 4 && data.starts(with: Data(pngSignature)) {
-            return "png"
-        }
-
-        if data.count >= 2 {
-            let bytes = [UInt8](data.prefix(2))
-            if bytes[0] == 0xFF && bytes[1] == 0xD8 {
-                return "jpg"
-            }
-        }
-
-        if data.count >= 6, let gifHeader = String(data: data.subdata(in: 0..<6), encoding: .ascii), gifHeader.hasPrefix("GIF") {
-            return "gif"
-        }
-
-        return nil
-    }
-
-    private func writeTempFile(named fileName: String, data: Data?) throws -> URL {
-        let tempURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(fileName)
-
-        if FileManager.default.fileExists(atPath: tempURL.path) {
-            try FileManager.default.removeItem(at: tempURL)
-        }
-
-        if let d = data {
-            try d.write(to: tempURL, options: .atomic)
-        } else {
-            FileManager.default.createFile(atPath: tempURL.path, contents: nil, attributes: nil)
-        }
-
-        return tempURL
     }
 
     private func resolveCustomContentTypes(_ allowedExtensions: [String]) -> [UTType] {

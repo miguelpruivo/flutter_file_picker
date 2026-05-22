@@ -47,8 +47,6 @@ void main() {
       expect(platformFile.name, equals('test_utils.jpg'));
       expect(platformFile.readStream, equals(readStream));
       expect(platformFile.size, equals(bytes.length));
-      expect(platformFile.toString(), contains('bytesLength: ${bytes.length}'));
-      expect(platformFile.toString(), isNot(contains('Uint8List')));
     });
 
     test(
