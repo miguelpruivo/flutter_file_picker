@@ -141,7 +141,6 @@ class FilePickerUtils {
     return extensionFromMime(mimeType)?.toLowerCase();
   }
 
-
   /// Checks if the start of the string [x] is an alphabetical character (a-z or A-Z).
   ///
   /// Returns true if the first character of [x] is a letter.
