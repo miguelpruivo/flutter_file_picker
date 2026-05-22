@@ -186,14 +186,21 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         bytes: bytes,
       );
 
-      final String? savedPath = await methodChannel
-          .invokeMethod<String>("save", {
-            "fileName": resolvedFileName,
-            "fileType": type.name,
-            "bytes": bytes,
-            "initialDirectory": initialDirectory,
-            "allowedExtensions": allowedExtensions,
-          });
+      String? savedPath = await methodChannel.invokeMethod<String>("save", {
+        "fileName": resolvedFileName,
+        "fileType": type.name,
+        "bytes": bytes,
+        "initialDirectory": initialDirectory,
+        "allowedExtensions": allowedExtensions,
+      });
+
+      // If the native dialog returned a path without extension, append the
+      // extension we inferred before saving. If the user explicitly chose an
+      // extension in the native dialog, prefer it (user wins).
+      savedPath = FilePickerUtils.applyResolvedExtensionIfMissing(
+        savedPath,
+        resolvedFileName,
+      );
 
       if (!Platform.isAndroid) {
         await FilePickerUtils.saveBytesToFile(bytes, savedPath);

@@ -113,7 +113,7 @@ class FilePickerMacOS extends FilePickerPlatform {
       bytes: bytes,
     );
 
-    final String? savedFilePath = await methodChannel
+    String? savedFilePath = await methodChannel
         .invokeMethod<String>('saveFile', <String, dynamic>{
           'dialogTitle': escapeDialogTitle(
             dialogTitle ?? FilePickerUtils.defaultDialogTitle,
@@ -122,6 +122,13 @@ class FilePickerMacOS extends FilePickerPlatform {
           'initialDirectory': escapeInitialDirectory(initialDirectory),
           'allowedExtensions': fileFilter,
         });
+
+    // Prefer user's chosen extension. If native returned a path without
+    // extension, append the inferred one from resolvedFileName.
+    savedFilePath = FilePickerUtils.applyResolvedExtensionIfMissing(
+      savedFilePath,
+      resolvedFileName,
+    );
 
     await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
     return savedFilePath;

@@ -207,7 +207,16 @@ class FilePickerWindows extends FilePickerPlatform {
         confirmOverwrite: true,
       ),
     );
-    final savedFilePath = (await port.first) as String?;
+    String? savedFilePath = (await port.first) as String?;
+
+    // If the user explicitly provided an extension via the dialog, prefer
+    // that. If the returned path doesn't include an extension, append the
+    // inferred one we resolved earlier.
+    savedFilePath = FilePickerUtils.applyResolvedExtensionIfMissing(
+      savedFilePath,
+      resolvedFileName,
+    );
+
     await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
     return savedFilePath;
   }

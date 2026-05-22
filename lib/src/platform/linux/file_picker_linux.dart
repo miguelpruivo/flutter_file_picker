@@ -212,7 +212,15 @@ class FilePickerLinux extends FilePickerPlatform {
     }
 
     final savedFilePaths = saveUris.map((uri) => uri.toFilePath()).toList();
-    final savedFilePath = savedFilePaths.firstOrNull;
+    String? savedFilePath = savedFilePaths.firstOrNull;
+
+    // If the native dialog returned a path without extension, append the
+    // inferred extension we computed previously. If the user explicitly chose
+    // an extension in the native dialog, prefer it.
+    savedFilePath = FilePickerUtils.applyResolvedExtensionIfMissing(
+      savedFilePath,
+      resolvedFileName,
+    );
 
     await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
 

@@ -141,6 +141,25 @@ class FilePickerUtils {
     return extensionFromMime(mimeType)?.toLowerCase();
   }
 
+  /// If [savedPath] returned by the native dialog has no extension, append
+  /// the extension inferred from [resolvedFileName] (if any). If the user
+  /// explicitly provided an extension in the native dialog, we keep it — the
+  /// user's choice always wins.
+  static String? applyResolvedExtensionIfMissing(
+    String? savedPath,
+    String resolvedFileName,
+  ) {
+    if (savedPath == null) return null;
+
+    final savedExt = extension(savedPath);
+    if (savedExt.isNotEmpty) return savedPath; // user already chose an ext
+
+    final resolvedExt = extension(resolvedFileName);
+    if (resolvedExt.isEmpty) return savedPath;
+
+    return '$savedPath$resolvedExt';
+  }
+
   /// Checks if the start of the string [x] is an alphabetical character (a-z or A-Z).
   ///
   /// Returns true if the first character of [x] is a letter.
