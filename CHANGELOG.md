@@ -17,10 +17,23 @@
 - Offloaded file I/O operations to background threads and isolates to improve UI responsiveness.
 - Removed redundant comments and internal implementation notes across multiple files.
 - Added `pickFile()` static method as a convenience wrapper for single file selection, returning `PlatformFile?` directly. [#1469](https://github.com/miguelpruivo/flutter_file_picker/issues/1469)
+- **BREAKING CHANGE**: Refactored `saveFile()` to make `fileName` and `bytes` required parameters across all platforms for a more consistent API. Improved the method's documentation for better clarity.
+- Improved documentation for `PlatformFile` properties (`path`, `bytes`, `readStream`) to clarify nullability and usage across platforms. [#1469](https://github.com/miguelpruivo/flutter_file_picker/issues/1469)
+- **BREAKING CHANGE**: The `allowMultiple` parameter on `pickFiles()` now defaults to `true`. Use `pickFile()` for single-file selection. (`allowMultiple` is deprecated and will be removed in a future release.)
+- Deprecated `withData`, `withReadStream`, and `readSequential` on `pickFiles()`/`pickFile()`. Users should call `PlatformFile.readAsBytes()` or `PlatformFile.readAsByteStream()` to load file data on demand. These parameters will be removed in a future release.
+
 ### Android
 - Fixed an issue where `FileType.any` would prevent subdirectories from being listed in the system file explorer by ensuring `EXTRA_MIME_TYPES` is correctly passed as an array. [#2013](https://github.com/miguelpruivo/flutter_file_picker/issues/2013)
 - Updated `kotlinx-coroutines-android` dependency to version `1.11.0`.
 
+## 12.0.0-beta.3
+### General
+- Added `onFileLoading` callback to `saveFile` and implemented status tracking via an event channel. `saveFile` now reports loading status (for example `FilePickerStatus.loading` and `FilePickerStatus.done`).
+- Offloaded file saving (writing bytes) to a background isolate to avoid blocking the UI when saving large files.
+- Ensured the event subscription used for loading status is always cancelled in a `finally` block to prevent leaks and spurious events.
+
+### Android
+- Fixed Android plugin registration when using AGP 9+ with `android.builtInKotlin=false`, while preserving support for older AGP setups.
 
 ## 12.0.0-beta.2
 ### General
