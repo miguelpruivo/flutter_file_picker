@@ -131,7 +131,7 @@ abstract final class FilePicker {
       onFileLoading: onFileLoading,
       compressionQuality: compressionQuality,
       allowMultiple: false,
-      withData: false,
+      withData: kIsWeb,
       withReadStream: false,
       lockParentWindow: lockParentWindow,
       readSequential: false,
@@ -236,7 +236,7 @@ abstract final class FilePicker {
   /// Returns a [Future<String?>] which resolves to the absolute path of the
   /// saved file, or `null` if the user canceled the operation.
   ///
-  /// On the web, this starts a download and always returns `null`.
+  /// On the web, this starts a browser-managed save flow/download.
   ///
   /// The User Selected File Read/Write entitlement is required on macOS.
   ///

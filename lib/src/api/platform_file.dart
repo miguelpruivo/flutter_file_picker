@@ -4,6 +4,9 @@ import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
 
 import 'android_saf_handle.dart';
+// Conditional import: web implementation will be used only on web builds.
+import '../platform/web/platform_file_web_fetch_stub.dart'
+    if (dart.library.js_interop) '../platform/web/platform_file_web_fetch.dart';
 
 class PlatformFile {
   PlatformFile({
@@ -93,6 +96,14 @@ class PlatformFile {
   /// Retrieves this as a XFile
   XFile get xFile {
     if (kIsWeb) {
+      if (bytes == null) {
+        throw StateError(
+          'PlatformFile.xFile: missing file bytes on Web. '
+          'Call FilePicker.pickFiles(withData: true) (or pickFile with withData: true) '
+          'so that file bytes are available, or access the file via its `path`/blob URL and fetch the data manually.',
+        );
+      }
+
       return XFile.fromData(bytes!, name: name, length: size);
     } else {
       return XFile(path!, name: name, bytes: bytes, length: size);
@@ -103,7 +114,27 @@ class PlatformFile {
   ///
   /// For large files on mobile and desktop platforms, prefer [readAsByteStream]
   /// to avoid Out Of Memory (OOM) issues.
-  Future<Uint8List> readAsBytes() => xFile.readAsBytes();
+  Future<Uint8List> readAsBytes() async {
+    if (kIsWeb) {
+      // If bytes are already present return them.
+      if (bytes != null) return bytes!;
+
+      // Try to fetch bytes automatically from the provided `path` (may be
+      // a blob: URL or data: URL). The helper is a no-op on non-web
+      // platforms thanks to conditional imports.
+      final fetched = await fetchBytesFromWebPath(path);
+      if (fetched != null) return fetched;
+
+      // Fallback: clear and descriptive error.
+      throw StateError(
+        'PlatformFile.readAsBytes(): file data is not available on Web. '
+        'Either call FilePicker.pickFiles(withData: true) so that `bytes` are populated, '
+        'or ensure the file `path` is a fetchable blob/data URL. Automatic fetch from `path` failed.',
+      );
+    }
+
+    return xFile.readAsBytes();
+  }
 
   /// Read the file content as a stream of bytes.
   ///
