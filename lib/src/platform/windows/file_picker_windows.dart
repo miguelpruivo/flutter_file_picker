@@ -184,15 +184,10 @@ class FilePickerWindows extends FilePickerPlatform {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    Uint8List? bytes,
-    String? path,
+    required Uint8List bytes,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
-    // Non-web platforms expect bytes to actually write the file contents.
-    if (bytes == null) {
-      throw ArgumentError('The bytes are required when saving a file on Windows.');
-    }
     final resolvedFileName = await FilePickerUtils.resolveSaveFileName(
       fileName: fileName,
       bytes: bytes,
@@ -214,7 +209,7 @@ class FilePickerWindows extends FilePickerPlatform {
     );
     String? savedFilePath = (await port.first) as String?;
 
-   savedFilePath = FilePickerUtils.applyResolvedExtensionIfMissing(
+    savedFilePath = FilePickerUtils.applyResolvedExtensionIfMissing(
       savedFilePath,
       resolvedFileName,
     );

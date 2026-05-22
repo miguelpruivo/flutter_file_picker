@@ -273,12 +273,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _resetState();
 
     try {
-      final webPath = kIsWeb &&
-              file.path != null &&
-              (file.path!.startsWith('blob:') || file.path!.startsWith('data:'))
-          ? file.path
-          : null;
-
       pickedSaveFilePath = await FilePicker.saveFile(
         allowedExtensions: _allowedExtensionsFromInput(),
         type: FileType.custom,
@@ -286,8 +280,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         fileName: fileName,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
-        path: webPath,
-        bytes: webPath == null ? await file.readAsBytes() : null,
+        bytes: await file.readAsBytes(),
       );
 
       hasUserAborted = pickedSaveFilePath == null;
@@ -318,8 +311,9 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
 
     final originalName = file?.name ?? '';
     final dotIndex = originalName.lastIndexOf('.');
-    final originalExtension =
-        dotIndex >= 0 ? originalName.substring(dotIndex) : '';
+    final originalExtension = dotIndex >= 0
+        ? originalName.substring(dotIndex)
+        : '';
 
     if (inputFileName.contains('.') || originalExtension.isEmpty) {
       return inputFileName;

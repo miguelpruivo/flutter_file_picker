@@ -131,9 +131,12 @@ if (selectedDirectory == null) {
 ```
 #### Save-file / save-as dialog
 ```dart
+final Uint8List pdfBytes = await File('source-file.pdf').readAsBytes();
+
 String? outputFile = await FilePicker.saveFile(
   dialogTitle: 'Please select an output file:',
   fileName: 'output-file.pdf',
+  bytes: pdfBytes,
 );
 
 if (outputFile == null) {

@@ -236,7 +236,7 @@ abstract final class FilePicker {
   /// Returns a [Future<String?>] which resolves to the absolute path of the
   /// saved file, or `null` if the user canceled the operation.
   ///
-  /// On the web, this starts a download and always returns `null`.
+  /// On the web, this starts a browser-managed save flow/download.
   ///
   /// The User Selected File Read/Write entitlement is required on macOS.
   ///
@@ -269,8 +269,7 @@ abstract final class FilePicker {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    Uint8List? bytes,
-    String? path,
+    required Uint8List bytes,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) {
@@ -281,7 +280,6 @@ abstract final class FilePicker {
       type: type,
       allowedExtensions: allowedExtensions,
       bytes: bytes,
-      path: path,
       onFileLoading: onFileLoading,
       lockParentWindow: lockParentWindow,
     );

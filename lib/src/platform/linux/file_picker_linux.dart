@@ -163,14 +163,10 @@ class FilePickerLinux extends FilePickerPlatform {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    Uint8List? bytes,
-    String? path,
+    required Uint8List bytes,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
-    if (bytes == null) {
-      throw ArgumentError('The bytes are required when saving a file on Linux.');
-    }
     final resolvedFileName = await FilePickerUtils.resolveSaveFileName(
       fileName: fileName,
       bytes: bytes,
@@ -218,7 +214,7 @@ class FilePickerLinux extends FilePickerPlatform {
     final savedFilePaths = saveUris.map((uri) => uri.toFilePath()).toList();
     String? savedFilePath = savedFilePaths.firstOrNull;
 
-   savedFilePath = FilePickerUtils.applyResolvedExtensionIfMissing(
+    savedFilePath = FilePickerUtils.applyResolvedExtensionIfMissing(
       savedFilePath,
       resolvedFileName,
     );

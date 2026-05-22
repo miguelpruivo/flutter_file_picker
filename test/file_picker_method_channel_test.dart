@@ -61,5 +61,27 @@ void main() {
         );
       },
     );
+
+    test('saveFile sends bytes and save metadata to the platform', () async {
+      final bytes = Uint8List.fromList([1, 2, 3, 4]);
+
+      await picker.saveFile(
+        fileName: 'output',
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+        bytes: bytes,
+        initialDirectory: '/tmp',
+      );
+
+      expect(log, hasLength(1));
+      expect(log.first.method, 'save');
+      expect(log.first.arguments, {
+        'fileName': 'output',
+        'fileType': 'custom',
+        'bytes': bytes,
+        'initialDirectory': '/tmp',
+        'allowedExtensions': ['pdf'],
+      });
+    });
   });
 }

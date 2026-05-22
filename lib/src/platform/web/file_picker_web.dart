@@ -27,14 +27,6 @@ extension type _WritableStream(JSObject _) implements JSObject {
   external JSPromise<JSAny?> close();
 }
 
-// fetch() interop for reading bytes from a blob: URL.
-@JS('fetch')
-external JSPromise<JSObject> _fetchJs(JSString url);
-
-extension type _Response(JSObject _) implements JSObject {
-  external JSPromise<JSArrayBuffer> arrayBuffer();
-}
-
 // ---------------------------------------------------------------------------
 class FilePickerWeb extends FilePickerPlatform {
   late Element _target;
@@ -163,22 +155,13 @@ class FilePickerWeb extends FilePickerPlatform {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    Uint8List? bytes,
-    String? path,
+    required Uint8List bytes,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
     // Ensure the file name has an extension.
     final name = _ensureExtension(fileName, allowedExtensions);
-
-    // Resolve bytes from the provided data or by fetching the blob/data URL.
-    final resolvedBytes = await _resolveBytes(bytes, path);
-
-    if (resolvedBytes == null) {
-      throw ArgumentError('Either bytes or a valid blob:/data: path must be provided.');
-    }
-
-    final blob = Blob([resolvedBytes.toJS].toJS);
+    final blob = Blob([bytes.toJS].toJS);
 
     // Try the native "Save As" picker (Chrome/Edge).
     // Returns true=saved, false=cancelled, null=unsupported.
@@ -206,19 +189,13 @@ class FilePickerWeb extends FilePickerPlatform {
     return ext.startsWith('.') ? '$fileName$ext' : '$fileName.$ext';
   }
 
-  /// Obtains the raw bytes: either directly from [bytes], or by fetching [path].
-  Future<Uint8List?> _resolveBytes(Uint8List? bytes, String? path) async {
-    if (bytes != null && bytes.isNotEmpty) return bytes;
-    if (path == null || path.isEmpty) return null;
-    return _fetchBytesFromUrl(path);
-  }
-
   /// Returns `true` if saved, `false` if the user cancelled, `null` if the
   /// browser does not support the native save picker.
   Future<bool?> _trySaveWithPicker(Blob blob, String fileName) async {
     try {
       final handle = _FileHandle(
-        await _showSaveFilePickerJs({'suggestedName': fileName}.jsify()!).toDart as JSObject,
+        await _showSaveFilePickerJs({'suggestedName': fileName}.jsify()!).toDart
+            as JSObject,
       );
       final writable = _WritableStream(
         await handle.createWritable().toDart as JSObject,
@@ -232,19 +209,6 @@ class FilePickerWeb extends FilePickerPlatform {
     }
   }
 
-  /// Fetches raw bytes from a blob: or data: URL.
-  Future<Uint8List?> _fetchBytesFromUrl(String url) async {
-    try {
-      if (url.startsWith('data:')) {
-        return Uri.parse(url).data?.contentAsBytes();
-      }
-      if (url.startsWith('blob:')) {
-        final buffer = await _Response(await _fetchJs(url.toJS).toDart).arrayBuffer().toDart;
-        return buffer.toDart.asUint8List();
-      }
-    } catch (_) {}
-    return null;
-  }
 
   /// Triggers a browser download for [blob] with [fileName].
   void _downloadBlob(Blob blob, String fileName) {
@@ -332,10 +296,7 @@ class FilePickerWeb extends FilePickerPlatform {
       return null;
     }
 
-    final blob = Blob(
-      [bytes.toJS].toJS,
-      BlobPropertyBag(type: file.type),
-    );
+    final blob = Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
     return URL.createObjectURL(blob);
   }
 

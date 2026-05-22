@@ -103,14 +103,10 @@ class FilePickerMacOS extends FilePickerPlatform {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    Uint8List? bytes,
-    String? path,
+    required Uint8List bytes,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
-    if (bytes == null) {
-      throw ArgumentError('The bytes are required when saving a file on macOS.');
-    }
     final fileFilter = fileTypeToFileFilter(type, allowedExtensions);
     final resolvedFileName = await FilePickerUtils.resolveSaveFileName(
       fileName: fileName,
