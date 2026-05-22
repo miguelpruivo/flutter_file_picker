@@ -7,6 +7,7 @@
 
 ### Android
 - Improved `saveFile()` responsiveness by performing file writes in a background coroutine instead of the main thread.
+- Fixed plugin build compatibility with AGP 9+ projects that disable built-in Kotlin.
 
 ### iOS
 - `saveFile()` now preserves or infers a missing file extension from the selected file, custom extensions, file signature, or file type defaults.
