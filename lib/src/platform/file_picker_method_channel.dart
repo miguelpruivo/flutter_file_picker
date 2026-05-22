@@ -164,7 +164,8 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    required Uint8List bytes,
+    Uint8List? bytes,
+    String? path,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
@@ -181,6 +182,10 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         }, onError: (error) => throw Exception(error));
       }
 
+      if (bytes == null && (path == null || path.isEmpty)) {
+        throw ArgumentError('Either bytes or path must be provided to saveFile.');
+      }
+
       final resolvedFileName = await FilePickerUtils.resolveSaveFileName(
         fileName: fileName,
         bytes: bytes,
@@ -189,7 +194,8 @@ class MethodChannelFilePicker extends FilePickerPlatform {
       String? savedPath = await methodChannel.invokeMethod<String>("save", {
         "fileName": resolvedFileName,
         "fileType": type.name,
-        "bytes": bytes,
+        if (bytes != null) "bytes": bytes,
+        if (path != null) "path": path,
         "initialDirectory": initialDirectory,
         "allowedExtensions": allowedExtensions,
       });
@@ -199,7 +205,9 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         resolvedFileName,
       );
 
-      if (!Platform.isAndroid) {
+      // If the platform returned a path for the saved file and we have bytes
+      // then persist them locally (native implementations may expect this).
+      if (bytes != null && !Platform.isAndroid) {
         await FilePickerUtils.saveBytesToFile(bytes, savedPath);
       }
 

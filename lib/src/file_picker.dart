@@ -131,7 +131,7 @@ abstract final class FilePicker {
       onFileLoading: onFileLoading,
       compressionQuality: compressionQuality,
       allowMultiple: false,
-      withData: false,
+      withData: kIsWeb,
       withReadStream: false,
       lockParentWindow: lockParentWindow,
       readSequential: false,
@@ -269,7 +269,8 @@ abstract final class FilePicker {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    required Uint8List bytes,
+    Uint8List? bytes,
+    String? path,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) {
@@ -280,6 +281,7 @@ abstract final class FilePicker {
       type: type,
       allowedExtensions: allowedExtensions,
       bytes: bytes,
+      path: path,
       onFileLoading: onFileLoading,
       lockParentWindow: lockParentWindow,
     );

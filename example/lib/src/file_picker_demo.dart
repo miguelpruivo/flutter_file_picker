@@ -261,7 +261,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     bool hasUserAborted = true;
 
     final file = pickedFiles?.firstOrNull;
-    final fileName = _defaultFileNameController.text;
+    final fileName = _resolveSaveFileName(file);
 
     if (file == null || fileName.isEmpty) {
       _logException(
@@ -270,11 +270,15 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       return;
     }
 
-    final bytes = await file.readAsBytes();
-
     _resetState();
 
     try {
+      final webPath = kIsWeb &&
+              file.path != null &&
+              (file.path!.startsWith('blob:') || file.path!.startsWith('data:'))
+          ? file.path
+          : null;
+
       pickedSaveFilePath = await FilePicker.saveFile(
         allowedExtensions: _allowedExtensionsFromInput(),
         type: FileType.custom,
@@ -282,8 +286,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         fileName: fileName,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
-        bytes: bytes,
+        path: webPath,
+        bytes: webPath == null ? await file.readAsBytes() : null,
       );
+
       hasUserAborted = pickedSaveFilePath == null;
     } on PlatformException catch (e) {
       _logException('Unsupported operation: $e');
@@ -292,19 +298,34 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     }
     if (!mounted) return;
 
+    if (pickedSaveFilePath != null) {
+      _scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text('Saved file: $pickedSaveFilePath')),
+      );
+    }
+
     setState(() {
       _isLoading = false;
       _userAborted = hasUserAborted;
-      _resultsWidget = FilePickerResultsList(
-        itemCount: pickedSaveFilePath != null ? 1 : 0,
-        itemBuilder: (BuildContext context, int index) {
-          return ListTile(
-            title: const Text('Save file path:'),
-            subtitle: Text(pickedSaveFilePath ?? ''),
-          );
-        },
-      );
     });
+  }
+
+  String _resolveSaveFileName(PlatformFile? file) {
+    final inputFileName = _defaultFileNameController.text.trim();
+    if (inputFileName.isEmpty) {
+      return '';
+    }
+
+    final originalName = file?.name ?? '';
+    final dotIndex = originalName.lastIndexOf('.');
+    final originalExtension =
+        dotIndex >= 0 ? originalName.substring(dotIndex) : '';
+
+    if (inputFileName.contains('.') || originalExtension.isEmpty) {
+      return inputFileName;
+    }
+
+    return '$inputFileName$originalExtension';
   }
 
   void _logException(String message) {

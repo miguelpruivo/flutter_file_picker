@@ -82,13 +82,19 @@ abstract class FilePickerPlatform extends PlatformInterface {
 
   /// Opens a save file dialog which lets the user select a file path and a file
   /// name to save a file.
+  ///
+  /// This unified method accepts either [bytes] (file contents) or a [path]
+  /// (e.g. a blob/data URL on web or a file URL). At least one of [bytes] or
+  /// [path] must be provided. Implementations should prefer [path] when it is
+  /// supplied and only use [bytes] when necessary.
   Future<String?> saveFile({
     String? dialogTitle,
     required String fileName,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    required Uint8List bytes,
+    Uint8List? bytes,
+    String? path,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {

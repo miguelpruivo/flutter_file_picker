@@ -2,15 +2,40 @@ import 'dart:async';
 import 'dart:js_interop';
 import 'dart:typed_data';
 
-import 'package:file_picker/src/api/file_picker_types.dart';
-import 'package:file_picker/src/api/file_picker_result.dart';
-import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
+import 'package:file_picker/src/api/file_picker_result.dart';
+import 'package:file_picker/src/api/file_picker_types.dart';
+import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:path/path.dart' as p;
 import 'package:web/web.dart';
 
+// ---------------------------------------------------------------------------
+// JS interop for the File System Access API (showSaveFilePicker).
+// Available in Chrome/Edge. Falls back to anchor download on other browsers.
+// ---------------------------------------------------------------------------
+
+@JS('showSaveFilePicker')
+external JSPromise<JSAny?> _showSaveFilePickerJs(JSAny options);
+
+extension type _FileHandle(JSObject _) implements JSObject {
+  external JSPromise<JSAny?> createWritable();
+}
+
+extension type _WritableStream(JSObject _) implements JSObject {
+  external JSPromise<JSAny?> write(JSAny data);
+  external JSPromise<JSAny?> close();
+}
+
+// fetch() interop for reading bytes from a blob: URL.
+@JS('fetch')
+external JSPromise<JSObject> _fetchJs(JSString url);
+
+extension type _Response(JSObject _) implements JSObject {
+  external JSPromise<JSArrayBuffer> arrayBuffer();
+}
+
+// ---------------------------------------------------------------------------
 class FilePickerWeb extends FilePickerPlatform {
   late Element _target;
   final String _kFilePickerInputsDomId = '__file_picker_web-file-input';
@@ -40,16 +65,6 @@ class FilePickerWeb extends FilePickerPlatform {
   }
 
   @override
-  Future<String?> getDirectoryPath({
-    String? dialogTitle,
-    bool lockParentWindow = false,
-    String? initialDirectory,
-    AndroidSAFOptions? androidSafOptions,
-  }) async {
-    throw UnimplementedError('getDirectoryPath() has not been implemented.');
-  }
-
-  @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
@@ -74,95 +89,36 @@ class FilePickerWeb extends FilePickerPlatform {
     Completer<List<PlatformFile>?>? filesCompleter =
         Completer<List<PlatformFile>?>();
 
-    String accept = _fileType(type, allowedExtensions);
-    HTMLInputElement uploadInput = HTMLInputElement();
-    uploadInput.type = 'file';
-    uploadInput.draggable = true;
-    uploadInput.multiple = allowMultiple;
-    uploadInput.accept = accept;
-    uploadInput.style.display = 'none';
+    final uploadInput = HTMLInputElement()
+      ..type = 'file'
+      ..draggable = true
+      ..multiple = allowMultiple
+      ..accept = _fileType(type, allowedExtensions)
+      ..style.display = 'none';
 
     bool changeEventTriggered = false;
-
-    if (onFileLoading != null) {
-      onFileLoading(FilePickerStatus.picking);
-    }
+    onFileLoading?.call(FilePickerStatus.picking);
 
     void changeEventListener(Event e) async {
-      if (changeEventTriggered) {
-        return;
-      }
+      if (changeEventTriggered) return;
       changeEventTriggered = true;
 
-      final FileList files = uploadInput.files!;
-      final List<PlatformFile> pickedFiles = [];
-
-      void addPickedFile(
-        File file,
-        Uint8List? bytes,
-        String? path,
-        Stream<List<int>>? readStream,
-      ) {
-        String? blobUrl;
-        if (bytes != null && bytes.isNotEmpty) {
-          final blob = Blob(
-            [bytes.toJS].toJS,
-            BlobPropertyBag(type: file.type),
-          );
-
-          blobUrl = URL.createObjectURL(blob);
-        }
-        pickedFiles.add(
-          PlatformFile(
-            name: file.name,
-            path: path ?? blobUrl,
-            size: bytes != null ? bytes.length : file.size,
-            bytes: bytes,
-            readStream: readStream,
-          ),
-        );
-
-        if (pickedFiles.length >= files.length) {
-          if (onFileLoading != null) {
-            onFileLoading(FilePickerStatus.done);
-          }
-          filesCompleter?.complete(pickedFiles);
-        }
+      final files = uploadInput.files;
+      if (files == null) {
+        onFileLoading?.call(FilePickerStatus.done);
+        filesCompleter?.complete(null);
+        return;
       }
 
-      for (int i = 0; i < files.length; i++) {
-        final File? file = files.item(i);
-        if (file == null) {
-          continue;
-        }
+      final pickedFiles = await _buildPickedFiles(
+        files,
+        withData: withData,
+        withReadStream: withReadStream,
+        readSequential: readSequential,
+      );
 
-        if (withReadStream) {
-          addPickedFile(file, null, null, _openFileReadStream(file));
-          continue;
-        }
-
-        if (!withData) {
-          final FileReader reader = FileReader();
-          reader.onLoadEnd.listen((e) {
-            String? result = (reader.result as JSString?)?.toDart;
-            addPickedFile(file, null, result, null);
-          });
-          reader.readAsDataURL(file);
-          continue;
-        }
-
-        final syncCompleter = Completer<void>();
-        final FileReader reader = FileReader();
-        reader.onLoadEnd.listen((e) {
-          ByteBuffer? byteBuffer = (reader.result as JSArrayBuffer?)?.toDart;
-          addPickedFile(file, byteBuffer?.asUint8List(), null, null);
-          syncCompleter.complete();
-        });
-        reader.readAsArrayBuffer(file);
-        if (readSequential) {
-          await syncCompleter.future;
-        }
-      }
+      onFileLoading?.call(FilePickerStatus.done);
+      filesCompleter?.complete(pickedFiles);
     }
 
     void cancelledEventListener(Event _) {
@@ -171,7 +127,7 @@ class FilePickerWeb extends FilePickerPlatform {
       // This listener is called before the input changed event,
       // and the `uploadInput.files` value is still null
       // Wait for results from js to dart
-      Future.delayed(Duration(seconds: 1)).then((value) {
+      Future.delayed(const Duration(seconds: 1)).then((value) {
         if (!changeEventTriggered) {
           changeEventTriggered = true;
           filesCompleter?.complete(null);
@@ -188,20 +144,11 @@ class FilePickerWeb extends FilePickerPlatform {
       window.addEventListener('focus', cancelledEventListener.toJS);
     }
 
-    //Add input element to the page body
-    Node? firstChild = _target.firstChild;
-    while (firstChild != null) {
-      _target.removeChild(firstChild);
-      firstChild = _target.firstChild;
-    }
+    _clearTarget();
     _target.children.add(uploadInput);
     uploadInput.click();
 
-    firstChild = _target.firstChild;
-    while (firstChild != null) {
-      _target.removeChild(firstChild);
-      firstChild = _target.firstChild;
-    }
+    _clearTarget();
 
     final List<PlatformFile>? files = await filesCompleter.future;
     filesCompleter = null;
@@ -216,42 +163,188 @@ class FilePickerWeb extends FilePickerPlatform {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    required Uint8List bytes,
+    Uint8List? bytes,
+    String? path,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
-    if (bytes.isEmpty) {
-      throw ArgumentError(
-        'The bytes are required when saving a file on the web.',
-      );
+    // Ensure the file name has an extension.
+    final name = _ensureExtension(fileName, allowedExtensions);
+
+    // Resolve bytes from the provided data or by fetching the blob/data URL.
+    final resolvedBytes = await _resolveBytes(bytes, path);
+
+    if (resolvedBytes == null) {
+      throw ArgumentError('Either bytes or a valid blob:/data: path must be provided.');
     }
 
-    if (fileName.isEmpty) {
-      throw ArgumentError(
-        'A file name is required when saving a file on the web.',
-      );
-    }
+    final blob = Blob([resolvedBytes.toJS].toJS);
 
-    if (p.extension(fileName).isEmpty) {
-      throw ArgumentError(
-        'The file name should include a valid file extension.',
-      );
-    }
+    // Try the native "Save As" picker (Chrome/Edge).
+    // Returns true=saved, false=cancelled, null=unsupported.
+    final pickerResult = await _trySaveWithPicker(blob, name);
+    if (pickerResult == true) return name;
+    if (pickerResult == false) return null;
 
-    final blob = Blob([bytes.toJS].toJS);
+    // Fallback: standard browser download.
+    _downloadBlob(blob, name);
+    return name;
+  }
+
+  // ---------------------------------------------------------------------------
+  // saveFile helpers
+  // ---------------------------------------------------------------------------
+
+  /// Appends a single allowed extension when the file name has none.
+  String _ensureExtension(String fileName, List<String>? allowedExtensions) {
+    if (fileName.contains('.')) return fileName;
+    if (allowedExtensions == null || allowedExtensions.length != 1) {
+      return fileName;
+    }
+    final ext = allowedExtensions.first.trim();
+    if (ext.isEmpty) return fileName;
+    return ext.startsWith('.') ? '$fileName$ext' : '$fileName.$ext';
+  }
+
+  /// Obtains the raw bytes: either directly from [bytes], or by fetching [path].
+  Future<Uint8List?> _resolveBytes(Uint8List? bytes, String? path) async {
+    if (bytes != null && bytes.isNotEmpty) return bytes;
+    if (path == null || path.isEmpty) return null;
+    return _fetchBytesFromUrl(path);
+  }
+
+  /// Returns `true` if saved, `false` if the user cancelled, `null` if the
+  /// browser does not support the native save picker.
+  Future<bool?> _trySaveWithPicker(Blob blob, String fileName) async {
+    try {
+      final handle = _FileHandle(
+        await _showSaveFilePickerJs({'suggestedName': fileName}.jsify()!).toDart as JSObject,
+      );
+      final writable = _WritableStream(
+        await handle.createWritable().toDart as JSObject,
+      );
+      await writable.write(blob as JSAny).toDart;
+      await writable.close().toDart;
+      return true;
+    } catch (e) {
+      // User pressed Cancel → AbortError.
+      return e.toString().contains('Abort') ? false : null;
+    }
+  }
+
+  /// Fetches raw bytes from a blob: or data: URL.
+  Future<Uint8List?> _fetchBytesFromUrl(String url) async {
+    try {
+      if (url.startsWith('data:')) {
+        return Uri.parse(url).data?.contentAsBytes();
+      }
+      if (url.startsWith('blob:')) {
+        final buffer = await _Response(await _fetchJs(url.toJS).toDart).arrayBuffer().toDart;
+        return buffer.toDart.asUint8List();
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  /// Triggers a browser download for [blob] with [fileName].
+  void _downloadBlob(Blob blob, String fileName) {
     final url = URL.createObjectURL(blob);
-
-    // Start a download by using a click event on an anchor element that contains the Blob.
     HTMLAnchorElement()
       ..href = url
-      // Always open the file in a new tab.
-      ..target = 'blank'
       ..download = fileName
       ..click();
-
-    // Release the Blob URL after the download started.
     URL.revokeObjectURL(url);
-    return null;
+  }
+
+  Future<List<PlatformFile>> _buildPickedFiles(
+    FileList files, {
+    required bool withData,
+    required bool withReadStream,
+    required bool readSequential,
+  }) async {
+    final futures = <Future<PlatformFile>>[];
+    final pickedFiles = <PlatformFile>[];
+
+    for (int i = 0; i < files.length; i++) {
+      final file = files.item(i);
+      if (file == null) continue;
+
+      final pickedFile = _toPlatformFile(
+        file,
+        withData: withData,
+        withReadStream: withReadStream,
+      );
+
+      if (readSequential) {
+        pickedFiles.add(await pickedFile);
+      } else {
+        futures.add(pickedFile);
+      }
+    }
+
+    return readSequential ? pickedFiles : Future.wait(futures);
+  }
+
+  Future<PlatformFile> _toPlatformFile(
+    File file, {
+    required bool withData,
+    required bool withReadStream,
+  }) async {
+    if (withReadStream) {
+      return PlatformFile(
+        name: file.name,
+        path: URL.createObjectURL(file),
+        size: file.size,
+        readStream: _openFileReadStream(file),
+      );
+    }
+
+    if (!withData) {
+      return PlatformFile(
+        name: file.name,
+        path: URL.createObjectURL(file),
+        size: file.size,
+      );
+    }
+
+    final bytes = await _readFileAsBytes(file);
+    return PlatformFile(
+      name: file.name,
+      path: _blobUrlFromBytes(file, bytes),
+      size: bytes?.length ?? file.size,
+      bytes: bytes,
+    );
+  }
+
+  Future<Uint8List?> _readFileAsBytes(File file) {
+    final completer = Completer<Uint8List?>();
+    final reader = FileReader();
+    reader.onLoadEnd.listen((_) {
+      final byteBuffer = (reader.result as JSArrayBuffer?)?.toDart;
+      completer.complete(byteBuffer?.asUint8List());
+    });
+    reader.readAsArrayBuffer(file);
+    return completer.future;
+  }
+
+  String? _blobUrlFromBytes(File file, Uint8List? bytes) {
+    if (bytes == null || bytes.isEmpty) {
+      return null;
+    }
+
+    final blob = Blob(
+      [bytes.toJS].toJS,
+      BlobPropertyBag(type: file.type),
+    );
+    return URL.createObjectURL(blob);
+  }
+
+  void _clearTarget() {
+    Node? firstChild = _target.firstChild;
+    while (firstChild != null) {
+      _target.removeChild(firstChild);
+      firstChild = _target.firstChild;
+    }
   }
 
   static String _fileType(FileType type, List<String>? allowedExtensions) {

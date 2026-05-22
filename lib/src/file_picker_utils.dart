@@ -114,7 +114,7 @@ class FilePickerUtils {
 
   static Future<String> resolveSaveFileName({
     required String fileName,
-    required Uint8List bytes,
+    Uint8List? bytes,
   }) async {
     final sanitizedName = basename(fileName.trim());
     final safeName = sanitizedName.isEmpty ? 'file' : sanitizedName;
@@ -122,6 +122,9 @@ class FilePickerUtils {
     if (extension(safeName).isNotEmpty) {
       return safeName;
     }
+    // If bytes are not provided we can't infer the extension; return the
+    // base name as-is and let the native save dialog or caller decide.
+    if (bytes == null) return safeName;
 
     final ext = await _inferExtensionFromBytes(bytes);
     if (ext == null || ext.isEmpty) {
