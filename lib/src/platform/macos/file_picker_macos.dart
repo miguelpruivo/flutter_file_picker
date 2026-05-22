@@ -108,13 +108,17 @@ class FilePickerMacOS extends FilePickerPlatform {
     bool lockParentWindow = false,
   }) async {
     final fileFilter = fileTypeToFileFilter(type, allowedExtensions);
+    final resolvedFileName = await FilePickerUtils.resolveSaveFileName(
+      fileName: fileName,
+      bytes: bytes,
+    );
 
     final String? savedFilePath = await methodChannel
         .invokeMethod<String>('saveFile', <String, dynamic>{
           'dialogTitle': escapeDialogTitle(
             dialogTitle ?? FilePickerUtils.defaultDialogTitle,
           ),
-          'fileName': fileName,
+          'fileName': resolvedFileName,
           'initialDirectory': escapeInitialDirectory(initialDirectory),
           'allowedExtensions': fileFilter,
         });

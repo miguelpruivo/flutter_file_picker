@@ -4,7 +4,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:mime/mime.dart';
 import 'package:path/path.dart';
+import 'package:tika/tika.dart';
 
 /// Utility class for [FilePicker] that provides common helper methods
 /// used across different platform implementations.
@@ -108,6 +110,74 @@ class FilePickerUtils {
       receivePort.close();
       if (result is Exception) {
         throw result;
+      }
+    }
+  }
+
+  static Future<String> resolveSaveFileName({
+    required String fileName,
+    required Uint8List bytes,
+  }) async {
+    final sanitizedName = basename(fileName.trim());
+    final safeName = sanitizedName.isEmpty ? 'file' : sanitizedName;
+
+    if (extension(safeName).isNotEmpty) {
+      return safeName;
+    }
+
+    final ext = await _inferExtensionFromBytes(bytes);
+    if (ext == null || ext.isEmpty) {
+      return safeName;
+    }
+
+    return '$safeName.$ext';
+  }
+
+  static Future<String?> _inferExtensionFromBytes(Uint8List bytes) async {
+    if (bytes.isEmpty) return null;
+
+    final tikaMimeType = await _detectMimeTypeWithTika(bytes);
+    final fallbackMimeType = lookupMimeType('', headerBytes: bytes);
+    final mimeType = tikaMimeType ?? fallbackMimeType;
+
+    if (mimeType == null || mimeType.isEmpty) return null;
+    return extensionFromMime(mimeType)?.toLowerCase();
+  }
+
+  static Future<String?> _detectMimeTypeWithTika(Uint8List bytes) async {
+    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
+      return null;
+    }
+
+    if (!await TikaClient.isSupported()) {
+      return null;
+    }
+
+    File? tempFile;
+    try {
+      tempFile = File(
+        '${Directory.systemTemp.path}${Platform.pathSeparator}${DateTime.now().microsecondsSinceEpoch}-file-picker.bin',
+      );
+      await tempFile.writeAsBytes(bytes, flush: true);
+
+      final result = await Process.run('tika', ['--mime-type', tempFile.path]);
+      if (result.exitCode != 0) {
+        return null;
+      }
+
+      final mimeType = result.stdout?.toString().trim();
+      if (mimeType == null || mimeType.isEmpty) {
+        return null;
+      }
+
+      return mimeType;
+    } catch (_) {
+      return null;
+    } finally {
+      if (tempFile != null && tempFile.existsSync()) {
+        try {
+          tempFile.deleteSync();
+        } catch (_) {}
       }
     }
   }

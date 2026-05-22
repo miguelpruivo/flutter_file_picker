@@ -167,9 +167,14 @@ class FilePickerLinux extends FilePickerPlatform {
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
+    final resolvedFileName = await FilePickerUtils.resolveSaveFileName(
+      fileName: fileName,
+      bytes: bytes,
+    );
+
     Map<String, DBusValue> xdpOption = {
       'handle_token': DBusString('flutter_picker'),
-      'current_name': DBusString(fileName),
+      'current_name': DBusString(resolvedFileName),
       'modal': DBusBoolean(lockParentWindow),
     };
     if (initialDirectory != null) {

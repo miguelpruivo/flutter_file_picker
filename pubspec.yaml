@@ -19,6 +19,8 @@ dependencies:
   cross_file: ^0.3.5+2
   web: ^1.1.1
   dbus: ^0.7.12
+  tika: ^1.0.1
+  mime: ^2.0.0
 
 dev_dependencies:
   flutter_lints: ^5.0.0

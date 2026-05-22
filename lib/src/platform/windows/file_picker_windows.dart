@@ -188,12 +188,17 @@ class FilePickerWindows extends FilePickerPlatform {
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
+    final resolvedFileName = await FilePickerUtils.resolveSaveFileName(
+      fileName: fileName,
+      bytes: bytes,
+    );
+
     final port = ReceivePort();
     await Isolate.spawn(
       _callSaveFile,
       _OpenSaveFileArgs(
         port: port.sendPort,
-        defaultFileName: fileName,
+        defaultFileName: resolvedFileName,
         dialogTitle: dialogTitle,
         initialDirectory: initialDirectory,
         type: type,

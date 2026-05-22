@@ -181,9 +181,14 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         }, onError: (error) => throw Exception(error));
       }
 
+      final resolvedFileName = await FilePickerUtils.resolveSaveFileName(
+        fileName: fileName,
+        bytes: bytes,
+      );
+
       final String? savedPath = await methodChannel
           .invokeMethod<String>("save", {
-            "fileName": fileName,
+            "fileName": resolvedFileName,
             "fileType": type.name,
             "bytes": bytes,
             "initialDirectory": initialDirectory,

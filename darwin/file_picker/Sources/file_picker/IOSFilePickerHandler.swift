@@ -250,7 +250,7 @@ final class IOSFilePickerHandler: NSObject,
 
         let bytes = arguments["bytes"] as? FlutterStandardTypedData
 
-        let finalFileName = inferFileName(from: arguments, bytes: bytes)
+        let finalFileName = inferFileName(from: arguments)
 
         do {
             let tempFile = try writeTempFile(named: finalFileName, data: bytes?.data)
@@ -272,55 +272,11 @@ final class IOSFilePickerHandler: NSObject,
         }
     }
 
-    private func inferFileName(from arguments: [String: Any], bytes: FlutterStandardTypedData?) -> String {
-        var name = (arguments["fileName"] as? String) ?? ""
-
-        if !(name as NSString).pathExtension.isEmpty {
-            return name
-        }
-
-        if let fileType = arguments["fileType"] as? String, let ext = inferExtensionFromFileType(fileType) {
-            return name + "." + ext
-        }
-
-        if let data = bytes?.data, let ext = inferExtensionFromBytes(data) {
-            return name + "." + ext
-        }
-
-        return name
-    }
-
-    private func inferExtensionFromFileType(_ fileType: String) -> String? {
-        switch fileType {
-        case "image": return "jpg"
-        case "video": return "mp4"
-        case "audio": return "mp3"
-        default: return nil
-        }
-    }
-
-    private func inferExtensionFromBytes(_ data: Data) -> String? {
-        if data.count >= 4, let header = String(data: data.subdata(in: 0..<4), encoding: .utf8), header == "%PDF" {
-            return "pdf"
-        }
-
-        let pngSignature: [UInt8] = [0x89, 0x50, 0x4E, 0x47]
-        if data.count >= 4 && data.starts(with: Data(pngSignature)) {
-            return "png"
-        }
-
-        if data.count >= 2 {
-            let bytes = [UInt8](data.prefix(2))
-            if bytes[0] == 0xFF && bytes[1] == 0xD8 {
-                return "jpg"
-            }
-        }
-
-        if data.count >= 6, let gifHeader = String(data: data.subdata(in: 0..<6), encoding: .ascii), gifHeader.hasPrefix("GIF") {
-            return "gif"
-        }
-
-        return nil
+    private func inferFileName(from arguments: [String: Any]) -> String {
+        let rawName = ((arguments["fileName"] as? String) ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let safeName = URL(fileURLWithPath: rawName).lastPathComponent
+        return safeName.isEmpty ? "file" : safeName
     }
 
     private func writeTempFile(named fileName: String, data: Data?) throws -> URL {
