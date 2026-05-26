@@ -109,6 +109,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         pickedFiles = file != null ? [file] : null;
       }
       hasUserAborted = pickedFiles == null;
+      // Auto-fill the default file name with the first picked file
+      if (pickedFiles != null && pickedFiles!.isNotEmpty) {
+        _defaultFileNameController.text = pickedFiles!.first.name;
+      }
     } on PlatformException catch (e) {
       _logException('Unsupported operation: $e');
     } catch (e) {
@@ -263,10 +267,13 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     final file = pickedFiles?.firstOrNull;
     final fileName = _defaultFileNameController.text;
 
-    if (file == null || fileName.isEmpty) {
-      _logException(
-        'Please pick a file first and provide a default file name.',
-      );
+    if (file == null) {
+      _logException('Please pick a file first.');
+      return;
+    }
+
+    if (fileName.isEmpty) {
+      _logException('Please provide a default file name.');
       return;
     }
 
@@ -275,9 +282,12 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _resetState();
 
     try {
+      final allowedExtensions = _allowedExtensionsFromInput();
       pickedSaveFilePath = await FilePicker.saveFile(
-        allowedExtensions: _allowedExtensionsFromInput(),
-        type: FileType.custom,
+        allowedExtensions: allowedExtensions,
+        type: (allowedExtensions != null && allowedExtensions.isNotEmpty)
+            ? FileType.custom
+            : FileType.any,
         dialogTitle: _dialogTitleController.text,
         fileName: fileName,
         initialDirectory: _initialDirectoryController.text,
@@ -300,7 +310,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
             title: const Text('Save file path:'),
-            subtitle: Text(pickedSaveFilePath ?? ''),
+            subtitle: Text(fileName),
           );
         },
       );
