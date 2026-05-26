@@ -1,3 +1,9 @@
+## 12.0.0-beta.5
+### Android / Darwin
+- Fixed `saveFile(bytes: ...)` so native byte handling is preserved on Android and iOS, avoiding the duplicate Dart-side write that could break SAF/content URI saves.
+### iOS
+- Fixed a race condition when dismissing the file picker with a fast swipe, preventing the picker from getting stuck in a `multiple_request` state until app restart. [#2021](https://github.com/miguelpruivo/flutter_file_picker/issues/2021)
+
 ## 12.0.0-beta.4
 ### General
 - Added `pickFile()` static method as a convenience wrapper for single file selection, returning `PlatformFile?` directly. [#1469](https://github.com/miguelpruivo/flutter_file_picker/issues/1469)

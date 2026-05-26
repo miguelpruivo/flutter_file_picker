@@ -164,17 +164,17 @@ final class IOSFilePickerHandler: NSObject,
     }
 
     func documentPickerWasCancelled(_: UIDocumentPickerViewController) {
-        result?(nil)
-        result = nil
+        finishCurrentRequest(nil)
+    }
+
+    func presentationControllerWillDismiss(_: UIPresentationController) {
+        finishCurrentRequest(nil)
     }
 
     func presentationControllerDidDismiss(
         _: UIPresentationController
     ) {
-        if result != nil {
-            result?(nil)
-            result = nil
-        }
+        finishCurrentRequest(nil)
     }
 
     func documentPicker(
@@ -361,6 +361,15 @@ final class IOSFilePickerHandler: NSObject,
         } catch {
             return nil
         }
+    }
+
+    private func finishCurrentRequest(_ value: Any?) {
+        guard let currentResult = result else {
+            return
+        }
+
+        result = nil
+        currentResult(value)
     }
 }
 #endif
