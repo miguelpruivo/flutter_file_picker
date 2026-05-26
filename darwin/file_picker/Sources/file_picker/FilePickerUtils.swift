@@ -1,5 +1,10 @@
 import Foundation
 import UniformTypeIdentifiers
+#if canImport(CoreServices)
+import CoreServices
+#elseif canImport(MobileCoreServices)
+import MobileCoreServices
+#endif
 
 enum FilePickerUtils {
     static func buildSaveFileName(from arguments: [String: Any], data: Data?, lastPickedFileExtension: String?) -> String {
@@ -72,11 +77,27 @@ enum FilePickerUtils {
             return nil
         }
 
-        guard let resourceValues = try? tempURL.resourceValues(forKeys: [.contentTypeKey]),
-              let utType = resourceValues.contentType,
-              utType != .data,
-              utType != .item,
-              let ext = utType.preferredFilenameExtension
+        if #available(macOS 11.0, iOS 14.0, *) {
+            guard let resourceValues = try? tempURL.resourceValues(forKeys: [.contentTypeKey]),
+                  let utType = resourceValues.contentType,
+                  utType != .data,
+                  utType != .item,
+                  let ext = utType.preferredFilenameExtension
+            else {
+                return nil
+            }
+
+            return ext
+        }
+
+        guard let resourceValues = try? tempURL.resourceValues(forKeys: [.typeIdentifierKey]),
+              let typeIdentifier = resourceValues.typeIdentifier,
+              typeIdentifier != "public.data",
+              typeIdentifier != "public.item",
+              let ext = UTTypeCopyPreferredTagWithClass(
+                typeIdentifier as CFString,
+                kUTTagClassFilenameExtension
+              )?.takeRetainedValue() as String?
         else {
             return nil
         }
