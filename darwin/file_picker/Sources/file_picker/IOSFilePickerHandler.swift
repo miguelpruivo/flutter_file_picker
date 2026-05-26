@@ -18,6 +18,7 @@ final class IOSFilePickerHandler: NSObject,
     private var loadDataToMemory = false
     private var isDirectoryPicker = false
     private var isSaveFile = false
+    private var lastPickedFileExtension: String?
 
     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         if self.result != nil {
@@ -145,6 +146,7 @@ final class IOSFilePickerHandler: NSObject,
                 else {
                     return
                 }
+                self.updateLastPickedFileExtension(from: copiedURL)
                 if let fileInfo = self.makeFileInfo(from: copiedURL) {
                     resolved.append(fileInfo)
                 }
@@ -205,6 +207,7 @@ final class IOSFilePickerHandler: NSObject,
             else {
                 continue
             }
+            updateLastPickedFileExtension(from: copiedURL)
             resolved.append(fileInfo)
         }
 
@@ -247,8 +250,8 @@ final class IOSFilePickerHandler: NSObject,
 
     private func saveFile(_ arguments: [String: Any]) {
         isSaveFile = true
-        let fileName = (arguments["fileName"] as? String) ?? ""
         let bytes = arguments["bytes"] as? FlutterStandardTypedData
+        let fileName = FilePickerUtils.buildSaveFileName(from: arguments, data: bytes?.data, lastPickedFileExtension: lastPickedFileExtension)
 
         let tempFile = URL(fileURLWithPath: NSTemporaryDirectory())
             .appendingPathComponent(fileName)
@@ -277,6 +280,16 @@ final class IOSFilePickerHandler: NSObject,
         picker.delegate = self
         picker.presentationController?.delegate = self
         topViewController()?.present(picker, animated: true)
+    }
+
+    // buildSaveFileName, inferSaveExtension and inferExtensionFromDataSignature
+    // have been moved to FilePickerUtils.swift to avoid duplication across handlers.
+
+    private func updateLastPickedFileExtension(from fileURL: URL) {
+        let pathExtension = fileURL.pathExtension.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !pathExtension.isEmpty {
+            lastPickedFileExtension = pathExtension
+        }
     }
 
     private func resolveCustomContentTypes(_ allowedExtensions: [String]) -> [UTType] {
