@@ -189,7 +189,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
             "bytes": bytes,
           });
 
-
       if (onFileLoading != null) {
         onFileLoading(FilePickerStatus.done);
       }
