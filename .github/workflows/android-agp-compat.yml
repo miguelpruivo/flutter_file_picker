@@ -1,0 +1,127 @@
+name: Android AGP compatibility
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android-agp-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - lane: agp-8.x
+            agp_version: 8.9.1
+            gradle_version: 8.14.3
+            kotlin_version: 2.2.20
+            built_in_kotlin: ""
+          - lane: agp-9.x
+            agp_version: 9.2.1
+            gradle_version: 9.5.0
+            kotlin_version: 2.3.21
+            built_in_kotlin: "false"
+
+    name: Validate Android example on ${{ matrix.lane }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.0
+          cache: true
+
+      - name: Show toolchain versions
+        run: |
+          flutter --version
+          java -version
+
+      - name: Patch example host app for ${{ matrix.lane }}
+        shell: bash
+        env:
+          AGP_VERSION: ${{ matrix.agp_version }}
+          GRADLE_VERSION: ${{ matrix.gradle_version }}
+          KOTLIN_VERSION: ${{ matrix.kotlin_version }}
+          BUILT_IN_KOTLIN: ${{ matrix.built_in_kotlin }}
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import os
+          import re
+
+          root = Path.cwd()
+          settings_file = root / 'example/android/settings.gradle.kts'
+          wrapper_file = root / 'example/android/gradle/wrapper/gradle-wrapper.properties'
+          gradle_properties_file = root / 'example/android/gradle.properties'
+
+          agp_version = os.environ['AGP_VERSION']
+          gradle_version = os.environ['GRADLE_VERSION']
+          kotlin_version = os.environ['KOTLIN_VERSION']
+          built_in_kotlin = os.environ['BUILT_IN_KOTLIN']
+
+          settings = settings_file.read_text()
+          settings, agp_replacements = re.subn(
+              r'id\("com\.android\.application"\) version "[^"]+" apply false',
+              f'id("com.android.application") version "{agp_version}" apply false',
+              settings,
+              count=1,
+          )
+          settings, kotlin_replacements = re.subn(
+              r'id\("org\.jetbrains\.kotlin\.android"\) version "[^"]+" apply false',
+              f'id("org.jetbrains.kotlin.android") version "{kotlin_version}" apply false',
+              settings,
+              count=1,
+          )
+          if agp_replacements != 1 or kotlin_replacements != 1:
+              raise SystemExit('Unable to patch example/android/settings.gradle.kts')
+          settings_file.write_text(settings)
+
+          wrapper = wrapper_file.read_text()
+          wrapper, wrapper_replacements = re.subn(
+              r'gradle-[^-]+-all\.zip',
+              f'gradle-{gradle_version}-all.zip',
+              wrapper,
+              count=1,
+          )
+          if wrapper_replacements != 1:
+              raise SystemExit('Unable to patch example/android/gradle/wrapper/gradle-wrapper.properties')
+          wrapper_file.write_text(wrapper)
+
+          filtered_lines = []
+          for line in gradle_properties_file.read_text().splitlines():
+              if line.startswith('android.builtInKotlin='):
+                  continue
+              if line.strip() == '# This builtInKotlin flag was added automatically by Flutter migrator':
+                  continue
+              filtered_lines.append(line)
+
+          if built_in_kotlin:
+              filtered_lines.append(f'android.builtInKotlin={built_in_kotlin}')
+
+          gradle_properties_file.write_text('\n'.join(filtered_lines) + '\n')
+          PY
+
+      - name: Show Android diff under test
+        run: git --no-pager diff -- example/android | cat
+
+      - name: Install example dependencies
+        working-directory: example
+        run: flutter pub get
+
+      - name: Build Android example
+        working-directory: example
+        run: flutter build apk --debug
+
+

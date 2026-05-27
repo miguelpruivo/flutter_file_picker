@@ -18,6 +18,9 @@ class FilePickerDemo extends StatefulWidget {
 }
 
 class _FilePickerDemoState extends State<FilePickerDemo> {
+  static const _saveFileDisabledMessage =
+      'Save file is disabled because it is not compatible with multiple file selection.';
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   final _defaultFileNameController = TextEditingController();
@@ -35,6 +38,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   bool _supportsSafOptions = false;
   FileType _pickingType = FileType.any;
   List<PlatformFile>? pickedFiles;
+  bool get _isSaveFileDisabled => _multiPick;
   Widget _resultsWidget = const Row(
     children: [
       Expanded(
@@ -280,6 +284,11 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     String? pickedSaveFilePath;
     bool hasUserAborted = true;
 
+    if (_isSaveFileDisabled) {
+      _showSaveFileDisabledSnackBar();
+      return;
+    }
+
     final file = pickedFiles?.firstOrNull;
     final fileName = _defaultFileNameController.text;
 
@@ -333,6 +342,18 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _scaffoldMessengerKey.currentState?.showSnackBar(
       SnackBar(
         content: Text(message, style: const TextStyle(color: Colors.white)),
+      ),
+    );
+  }
+
+  void _showSaveFileDisabledSnackBar() {
+    _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+    _scaffoldMessengerKey.currentState?.showSnackBar(
+      const SnackBar(
+        content: Text(
+          _saveFileDisabledMessage,
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
@@ -462,7 +483,12 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         constraints: const BoxConstraints.tightFor(width: 400.0),
         child: SwitchListTile.adaptive(
           title: const Text('Pick multiple files', textAlign: TextAlign.left),
-          onChanged: (value) => setState(() => _multiPick = value),
+          onChanged: (value) {
+            setState(() => _multiPick = value);
+            if (value) {
+              _showSaveFileDisabledSnackBar();
+            }
+          },
           value: _multiPick,
         ),
       ),
@@ -545,7 +571,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       SizedBox(
         width: 120,
         child: FloatingActionButton.extended(
-          onPressed: _saveFile,
+          onPressed: _isSaveFileDisabled ? null : _saveFile,
+          backgroundColor: _isSaveFileDisabled ? Colors.grey.shade700 : null,
+          foregroundColor: _isSaveFileDisabled ? Colors.white70 : null,
+          disabledElevation: 0,
           label: const Text('Save file'),
           icon: const Icon(Icons.save_as),
         ),

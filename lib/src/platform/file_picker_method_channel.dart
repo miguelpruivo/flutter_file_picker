@@ -11,7 +11,6 @@ import 'package:file_picker/src/api/get_directory_path_options.dart';
 import 'package:file_picker/src/api/save_file_options.dart';
 import 'package:file_picker/src/api/file_picker_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
-import 'package:file_picker/src/file_picker_utils.dart';
 
 /// An implementation of [FilePickerPlatform] that uses method channels.
 class MethodChannelFilePicker extends FilePickerPlatform {
@@ -188,9 +187,8 @@ class MethodChannelFilePicker extends FilePickerPlatform {
             "fileType": type.name,
             "initialDirectory": initialDirectory,
             "allowedExtensions": allowedExtensions,
+            "bytes": bytes,
           });
-
-      await FilePickerUtils.saveBytesToFile(bytes, savedPath);
 
       if (onFileLoading != null) {
         onFileLoading(FilePickerStatus.done);
@@ -201,6 +199,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
       rethrow;
     } finally {
       await _eventSubscription?.cancel();
+      _eventSubscription = null;
     }
   }
 }

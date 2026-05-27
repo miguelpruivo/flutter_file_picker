@@ -132,9 +132,10 @@ final class IOSFilePickerHandler: NSObject,
 
         eventSink?(true)
         let group = DispatchGroup()
-        var resolved: [[String: Any]] = []
+        var resolved = Array<[String: Any]?>(repeating: nil, count: results.count)
+        let resolvedLock = NSLock()
 
-        for item in results {
+        for (index, item) in results.enumerated() {
             group.enter()
             item.itemProvider.loadFileRepresentation(
                 forTypeIdentifier: UTType.item.identifier
@@ -146,7 +147,9 @@ final class IOSFilePickerHandler: NSObject,
                     return
                 }
                 if let fileInfo = self.makeFileInfo(from: copiedURL) {
-                    resolved.append(fileInfo)
+                    resolvedLock.lock()
+                    resolved[index] = fileInfo
+                    resolvedLock.unlock()
                 }
             }
         }
@@ -156,23 +159,24 @@ final class IOSFilePickerHandler: NSObject,
                 return
             }
             eventSink?(false)
-            currentResult(resolved.isEmpty ? nil : resolved)
+            let orderedResolved = resolved.compactMap { $0 }
+            currentResult(orderedResolved.isEmpty ? nil : orderedResolved)
             result = nil
         }
     }
 
     func documentPickerWasCancelled(_: UIDocumentPickerViewController) {
-        result?(nil)
-        result = nil
+        finishCurrentRequest(nil)
+    }
+
+    func presentationControllerWillDismiss(_: UIPresentationController) {
+        finishCurrentRequest(nil)
     }
 
     func presentationControllerDidDismiss(
         _: UIPresentationController
     ) {
-        if result != nil {
-            result?(nil)
-            result = nil
-        }
+        finishCurrentRequest(nil)
     }
 
     func documentPicker(
@@ -215,6 +219,9 @@ final class IOSFilePickerHandler: NSObject,
     private func presentMediaPicker(type: String, allowsMultipleSelection: Bool) {
         var configuration = PHPickerConfiguration(photoLibrary: .shared())
         configuration.selectionLimit = allowsMultipleSelection ? 0 : 1
+        if #available(iOS 15.0, *) {
+            configuration.selection = .ordered
+        }
 
         switch type {
         case "image":
@@ -348,6 +355,15 @@ final class IOSFilePickerHandler: NSObject,
         } catch {
             return nil
         }
+    }
+
+    private func finishCurrentRequest(_ value: Any?) {
+        guard let currentResult = result else {
+            return
+        }
+
+        result = nil
+        currentResult(value)
     }
 }
 #endif
