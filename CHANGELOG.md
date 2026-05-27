@@ -1,9 +1,11 @@
 ## 12.0.0-beta.5
 ### Android / Darwin
 - Fixed `saveFile(bytes: ...)` so native byte handling is preserved on Android and iOS, avoiding the duplicate Dart-side write that could break SAF/content URI saves.
+
 ### iOS
 - Fixed a race condition when dismissing the file picker with a fast swipe, preventing the picker from getting stuck in a `multiple_request` state until app restart. [#2021](https://github.com/miguelpruivo/flutter_file_picker/issues/2021)
 - Simplified background file I/O in `saveFile` by replacing the manual `Isolate.spawn` implementation with `compute`, reducing boilerplate while preserving non-blocking behaviour.
+
 ### Darwin
 - `saveFile` now automatically appends the correct file extension to the saved filename when none is provided, inferring it from the last picked file, the allowed extensions list, the file bytes content type, or the file type filter — in that order of priority.
 - Added support for file extension inference via `UTType` on iOS 14+ / macOS 11+ with a fallback to `CoreServices` (`UTTypeCopyPreferredTagWithClass`) for older OS versions.
