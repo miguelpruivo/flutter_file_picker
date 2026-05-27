@@ -133,9 +133,10 @@ final class IOSFilePickerHandler: NSObject,
 
         eventSink?(true)
         let group = DispatchGroup()
-        var resolved: [[String: Any]] = []
+        var resolved = Array<[String: Any]?>(repeating: nil, count: results.count)
+        let resolvedLock = NSLock()
 
-        for item in results {
+        for (index, item) in results.enumerated() {
             group.enter()
             item.itemProvider.loadFileRepresentation(
                 forTypeIdentifier: UTType.item.identifier
@@ -148,7 +149,9 @@ final class IOSFilePickerHandler: NSObject,
                 }
                 self.updateLastPickedFileExtension(from: copiedURL)
                 if let fileInfo = self.makeFileInfo(from: copiedURL) {
-                    resolved.append(fileInfo)
+                    resolvedLock.lock()
+                    resolved[index] = fileInfo
+                    resolvedLock.unlock()
                 }
             }
         }
@@ -158,7 +161,8 @@ final class IOSFilePickerHandler: NSObject,
                 return
             }
             eventSink?(false)
-            currentResult(resolved.isEmpty ? nil : resolved)
+            let orderedResolved = resolved.compactMap { $0 }
+            currentResult(orderedResolved.isEmpty ? nil : orderedResolved)
             result = nil
         }
     }
@@ -186,6 +190,7 @@ final class IOSFilePickerHandler: NSObject,
         }
 
         if isSaveFile {
+            eventSink?(false)
             currentResult(urls.first?.path)
             result = nil
             isSaveFile = false
@@ -218,6 +223,9 @@ final class IOSFilePickerHandler: NSObject,
     private func presentMediaPicker(type: String, allowsMultipleSelection: Bool) {
         var configuration = PHPickerConfiguration(photoLibrary: .shared())
         configuration.selectionLimit = allowsMultipleSelection ? 0 : 1
+        if #available(iOS 15.0, *) {
+            configuration.selection = .ordered
+        }
 
         switch type {
         case "image":
@@ -252,34 +260,45 @@ final class IOSFilePickerHandler: NSObject,
         isSaveFile = true
         let bytes = arguments["bytes"] as? FlutterStandardTypedData
         let fileName = FilePickerUtils.buildSaveFileName(from: arguments, data: bytes?.data, lastPickedFileExtension: lastPickedFileExtension)
-
         let tempFile = URL(fileURLWithPath: NSTemporaryDirectory())
             .appendingPathComponent(fileName)
 
-        do {
-            if FileManager.default.fileExists(atPath: tempFile.path) {
-                try FileManager.default.removeItem(at: tempFile)
-            }
-            if let data = bytes?.data {
-                try data.write(to: tempFile, options: .atomic)
-            }
-        } catch {
-            result?(
-                FlutterError(
-                    code: "Failed to write file",
-                    message: error.localizedDescription,
-                    details: nil))
-            result = nil
-            isSaveFile = false
-            return
-        }
+        eventSink?(true)
 
-        let picker = UIDocumentPickerViewController(
-            forExporting: [tempFile],
-            asCopy: true)
-        picker.delegate = self
-        picker.presentationController?.delegate = self
-        topViewController()?.present(picker, animated: true)
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            do {
+                let fileManager = FileManager.default
+                if fileManager.fileExists(atPath: tempFile.path) {
+                    try fileManager.removeItem(at: tempFile)
+                }
+                if let data = bytes?.data {
+                    try data.write(to: tempFile, options: .atomic)
+                }
+            } catch {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else { return }
+                    self.eventSink?(false)
+                    self.result?(
+                        FlutterError(
+                            code: "save_file_error",
+                            message: error.localizedDescription,
+                            details: nil))
+                    self.result = nil
+                    self.isSaveFile = false
+                }
+                return
+            }
+
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                let picker = UIDocumentPickerViewController(
+                    forExporting: [tempFile],
+                    asCopy: true)
+                picker.delegate = self
+                picker.presentationController?.delegate = self
+                self.topViewController()?.present(picker, animated: true)
+            }
+        }
     }
 
     // buildSaveFileName, inferSaveExtension and inferExtensionFromDataSignature
@@ -361,6 +380,20 @@ final class IOSFilePickerHandler: NSObject,
         } catch {
             return nil
         }
+    }
+
+    private func finishCurrentRequest(_ value: Any?) {
+        guard let currentResult = result else {
+            return
+        }
+
+        if isSaveFile {
+            eventSink?(false)
+            isSaveFile = false
+        }
+
+        result = nil
+        currentResult(value)
     }
 }
 #endif

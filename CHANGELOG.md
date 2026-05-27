@@ -9,7 +9,9 @@
 ### Darwin
 - `saveFile` now automatically appends the correct file extension to the saved filename when none is provided, inferring it from the last picked file, the allowed extensions list, the file bytes content type, or the file type filter — in that order of priority.
 - Added support for file extension inference via `UTType` on iOS 14+ / macOS 11+ with a fallback to `CoreServices` (`UTTypeCopyPreferredTagWithClass`) for older OS versions.
-
+- iOS now preserves the selection order when picking multiple files: the list of returned files will match the order in which the user selected them.
+- `saveFile` now performs file writing on a background thread (`DispatchQueue.global`), preventing UI freezes when saving large files.
+  
 ## 12.0.0-beta.4
 ### General
 - Added `pickFile()` static method as a convenience wrapper for single file selection, returning `PlatformFile?` directly. [#1469](https://github.com/miguelpruivo/flutter_file_picker/issues/1469)
