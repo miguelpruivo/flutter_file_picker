@@ -97,7 +97,10 @@ class PlatformFile {
   /// Retrieves this as a XFile
   XFile get xFile {
     if (kIsWeb) {
-      return XFile.fromData(bytes!, name: name, length: size);
+      if (bytes != null) {
+        return XFile.fromData(bytes!, name: name, length: size);
+      }
+      return XFile(path ?? '', name: name, length: size);
     } else {
       return XFile(path!, name: name, bytes: bytes, length: size);
     }

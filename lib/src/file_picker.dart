@@ -131,7 +131,7 @@ abstract final class FilePicker {
       onFileLoading: onFileLoading,
       compressionQuality: compressionQuality,
       allowMultiple: false,
-      withData: false,
+      withData: kIsWeb ,
       withReadStream: false,
       lockParentWindow: lockParentWindow,
       readSequential: false,
