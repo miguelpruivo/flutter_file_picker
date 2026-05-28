@@ -224,14 +224,14 @@ class PlatformFile {
 /// A [PlatformFile] implementation that includes a handle to a Android's Storage Access Framework document URI.
 class AndroidPlatformFile extends PlatformFile {
   AndroidPlatformFile({required PlatformFile file, required this.safHandle})
-    : super(
-        path: file.path,
-        name: file.name,
-        size: file.size,
-        bytes: file.bytes,
-        readStream: file.readStream,
-        identifier: file.identifier,
-      );
+      : super(
+    path: file.path,
+    name: file.name,
+    size: file.size,
+    bytes: file.bytes,
+    readStream: file.readStream,
+    identifier: file.identifier,
+  );
 
   /// The handle to the Storage Access Framework URI.
   final AndroidSAFHandle safHandle;

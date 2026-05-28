@@ -106,16 +106,29 @@ class FilePickerWeb extends FilePickerPlatform {
         String? path,
         Stream<List<int>>? readStream,
       ) {
-        String? blobUrl;
-        if (bytes != null && bytes.isNotEmpty) {
-          blobUrl = URL.createObjectURL(
-            Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type)),
+        String? blobUrl = path;
+
+        // If no explicit path was provided and no bytes were loaded into
+        // memory, create a fetchable Blob URL from the original File so
+        // callers can later fetch or stream the data.
+        if ((blobUrl == null || blobUrl.isEmpty) && (bytes == null)) {
+          try {
+            blobUrl = URL.createObjectURL(file);
+          } catch (_) {
+            blobUrl = null;
+          }
+        } else if (bytes != null && bytes.isNotEmpty) {
+          final blob = Blob(
+            [bytes.toJS].toJS,
+            BlobPropertyBag(type: file.type),
           );
+
+          blobUrl = URL.createObjectURL(blob);
         }
         pickedFiles.add(
           PlatformFile(
             name: file.name,
-            path: path ?? blobUrl,
+            path: blobUrl,
             size: bytes != null ? bytes.length : file.size,
             bytes: bytes,
             readStream: readStream,
@@ -138,16 +151,14 @@ class FilePickerWeb extends FilePickerPlatform {
         }
 
         if (!withData) {
-          final String blobUrl = URL.createObjectURL(file);
-          addPickedFile(file, null, blobUrl, null);
+          addPickedFile(file, null, null, null);
           continue;
         }
 
         final syncCompleter = Completer<void>();
         final FileReader reader = FileReader();
         reader.onLoadEnd.listen((e) {
-          final ByteBuffer? byteBuffer =
-              (reader.result as JSArrayBuffer?)?.toDart;
+          ByteBuffer? byteBuffer = (reader.result as JSArrayBuffer?)?.toDart;
           addPickedFile(file, byteBuffer?.asUint8List(), null, null);
           syncCompleter.complete();
         });
@@ -162,9 +173,9 @@ class FilePickerWeb extends FilePickerPlatform {
       window.removeEventListener('focus', cancelledEventListener.toJS);
 
       // This listener is called before the input changed event,
-      // and the `uploadInput.files` value is still null.
-      // Wait for results from js to dart.
-      Future.delayed(const Duration(seconds: 1)).then((_) {
+      // and the `uploadInput.files` value is still null
+      // Wait for results from js to dart
+      Future.delayed(Duration(seconds: 1)).then((value) {
         if (!changeEventTriggered) {
           changeEventTriggered = true;
           filesCompleter?.complete(null);
@@ -187,7 +198,6 @@ class FilePickerWeb extends FilePickerPlatform {
     final List<PlatformFile>? files = await filesCompleter.future;
     filesCompleter = null;
 
-    // Clean up after picking.
     _clearTarget();
 
     return files == null ? null : FilePickerResult(files);
