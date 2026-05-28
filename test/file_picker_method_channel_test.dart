@@ -1,6 +1,7 @@
 @TestOn('vm')
 library;
 
+import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/platform/file_picker_method_channel.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:flutter/services.dart';
@@ -59,6 +60,41 @@ void main() {
               picker.pickFiles(type: FileType.any, allowedExtensions: ['pdf']),
           throwsArgumentError,
         );
+      },
+    );
+
+    test(
+      'saveFile uses internal source-file route for deferred large reads',
+      () async {
+        final bytes = await PlatformFile(
+          path: '/tmp/source.txt',
+          identifier: 'content://source.txt',
+          name: 'source.txt',
+          size: 1024 * 1024 * 1024,
+        ).readAsBytes();
+
+        expect(bytes, isA<Uint8List>());
+        expect(bytes, isEmpty);
+
+        await picker.saveFile(
+          fileName: 'saved.txt',
+          type: FileType.custom,
+          allowedExtensions: ['txt'],
+          bytes: bytes,
+        );
+
+        expect(log, hasLength(1));
+        expect(log.first.method, 'saveFromFile');
+        expect(log.first.arguments, {
+          'dialogTitle': null,
+          'fileName': 'saved.txt',
+          'fileType': 'custom',
+          'initialDirectory': null,
+          'allowedExtensions': ['txt'],
+          'sourceFilePath': '/tmp/source.txt',
+          'sourceFileIdentifier': 'content://source.txt',
+          'sourceFileName': 'source.txt',
+        });
       },
     );
   });

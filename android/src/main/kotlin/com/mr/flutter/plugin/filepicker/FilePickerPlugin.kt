@@ -9,7 +9,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.mr.flutter.plugin.filepicker.FileUtils.clearCache
 import com.mr.flutter.plugin.filepicker.FileUtils.getFileExtension
 import com.mr.flutter.plugin.filepicker.FileUtils.getMimeTypes
-import com.mr.flutter.plugin.filepicker.FileUtils.saveFile
+import com.mr.flutter.plugin.filepicker.FileUtils.startSaveFileRequest
 import com.mr.flutter.plugin.filepicker.FileUtils.startFileExplorer
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
@@ -159,7 +159,27 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                             "."
                         )
                     ) "$fileNameWithoutExtension.${getFileExtension(bytes)}" else fileNameWithoutExtension
-                delegate?.saveFile(fileName, type, initialDirectory, bytes, result)
+                delegate?.startSaveFileRequest(fileName, type, initialDirectory, bytes, result = result)
+            }
+
+            "saveFromFile" -> {
+                val type = resolveType(arguments?.get("fileType") as String)
+                val initialDirectory = arguments?.get("initialDirectory") as String?
+                val sourceFilePath = arguments?.get("sourceFilePath") as String?
+                val sourceFileIdentifier = arguments?.get("sourceFileIdentifier") as String?
+                val sourceFileName = arguments?.get("sourceFileName") as String?
+                val requestedFileName = arguments?.get("fileName") as? String
+                val fileName = withSourceExtensionIfMissing(requestedFileName, sourceFileName)
+
+                delegate?.startSaveFileRequest(
+                    fileName,
+                    type,
+                    initialDirectory,
+                    bytes = null,
+                    sourceFilePath = sourceFilePath,
+                    sourceFileIdentifier = sourceFileIdentifier,
+                    result = result
+                )
             }
 
             "custom" -> {
@@ -244,6 +264,27 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
         channel?.setMethodCallHandler(null)
         this.channel = null
         this.application = null
+    }
+
+    private fun withSourceExtensionIfMissing(
+        requestedFileName: String?,
+        sourceFileName: String?
+    ): String {
+        val effectiveFileName = requestedFileName?.takeIf { it.isNotEmpty() } ?: sourceFileName.orEmpty()
+
+        if (effectiveFileName.isEmpty() || effectiveFileName.contains(".")) {
+            return effectiveFileName
+        }
+
+        val sourceExtension = sourceFileName
+            ?.substringAfterLast('.', "")
+            ?.takeIf { it.isNotEmpty() }
+
+        return if (sourceExtension != null) {
+            "$effectiveFileName.$sourceExtension"
+        } else {
+            effectiveFileName
+        }
     }
 
     override fun onAttachedToEngine(binding: FlutterPluginBinding) {

@@ -9,6 +9,7 @@ import 'package:ffi/ffi.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
+import 'package:file_picker/src/internal/deferred_file_bytes.dart';
 
 import 'package:file_picker/src/api/exceptions.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
@@ -203,7 +204,17 @@ class FilePickerWindows extends FilePickerPlatform {
       ),
     );
     final savedFilePath = (await port.first) as String?;
-    await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
+    final deferredSource = getDeferredFileBytesSource(bytes);
+    final sourcePath = deferredSource?.path;
+    if (savedFilePath != null && sourcePath != null) {
+      await copyFileToPathInChunks(
+        sourcePath: sourcePath,
+        targetPath: savedFilePath,
+      );
+    } else {
+      await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
+    }
+
     return savedFilePath;
   }
 

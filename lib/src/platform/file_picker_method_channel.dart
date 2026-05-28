@@ -8,6 +8,7 @@ import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
+import 'package:file_picker/src/internal/deferred_file_bytes.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/file_picker_utils.dart';
 
@@ -181,6 +182,20 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         }, onError: (error) => throw Exception(error));
       }
 
+      final deferredSource = getDeferredFileBytesSource(bytes);
+      if (deferredSource != null && !kIsWeb) {
+        return await methodChannel.invokeMethod<String>('saveFromFile', {
+          'dialogTitle': dialogTitle,
+          'fileName': fileName,
+          'fileType': type.name,
+          'initialDirectory': initialDirectory,
+          'allowedExtensions': allowedExtensions,
+          'sourceFilePath': deferredSource.path,
+          'sourceFileIdentifier': deferredSource.identifier,
+          'sourceFileName': deferredSource.name,
+        });
+      }
+
       final String? savedPath = await methodChannel
           .invokeMethod<String>("save", {
             "fileName": fileName,
@@ -190,7 +205,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
             "bytes": bytes,
           });
 
-      if (!Platform.isAndroid) {
+      if (kIsWeb) {
         await FilePickerUtils.saveBytesToFile(bytes, savedPath);
       }
 

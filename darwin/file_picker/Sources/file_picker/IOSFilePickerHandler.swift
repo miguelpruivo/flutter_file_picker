@@ -95,6 +95,8 @@ final class IOSFilePickerHandler: NSObject,
                 asDirectoryPicker: false)
         case "save":
             saveFile(arguments)
+        case "saveFromFile":
+            saveFile(arguments)
         default:
             result(FlutterMethodNotImplemented)
             self.result = nil
@@ -257,19 +259,37 @@ final class IOSFilePickerHandler: NSObject,
         isSaveFile = true
         let fileName = (arguments["fileName"] as? String) ?? ""
         let bytes = arguments["bytes"] as? FlutterStandardTypedData
+        let sourceFilePath = arguments["sourceFilePath"] as? String
         let tempFile = URL(fileURLWithPath: NSTemporaryDirectory())
             .appendingPathComponent(fileName)
 
         eventSink?(true)
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            var exportFile = tempFile
             do {
                 let fileManager = FileManager.default
-                if fileManager.fileExists(atPath: tempFile.path) {
-                    try fileManager.removeItem(at: tempFile)
-                }
-                if let data = bytes?.data {
+
+                if let sourceFilePath, !sourceFilePath.isEmpty {
+                    let sourceFile = URL(fileURLWithPath: sourceFilePath)
+                    if sourceFile.path != tempFile.path {
+                        if fileManager.fileExists(atPath: tempFile.path) {
+                            try fileManager.removeItem(at: tempFile)
+                        }
+                        try fileManager.copyItem(at: sourceFile, to: tempFile)
+                    } else {
+                        exportFile = sourceFile
+                    }
+                } else if let data = bytes?.data {
+                    if fileManager.fileExists(atPath: tempFile.path) {
+                        try fileManager.removeItem(at: tempFile)
+                    }
                     try data.write(to: tempFile, options: .atomic)
+                } else {
+                    throw NSError(
+                        domain: "file_picker",
+                        code: 0,
+                        userInfo: [NSLocalizedDescriptionKey: "Either bytes or sourceFilePath must be provided."])
                 }
             } catch {
                 DispatchQueue.main.async { [weak self] in
@@ -289,7 +309,7 @@ final class IOSFilePickerHandler: NSObject,
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 let picker = UIDocumentPickerViewController(
-                    forExporting: [tempFile],
+                    forExporting: [exportFile],
                     asCopy: true)
                 picker.delegate = self
                 picker.presentationController?.delegate = self

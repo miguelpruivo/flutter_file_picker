@@ -279,11 +279,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       return;
     }
 
-    final bytes = await file.readAsBytes();
-
     _resetState();
 
     try {
+      final bytes = await file.readAsBytes();
       pickedSaveFilePath = await FilePicker.saveFile(
         allowedExtensions: _allowedExtensionsFromInput(),
         type: FileType.custom,

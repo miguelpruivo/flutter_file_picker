@@ -167,6 +167,49 @@ object FileUtils {
         return uri
     }
 
+    fun writeSaveFileData(
+        context: Context,
+        uri: Uri,
+        bytes: ByteArray?,
+        sourceFilePath: String?,
+        sourceFileIdentifier: String?
+    ): Uri {
+        context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+            val output = BufferedOutputStream(outputStream)
+
+            when {
+                bytes != null -> {
+                    output.write(bytes)
+                }
+
+                !sourceFilePath.isNullOrEmpty() -> {
+                    BufferedInputStream(FileInputStream(File(sourceFilePath))).use { input ->
+                        input.copyTo(output)
+                    }
+                }
+
+                !sourceFileIdentifier.isNullOrEmpty() -> {
+                    val sourceUri = Uri.parse(sourceFileIdentifier)
+                    context.contentResolver.openInputStream(sourceUri)?.use { inputStream ->
+                        BufferedInputStream(inputStream).use { input ->
+                            input.copyTo(output)
+                        }
+                    } ?: throw FileNotFoundException("Unable to open source URI: $sourceFileIdentifier")
+                }
+
+                else -> {
+                    throw IllegalArgumentException(
+                        "Either bytes, sourceFilePath or sourceFileIdentifier must be provided."
+                    )
+                }
+            }
+
+            output.flush()
+        } ?: throw FileNotFoundException("Unable to open output URI: $uri")
+
+        return uri
+    }
+
     private fun FilePickerDelegate.handleFileResult(files: List<FileInfo>) {
         if (files.isNotEmpty()) {
             finishWithSuccess(files)
@@ -321,11 +364,36 @@ object FileUtils {
         }
     }
 
-    fun FilePickerDelegate.saveFile(
+    private fun getMimeTypeForSaveRequest(fileName: String?, bytes: ByteArray?): String {
+        val extension = fileName
+            ?.substringAfterLast('.', "")
+            ?.lowercase(Locale.getDefault())
+            .orEmpty()
+
+        if (extension.isNotBlank()) {
+            if (extension == CSV_EXTENSION) {
+                return CSV_MIME_TYPE
+            }
+
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)?.let {
+                return it
+            }
+        }
+
+        if (bytes != null) {
+            return getMimeTypeForBytes(fileName = fileName, bytes = bytes)
+        }
+
+        return "*/*"
+    }
+
+    fun FilePickerDelegate.startSaveFileRequest(
         fileName: String?,
         type: String?,
         initialDirectory: String?,
         bytes: ByteArray?,
+        sourceFilePath: String? = null,
+        sourceFileIdentifier: String? = null,
         result: MethodChannel.Result
     ) {
         if (!this.setPendingMethodCallResult(result)) {
@@ -338,10 +406,12 @@ object FileUtils {
             intent.putExtra(Intent.EXTRA_TITLE, fileName)
         }
         this.bytes = bytes
+        this.sourceFilePath = sourceFilePath
+        this.sourceFileIdentifier = sourceFileIdentifier
         this.saveFileName = fileName
         if ("dir" != type) {
             try {
-                intent.type = getMimeTypeForBytes(fileName = fileName, bytes = bytes)
+                intent.type = getMimeTypeForSaveRequest(fileName = fileName, bytes = bytes)
                 this.saveMimeType = intent.type
             } catch (t: Throwable) {
                 intent.type = "*/*"

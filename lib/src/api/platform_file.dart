@@ -1,11 +1,15 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
 
 import 'android_saf_handle.dart';
+import '../internal/deferred_file_bytes.dart';
 
 class PlatformFile {
+  static const int _chunkedReadMaxBytes = 64 * 1024 * 1024;
+
   PlatformFile({
     this.path,
     required this.name,
@@ -103,7 +107,64 @@ class PlatformFile {
   ///
   /// For large files on mobile and desktop platforms, prefer [readAsByteStream]
   /// to avoid Out Of Memory (OOM) issues.
-  Future<Uint8List> readAsBytes() => xFile.readAsBytes();
+  Future<Uint8List> readAsBytes() async {
+    if (bytes != null) {
+      return bytes!;
+    }
+
+    if (kIsWeb) {
+      return xFile.readAsBytes();
+    }
+
+    if (path == null) {
+      if (identifier != null && size > _chunkedReadMaxBytes) {
+        return createDeferredFileBytesToken(
+          DeferredFileBytesSource(
+            path: path,
+            identifier: identifier,
+            name: name,
+          ),
+        );
+      }
+      return xFile.readAsBytes();
+    }
+
+    final expectedLength = await length();
+    if (expectedLength > _chunkedReadMaxBytes) {
+      return createDeferredFileBytesToken(
+        DeferredFileBytesSource(path: path, identifier: identifier, name: name),
+      );
+    }
+
+    if (expectedLength <= 0) {
+      final builder = BytesBuilder(copy: false);
+      await for (final chunk in readAsByteStream()) {
+        builder.add(chunk);
+      }
+      return builder.takeBytes();
+    }
+
+    var result = Uint8List(expectedLength);
+    var offset = 0;
+
+    await for (final chunk in readAsByteStream()) {
+      final nextOffset = offset + chunk.length;
+      if (nextOffset > result.length) {
+        final grown = Uint8List(
+          nextOffset > result.length * 2 ? nextOffset : result.length * 2,
+        );
+        grown.setRange(0, offset, result);
+        result = grown;
+      }
+
+      result.setRange(offset, nextOffset, chunk);
+      offset = nextOffset;
+    }
+
+    return offset == result.length
+        ? result
+        : Uint8List.sublistView(result, 0, offset);
+  }
 
   /// Read the file content as a stream of bytes.
   ///

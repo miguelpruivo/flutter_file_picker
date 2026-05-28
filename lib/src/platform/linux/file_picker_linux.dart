@@ -7,6 +7,7 @@ import 'package:file_picker/src/api/android_saf_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/platform_file.dart';
+import 'package:file_picker/src/internal/deferred_file_bytes.dart';
 import 'package:file_picker/src/file_picker_utils.dart';
 import 'package:file_picker/src/platform/linux/xdp_filechooser.dart';
 import 'package:file_picker/src/platform/linux/xdp_request.dart';
@@ -209,7 +210,16 @@ class FilePickerLinux extends FilePickerPlatform {
     final savedFilePaths = saveUris.map((uri) => uri.toFilePath()).toList();
     final savedFilePath = savedFilePaths.firstOrNull;
 
-    await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
+    final deferredSource = getDeferredFileBytesSource(bytes);
+    final sourcePath = deferredSource?.path;
+    if (savedFilePath != null && sourcePath != null) {
+      await copyFileToPathInChunks(
+        sourcePath: sourcePath,
+        targetPath: savedFilePath,
+      );
+    } else {
+      await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
+    }
 
     return savedFilePath;
   }
