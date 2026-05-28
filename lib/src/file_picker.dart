@@ -253,6 +253,10 @@ abstract final class FilePicker {
   /// On macOS if the [initialDirectory] is invalid, the user directory or previously valid directory
   /// will be used.
   ///
+  /// On Android and iOS, [bytes] must contain the actual file contents.
+  /// Deferred byte tokens returned by `PlatformFile.readAsBytes()` for large
+  /// files are not supported by `saveFile()` on those platforms.
+  ///
   /// The file type filter [type] defaults to [FileType.any]. Optionally,
   /// [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`). Both
   /// parameters are just a proposal to the user as the save file dialog does

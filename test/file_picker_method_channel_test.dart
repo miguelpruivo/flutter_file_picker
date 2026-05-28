@@ -1,6 +1,7 @@
 @TestOn('vm')
 library;
 
+import 'dart:typed_data';
 import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/platform/file_picker_method_channel.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
@@ -64,7 +65,31 @@ void main() {
     );
 
     test(
-      'saveFile uses internal source-file route for deferred large reads',
+      'saveFile sends the provided bytes through the save method',
+      () async {
+        final bytes = Uint8List.fromList([1, 2, 3]);
+
+        await picker.saveFile(
+          fileName: 'saved.txt',
+          type: FileType.custom,
+          allowedExtensions: ['txt'],
+          bytes: bytes,
+        );
+
+        expect(log, hasLength(1));
+        expect(log.first.method, 'save');
+        expect(log.first.arguments, {
+          'fileName': 'saved.txt',
+          'fileType': 'custom',
+          'initialDirectory': null,
+          'allowedExtensions': ['txt'],
+          'bytes': bytes,
+        });
+      },
+    );
+
+    test(
+      'saveFile rejects deferred byte tokens on mobile platforms',
       () async {
         final bytes = await PlatformFile(
           path: '/tmp/source.txt',
@@ -76,25 +101,22 @@ void main() {
         expect(bytes, isA<Uint8List>());
         expect(bytes, isEmpty);
 
-        await picker.saveFile(
-          fileName: 'saved.txt',
-          type: FileType.custom,
-          allowedExtensions: ['txt'],
-          bytes: bytes,
+        await expectLater(
+          () => picker.saveFile(
+            fileName: 'saved.txt',
+            type: FileType.custom,
+            allowedExtensions: ['txt'],
+            bytes: bytes,
+          ),
+          throwsA(
+            isA<ArgumentError>().having(
+              (error) => error.message,
+              'message',
+              contains('requires actual byte content'),
+            ),
+          ),
         );
-
-        expect(log, hasLength(1));
-        expect(log.first.method, 'saveFromFile');
-        expect(log.first.arguments, {
-          'dialogTitle': null,
-          'fileName': 'saved.txt',
-          'fileType': 'custom',
-          'initialDirectory': null,
-          'allowedExtensions': ['txt'],
-          'sourceFilePath': '/tmp/source.txt',
-          'sourceFileIdentifier': 'content://source.txt',
-          'sourceFileName': 'source.txt',
-        });
+        expect(log, isEmpty);
       },
     );
   });

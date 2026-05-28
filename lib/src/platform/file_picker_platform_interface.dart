@@ -82,6 +82,10 @@ abstract class FilePickerPlatform extends PlatformInterface {
 
   /// Opens a save file dialog which lets the user select a file path and a file
   /// name to save a file.
+  ///
+  /// On Android and iOS, [bytes] must contain the actual file contents.
+  /// Deferred byte tokens returned by `PlatformFile.readAsBytes()` for large
+  /// files are not supported by `saveFile()` on those platforms.
   Future<String?> saveFile({
     String? dialogTitle,
     required String fileName,
