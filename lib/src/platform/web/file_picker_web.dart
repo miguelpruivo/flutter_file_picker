@@ -138,12 +138,8 @@ class FilePickerWeb extends FilePickerPlatform {
         }
 
         if (!withData) {
-          final FileReader reader = FileReader();
-          reader.onLoadEnd.listen((e) {
-            final String? result = (reader.result as JSString?)?.toDart;
-            addPickedFile(file, null, result, null);
-          });
-          reader.readAsDataURL(file);
+          final String blobUrl = URL.createObjectURL(file);
+          addPickedFile(file, null, blobUrl, null);
           continue;
         }
 
