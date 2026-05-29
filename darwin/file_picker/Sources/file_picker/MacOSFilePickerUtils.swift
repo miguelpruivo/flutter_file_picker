@@ -1,3 +1,4 @@
+#if os(macOS)
 import CoreServices
 import Foundation
 import UniformTypeIdentifiers
@@ -40,3 +41,6 @@ enum MacOSFilePickerUtils {
         return ext
     }
 }
+
+#endif
+

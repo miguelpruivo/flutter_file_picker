@@ -1,3 +1,4 @@
+#if os(iOS)
 import Foundation
 import UniformTypeIdentifiers
 
@@ -35,3 +36,4 @@ enum IOSFilePickerUtils {
         return ext
     }
 }
+#endif
