@@ -1,14 +1,15 @@
+## 12.0.0-beta.6
+## Darwin
+- Refactored the shared Darwin save-file-name logic into platform-specific utilities for iOS and macOS, while preserving the same save-file extension behaviour on each platform.
+
 ## 12.0.0-beta.5
 ### Android
-- Fixed `saveFile(bytes: ...)` so native byte handling is preserved on Android and iOS, avoiding the duplicate Dart-side write that could break SAF/content URI saves.
+- `saveFile` now writes file data using Kotlin Coroutines (`CoroutineScope(Dispatchers.IO).launch`), keeping all I/O off the main thread and preventing UI freezes.
 
 ### iOS
 - Fixed a race condition when dismissing the file picker with a fast swipe, preventing the picker from getting stuck in a `multiple_request` state until app restart. [#2021](https://github.com/miguelpruivo/flutter_file_picker/issues/2021)
 - iOS now preserves the selection order when picking multiple files: the list of returned files will match the order in which the user selected them.
 - `saveFile` now performs file writing on a background thread (`DispatchQueue.global`), preventing UI freezes when saving large files.
-
-## Darwin
-- Refactored the shared Darwin save-file-name logic into platform-specific utilities for iOS and macOS, while preserving the same save-file extension behaviour on each platform.
 
 ### Web
 - Fixed `PlatformFile.readAsBytes()` so files picked on Web can recover data from `blob:` and `data:` URLs when `withData` was not used.
