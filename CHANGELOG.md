@@ -1,3 +1,7 @@
+## 12.0.0
+### General
+- Stable release that includes the changes delivered across `12.0.0-beta.1` through `12.0.0-beta.5`.
+
 ## 12.0.0-beta.5
 ### Android
 - `saveFile` now writes file data using Kotlin Coroutines (`CoroutineScope(Dispatchers.IO).launch`), keeping all I/O off the main thread and preventing UI freezes.
