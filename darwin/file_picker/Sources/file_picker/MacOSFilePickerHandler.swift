@@ -218,7 +218,10 @@ final class MacOSFilePickerHandler {
         dialog.showsTagField = false
         dialog.showsHiddenFiles = false
         dialog.canCreateDirectories = true
-        dialog.nameFieldStringValue = args["fileName"] as? String ?? ""
+        dialog.nameFieldStringValue = MacOSFilePickerUtils.buildSaveFileName(
+            from: args,
+            data: nil,
+            lastPickedFileExtension: nil)
 
         if let initialDirectory = args["initialDirectory"] as? String,
            !initialDirectory.isEmpty {
