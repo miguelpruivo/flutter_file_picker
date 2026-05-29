@@ -74,9 +74,9 @@ object FileUtils {
                 (androidSafOptions?.get("autoPersist") as? Boolean) ?: true
             }
             val shouldAvoidCaching = withPersistentAccess
-            val shouldExposePersistentIdentifier = isPersist && autoPersist
 
             val isPersist = withPersistentAccess || grantStr == "lifetime"
+            val shouldExposePersistentIdentifier = isPersist && autoPersist
             val isReadWrite = accessStr == "readWrite"
 
             val hasSafOptions = androidSafOptions != null || withPersistentAccess
