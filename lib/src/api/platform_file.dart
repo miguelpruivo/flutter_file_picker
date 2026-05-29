@@ -4,6 +4,8 @@ import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
 
 import 'android_saf_handle.dart';
+import '../file_picker_utils.dart';
+import '../platform/file_picker_platform_interface.dart';
 import '../platform/web/platform_file_web_fetch_stub.dart'
     if (dart.library.js_interop) '../platform/web/platform_file_web_fetch.dart';
 
@@ -16,6 +18,7 @@ class PlatformFile {
     this.bytes,
     this.readStream,
     this.identifier,
+    this.persistentIdentifier,
   });
 
   factory PlatformFile.fromMap(Map data, {Stream<List<int>>? readStream}) {
@@ -25,6 +28,7 @@ class PlatformFile {
       bytes: data['bytes'],
       size: data['size'],
       identifier: data['identifier'],
+      persistentIdentifier: data['persistentIdentifier'],
       readStream: readStream,
     );
 
@@ -44,7 +48,8 @@ class PlatformFile {
   /// final File myFile = File(platformFile.path);
   /// ```
   ///
-  /// This property is `null` on Android, when using SAF without caching enabled.
+  /// This property may be `null` when the picker is configured to avoid creating
+  /// a cached copy and instead return a persistent platform reference.
   ///
   /// On the web this may or may not point to a Blob URL, which can be cleaned up using [URL.revokeObjectURL](https://pub.dev/documentation/web/latest/web/URL/revokeObjectURL.html).
   /// Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
@@ -82,13 +87,21 @@ class PlatformFile {
   /// to a [NSURL](https://developer.apple.com/documentation/foundation/nsurl) on iOS.
   /// Is set to `null` on all other platforms since those are all already referencing the original file content.
   ///
-  /// This property is `null` in the following cases:
+  /// This property may be `null` in the following cases:
   /// - On Web, where local file paths are not available (it may point to a Blob URL instead).
-  /// - On Android, when picking a directory or using SAF without caching enabled.
+  /// - On Android/iOS, when the picker returns a persistent platform reference instead of a cached file copy.
   ///
   /// Note: You can't use this to create a Dart `File` instance since this is a safe-reference for the original platform files, for
   /// that the [path] property should be used instead.
   final String? identifier;
+
+  /// A platform-specific identifier that can be stored and later resolved to
+  /// regain access to the original file without relying on a cached copy.
+  ///
+  /// - Android: usually the same persistable `content://` URI returned in
+  ///   [identifier].
+  /// - iOS: a base64-encoded security-scoped bookmark.
+  final String? persistentIdentifier;
 
   /// File extension for this file.
   String? get extension => name.split('.').last;
@@ -97,9 +110,20 @@ class PlatformFile {
   XFile get xFile {
     if (kIsWeb) {
       return XFile.fromData(bytes!, name: name, length: size);
-    } else {
+    }
+
+    if (path != null) {
       return XFile(path!, name: name, bytes: bytes, length: size);
     }
+
+    if (bytes != null) {
+      return XFile.fromData(bytes!, name: name, length: size);
+    }
+
+    throw StateError(
+      'PlatformFile.xFile is unavailable because there is no local path or in-memory data. '
+      'Use readAsBytes() or readAsByteStream() instead.',
+    );
   }
 
   /// Read the file content as bytes.
@@ -109,15 +133,30 @@ class PlatformFile {
   Future<Uint8List> readAsBytes() async {
     if (bytes != null) return bytes!;
 
+    if (!kIsWeb && path != null) {
+      final localBytes = await FilePickerUtils.readBytesFromFile(path);
+      if (localBytes != null) {
+        return localBytes;
+      }
+    }
+
     if (kIsWeb) {
       final fetchedBytes = await fetchBytesFromWebPath(path);
       if (fetchedBytes != null) return fetchedBytes;
     }
 
+    if (!kIsWeb && (identifier != null || persistentIdentifier != null)) {
+      return FilePickerPlatform.instance.readFileAsBytes(
+        identifier: identifier,
+        persistentIdentifier: persistentIdentifier,
+      );
+    }
+
     throw StateError(
       'PlatformFile.readAsBytes(): file data is not available. '
-      'Consume the file via PlatformFile.readAsByteStream(), or on Web ensure '
-      'the file path is a fetchable blob/data URL that can be retrieved.',
+      'Consume the file via PlatformFile.readAsByteStream(), restore it via '
+      'FilePicker.restorePersistentFile(), or on Web ensure the file path is a '
+      'fetchable blob/data URL that can be retrieved.',
     );
   }
 
@@ -150,6 +189,14 @@ class PlatformFile {
       return;
     }
 
+    if (path == null && (identifier != null || persistentIdentifier != null)) {
+      yield* FilePickerPlatform.instance.readFileAsStream(
+        identifier: identifier,
+        persistentIdentifier: persistentIdentifier,
+      );
+      return;
+    }
+
     yield* xFile.openRead();
   }
 
@@ -179,6 +226,7 @@ class PlatformFile {
         other.bytes == bytes &&
         other.readStream == readStream &&
         other.identifier == identifier &&
+        other.persistentIdentifier == persistentIdentifier &&
         other.size == size;
   }
 
@@ -186,12 +234,20 @@ class PlatformFile {
   int get hashCode {
     return kIsWeb
         ? 0
-        : Object.hash(path, name, bytes, readStream, identifier, size);
+        : Object.hash(
+            path,
+            name,
+            bytes,
+            readStream,
+            identifier,
+            persistentIdentifier,
+            size,
+          );
   }
 
   @override
   String toString() {
-    return 'PlatformFile(${kIsWeb ? '' : 'path $path'}, name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, size: $size)';
+    return 'PlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, identifier: $identifier, persistentIdentifier: ${persistentIdentifier != null}, size: $size)';
   }
 }
 
@@ -205,6 +261,7 @@ class AndroidPlatformFile extends PlatformFile {
         bytes: file.bytes,
         readStream: file.readStream,
         identifier: file.identifier,
+        persistentIdentifier: file.persistentIdentifier,
       );
 
   /// The handle to the Storage Access Framework URI.
@@ -222,6 +279,6 @@ class AndroidPlatformFile extends PlatformFile {
 
   @override
   String toString() {
-    return 'AndroidPlatformFile(${kIsWeb ? '' : 'path $path'}, name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, size: $size, safHandle: $safHandle)';
+    return 'AndroidPlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, identifier: $identifier, persistentIdentifier: ${persistentIdentifier != null}, size: $size, safHandle: $safHandle)';
   }
 }

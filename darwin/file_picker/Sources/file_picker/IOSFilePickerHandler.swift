@@ -16,10 +16,27 @@ final class IOSFilePickerHandler: NSObject,
     private var eventSink: FlutterEventSink?
     private var allowMultipleSelection = false
     private var loadDataToMemory = false
+    private var withPersistentAccess = false
     private var isDirectoryPicker = false
     private var isSaveFile = false
+    private var readSessions: [String: ReadSession] = [:]
+
+    private struct ReadSession {
+        let inputStream: InputStream
+        let teardown: () -> Void
+    }
+
+    private struct ResolvedFileAccess {
+        let url: URL
+        let persistentIdentifier: String?
+        let teardown: () -> Void
+    }
 
     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        if handleNonInteractiveMethod(call, result: result) {
+            return
+        }
+
         if self.result != nil {
             result(
                 FlutterError(
@@ -30,12 +47,6 @@ final class IOSFilePickerHandler: NSObject,
         }
 
         self.result = result
-
-        if call.method == "clear" {
-            self.result?(clearTemporaryFiles())
-            self.result = nil
-            return
-        }
 
         if call.method == "dir" {
             isDirectoryPicker = true
@@ -60,6 +71,7 @@ final class IOSFilePickerHandler: NSObject,
         allowMultipleSelection =
             (arguments["allowMultipleSelection"] as? Bool) ?? false
         loadDataToMemory = (arguments["withData"] as? Bool) ?? false
+        withPersistentAccess = (arguments["withPersistentAccess"] as? Bool) ?? false
 
         switch call.method {
         case "any":
@@ -85,9 +97,16 @@ final class IOSFilePickerHandler: NSObject,
                 allowsMultipleSelection: allowMultipleSelection,
                 asDirectoryPicker: false)
         case "image", "video", "media":
-            presentMediaPicker(
-                type: call.method,
-                allowsMultipleSelection: allowMultipleSelection)
+            if withPersistentAccess {
+                presentDocumentPicker(
+                    contentTypes: resolveDocumentContentTypes(for: call.method),
+                    allowsMultipleSelection: allowMultipleSelection,
+                    asDirectoryPicker: false)
+            } else {
+                presentMediaPicker(
+                    type: call.method,
+                    allowsMultipleSelection: allowMultipleSelection)
+            }
         case "audio":
             presentDocumentPicker(
                 contentTypes: [.audio],
@@ -205,12 +224,19 @@ final class IOSFilePickerHandler: NSObject,
         var resolved: [[String: Any]] = []
 
         for sourceURL in urls {
-            guard let copiedURL = copyToTemporaryDirectory(sourceURL),
-                  let fileInfo = makeFileInfo(from: copiedURL)
-            else {
-                continue
+            if withPersistentAccess {
+                guard let fileInfo = makePersistentFileInfo(from: sourceURL) else {
+                    continue
+                }
+                resolved.append(fileInfo)
+            } else {
+                guard let copiedURL = copyToTemporaryDirectory(sourceURL),
+                      let fileInfo = makeFileInfo(from: copiedURL)
+                else {
+                    continue
+                }
+                resolved.append(fileInfo)
             }
-            resolved.append(fileInfo)
         }
 
         currentResult(resolved.isEmpty ? nil : resolved)
@@ -246,7 +272,7 @@ final class IOSFilePickerHandler: NSObject,
     ) {
         let picker = UIDocumentPickerViewController(
             forOpeningContentTypes: contentTypes,
-            asCopy: !asDirectoryPicker)
+            asCopy: !asDirectoryPicker && !withPersistentAccess)
         picker.delegate = self
         picker.presentationController?.delegate = self
         picker.allowsMultipleSelection = allowsMultipleSelection
@@ -305,6 +331,267 @@ final class IOSFilePickerHandler: NSObject,
         }
     }
 
+    private func resolveDocumentContentTypes(for type: String) -> [UTType] {
+        switch type {
+        case "image":
+            return [.image]
+        case "video":
+            return [.movie, .video]
+        case "media":
+            return [.image, .movie, .video, .audio]
+        default:
+            return [.item]
+        }
+    }
+
+    private func handleNonInteractiveMethod(
+        _ call: FlutterMethodCall,
+        result: @escaping FlutterResult
+    ) -> Bool {
+        switch call.method {
+        case "clear":
+            result(clearTemporaryFiles())
+            return true
+        case "resolvePersistentFile":
+            guard let arguments = call.arguments as? [String: Any],
+                  let persistentIdentifier = arguments["persistentIdentifier"] as? String
+            else {
+                result(
+                    FlutterError(
+                        code: "invalid_arguments",
+                        message: "Missing persistentIdentifier.",
+                        details: nil))
+                return true
+            }
+
+            do {
+                let access = try resolveFileAccess(
+                    identifier: nil,
+                    persistentIdentifier: persistentIdentifier)
+                defer { access.teardown() }
+                let withData = (arguments["withData"] as? Bool) ?? false
+                result(
+                    fileInfo(
+                        from: access.url,
+                        persistentIdentifier: access.persistentIdentifier,
+                        path: nil,
+                        loadData: withData))
+            } catch {
+                result(
+                    FlutterError(
+                        code: "resolve_persistent_file_error",
+                        message: error.localizedDescription,
+                        details: nil))
+            }
+            return true
+        case "readFileBytes":
+            guard let arguments = call.arguments as? [String: Any] else {
+                result(nil)
+                return true
+            }
+
+            do {
+                let access = try resolveFileAccess(
+                    identifier: arguments["identifier"] as? String,
+                    persistentIdentifier: arguments["persistentIdentifier"] as? String)
+                defer { access.teardown() }
+                let data = try Data(contentsOf: access.url)
+                result(FlutterStandardTypedData(bytes: data))
+            } catch {
+                result(
+                    FlutterError(
+                        code: "read_file_error",
+                        message: error.localizedDescription,
+                        details: nil))
+            }
+            return true
+        case "openReadSession":
+            guard let arguments = call.arguments as? [String: Any] else {
+                result(nil)
+                return true
+            }
+
+            do {
+                let access = try resolveFileAccess(
+                    identifier: arguments["identifier"] as? String,
+                    persistentIdentifier: arguments["persistentIdentifier"] as? String)
+                guard let inputStream = InputStream(url: access.url) else {
+                    access.teardown()
+                    throw NSError(
+                        domain: "file_picker",
+                        code: 1,
+                        userInfo: [NSLocalizedDescriptionKey: "Unable to open an input stream for the selected file."])
+                }
+                inputStream.open()
+                let sessionId = UUID().uuidString
+                readSessions[sessionId] = ReadSession(
+                    inputStream: inputStream,
+                    teardown: access.teardown)
+                result(sessionId)
+            } catch {
+                result(
+                    FlutterError(
+                        code: "open_read_session_error",
+                        message: error.localizedDescription,
+                        details: nil))
+            }
+            return true
+        case "readSessionChunk":
+            guard let arguments = call.arguments as? [String: Any],
+                  let sessionId = arguments["sessionId"] as? String,
+                  let session = readSessions[sessionId]
+            else {
+                result(nil)
+                return true
+            }
+
+            let chunkSize = (arguments["chunkSize"] as? Int) ?? 64 * 1024
+            var buffer = [UInt8](repeating: 0, count: chunkSize)
+            let bytesRead = session.inputStream.read(&buffer, maxLength: chunkSize)
+
+            if bytesRead < 0 {
+                let message = session.inputStream.streamError?.localizedDescription
+                    ?? "Unknown stream error."
+                closeReadSession(nil, sessionId: sessionId)
+                result(
+                    FlutterError(
+                        code: "read_session_chunk_error",
+                        message: message,
+                        details: nil))
+            } else if bytesRead == 0 {
+                closeReadSession(nil, sessionId: sessionId)
+                result(nil)
+            } else {
+                result(
+                    FlutterStandardTypedData(
+                        bytes: Data(buffer.prefix(bytesRead))))
+            }
+            return true
+        case "closeReadSession":
+            let arguments = call.arguments as? [String: Any]
+            closeReadSession(result, sessionId: arguments?["sessionId"] as? String)
+            return true
+        default:
+            return false
+        }
+    }
+
+    private func resolveFileAccess(
+        identifier: String?,
+        persistentIdentifier: String?
+    ) throws -> ResolvedFileAccess {
+        if let persistentIdentifier,
+           let bookmarkData = Data(base64Encoded: persistentIdentifier)
+        {
+            var isStale = false
+            let url = try URL(
+                resolvingBookmarkData: bookmarkData,
+                options: [],
+                relativeTo: nil,
+                bookmarkDataIsStale: &isStale)
+
+            guard url.startAccessingSecurityScopedResource() else {
+                throw NSError(
+                    domain: "file_picker",
+                    code: 2,
+                    userInfo: [NSLocalizedDescriptionKey: "Could not access the security-scoped resource."])
+            }
+
+            let refreshedIdentifier: String?
+            if isStale {
+                refreshedIdentifier = try createSecurityScopedBookmark(for: url)
+            } else {
+                refreshedIdentifier = persistentIdentifier
+            }
+
+            return ResolvedFileAccess(
+                url: url,
+                persistentIdentifier: refreshedIdentifier,
+                teardown: { url.stopAccessingSecurityScopedResource() })
+        }
+
+        guard let identifier, let url = URL(string: identifier) else {
+            throw NSError(
+                domain: "file_picker",
+                code: 3,
+                userInfo: [NSLocalizedDescriptionKey: "Missing file identifier."])
+        }
+
+        return ResolvedFileAccess(url: url, persistentIdentifier: nil, teardown: {})
+    }
+
+    private func createSecurityScopedBookmark(for url: URL) throws -> String {
+        let bookmarkData = try url.bookmarkData(
+            options: [],
+            includingResourceValuesForKeys: nil,
+            relativeTo: nil)
+        return bookmarkData.base64EncodedString()
+    }
+
+    private func makePersistentFileInfo(from fileURL: URL) -> [String: Any]? {
+        do {
+            guard fileURL.startAccessingSecurityScopedResource() else {
+                return nil
+            }
+            defer { fileURL.stopAccessingSecurityScopedResource() }
+
+            let persistentIdentifier = try createSecurityScopedBookmark(for: fileURL)
+            return fileInfo(
+                from: fileURL,
+                persistentIdentifier: persistentIdentifier,
+                path: nil,
+                loadData: loadDataToMemory)
+        } catch {
+            return nil
+        }
+    }
+
+    private func fileInfo(
+        from fileURL: URL,
+        persistentIdentifier: String?,
+        path: String?,
+        loadData: Bool
+    ) -> [String: Any]? {
+        do {
+            let values = try fileURL.resourceValues(forKeys: [.fileSizeKey])
+            let size = values.fileSize ?? 0
+            let data = loadData ? try Data(contentsOf: fileURL) : nil
+
+            var fileInfo: [String: Any] = [
+                "path": path,
+                "identifier": fileURL.absoluteString,
+                "name": fileURL.lastPathComponent,
+                "size": size,
+            ]
+
+            if let persistentIdentifier {
+                fileInfo["persistentIdentifier"] = persistentIdentifier
+            }
+
+            if let data {
+                fileInfo["bytes"] = FlutterStandardTypedData(bytes: data)
+            }
+
+            return fileInfo
+        } catch {
+            return nil
+        }
+    }
+
+    private func closeReadSession(
+        _ result: FlutterResult?,
+        sessionId: String?
+    ) {
+        guard let sessionId, let session = readSessions.removeValue(forKey: sessionId) else {
+            result?(nil)
+            return
+        }
+
+        session.inputStream.close()
+        session.teardown()
+        result?(nil)
+    }
+
     private func clearTemporaryFiles() -> Bool {
         let tmpDirectory = NSTemporaryDirectory()
 
@@ -347,26 +634,11 @@ final class IOSFilePickerHandler: NSObject,
     }
 
     private func makeFileInfo(from fileURL: URL) -> [String: Any]? {
-        do {
-            let values = try fileURL.resourceValues(forKeys: [.fileSizeKey])
-            let size = values.fileSize ?? 0
-            let data = loadDataToMemory ? try Data(contentsOf: fileURL) : nil
-
-            var fileInfo: [String: Any] = [
-                "path": fileURL.path,
-                "identifier": fileURL.absoluteString,
-                "name": fileURL.lastPathComponent,
-                "size": size,
-            ]
-
-            if let data {
-                fileInfo["bytes"] = FlutterStandardTypedData(bytes: data)
-            }
-
-            return fileInfo
-        } catch {
-            return nil
-        }
+        fileInfo(
+            from: fileURL,
+            persistentIdentifier: nil,
+            path: fileURL.path,
+            loadData: loadDataToMemory)
     }
 
     private func finishCurrentRequest(_ value: Any?) {

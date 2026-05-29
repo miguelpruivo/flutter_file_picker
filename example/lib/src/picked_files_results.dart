@@ -10,11 +10,11 @@ class PickedFilesResults extends StatelessWidget {
   const PickedFilesResults({
     super.key,
     required this.pickedFiles,
-    required this.onRemoveAndroidFile,
+    this.onRemoveAndroidFile,
   });
 
   final List<PlatformFile>? pickedFiles;
-  final OnRemoveAndroidFile onRemoveAndroidFile;
+  final OnRemoveAndroidFile? onRemoveAndroidFile;
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +28,9 @@ class PickedFilesResults extends StatelessWidget {
             ? null
             : IconButton(
                 icon: const Icon(Icons.delete_forever),
-                onPressed: () =>
-                    onRemoveAndroidFile(index, androidPlatformFile),
+                onPressed: onRemoveAndroidFile == null
+                    ? null
+                    : () => onRemoveAndroidFile!(index, androidPlatformFile),
               );
         final path = '${pickedFile.path}';
 

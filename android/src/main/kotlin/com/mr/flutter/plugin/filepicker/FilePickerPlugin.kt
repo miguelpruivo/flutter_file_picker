@@ -7,8 +7,13 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.mr.flutter.plugin.filepicker.FileUtils.clearCache
+import com.mr.flutter.plugin.filepicker.FileUtils.closeReadSession
 import com.mr.flutter.plugin.filepicker.FileUtils.getFileExtension
 import com.mr.flutter.plugin.filepicker.FileUtils.getMimeTypes
+import com.mr.flutter.plugin.filepicker.FileUtils.openReadSession
+import com.mr.flutter.plugin.filepicker.FileUtils.readFileBytes
+import com.mr.flutter.plugin.filepicker.FileUtils.readSessionChunk
+import com.mr.flutter.plugin.filepicker.FileUtils.resolvePersistentFile
 import com.mr.flutter.plugin.filepicker.FileUtils.saveFile
 import com.mr.flutter.plugin.filepicker.FileUtils.startFileExplorer
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -149,6 +154,66 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 result.success(null)
             }
 
+            "resolvePersistentFile" -> {
+                val persistentIdentifier = arguments?.get("persistentIdentifier") as? String
+                if (persistentIdentifier == null) {
+                    result.error("invalid_arguments", "Missing persistentIdentifier.", null)
+                    return
+                }
+
+                val fileInfo = activity?.applicationContext?.let {
+                    resolvePersistentFile(
+                        context = it,
+                        persistentIdentifier = persistentIdentifier,
+                        withData = arguments["withData"] as? Boolean ?: false
+                    )
+                }
+                result.success(fileInfo?.toMap())
+            }
+
+            "readFileBytes" -> {
+                val bytes = activity?.applicationContext?.let {
+                    readFileBytes(
+                        context = it,
+                        identifier = arguments?.get("identifier") as? String,
+                        persistentIdentifier = arguments?.get("persistentIdentifier") as? String
+                    )
+                }
+                result.success(bytes)
+            }
+
+            "openReadSession" -> {
+                val sessionId = activity?.applicationContext?.let {
+                    openReadSession(
+                        context = it,
+                        identifier = arguments?.get("identifier") as? String,
+                        persistentIdentifier = arguments?.get("persistentIdentifier") as? String
+                    )
+                }
+                result.success(sessionId)
+            }
+
+            "readSessionChunk" -> {
+                val sessionId = arguments?.get("sessionId") as? String
+                if (sessionId == null) {
+                    result.error("invalid_arguments", "Missing sessionId.", null)
+                    return
+                }
+                val chunk = readSessionChunk(
+                    sessionId = sessionId,
+                    chunkSize = arguments["chunkSize"] as? Int ?: 64 * 1024
+                )
+                result.success(chunk)
+            }
+
+            "closeReadSession" -> {
+                val sessionId = arguments?.get("sessionId") as? String
+                if (sessionId != null) {
+                    closeReadSession(sessionId)
+                }
+                result.success(null)
+            }
+
             "save" -> {
                 val type = resolveType(arguments?.get("fileType") as String)
                 val initialDirectory = arguments?.get("initialDirectory") as String?
@@ -170,6 +235,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                     resolveType(method),
                     arguments?.get("allowMultipleSelection") as Boolean?,
                     arguments?.get("withData") as Boolean?,
+                    arguments?.get("withPersistentAccess") as? Boolean ?: false,
                     allowedExtensions,
                     arguments?.get("compressionQuality") as Int?,
                     androidSafOptions,
@@ -189,6 +255,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                     fileType,
                     arguments?.get("allowMultipleSelection") as Boolean?,
                     arguments?.get("withData") as Boolean?,
+                    arguments?.get("withPersistentAccess") as? Boolean ?: false,
                     arrayListOf(),
                     arguments?.get("compressionQuality") as Int?,
                     androidSafOptions,

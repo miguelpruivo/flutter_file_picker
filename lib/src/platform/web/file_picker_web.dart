@@ -64,6 +64,7 @@ class FilePickerWeb extends FilePickerPlatform {
     bool cancelUploadOnWindowBlur = true,
     int compressionQuality = 0,
     AndroidSAFOptions? androidSafOptions,
+    bool withPersistentAccess = false,
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(

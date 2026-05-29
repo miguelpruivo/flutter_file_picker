@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart';
 
+Future<Uint8List> _readBytesFromPath(String path) => File(path).readAsBytes();
+
 /// Utility class for [FilePicker] that provides common helper methods
 /// used across different platform implementations.
 class FilePickerUtils {
@@ -88,6 +90,12 @@ class FilePickerUtils {
       throw Exception('Couldn\'t find the executable $executable in the path.');
     }
     return path;
+  }
+
+  /// Reads the bytes of the file at [path] in a worker isolate.
+  static Future<Uint8List?> readBytesFromFile(String? path) async {
+    if (path == null) return null;
+    return compute(_readBytesFromPath, path);
   }
 
   /// Saves the given [bytes] to a file at [path].

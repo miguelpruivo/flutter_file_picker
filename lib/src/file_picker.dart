@@ -48,6 +48,14 @@ abstract final class FilePicker {
   /// [cancelUploadOnWindowBlur] prevents upload cancellation when window focus is lost.
   /// Only supported on web.
   ///
+  /// If [withPersistentAccess] is set, the picker will try to avoid making a
+  /// sandbox/cache copy and instead return a platform-specific persistent file
+  /// reference when supported:
+  /// - Android: a persistable `content://` URI grant.
+  /// - iOS: a security-scoped bookmark.
+  ///
+  /// Persisted files can later be restored with [restorePersistentFile].
+  ///
   /// The result is wrapped in a [FilePickerResult] which contains helper getters
   /// with useful information regarding the picked [List<PlatformFile>].
   ///
@@ -87,6 +95,7 @@ abstract final class FilePicker {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
+    bool withPersistentAccess = false,
   }) {
     return FilePickerPlatform.instance.pickFiles(
       dialogTitle: dialogTitle,
@@ -102,6 +111,7 @@ abstract final class FilePicker {
       readSequential: readSequential,
       cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
       androidSafOptions: androidSafOptions,
+      withPersistentAccess: withPersistentAccess,
     );
   }
 
@@ -122,6 +132,7 @@ abstract final class FilePicker {
     bool lockParentWindow = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
+    bool withPersistentAccess = false,
   }) async {
     final result = await FilePickerPlatform.instance.pickFiles(
       dialogTitle: dialogTitle,
@@ -137,6 +148,7 @@ abstract final class FilePicker {
       readSequential: false,
       cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
       androidSafOptions: androidSafOptions,
+      withPersistentAccess: withPersistentAccess,
     );
 
     return result?.files.firstOrNull;
@@ -282,6 +294,20 @@ abstract final class FilePicker {
       bytes: bytes,
       onFileLoading: onFileLoading,
       lockParentWindow: lockParentWindow,
+    );
+  }
+
+  /// Restores a file from a previously saved persistent identifier.
+  ///
+  /// On Android this identifier is typically a persistable `content://` URI.
+  /// On iOS this identifier is a base64-encoded security-scoped bookmark.
+  static Future<PlatformFile> restorePersistentFile(
+    String persistentIdentifier, {
+    bool withData = false,
+  }) {
+    return FilePickerPlatform.instance.resolvePersistentFile(
+      persistentIdentifier: persistentIdentifier,
+      withData: withData,
     );
   }
 

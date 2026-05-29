@@ -41,6 +41,7 @@ class FilePickerDelegate(
     var saveFileName: String? = null
     var saveMimeType: String? = null
     var androidSafOptions: java.util.HashMap<*, *>? = null
+    var withPersistentAccess = false
 
     fun setEventHandler(eventSink: EventSink?) {
         this.eventSink = eventSink

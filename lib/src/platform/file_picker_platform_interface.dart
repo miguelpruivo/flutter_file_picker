@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
+import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/platform/file_picker_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -43,8 +44,36 @@ abstract class FilePickerPlatform extends PlatformInterface {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
+    bool withPersistentAccess = false,
   }) async {
     throw UnimplementedError('pickFiles() has not been implemented.');
+  }
+
+  /// Restores a previously persisted file reference.
+  Future<PlatformFile> resolvePersistentFile({
+    required String persistentIdentifier,
+    bool withData = false,
+  }) async {
+    throw UnimplementedError(
+      'resolvePersistentFile() has not been implemented.',
+    );
+  }
+
+  /// Reads a file identified by [identifier] or [persistentIdentifier].
+  Future<Uint8List> readFileAsBytes({
+    String? identifier,
+    String? persistentIdentifier,
+  }) async {
+    throw UnimplementedError('readFileAsBytes() has not been implemented.');
+  }
+
+  /// Streams a file identified by [identifier] or [persistentIdentifier].
+  Stream<Uint8List> readFileAsStream({
+    String? identifier,
+    String? persistentIdentifier,
+    int chunkSize = 64 * 1024,
+  }) async* {
+    throw UnimplementedError('readFileAsStream() has not been implemented.');
   }
 
   /// Displays a dialog that allows the user to select both files and

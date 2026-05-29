@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -48,6 +49,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
+    bool withPersistentAccess = false,
   }) => _getPath(
     type,
     allowMultiple,
@@ -57,7 +59,81 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     withReadStream,
     compressionQuality,
     androidSafOptions,
+    withPersistentAccess,
   );
+
+  @override
+  Future<PlatformFile> resolvePersistentFile({
+    required String persistentIdentifier,
+    bool withData = false,
+  }) async {
+    final Map<dynamic, dynamic>? result = await methodChannel.invokeMethod(
+      'resolvePersistentFile',
+      {'persistentIdentifier': persistentIdentifier, 'withData': withData},
+    );
+
+    if (result == null) {
+      throw StateError(
+        'Could not restore a PlatformFile from the provided persistent identifier.',
+      );
+    }
+
+    return PlatformFile.fromMap(result);
+  }
+
+  @override
+  Future<Uint8List> readFileAsBytes({
+    String? identifier,
+    String? persistentIdentifier,
+  }) async {
+    final Uint8List? bytes = await methodChannel.invokeMethod<Uint8List>(
+      'readFileBytes',
+      {'identifier': identifier, 'persistentIdentifier': persistentIdentifier},
+    );
+
+    if (bytes == null) {
+      throw StateError(
+        'The platform could not read bytes for the requested file.',
+      );
+    }
+
+    return bytes;
+  }
+
+  @override
+  Stream<Uint8List> readFileAsStream({
+    String? identifier,
+    String? persistentIdentifier,
+    int chunkSize = 64 * 1024,
+  }) async* {
+    final String? sessionId = await methodChannel.invokeMethod<String>(
+      'openReadSession',
+      {'identifier': identifier, 'persistentIdentifier': persistentIdentifier},
+    );
+
+    if (sessionId == null) {
+      throw StateError(
+        'The platform could not open a read session for the requested file.',
+      );
+    }
+
+    try {
+      while (true) {
+        final Uint8List? chunk = await methodChannel.invokeMethod<Uint8List>(
+          'readSessionChunk',
+          {'sessionId': sessionId, 'chunkSize': chunkSize},
+        );
+        if (chunk == null || chunk.isEmpty) {
+          break;
+        }
+        yield chunk;
+      }
+    } finally {
+      await methodChannel.invokeMethod<void>('closeReadSession', {
+        'sessionId': sessionId,
+      });
+    }
+  }
 
   @override
   Future<void> releaseSAFGrant(String uri) async {
@@ -99,6 +175,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool? withReadStream,
     int? compressionQuality,
     AndroidSAFOptions? androidSafOptions,
+    bool withPersistentAccess,
   ) async {
     final String type = fileType.name;
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -126,6 +203,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         'allowedExtensions': allowedExtensions,
         'withData': withData,
         'compressionQuality': compressionQuality,
+        'withPersistentAccess': withPersistentAccess,
         if (androidSafOptions != null)
           'androidSafOptions': androidSafOptions.toMap(),
       });
@@ -140,8 +218,8 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         platformFiles.add(
           PlatformFile.fromMap(
             platformFileMap,
-            readStream: withReadStream!
-                ? File(platformFileMap['path']).openRead()
+            readStream: withReadStream! && platformFileMap['path'] is String
+                ? File(platformFileMap['path'] as String).openRead()
                 : null,
           ),
         );

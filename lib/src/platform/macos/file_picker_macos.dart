@@ -55,6 +55,7 @@ class FilePickerMacOS extends FilePickerPlatform {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
+    bool withPersistentAccess = false,
   }) async {
     final fileFilter = fileTypeToFileFilter(type, allowedExtensions);
 

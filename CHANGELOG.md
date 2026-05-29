@@ -1,3 +1,17 @@
+## 12.0.0-beta.6
+### General
+- Added opt-in persistent file access via `withPersistentAccess` on `pickFiles()` and `pickFile()`. When supported, the picker can now return a platform-backed reference instead of forcing a cached copy for large files.
+- Added `FilePicker.restorePersistentFile()` and `PlatformFile.persistentIdentifier` so apps can persist a native file reference and restore it later.
+- `PlatformFile.readAsBytes()` and `PlatformFile.readAsByteStream()` can now transparently read from persistent platform references when no local cache path is available.
+
+### Android
+- Added native support for restoring and reading previously persisted SAF document URIs without copying them into the plugin cache.
+- When `withPersistentAccess` is enabled, Android now uses persistable `content://` URI permissions and avoids creating cached copies for picked files.
+
+### iOS
+- Added support for security-scoped bookmarks, allowing apps to save a base64 bookmark for a picked file and regain access on a future app launch without copying the file into the app sandbox.
+- When `withPersistentAccess` is enabled for document picks, iOS now returns security-scoped bookmark metadata instead of forcing a temporary copy.
+
 ## 12.0.0-beta.5
 ### Android
 - `saveFile` now writes file data using Kotlin Coroutines (`CoroutineScope(Dispatchers.IO).launch`), keeping all I/O off the main thread and preventing UI freezes.

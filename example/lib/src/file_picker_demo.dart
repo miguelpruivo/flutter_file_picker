@@ -38,9 +38,11 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   bool _safPersist = false;
   bool _safReadWrite = false;
   bool _supportsSafOptions = false;
+  bool _withPersistentAccess = false;
   String? _streamingProgressText;
   Uint8List? _pickedFileBytes;
   String? _pickedFileBytesSource;
+  String? _savedPersistentIdentifier;
   FileType _pickingType = FileType.any;
   List<PlatformFile>? pickedFiles;
   bool get _isSaveFileDisabled => _multiPick;
@@ -102,6 +104,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           lockParentWindow: _lockParentWindow,
           withData: _withData,
           androidSafOptions: _androidSafOptionsFromFlags(),
+          withPersistentAccess: _withPersistentAccess,
         );
         printInDebug("pickedFiles: $result");
         pickedFiles = result?.files;
@@ -114,11 +117,14 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           initialDirectory: _initialDirectoryController.text,
           lockParentWindow: _lockParentWindow,
           androidSafOptions: _androidSafOptionsFromFlags(),
+          withPersistentAccess: _withPersistentAccess,
         );
         printInDebug("pickedFile: $file");
         pickedFiles = file != null ? [file] : null;
       }
       hasUserAborted = pickedFiles == null;
+      _savedPersistentIdentifier =
+          pickedFiles?.firstOrNull?.persistentIdentifier;
     } on PlatformException catch (e) {
       _logException('Unsupported operation: $e');
     } catch (e) {
@@ -129,25 +135,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     setState(() {
       _isLoading = false;
       _userAborted = hasUserAborted;
-
-      void updateResults() {
-        _resultsWidget = PickedFilesResults(
-          pickedFiles: pickedFiles,
-          onRemoveAndroidFile:
-              (int index, AndroidPlatformFile androidPlatformFile) {
-                androidPlatformFile.safHandle.releaseGrant();
-                _scaffoldMessengerKey.currentState?.showSnackBar(
-                  const SnackBar(content: Text("SAF Permission Released!")),
-                );
-                setState(() {
-                  pickedFiles!.removeAt(index);
-                  updateResults();
-                });
-              },
-        );
-      }
-
-      updateResults();
+      _updatePickedFilesResults();
     });
   }
 
@@ -433,6 +421,38 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     }
   }
 
+  Future<void> _restorePersistentFile() async {
+    final persistentIdentifier = _savedPersistentIdentifier?.trim();
+    if (persistentIdentifier == null || persistentIdentifier.isEmpty) {
+      _logException(
+        'No persistent identifier saved yet. Pick a file with persistent access first.',
+      );
+      return;
+    }
+
+    _clearPickedFileBytes();
+    _resetState();
+
+    try {
+      final restoredFile = await FilePicker.restorePersistentFile(
+        persistentIdentifier,
+      );
+      if (!mounted) return;
+      setState(() {
+        pickedFiles = [restoredFile];
+        _isLoading = false;
+        _isStreaming = false;
+        _streamingProgressText = null;
+        _userAborted = false;
+        _updatePickedFilesResults();
+      });
+    } on PlatformException catch (e) {
+      _logException('Unsupported operation: $e');
+    } catch (e) {
+      _logException(e.toString());
+    }
+  }
+
   void _logException(String message) {
     printInDebug(message);
     _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -469,6 +489,22 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   void _clearPickedFileBytes() {
     _pickedFileBytes = null;
     _pickedFileBytesSource = null;
+  }
+
+  void _updatePickedFilesResults() {
+    _resultsWidget = PickedFilesResults(
+      pickedFiles: pickedFiles,
+      onRemoveAndroidFile: (int index, AndroidPlatformFile androidPlatformFile) {
+        androidPlatformFile.safHandle.releaseGrant();
+        _scaffoldMessengerKey.currentState?.showSnackBar(
+          const SnackBar(content: Text("SAF Permission Released!")),
+        );
+        setState(() {
+          pickedFiles!.removeAt(index);
+          _updatePickedFilesResults();
+        });
+      },
+    );
   }
 
   void _onFileLoading(FilePickerStatus status) {
@@ -607,6 +643,19 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           value: _withData,
         ),
       ),
+      ConstrainedBox(
+        constraints: const BoxConstraints.tightFor(width: 400.0),
+        child: SwitchListTile.adaptive(
+          title: const Text('Persistent access'),
+          subtitle: const Text(
+            'Avoid cache copies when the platform can return a long-term file reference.',
+          ),
+          onChanged: !kIsWeb
+              ? (value) => setState(() => _withPersistentAccess = value)
+              : null,
+          value: _withPersistentAccess,
+        ),
+      ),
       if (_multiPick && _withData)
         const SizedBox(
           width: 400.0,
@@ -705,6 +754,14 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           onPressed: _readPickedFileAsBytes,
           label: const Text('Read picked file as bytes'),
           icon: const Icon(Icons.data_array),
+        ),
+      ),
+      SizedBox(
+        width: 220,
+        child: FloatingActionButton.extended(
+          onPressed: _restorePersistentFile,
+          label: const Text('Restore persistent file'),
+          icon: const Icon(Icons.bookmarks),
         ),
       ),
     ];
