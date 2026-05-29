@@ -1,10 +1,22 @@
 import 'dart:io';
-import 'dart:isolate';
-import 'dart:typed_data';
-
 import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart';
+
+/// Reads the file at [path] and returns its bytes.  Runs in a worker isolate.
+Future<Uint8List> _readBytesFromPath(String path) => File(path).readAsBytes();
+
+/// Writes [args[1]] (Uint8List) to the path [args[0]] (String).
+Future<void> _writeBytesToPath(List<Object> args) async {
+  if (args case [String path, Uint8List bytes]) {
+    await File(path).writeAsBytes(bytes);
+    return;
+  }
+
+  throw ArgumentError(
+    'Invalid arguments passed to _writeBytesToPath. Expected [String, Uint8List].',
+  );
+}
 
 /// Utility class for [FilePicker] that provides common helper methods
 /// used across different platform implementations.
@@ -90,25 +102,24 @@ class FilePickerUtils {
     return path;
   }
 
+  /// Reads the bytes of the file at [path] in a worker isolate so that the
+  /// allocation of a large [Uint8List] does not happen on the main isolate's
+  /// heap and does not trigger rasterizer-stalling GC pauses.
+  ///
+  /// Returns `null` if [path] is null.
+  static Future<Uint8List?> readBytesFromFile(String? path) async {
+    if (path == null) return null;
+    return compute(_readBytesFromPath, path);
+  }
+
   /// Saves the given [bytes] to a file at [path].
   ///
   /// Does nothing if [path] or [bytes] is null or empty.
+  /// The write is performed in a worker isolate so the UI thread is never
+  /// blocked while the bytes are being flushed to disk.
   static Future<void> saveBytesToFile(Uint8List? bytes, String? path) async {
     if (path != null && bytes != null && bytes.isNotEmpty) {
-      final receivePort = ReceivePort();
-      final transferable = TransferableTypedData.fromList([bytes]);
-
-      await Isolate.spawn(_saveBytesIsolateEntry, [
-        receivePort.sendPort,
-        path,
-        transferable,
-      ]);
-
-      final result = await receivePort.first;
-      receivePort.close();
-      if (result is Exception) {
-        throw result;
-      }
+      await compute(_writeBytesToPath, [path, bytes]);
     }
   }
 
@@ -120,31 +131,5 @@ class FilePickerUtils {
     final int codeUnit = x.codeUnitAt(0);
     return (codeUnit >= 65 && codeUnit <= 90) || // A-Z
         (codeUnit >= 97 && codeUnit <= 122); // a-z
-  }
-}
-
-/// Save the given bytes to a file, using a separate [Isolate].
-///
-/// The [args] is expected to contain a [SendPort], the [String] file path
-/// and the [TransferableTypedData] bytes, in this order.
-Future<void> _saveBytesIsolateEntry(List<Object?> args) async {
-  if (args case [
-    SendPort send,
-    String path,
-    TransferableTypedData transferable,
-  ]) {
-    try {
-      final Uint8List bytes = transferable.materialize().asUint8List();
-      final file = File(path);
-      await file.writeAsBytes(bytes);
-      send.send(null);
-    } catch (e) {
-      send.send(e);
-    }
-    return;
-  }
-
-  if (args case [final SendPort port, ...]) {
-    port.send(Exception('Invalid isolate arguments'));
   }
 }
