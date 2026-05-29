@@ -24,18 +24,6 @@ enum MacOSFilePickerUtils {
             return nil
         }
 
-        if #available(macOS 11.0, *) {
-            guard let resourceValues = try? tempURL.resourceValues(forKeys: [.contentTypeKey]),
-                  let utType = resourceValues.contentType,
-                  utType != .data,
-                  utType != .item,
-                  let ext = utType.preferredFilenameExtension
-            else {
-                return nil
-            }
-
-            return ext
-        }
 
         guard let resourceValues = try? tempURL.resourceValues(forKeys: [.typeIdentifierKey]),
               let typeIdentifier = resourceValues.typeIdentifier,
