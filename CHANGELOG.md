@@ -1,3 +1,7 @@
+## 12.0.0-beta.6
+### General
+- Offloaded `saveBytesToFile` to a worker isolate via `compute()`, replacing the manual `Isolate.spawn` + `TransferableTypedData` approach; the UI thread is never blocked while bytes are flushed to disk.
+
 ## 12.0.0-beta.5
 ### Android
 - `saveFile` now writes file data using Kotlin Coroutines (`CoroutineScope(Dispatchers.IO).launch`), keeping all I/O off the main thread and preventing UI freezes.
