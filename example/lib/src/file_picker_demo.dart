@@ -119,6 +119,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         pickedFiles = file != null ? [file] : null;
       }
       hasUserAborted = pickedFiles == null;
+      // Auto-fill the default file name with the first picked file
+      if (pickedFiles != null && pickedFiles!.isNotEmpty) {
+        _defaultFileNameController.text = pickedFiles!.first.name;
+      }
     } on PlatformException catch (e) {
       _logException('Unsupported operation: $e');
     } catch (e) {
@@ -302,9 +306,12 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _resetState();
 
     try {
+      final allowedExtensions = _allowedExtensionsFromInput();
       pickedSaveFilePath = await FilePicker.saveFile(
-        allowedExtensions: _allowedExtensionsFromInput(),
-        type: FileType.custom,
+        allowedExtensions: allowedExtensions,
+        type: (allowedExtensions != null && allowedExtensions.isNotEmpty)
+            ? FileType.custom
+            : FileType.any,
         dialogTitle: _dialogTitleController.text,
         fileName: targetFileName,
         initialDirectory: _initialDirectoryController.text,
