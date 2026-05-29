@@ -103,8 +103,18 @@ class FilePickerWeb extends FilePickerPlatform {
         String? path,
         Stream<List<int>>? readStream,
       ) {
-        String? blobUrl;
-        if (bytes != null && bytes.isNotEmpty) {
+        String? blobUrl = path;
+
+        // If no explicit path was provided and no bytes were loaded into
+        // memory, create a fetchable Blob URL from the original File so
+        // callers can later fetch or stream the data.
+        if ((blobUrl == null || blobUrl.isEmpty) && (bytes == null)) {
+          try {
+            blobUrl = URL.createObjectURL(file);
+          } catch (_) {
+            blobUrl = null;
+          }
+        } else if (bytes != null && bytes.isNotEmpty) {
           final blob = Blob(
             [bytes.toJS].toJS,
             BlobPropertyBag(type: file.type),
@@ -115,7 +125,7 @@ class FilePickerWeb extends FilePickerPlatform {
         pickedFiles.add(
           PlatformFile(
             name: file.name,
-            path: path ?? blobUrl,
+            path: blobUrl,
             size: bytes != null ? bytes.length : file.size,
             bytes: bytes,
             readStream: readStream,
@@ -142,12 +152,7 @@ class FilePickerWeb extends FilePickerPlatform {
         }
 
         if (!withData) {
-          final FileReader reader = FileReader();
-          reader.onLoadEnd.listen((e) {
-            String? result = (reader.result as JSString?)?.toDart;
-            addPickedFile(file, null, result, null);
-          });
-          reader.readAsDataURL(file);
+          addPickedFile(file, null, null, null);
           continue;
         }
 

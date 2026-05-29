@@ -4,7 +4,10 @@ import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
 
 import 'android_saf_handle.dart';
+import '../platform/web/platform_file_web_fetch_stub.dart'
+    if (dart.library.js_interop) '../platform/web/platform_file_web_fetch.dart';
 
+/// Represents a file returned by the file picker.
 class PlatformFile {
   PlatformFile({
     this.path,
@@ -101,19 +104,54 @@ class PlatformFile {
 
   /// Read the file content as bytes.
   ///
-  /// For large files on mobile and desktop platforms, prefer [readAsByteStream]
-  /// to avoid Out Of Memory (OOM) issues.
-  Future<Uint8List> readAsBytes() => xFile.readAsBytes();
+  /// For large files, prefer [readAsByteStream] to avoid Out Of Memory (OOM)
+  /// issues.
+  Future<Uint8List> readAsBytes() async {
+    if (bytes != null) return bytes!;
+
+    if (kIsWeb) {
+      final fetchedBytes = await fetchBytesFromWebPath(path);
+      if (fetchedBytes != null) return fetchedBytes;
+    }
+
+    throw StateError(
+      'PlatformFile.readAsBytes(): file data is not available. '
+      'Consume the file via PlatformFile.readAsByteStream(), or on Web ensure '
+      'the file path is a fetchable blob/data URL that can be retrieved.',
+    );
+  }
 
   /// Read the file content as a stream of bytes.
   ///
-  /// This is the recommended way to handle large files on mobile and desktop platforms.
+  /// Preferred for large files or incremental processing.
   ///
-  /// **Note on Web:** This method currently requires [FilePicker.pickFiles] or [FilePicker.pickFile]
-  /// to have been called with `withData: true`, otherwise this will fail since `bytes` is required
-  /// to create the stream. This is a limitation that should be addressed in a future version to
-  /// support proper streaming on web without requiring `withData`.
-  Stream<Uint8List> readAsByteStream() => xFile.openRead();
+  /// Web behavior:
+  /// - When the browser/WebView exposes Fetch `ReadableStream` (`Response.body`)
+  ///   this method streams chunks from a `blob:` URL without buffering the
+  ///   entire file in memory.
+  /// - If streaming is unavailable (older WebViews/browsers), it falls back to
+  ///   loading the whole file via `arrayBuffer()` and emits a single
+  ///   `Uint8List` chunk — which may cause high memory usage for large files.
+  ///
+  /// Recommendations:
+  /// - Use `readAsBytes()` for small files and `readAsByteStream()` for large
+  ///   files when streaming is available.
+  /// - For environments without streaming support (older WebViews), consider
+  ///   server-side streaming/upload strategies to avoid high memory usage.
+  Stream<Uint8List> readAsByteStream() async* {
+    if (kIsWeb) {
+      final stream = fetchStreamFromWebPath(path);
+      if (stream != null) {
+        yield* stream;
+        return;
+      }
+
+      yield await readAsBytes();
+      return;
+    }
+
+    yield* xFile.openRead();
+  }
 
   /// Returns the length of the file in bytes.
   ///
