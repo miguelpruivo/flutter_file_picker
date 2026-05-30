@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<privacy>
+  <privacyPermission>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <value>To choose photos to upload.</value>
+  </privacyPermission>
+</privacy>

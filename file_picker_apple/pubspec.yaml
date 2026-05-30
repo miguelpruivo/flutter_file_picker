@@ -1,0 +1,30 @@
+name: file_picker_apple
+description: Apple (iOS + macOS) implementation for file_picker (shared Darwin sources).
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  file_picker_platform_interface:
+    path: ../file_picker_platform_interface
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      ios:
+        pluginClass: FilePickerPlugin
+        sharedDarwinSource: true
+      macos:
+        pluginClass: FilePickerPlugin
+        sharedDarwinSource: true
+        dartPluginClass: FilePickerMacOS

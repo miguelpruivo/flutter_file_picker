@@ -1,0 +1,30 @@
+name: file_picker_web
+description: Web implementation for file_picker.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  file_picker_platform_interface:
+    path: ../file_picker_platform_interface
+  path: ^1.9.1
+  web: ^1.1.1
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      web:
+        pluginClass: FilePickerWeb
+        fileName: file_picker_web.dart

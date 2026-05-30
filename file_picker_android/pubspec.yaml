@@ -1,0 +1,27 @@
+name: file_picker_android
+description: Android implementation for file_picker.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  file_picker_platform_interface:
+    path: ../file_picker_platform_interface
+  flutter_plugin_android_lifecycle: ^2.0.34
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.mr.flutter.plugin.filepicker
+        pluginClass: FilePickerPlugin
