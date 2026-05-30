@@ -1,14 +1,4 @@
-gradle-wrapper.jar
-/.gradle
-/captures/
-/gradlew
-/gradlew.bat
-/local.properties
-GeneratedPluginRegistrant.java
-.cxx/
+# Git ignore rules consolidated into repository root .gitignore
+# See /.gitignore for the canonical list.
 
-# Remember to never publicly share your keystore.
-# See https://flutter.dev/to/reference-keystore
-key.properties
-**/*.keystore
-**/*.jks
+# Keep package-specific ignores here only if strictly necessary.

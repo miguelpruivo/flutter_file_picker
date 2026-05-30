@@ -1,12 +1,4 @@
-*.iml
-*.class
-.gradle
-.idea/
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
-.DS_Store
-/build
-/captures
-GeneratedPluginRegistrant.java
-/tmplibs
+# Git ignore rules consolidated into repository root .gitignore
+# See /.gitignore for the canonical list.
+
+# Keep package-specific ignores here only if strictly necessary.
