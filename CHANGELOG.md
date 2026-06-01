@@ -2,6 +2,9 @@
 ### General
 - Improved `PlatformFile.readAsBytes()` so picked files can be read even when `withData` was not used and the file only has a local `path` or a stream source.
 
+### Android
+- Fix issue when we select a custom type to pìck files with `allowedExtensions` extensions.
+
 ### Windows
 - `FileType.custom` now falls back to `FileType.any` when no `allowedExtensions` are provided, avoiding a null check crash in the Windows file filter builder.
 
