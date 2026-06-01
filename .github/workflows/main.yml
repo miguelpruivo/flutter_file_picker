@@ -43,16 +43,20 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+        working-directory: file_picker
 
       - name: Verify formatting
         if: matrix.flutter == 'stable'
         run: dart format --output=none --set-exit-if-changed .
+        working-directory: file_picker
 
       - name: Analyze project source
         run: flutter analyze
+        working-directory: file_picker
 
       - name: Run tests
         run: flutter test
+        working-directory: file_picker
 
   test_os_matrix:
     needs: test_flutter_versions
@@ -71,15 +75,18 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+        working-directory: file_picker
 
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze project source
         run: flutter analyze
+        working-directory: file_picker
 
       - name: Run tests
         run: flutter test
+        working-directory: file_picker
 
       # Linux build (example app)
       - name: Install Linux desktop dependencies
@@ -135,6 +142,7 @@ jobs:
       - run: flutter --version
       - name: Install dependencies
         run: flutter pub get
+        working-directory: file_picker
       - name: Enable Web
         run: flutter config --enable-web
       - name: Build Web example
