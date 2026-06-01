@@ -1,6 +1,6 @@
 ## 12.0.0-beta.6
 ## Darwin
-- Refactored the shared Darwin save-file-name logic into platform-specific utilities for iOS and macOS, while preserving the same save-file extension behaviour on each platform.
+-Fixed an issue where the file extension could be lost when saving a picked file — saving a selected file on iOS and macOS now preserves its original file extension.
 
 ## 12.0.0-beta.5
 ### Android
