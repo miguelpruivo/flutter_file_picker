@@ -41,6 +41,7 @@ import java.util.Locale
 object FileUtils {
     private const val TAG = "FilePickerUtils"
     private const val MAX_RENAME_ATTEMPTS = 20
+    private const val GENERIC_BINARY_MIME_TYPE = "application/octet-stream"
     // On Android, the CSV mime type from getMimeTypeFromExtension() returns
     // "text/comma-separated-values" which is non-standard and doesn't filter
     // CSV files in Google Drive.
@@ -48,6 +49,45 @@ object FileUtils {
     // (see https://android.googlesource.com/platform/frameworks/base/+/61ae88e/core/java/android/webkit/MimeTypeMap.java#439)
     private const val CSV_EXTENSION = "csv"
     private const val CSV_MIME_TYPE = "text/csv"
+    private val EXTRA_MIME_TYPE_BY_EXTENSION = "application/"
+    private fun normalizeExtension(extension: String?): String? {
+        return extension
+            ?.trim()
+            ?.lowercase(Locale.ROOT)
+            ?.trimStart('.')
+            ?.takeIf { it.isNotEmpty() }
+    }
+
+    private fun getExtensionFromFileName(fileName: String?): String? {
+        val extension = fileName
+            ?.substringAfterLast('.', "")
+            ?.takeIf { it.isNotBlank() }
+
+        return normalizeExtension(extension)
+    }
+
+    private fun resolveMimeTypeFromExtension(
+        extension: String?,
+        allowGenericFallback: Boolean = false
+    ): String? {
+        val normalizedExtension = normalizeExtension(extension) ?: return null
+
+        if(normalizedExtension.isEmpty()){
+            return if (allowGenericFallback) GENERIC_BINARY_MIME_TYPE else null
+        }
+        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(normalizedExtension)
+            ?: "${EXTRA_MIME_TYPE_BY_EXTENSION}normalizedExtension"
+    }
+
+    private fun getMimeTypeFromFileName(
+        fileName: String?,
+        allowGenericFallback: Boolean = false
+    ): String? {
+        return resolveMimeTypeFromExtension(
+            extension = getExtensionFromFileName(fileName),
+            allowGenericFallback = allowGenericFallback
+        )
+    }
 
     fun FilePickerDelegate.processFiles(
         activity: Activity,
@@ -305,6 +345,11 @@ object FileUtils {
     }
 
     private fun getMimeTypeForBytes(fileName: String?, bytes: ByteArray?): String {
+        getMimeTypeFromFileName(
+            fileName = fileName,
+            allowGenericFallback = true
+        )?.let { return it }
+
         val tika = Tika()
 
         val detectedType = if (fileName.isNullOrEmpty()) {
@@ -529,9 +574,7 @@ object FileUtils {
         val mimes = ArrayList<String>()
 
         for (extension in normalizedExtensions) {
-            val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                extension
-            )
+            val mime = resolveMimeTypeFromExtension(extension)
             if (mime == null) {
                 Log.w(
                     TAG,
@@ -666,6 +709,7 @@ object FileUtils {
         val contentResolver = context.contentResolver
         val mimeType = contentResolver.getType(uri)
         return MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+            ?: getExtensionFromFileName(getFileName(uri, context))
     }
 
     private fun getCompressFormat(context: Context, uri: Uri): Bitmap.CompressFormat {
