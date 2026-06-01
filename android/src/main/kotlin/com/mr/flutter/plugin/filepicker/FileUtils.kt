@@ -94,6 +94,7 @@ object FileUtils {
                     data.clipData != null -> {
                         for (i in 0 until data.clipData!!.itemCount) {
                             var uri = data.clipData!!.getItemAt(i).uri
+                            validateFileSelection(activity, uri)
                             maybeTakePersistableUriPermission(uri)
                             uri = processUri(activity, uri, compressionQuality)
                             addFile(activity, uri, loadDataToMemory, files, hasSafOptions, isReadWrite)
@@ -102,6 +103,7 @@ object FileUtils {
                     }
 
                     data.data != null -> {
+                        validateFileSelection(activity, data.data!!)
                         var uri = processUri(activity, data.data!!, compressionQuality)
 
                         if (type == "dir") {
@@ -130,6 +132,7 @@ object FileUtils {
                     data.extras?.containsKey("selectedItems") == true -> {
                         val fileUris = getSelectedItems(data.extras!!)
                         fileUris?.filterIsInstance<Uri>()?.forEach { uri ->
+                            validateFileSelection(activity, uri)
                             maybeTakePersistableUriPermission(uri)
                             addFile(activity, uri, loadDataToMemory, files, hasSafOptions, isReadWrite)
                         }
@@ -147,6 +150,8 @@ object FileUtils {
                     "out_of_memory",
                     "Selected files are too large to load into memory. Disable withData or use withReadStream."
                 )
+            } catch (e: IllegalArgumentException) {
+                finishWithError("invalid_file_type", e.message ?: "The selected file type is not allowed.")
             } catch (e: Exception) {
                 finishWithError("file_picker_error", e.message ?: "Unknown error")
             }
@@ -185,11 +190,13 @@ object FileUtils {
      */
     fun FilePickerDelegate.startFileExplorer() {
         val intent: Intent
+        val pickerMimeTypes = getMimeTypes(this.allowedExtensions)
 
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (type == null) {
             return
         }
+
 
         if (type == "dir") {
             intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
@@ -234,12 +241,8 @@ object FileUtils {
             } else {
                 intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
-                    type = this@startFileExplorer.type
-                    if (!allowedExtensions.isNullOrEmpty()) {
-                        putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions!!.toTypedArray())
-                    } else {
-                        putExtra(Intent.EXTRA_MIME_TYPES, arrayOf(type))
-                    }
+                    applyMimeTypeFilter("*/*",pickerMimeTypes)
+
                     putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
                     putExtra("multi-pick", isMultipleSelection)
                 }
@@ -518,35 +521,104 @@ object FileUtils {
     }
 
     fun getMimeTypes(allowedExtensions: ArrayList<String>?): ArrayList<String> {
-        if (allowedExtensions.isNullOrEmpty()) {
+        val normalizedExtensions = normalizeAllowedExtensions(allowedExtensions)
+        if (normalizedExtensions.isEmpty()) {
             return ArrayList(listOf("*/*"))
         }
 
         val mimes = ArrayList<String>()
 
-        for (i in allowedExtensions.indices) {
+        for (extension in normalizedExtensions) {
             val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                allowedExtensions[i]
+                extension
             )
             if (mime == null) {
                 Log.w(
                     TAG,
-                    "Custom file type '" + allowedExtensions[i] + "' is unsupported and will not be filtered."
+                    "Custom file type '$extension' is unsupported and will be validated by extension only."
                 )
-                return ArrayList(listOf("*/*"))
+                continue
             }
 
             mimes.add(mime)
-            if(allowedExtensions[i] == CSV_EXTENSION) {
+            if (extension == CSV_EXTENSION) {
                 // Add the standard CSV mime type.
                 mimes.add(CSV_MIME_TYPE)
             }
         }
+
+        if (mimes.isEmpty()) {
+            return ArrayList(listOf("*/*"))
+        }
+
         Log.d(
             TAG,
-            "Custom file types are $allowedExtensions. The mime types were detected as $mimes."
+            "Custom file types are $normalizedExtensions. The mime types were detected as $mimes."
         )
-        return mimes
+        return ArrayList(mimes.distinct())
+    }
+
+    private fun normalizeAllowedExtensions(allowedExtensions: ArrayList<String>?): ArrayList<String> {
+        if (allowedExtensions.isNullOrEmpty()) {
+            return arrayListOf()
+        }
+
+        return ArrayList(
+            allowedExtensions
+                .map { it.trim().lowercase(Locale.ROOT).trimStart('.') }
+                .filter { it.isNotEmpty() }
+                .distinct()
+        )
+    }
+
+    private fun Intent.applyMimeTypeFilter(fallbackType: String, mimeTypes: ArrayList<String>) {
+        if (mimeTypes.size == 1 && mimeTypes[0] != "*/*") {
+            type = mimeTypes[0]
+            putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toTypedArray())
+            return
+        }
+
+        type = fallbackType
+        if (mimeTypes != arrayListOf("*/*")) {
+            type = "*/*"
+            putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toTypedArray())
+        }
+    }
+
+    private fun FilePickerDelegate.validateFileSelection(context: Context, uri: Uri) {
+        if (type == "dir") {
+            return
+        }
+
+        val normalizedExtensions = normalizeAllowedExtensions(allowedExtensions)
+        if (normalizedExtensions.isEmpty()) {
+            return
+        }
+
+        val fileName = getFileName(uri, context)
+        val selectedExtension = fileName
+            ?.substringAfterLast('.', "")
+            ?.lowercase(Locale.ROOT)
+            ?.takeIf { it.isNotBlank() }
+
+        if (selectedExtension != null && normalizedExtensions.contains(selectedExtension)) {
+            return
+        }
+
+        val selectedMimeType = context.contentResolver.getType(uri)?.lowercase(Locale.ROOT)
+        val allowedMimeTypes = getMimeTypes(ArrayList(normalizedExtensions))
+            .filterNot { it == "*/*" }
+            .map { it.lowercase(Locale.ROOT) }
+            .toSet()
+
+        if (selectedMimeType != null && allowedMimeTypes.contains(selectedMimeType)) {
+            return
+        }
+
+        val allowedFormats = normalizedExtensions.joinToString(", ") { ".$it" }
+        throw IllegalArgumentException(
+            "Solo se permiten archivos con estas extensiones: $allowedFormats."
+        )
     }
 
     @JvmStatic
