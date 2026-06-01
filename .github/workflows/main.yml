@@ -45,6 +45,10 @@ jobs:
         run: flutter pub get
         working-directory: file_picker
 
+      - name: Enable Swift Package Manager
+        run: flutter config --enable-swift-package-manager
+        working-directory: file_picker
+
       - name: Verify formatting
         if: matrix.flutter == 'stable'
         run: dart format --output=none --set-exit-if-changed .
@@ -75,6 +79,11 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+        working-directory: file_picker
+
+      - name: Enable Swift Package Manager
+        run: flutter config --enable-swift-package-manager
+        working-directory: file_picker
         working-directory: file_picker
 
       - name: Verify formatting
@@ -142,6 +151,11 @@ jobs:
       - run: flutter --version
       - name: Install dependencies
         run: flutter pub get
+        working-directory: file_picker
+
+      - name: Enable Swift Package Manager
+        run: flutter config --enable-swift-package-manager
+        working-directory: file_picker
         working-directory: file_picker
       - name: Enable Web
         run: flutter config --enable-web
