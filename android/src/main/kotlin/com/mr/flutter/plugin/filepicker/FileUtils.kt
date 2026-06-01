@@ -134,7 +134,6 @@ object FileUtils {
                     data.clipData != null -> {
                         for (i in 0 until data.clipData!!.itemCount) {
                             var uri = data.clipData!!.getItemAt(i).uri
-                            validateFileSelection(activity, uri)
                             maybeTakePersistableUriPermission(uri)
                             uri = processUri(activity, uri, compressionQuality)
                             addFile(activity, uri, loadDataToMemory, files, hasSafOptions, isReadWrite)
@@ -143,7 +142,6 @@ object FileUtils {
                     }
 
                     data.data != null -> {
-                        validateFileSelection(activity, data.data!!)
                         var uri = processUri(activity, data.data!!, compressionQuality)
 
                         if (type == "dir") {
@@ -172,7 +170,6 @@ object FileUtils {
                     data.extras?.containsKey("selectedItems") == true -> {
                         val fileUris = getSelectedItems(data.extras!!)
                         fileUris?.filterIsInstance<Uri>()?.forEach { uri ->
-                            validateFileSelection(activity, uri)
                             maybeTakePersistableUriPermission(uri)
                             addFile(activity, uri, loadDataToMemory, files, hasSafOptions, isReadWrite)
                         }
@@ -234,7 +231,6 @@ object FileUtils {
         if (type == null) {
             return
         }
-
 
         if (type == "dir") {
             intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
@@ -564,14 +560,13 @@ object FileUtils {
     }
 
     fun getMimeTypes(allowedExtensions: ArrayList<String>?): ArrayList<String> {
-        val normalizedExtensions = normalizeAllowedExtensions(allowedExtensions)
-        if (normalizedExtensions.isEmpty()) {
+        if (allowedExtensions.isNullOrEmpty()) {
             return ArrayList(listOf("*/*"))
         }
 
         val mimes = ArrayList<String>()
 
-        for (extension in normalizedExtensions) {
+        for (extension in allowedExtensions) {
             val mime = resolveMimeTypeFromExtension(extension)
             if (mime == null) {
                 Log.w(
@@ -594,9 +589,9 @@ object FileUtils {
 
         Log.d(
             TAG,
-            "Custom file types are $normalizedExtensions. The mime types were detected as $mimes."
+            "Custom file types are ${allowedExtensions.joinToString(separator = ",")}. The mime types were detected as $mimes."
         )
-        return ArrayList(mimes.distinct())
+        return mimes
     }
 
     private fun normalizeAllowedExtensions(allowedExtensions: ArrayList<String>?): ArrayList<String> {
@@ -625,40 +620,6 @@ object FileUtils {
             putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toTypedArray())
         }
     }
-
-    private fun FilePickerDelegate.validateFileSelection(context: Context, uri: Uri) {
-        if (type == "dir") {
-            return
-        }
-
-        val normalizedExtensions = normalizeAllowedExtensions(allowedExtensions)
-        if (normalizedExtensions.isEmpty()) {
-            return
-        }
-
-        val fileName = getFileName(uri, context)
-        val selectedExtension = fileName
-            ?.substringAfterLast('.', "")
-            ?.lowercase(Locale.ROOT)
-            ?.takeIf { it.isNotBlank() }
-
-        if (selectedExtension != null && normalizedExtensions.contains(selectedExtension)) {
-            return
-        }
-
-        val selectedMimeType = context.contentResolver.getType(uri)?.lowercase(Locale.ROOT)
-        val allowedMimeTypes = getMimeTypes(ArrayList(normalizedExtensions))
-            .filterNot { it == "*/*" }
-            .map { it.lowercase(Locale.ROOT) }
-            .toSet()
-
-        if (selectedMimeType != null && allowedMimeTypes.contains(selectedMimeType)) {
-            return
-        }
-
-        val allowedFormats = normalizedExtensions.joinToString(", ") { ".$it" }
-    }
-
     @JvmStatic
     fun getFileName(uri: Uri, context: Context): String? {
         var result: String? = null
