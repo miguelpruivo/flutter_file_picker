@@ -1,6 +1,6 @@
 ## 12.0.0-beta.6
 ## Darwin
--Fixed an issue where the file extension could be lost when saving a picked file — saving a selected file on iOS and macOS now preserves its original file extension.
+- Fixed an issue that prevented the file extension from being preserved when saving a picked file on iOS and macOS.
 
 ## 12.0.0-beta.5
 ### Android
