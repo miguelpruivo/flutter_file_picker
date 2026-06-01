@@ -79,16 +79,6 @@ object FileUtils {
             ?: "${EXTRA_MIME_TYPE_BY_EXTENSION}normalizedExtension"
     }
 
-    private fun getMimeTypeFromFileName(
-        fileName: String?,
-        allowGenericFallback: Boolean = false
-    ): String? {
-        return resolveMimeTypeFromExtension(
-            extension = getExtensionFromFileName(fileName),
-            allowGenericFallback = allowGenericFallback
-        )
-    }
-
     fun FilePickerDelegate.processFiles(
         activity: Activity,
         data: Intent?,
@@ -339,10 +329,6 @@ object FileUtils {
     }
 
     private fun getMimeTypeForBytes(fileName: String?, bytes: ByteArray?): String {
-        getMimeTypeFromFileName(
-            fileName = fileName,
-            allowGenericFallback = true
-        )?.let { return it }
 
         val tika = Tika()
 
