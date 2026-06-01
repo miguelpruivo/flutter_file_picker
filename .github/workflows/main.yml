@@ -45,10 +45,6 @@ jobs:
         run: flutter pub get
         working-directory: file_picker
 
-      - name: Enable Swift Package Manager
-        run: flutter config --enable-swift-package-manager
-        working-directory: file_picker
-
       - name: Verify formatting
         if: matrix.flutter == 'stable'
         run: dart format --output=none --set-exit-if-changed .
@@ -81,13 +77,9 @@ jobs:
         run: flutter pub get
         working-directory: file_picker
 
-      - name: Enable Swift Package Manager
-        run: flutter config --enable-swift-package-manager
-        working-directory: file_picker
-        working-directory: file_picker
-
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
+        working-directory: file_picker
 
       - name: Analyze project source
         run: flutter analyze
@@ -110,7 +102,7 @@ jobs:
 
       - name: Build Linux example
         if: matrix.os == 'ubuntu-latest'
-        working-directory: example
+        working-directory: file_picker/example
         run: |
           flutter pub get
           flutter build linux
@@ -122,7 +114,7 @@ jobs:
 
       - name: Build Windows example
         if: matrix.os == 'windows-latest'
-        working-directory: example
+        working-directory: file_picker/example
         run: |
           flutter pub get
           flutter build windows
@@ -134,8 +126,9 @@ jobs:
 
       - name: Build macOS example
         if: matrix.os == 'macos-latest'
-        working-directory: example
+        working-directory: file_picker/example
         run: |
+          flutter config --enable-swift-package-manager
           flutter pub get
           flutter build macos
 
@@ -149,18 +142,14 @@ jobs:
         with:
           channel: stable
       - run: flutter --version
+
       - name: Install dependencies
         run: flutter pub get
-        working-directory: file_picker
-
-      - name: Enable Swift Package Manager
-        run: flutter config --enable-swift-package-manager
-        working-directory: file_picker
         working-directory: file_picker
       - name: Enable Web
         run: flutter config --enable-web
       - name: Build Web example
-        working-directory: example
+        working-directory: file_picker/example
         run: |
           flutter pub get
           flutter build web --wasm
