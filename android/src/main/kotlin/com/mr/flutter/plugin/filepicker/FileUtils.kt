@@ -190,8 +190,6 @@ object FileUtils {
                     "out_of_memory",
                     "Selected files are too large to load into memory. Disable withData or use withReadStream."
                 )
-            } catch (e: IllegalArgumentException) {
-                finishWithError("invalid_file_type", e.message ?: "The selected file type is not allowed.")
             } catch (e: Exception) {
                 finishWithError("file_picker_error", e.message ?: "Unknown error")
             }
