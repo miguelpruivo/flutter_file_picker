@@ -659,9 +659,6 @@ object FileUtils {
         }
 
         val allowedFormats = normalizedExtensions.joinToString(", ") { ".$it" }
-        throw IllegalArgumentException(
-            "Solo se permiten archivos con estas extensiones: $allowedFormats."
-        )
     }
 
     @JvmStatic
