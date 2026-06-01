@@ -580,19 +580,6 @@ object FileUtils {
         return mimes
     }
 
-    private fun normalizeAllowedExtensions(allowedExtensions: ArrayList<String>?): ArrayList<String> {
-        if (allowedExtensions.isNullOrEmpty()) {
-            return arrayListOf()
-        }
-
-        return ArrayList(
-            allowedExtensions
-                .map { it.trim().lowercase(Locale.ROOT).trimStart('.') }
-                .filter { it.isNotEmpty() }
-                .distinct()
-        )
-    }
-
     private fun Intent.applyMimeTypeFilter(fallbackType: String, mimeTypes: ArrayList<String>) {
         if (mimeTypes.size == 1 && mimeTypes[0] != "*/*") {
             type = mimeTypes[0]
