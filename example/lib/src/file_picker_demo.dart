@@ -118,7 +118,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           lockParentWindow: _lockParentWindow,
           androidSafOptions: _androidSafOptionsFromFlags(),
           withPersistentAccess: _withPersistentAccess,
-          withData: _withData
+          withData: _withData,
         );
         printInDebug("pickedFile: $file");
         pickedFiles = file != null ? [file] : null;
@@ -280,7 +280,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       return;
     }
 
-    final bytes =  _withData ? _pickedFileBytes : null;
+    final bytes = _withData ? _pickedFileBytes : null;
     if (bytes == null) {
       _logException(
         'No file bytes loaded yet. Press "Stream picked file" or '
@@ -300,7 +300,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
         sourceFile: file,
-        bytes: bytes
+        bytes: bytes,
       );
       hasUserAborted = pickedSaveFilePath == null;
     } on PlatformException catch (e) {
