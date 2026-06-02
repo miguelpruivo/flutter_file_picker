@@ -185,10 +185,24 @@ class FilePickerWindows extends FilePickerPlatform {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    required Uint8List bytes,
+    Uint8List? bytes,
+    String? sourcePath,
+    String? sourceIdentifier,
+    String? sourcePersistentIdentifier,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
+    final Uint8List? bytesToSave =
+        bytes ??
+        (sourcePath != null
+            ? await FilePickerUtils.readBytesFromFile(sourcePath)
+            : null);
+    if (bytesToSave == null) {
+      throw ArgumentError(
+        'Windows saveFile requires bytes or a readable sourcePath.',
+      );
+    }
+
     final port = ReceivePort();
     await Isolate.spawn(
       _callSaveFile,
@@ -204,7 +218,7 @@ class FilePickerWindows extends FilePickerPlatform {
       ),
     );
     final savedFilePath = (await port.first) as String?;
-    await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
+    await FilePickerUtils.saveBytesToFile(bytesToSave, savedFilePath);
     return savedFilePath;
   }
 

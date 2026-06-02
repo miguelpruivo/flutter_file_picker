@@ -68,11 +68,12 @@ object FileUtils {
 
             val grantStr = androidSafOptions?.get("grant") as? String
             val accessStr = androidSafOptions?.get("access") as? String
+            val shouldLoadData = loadDataToMemory && !withPersistentAccess
             val autoPersist = if (withPersistentAccess) {
-                true
-            } else {
-                (androidSafOptions?.get("autoPersist") as? Boolean) ?: true
-            }
+                 true
+             } else {
+                 (androidSafOptions?.get("autoPersist") as? Boolean) ?: true
+             }
             val shouldAvoidCaching = withPersistentAccess
 
             val isPersist = withPersistentAccess || grantStr == "lifetime"
@@ -148,7 +149,7 @@ object FileUtils {
                             addFile(
                                 activity,
                                 uri,
-                                loadDataToMemory,
+                                shouldLoadData,
                                 files,
                                 hasSafOptions,
                                 isReadWrite,
@@ -166,7 +167,7 @@ object FileUtils {
                             addFile(
                                 activity,
                                 uri,
-                                loadDataToMemory,
+                                shouldLoadData,
                                 files,
                                 hasSafOptions,
                                 isReadWrite,
@@ -194,18 +195,37 @@ object FileUtils {
         }
     }
 
-    fun writeBytesData(
+    fun writeFileData(
         context: Context,
-        uri: Uri,
-        bytes: ByteArray?
+        destinationUri: Uri,
+        bytes: ByteArray?,
+        sourcePath: String?,
+        sourceIdentifier: String?,
+        sourcePersistentIdentifier: String?
     ): Uri {
-        context.contentResolver.openOutputStream(uri)?.use { output ->
-            bytes?.let {
-                output.write(it)
+        context.contentResolver.openOutputStream(destinationUri)?.use { output ->
+            when {
+                !sourcePersistentIdentifier.isNullOrEmpty() || !sourceIdentifier.isNullOrEmpty() -> {
+                    val sourceUri = Uri.parse(sourcePersistentIdentifier ?: sourceIdentifier)
+                    context.contentResolver.openInputStream(sourceUri)?.use { input ->
+                        input.copyTo(output)
+                    } ?: throw FileNotFoundException("Could not open input stream for source URI: $sourceUri")
+                }
+
+                !sourcePath.isNullOrEmpty() -> {
+                    FileInputStream(File(sourcePath)).use { input ->
+                        input.copyTo(output)
+                    }
+                }
+
+                bytes != null -> output.write(bytes)
+                else -> throw IllegalArgumentException(
+                    "Missing source reference. Provide bytes or one of sourcePath/sourceIdentifier/sourcePersistentIdentifier."
+                )
             }
         }
 
-        return uri
+        return destinationUri
     }
 
     private fun FilePickerDelegate.handleFileResult(files: List<FileInfo>) {
@@ -372,6 +392,9 @@ object FileUtils {
         type: String?,
         initialDirectory: String?,
         bytes: ByteArray?,
+        sourcePath: String?,
+        sourceIdentifier: String?,
+        sourcePersistentIdentifier: String?,
         result: MethodChannel.Result
     ) {
         if (!this.setPendingMethodCallResult(result)) {
@@ -384,10 +407,25 @@ object FileUtils {
             intent.putExtra(Intent.EXTRA_TITLE, fileName)
         }
         this.bytes = bytes
+        this.sourcePath = sourcePath
+        this.sourceIdentifier = sourceIdentifier
+        this.sourcePersistentIdentifier = sourcePersistentIdentifier
         this.saveFileName = fileName
         if ("dir" != type) {
             try {
-                intent.type = getMimeTypeForBytes(fileName = fileName, bytes = bytes)
+                intent.type = when {
+                    bytes != null -> getMimeTypeForBytes(fileName = fileName, bytes = bytes)
+                    else -> {
+                        val extension = fileName
+                            ?.substringAfterLast('.', "")
+                            ?.lowercase(Locale.getDefault())
+                        if (extension.isNullOrEmpty()) {
+                            "*/*"
+                        } else {
+                            MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "*/*"
+                        }
+                    }
+                }
                 this.saveMimeType = intent.type
             } catch (t: Throwable) {
                 intent.type = "*/*"
@@ -799,9 +837,6 @@ object FileUtils {
         val fileName = getFileName(uri, context)
 
         if (!cacheToFile) {
-            if (withData) {
-                loadData(context, uri, fileInfo)
-            }
 
             fileInfo
                 .withPath(null)
@@ -860,10 +895,6 @@ object FileUtils {
                     Log.e(TAG, "Failed to close file streams: " + ex.message, ex)
                 }
             }
-        }
-
-        if (withData) {
-            loadData(file, fileInfo)
         }
 
         fileInfo

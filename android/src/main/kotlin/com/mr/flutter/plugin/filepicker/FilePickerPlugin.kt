@@ -218,13 +218,29 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 val type = resolveType(arguments?.get("fileType") as String)
                 val initialDirectory = arguments?.get("initialDirectory") as String?
                 val bytes = arguments?.get("bytes") as ByteArray?
-                val fileNameWithoutExtension = "${arguments?.get("fileName")}"
+                val sourcePath = arguments?.get("sourcePath") as String?
+                val sourceIdentifier = arguments?.get("sourceIdentifier") as String?
+                val sourcePersistentIdentifier =
+                    arguments?.get("sourcePersistentIdentifier") as String?
+                val fileNameWithoutExtension = "${arguments?.get("fileName")}".trim()
                 val fileName =
-                    if (fileNameWithoutExtension.isNotEmpty() && !fileNameWithoutExtension.contains(
-                            "."
-                        )
-                    ) "$fileNameWithoutExtension.${getFileExtension(bytes)}" else fileNameWithoutExtension
-                delegate?.saveFile(fileName, type, initialDirectory, bytes, result)
+                    if (bytes != null &&
+                        fileNameWithoutExtension.isNotEmpty() &&
+                        !fileNameWithoutExtension.contains(".")) {
+                        "$fileNameWithoutExtension.${getFileExtension(bytes)}"
+                    } else {
+                        fileNameWithoutExtension
+                    }
+                delegate?.saveFile(
+                    fileName,
+                    type,
+                    initialDirectory,
+                    bytes,
+                    sourcePath,
+                    sourceIdentifier,
+                    sourcePersistentIdentifier,
+                    result
+                )
             }
 
             "custom" -> {

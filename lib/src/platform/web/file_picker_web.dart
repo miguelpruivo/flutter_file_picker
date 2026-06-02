@@ -222,11 +222,14 @@ class FilePickerWeb extends FilePickerPlatform {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    required Uint8List bytes,
+    Uint8List? bytes,
+    String? sourcePath,
+    String? sourceIdentifier,
+    String? sourcePersistentIdentifier,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
-    if (bytes.isEmpty) {
+    if (bytes == null || bytes.isEmpty) {
       throw ArgumentError(
         'The bytes are required when saving a file on the web.',
       );

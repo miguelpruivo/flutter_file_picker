@@ -38,6 +38,9 @@ class FilePickerDelegate(
     var allowedExtensions: ArrayList<String>? = null
     var eventSink: EventSink? = null
     var bytes: ByteArray? = null
+    var sourcePath: String? = null
+    var sourceIdentifier: String? = null
+    var sourcePersistentIdentifier: String? = null
     var saveFileName: String? = null
     var saveMimeType: String? = null
     var androidSafOptions: java.util.HashMap<*, *>? = null
@@ -77,7 +80,14 @@ class FilePickerDelegate(
         dispatchEventStatus(true)
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val savedUri = FileUtils.writeBytesData(context = activity, uri, bytes) ?: uri
+                val savedUri = FileUtils.writeFileData(
+                    context = activity,
+                    destinationUri = uri,
+                    bytes = bytes,
+                    sourcePath = sourcePath,
+                    sourceIdentifier = sourceIdentifier,
+                    sourcePersistentIdentifier = sourcePersistentIdentifier
+                ) ?: uri
                 val renamedUri = maybeRenameGenericMimeDuplicate(
                     context = activity,
                     uri = savedUri,

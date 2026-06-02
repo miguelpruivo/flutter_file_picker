@@ -278,15 +278,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       return;
     }
 
-    final bytes = _pickedFileBytes;
-    if (bytes == null) {
-      _logException(
-        'No file bytes loaded yet. Press "Stream picked file" or '
-        '"Read picked file as bytes" first.',
-      );
-      return;
-    }
-
     _resetState();
 
     try {
@@ -297,7 +288,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         fileName: targetFileName,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
-        bytes: bytes,
+        sourceFile: file
       );
       hasUserAborted = pickedSaveFilePath == null;
     } on PlatformException catch (e) {
@@ -317,7 +308,9 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
             title: const Text('Save file path:'),
             subtitle: Text(
               pickedSaveFilePath != null
-                  ? '$pickedSaveFilePath (bytes loaded via ${_pickedFileBytesSource ?? 'unknown'})'
+                  ? _pickedFileBytesSource == null
+                        ? '$pickedSaveFilePath (saved via native file reference)'
+                        : '$pickedSaveFilePath (bytes loaded via ${_pickedFileBytesSource!})'
                   : '',
             ),
           );
@@ -494,16 +487,17 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   void _updatePickedFilesResults() {
     _resultsWidget = PickedFilesResults(
       pickedFiles: pickedFiles,
-      onRemoveAndroidFile: (int index, AndroidPlatformFile androidPlatformFile) {
-        androidPlatformFile.safHandle.releaseGrant();
-        _scaffoldMessengerKey.currentState?.showSnackBar(
-          const SnackBar(content: Text("SAF Permission Released!")),
-        );
-        setState(() {
-          pickedFiles!.removeAt(index);
-          _updatePickedFilesResults();
-        });
-      },
+      onRemoveAndroidFile:
+          (int index, AndroidPlatformFile androidPlatformFile) {
+            androidPlatformFile.safHandle.releaseGrant();
+            _scaffoldMessengerKey.currentState?.showSnackBar(
+              const SnackBar(content: Text("SAF Permission Released!")),
+            );
+            setState(() {
+              pickedFiles!.removeAt(index);
+              _updatePickedFilesResults();
+            });
+          },
     );
   }
 

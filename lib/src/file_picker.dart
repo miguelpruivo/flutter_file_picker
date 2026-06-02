@@ -17,6 +17,8 @@ abstract final class FilePicker {
   /// which can be useful if you are picking it for server upload or similar. However, have in mind that
   /// enabling this on IO (iOS & Android) may result in out of memory issues if you allow multiple picks or
   /// pick huge files. Use [withReadStream] instead. Defaults to `true` on web, `false` otherwise.
+  /// **On mobile platforms (iOS & Android), bytes are NEVER loaded automatically and must be read on-demand**
+  /// **using [PlatformFile.readAsBytes()] or [PlatformFile.readAsByteStream()].**
   /// Not supported on macOS.
   ///
   /// If [withReadStream] is set, picked files will have its byte data available as a [Stream<List<int>>]
@@ -48,13 +50,16 @@ abstract final class FilePicker {
   /// [cancelUploadOnWindowBlur] prevents upload cancellation when window focus is lost.
   /// Only supported on web.
   ///
-  /// If [withPersistentAccess] is set, the picker will try to avoid making a
-  /// sandbox/cache copy and instead return a platform-specific persistent file
-  /// reference when supported:
-  /// - Android: a persistable `content://` URI grant.
-  /// - iOS: a security-scoped bookmark.
+  /// If [withPersistentAccess] is set, the picker will avoid copying files to cache
+  /// and instead return platform-specific persistent file references:
+  /// - Android: a persistable `content://` URI with Storage Access Framework
+  /// - iOS: a security-scoped bookmark
   ///
-  /// Persisted files can later be restored with [restorePersistentFile].
+  /// When enabled, files are NOT copied to cache directory. Use [PlatformFile.readAsBytes()]
+  /// or [PlatformFile.readAsByteStream()] to access file content on-demand.
+  /// This avoids memory issues with large files and eliminates unnecessary copying.
+  ///
+  /// Persisted files can be restored later with [restorePersistentFile].
   ///
   /// The result is wrapped in a [FilePickerResult] which contains helper getters
   /// with useful information regarding the picked [List<PlatformFile>].
@@ -242,8 +247,12 @@ abstract final class FilePicker {
     );
   }
 
-  /// Opens a save file dialog to let the user select a location and a file name to
-  /// save [bytes] to.
+  /// Opens a save file dialog to let the user select a location and a file name.
+  ///
+  /// You can either:
+  /// - provide [bytes] (legacy behavior), or
+  /// - provide [sourceFile] to let the native platform copy from a picked file
+  ///   reference without first loading all bytes in Dart.
   ///
   /// Returns a [Future<String?>] which resolves to the absolute path of the
   /// saved file, or `null` if the user canceled the operation.
@@ -281,10 +290,17 @@ abstract final class FilePicker {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    required Uint8List bytes,
+    Uint8List? bytes,
+    PlatformFile? sourceFile,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) {
+    if (bytes == null && sourceFile == null) {
+      throw ArgumentError(
+        'Either bytes or sourceFile must be provided when saving a file.',
+      );
+    }
+
     return FilePickerPlatform.instance.saveFile(
       dialogTitle: dialogTitle,
       fileName: fileName,
@@ -292,6 +308,9 @@ abstract final class FilePicker {
       type: type,
       allowedExtensions: allowedExtensions,
       bytes: bytes,
+      sourcePath: sourceFile?.path,
+      sourceIdentifier: sourceFile?.identifier,
+      sourcePersistentIdentifier: sourceFile?.persistentIdentifier,
       onFileLoading: onFileLoading,
       lockParentWindow: lockParentWindow,
     );
