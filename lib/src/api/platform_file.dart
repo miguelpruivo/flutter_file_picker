@@ -145,7 +145,7 @@ class PlatformFile {
       if (fetchedBytes != null) return fetchedBytes;
     }
 
-    if (!kIsWeb && (identifier != null || persistentIdentifier != null)) {
+    if (!kIsWeb && _hasPlatformIdentifier()) {
       return FilePickerPlatform.instance.readFileAsBytes(
         identifier: identifier,
         persistentIdentifier: persistentIdentifier,
@@ -189,7 +189,7 @@ class PlatformFile {
       return;
     }
 
-    if (path == null && (identifier != null || persistentIdentifier != null)) {
+    if (path == null && _hasPlatformIdentifier()) {
       yield* FilePickerPlatform.instance.readFileAsStream(
         identifier: identifier,
         persistentIdentifier: persistentIdentifier,
@@ -213,6 +213,8 @@ class PlatformFile {
       return bytes?.lengthInBytes ?? 0;
     }
   }
+
+  bool _hasPlatformIdentifier() => identifier != null || persistentIdentifier != null;
 
   @override
   bool operator ==(Object other) {
