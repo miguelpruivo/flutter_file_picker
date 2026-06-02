@@ -12,6 +12,9 @@
 - Added support for security-scoped bookmarks, allowing apps to save a base64 bookmark for a picked file and regain access on a future app launch without copying the file into the app sandbox.
 - When `withPersistentAccess` is enabled for document picks, iOS now returns security-scoped bookmark metadata instead of forcing a temporary copy.
 
+### Desktop (macOS)
+- FilePicker.pickFiles() now use DispatchQueue.main.async to avoid blocking the UI when opening the file picker dialog.
+
 ## 12.0.0-beta.5
 ### Android
 - `saveFile` now writes file data using Kotlin Coroutines (`CoroutineScope(Dispatchers.IO).launch`), keeping all I/O off the main thread and preventing UI freezes.
