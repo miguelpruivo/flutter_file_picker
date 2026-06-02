@@ -214,7 +214,8 @@ class PlatformFile {
     }
   }
 
-  bool _hasPlatformIdentifier() => identifier != null || persistentIdentifier != null;
+  bool _hasPlatformIdentifier() =>
+      identifier != null || persistentIdentifier != null;
 
   @override
   bool operator ==(Object other) {
