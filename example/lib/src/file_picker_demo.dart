@@ -40,7 +40,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   bool _supportsSafOptions = false;
   bool _withPersistentAccess = false;
   String? _streamingProgressText;
-  Uint8List? _pickedFileBytes;
   String? _pickedFileBytesSource;
   String? _savedPersistentIdentifier;
   FileType _pickingType = FileType.any;
@@ -358,7 +357,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         _isStreaming = false;
         _streamingProgressText = null;
         _userAborted = false;
-        _pickedFileBytes = bytes.takeBytes();
         _pickedFileBytesSource = 'stream';
         _resultsWidget = Center(
           child: Text('Stream completed: $chunks chunks, $total bytes'),
@@ -395,7 +393,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         _isStreaming = false;
         _streamingProgressText = null;
         _userAborted = false;
-        _pickedFileBytes = bytes;
         _pickedFileBytesSource = 'readAsBytes';
         _resultsWidget = Center(
           child: Text('readAsBytes completed: ${bytes.lengthInBytes} bytes'),
@@ -480,7 +477,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   void _clearPickedFileBytes() {
-    _pickedFileBytes = null;
     _pickedFileBytesSource = null;
   }
 
