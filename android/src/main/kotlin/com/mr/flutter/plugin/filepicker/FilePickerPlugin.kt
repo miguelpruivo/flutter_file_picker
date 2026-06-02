@@ -216,12 +216,12 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
 
             "save" -> {
                 val type = resolveType(arguments?.get("fileType") as String)
-                val initialDirectory = arguments?.get("initialDirectory") as String?
-                val bytes = arguments?.get("bytes") as ByteArray?
-                val sourcePath = arguments?.get("sourcePath") as String?
-                val sourceIdentifier = arguments?.get("sourceIdentifier") as String?
+                val initialDirectory = arguments?.get("initialDirectory") as? String?
+                val bytes = arguments?.get("bytes") as? ByteArray?
+                val sourcePath = arguments?.get("sourcePath") as? String?
+                val sourceIdentifier = arguments?.get("sourceIdentifier") as? String?
                 val sourcePersistentIdentifier =
-                    arguments?.get("sourcePersistentIdentifier") as String?
+                    arguments?.get("sourcePersistentIdentifier") as? String?
                 val fileNameWithoutExtension = "${arguments?.get("fileName")}".trim()
                 val fileName =
                     if (bytes != null &&
@@ -245,15 +245,15 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
 
             "custom" -> {
                 val allowedExtensions =
-                    getMimeTypes(arguments?.get("allowedExtensions") as ArrayList<String>?)
+                    getMimeTypes(arguments?.get("allowedExtensions") as? ArrayList<String>?)
                 val androidSafOptions = arguments?.get("androidSafOptions") as? java.util.HashMap<*, *>
                 delegate?.startFileExplorer(
                     resolveType(method),
-                    arguments?.get("allowMultipleSelection") as Boolean?,
-                    arguments?.get("withData") as Boolean?,
+                    arguments?.get("allowMultipleSelection") as? Boolean?,
+                    arguments?.get("withData") as? Boolean?,
                     arguments?.get("withPersistentAccess") as? Boolean ?: false,
                     allowedExtensions,
-                    arguments?.get("compressionQuality") as Int?,
+                    arguments?.get("compressionQuality") as? Int?,
                     androidSafOptions,
                     result
                 )
@@ -273,7 +273,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                     arguments?.get("withData") as Boolean?,
                     arguments?.get("withPersistentAccess") as? Boolean ?: false,
                     arrayListOf(),
-                    arguments?.get("compressionQuality") as Int?,
+                    arguments?.get("compressionQuality") as? Int?,
                     androidSafOptions,
                     result
                 )
