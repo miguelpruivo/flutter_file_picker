@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
@@ -8,6 +9,7 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
+import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
 
 import 'package:file_picker/src/api/exceptions.dart';
@@ -56,12 +58,19 @@ class FilePickerWindows extends FilePickerPlatform {
     final fileNames = (await port.first) as List<String>?;
     FilePickerResult? returnValue;
     if (fileNames != null) {
-      final filePaths = fileNames;
-      final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
-        filePaths,
-        withReadStream,
-        withData,
-      );
+      final platformFiles = fileNames
+          .where((filePath) => filePath.isNotEmpty)
+          .map((filePath) {
+            final file = File(filePath);
+            return PlatformFile(
+              name: basename(filePath),
+              path: filePath,
+              size: file.existsSync() ? file.lengthSync() : 0,
+              bytes: null,
+              readStream: withReadStream ? file.openRead() : null,
+            );
+          })
+          .toList();
 
       returnValue = FilePickerResult(platformFiles);
     }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
@@ -6,6 +8,7 @@ import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/file_picker_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:path/path.dart';
 
 class FilePickerMacOS extends FilePickerPlatform {
   static void registerWith() {
@@ -70,12 +73,19 @@ class FilePickerMacOS extends FilePickerPlatform {
       return null;
     }
 
-    final List<PlatformFile> platformFiles =
-        await FilePickerUtils.filePathsToPlatformFiles(
-          filePaths,
-          withReadStream,
-          withData,
-        );
+    final List<PlatformFile> platformFiles = filePaths
+        .where((filePath) => filePath.isNotEmpty)
+        .map((filePath) {
+          final file = File(filePath);
+          return PlatformFile(
+            name: basename(filePath),
+            path: filePath,
+            size: file.existsSync() ? file.lengthSync() : 0,
+            bytes: null,
+            readStream: withReadStream ? file.openRead() : null,
+          );
+        })
+        .toList();
 
     return FilePickerResult(platformFiles);
   }
@@ -134,7 +144,7 @@ class FilePickerMacOS extends FilePickerPlatform {
           'allowedExtensions': fileFilter,
         });
 
-    await FilePickerUtils.saveBytesToFile(bytesToSave, savedFilePath);
+    FilePickerUtils.saveBytesToFile(bytesToSave, savedFilePath);
     return savedFilePath;
   }
 
