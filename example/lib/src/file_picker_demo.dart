@@ -288,7 +288,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         fileName: targetFileName,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
-        sourceFile: file
+        sourceFile: file,
       );
       hasUserAborted = pickedSaveFilePath == null;
     } on PlatformException catch (e) {

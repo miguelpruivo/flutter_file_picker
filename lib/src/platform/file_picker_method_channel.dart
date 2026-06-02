@@ -249,8 +249,13 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool lockParentWindow = false,
   }) async {
     // Ensure at least one source is provided: bytes OR a native reference
-    if (bytes == null && sourcePath == null && sourceIdentifier == null && sourcePersistentIdentifier == null) {
-      throw ArgumentError('Either bytes or a source reference (sourcePath/sourceIdentifier/sourcePersistentIdentifier) must be provided.');
+    if (bytes == null &&
+        sourcePath == null &&
+        sourceIdentifier == null &&
+        sourcePersistentIdentifier == null) {
+      throw ArgumentError(
+        'Either bytes or a source reference (sourcePath/sourceIdentifier/sourcePersistentIdentifier) must be provided.',
+      );
     }
     try {
       if (onFileLoading != null) {
