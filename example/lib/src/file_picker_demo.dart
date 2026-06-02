@@ -34,12 +34,13 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   bool _lockParentWindow = false;
   bool _userAborted = false;
   bool _multiPick = false;
-  bool _withData = false;
+  bool _withData = kIsWeb ? true : false;
   bool _safPersist = false;
   bool _safReadWrite = false;
   bool _supportsSafOptions = false;
   bool _withPersistentAccess = false;
   String? _streamingProgressText;
+  Uint8List? _pickedFileBytes;
   String? _pickedFileBytesSource;
   String? _savedPersistentIdentifier;
   FileType _pickingType = FileType.any;
@@ -117,6 +118,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           lockParentWindow: _lockParentWindow,
           androidSafOptions: _androidSafOptionsFromFlags(),
           withPersistentAccess: _withPersistentAccess,
+          withData: _withData
         );
         printInDebug("pickedFile: $file");
         pickedFiles = file != null ? [file] : null;
@@ -269,6 +271,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       return;
     }
 
+    _pickedFileBytes = _withData ? file.bytes : _pickedFileBytes;
     final fileName = _defaultFileNameController.text.trim();
     final targetFileName = fileName.isNotEmpty ? fileName : file.name;
 
@@ -277,17 +280,27 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       return;
     }
 
+    final bytes =  _withData ? _pickedFileBytes : null;
+    if (bytes == null) {
+      _logException(
+        'No file bytes loaded yet. Press "Stream picked file" or '
+        '"Read picked file as bytes" first.',
+      );
+      return;
+    }
+
     _resetState();
 
     try {
       pickedSaveFilePath = await FilePicker.saveFile(
         allowedExtensions: _allowedExtensionsFromInput(),
-        type: FileType.custom,
+        type: _pickingType,
         dialogTitle: _dialogTitleController.text,
         fileName: targetFileName,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
         sourceFile: file,
+        bytes: bytes
       );
       hasUserAborted = pickedSaveFilePath == null;
     } on PlatformException catch (e) {
@@ -324,7 +337,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _logException('No file picked. Pick a file first to stream it.');
       return;
     }
-
     _clearPickedFileBytes();
     _resetState();
     if (!mounted) return;
@@ -350,11 +362,11 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           _resultsWidget = Center(child: Text(_streamingProgressText!));
         });
       }
-
       if (!mounted) return;
       setState(() {
         _isLoading = false;
         _isStreaming = false;
+        _pickedFileBytes = bytes.takeBytes();
         _streamingProgressText = null;
         _userAborted = false;
         _pickedFileBytesSource = 'stream';
@@ -381,7 +393,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _logException('No file picked. Pick a file first to read its bytes.');
       return;
     }
-
     _clearPickedFileBytes();
     _resetState();
 
@@ -390,6 +401,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
+        _pickedFileBytes = bytes;
         _isStreaming = false;
         _streamingProgressText = null;
         _userAborted = false;
@@ -478,6 +490,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
 
   void _clearPickedFileBytes() {
     _pickedFileBytesSource = null;
+    _pickedFileBytes = null;
   }
 
   void _updatePickedFilesResults() {

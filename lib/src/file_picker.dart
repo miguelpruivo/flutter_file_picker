@@ -138,6 +138,7 @@ abstract final class FilePicker {
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
     bool withPersistentAccess = false,
+    bool withData = false,
   }) async {
     final result = await FilePickerPlatform.instance.pickFiles(
       dialogTitle: dialogTitle,
@@ -147,7 +148,7 @@ abstract final class FilePicker {
       onFileLoading: onFileLoading,
       compressionQuality: compressionQuality,
       allowMultiple: false,
-      withData: false,
+      withData: withData,
       withReadStream: false,
       lockParentWindow: lockParentWindow,
       readSequential: false,
