@@ -1,7 +1,7 @@
 @TestOn('vm')
 library;
 
-import 'dart:typed_data';
+// 'dart:typed_data' is exported by flutter services/test bindings, explicit import removed.
 
 import 'package:file_picker/src/platform/file_picker_method_channel.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
