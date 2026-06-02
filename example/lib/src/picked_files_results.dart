@@ -32,7 +32,7 @@ class PickedFilesResults extends StatelessWidget {
                     ? null
                     : () => onRemoveAndroidFile!(index, androidPlatformFile),
               );
-        final path = '${pickedFile.path}';
+        final path = pickedFile.path ?? pickedFile.name;
 
         return ListTile(
           leading: Text(
