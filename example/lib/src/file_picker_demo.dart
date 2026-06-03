@@ -471,35 +471,35 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _pickedFileBytesSource = null;
   }
 
-   void _onFileLoading(FilePickerStatus status) {
-     setState(() {
-       _isLoading = status == FilePickerStatus.picking;
-     });
-   }
+  void _onFileLoading(FilePickerStatus status) {
+    setState(() {
+      _isLoading = status == FilePickerStatus.picking;
+    });
+  }
 
-   void _cancelOperation() async {
-     final cancelled = await FilePicker.cancelOperation();
-     _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-     _scaffoldMessengerKey.currentState?.showSnackBar(
-       SnackBar(
-         content: Text(
-           cancelled
-               ? '✅ Operation successfully cancelled'
-               : 'ℹ️ There was no operation to cancel',
-           style: const TextStyle(color: Colors.white),
-         ),
-         duration: const Duration(milliseconds: 1500),
-       ),
-     );
-     if (cancelled && mounted) {
-       setState(() {
-         _isLoading = false;
-         _userAborted = true;
-       });
-     }
-   }
+  void _cancelOperation() async {
+    final cancelled = await FilePicker.cancelOperation();
+    _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+    _scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(
+        content: Text(
+          cancelled
+              ? '✅ Operation successfully cancelled'
+              : 'ℹ️ There was no operation to cancel',
+          style: const TextStyle(color: Colors.white),
+        ),
+        duration: const Duration(milliseconds: 1500),
+      ),
+    );
+    if (cancelled && mounted) {
+      setState(() {
+        _isLoading = false;
+        _userAborted = true;
+      });
+    }
+  }
 
-   List<String>? _allowedExtensionsFromInput() {
+  List<String>? _allowedExtensionsFromInput() {
     return (_extension?.isNotEmpty ?? false)
         ? _extension?.replaceAll(' ', '').split(',')
         : null;
@@ -721,24 +721,24 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           icon: const Icon(Icons.stream),
         ),
       ),
-       SizedBox(
-         width: 240,
-         child: FloatingActionButton.extended(
-           onPressed: _readPickedFileAsBytes,
-           label: const Text('Read picked file as bytes'),
-           icon: const Icon(Icons.data_array),
-         ),
-       ),
-       SizedBox(
-         width: 180,
-         child: FloatingActionButton.extended(
-           onPressed: _cancelOperation,
-           backgroundColor: Colors.red.shade600,
-           label: const Text('Cancel operation'),
-           icon: const Icon(Icons.cancel),
-         ),
-       ),
-     ];
+      SizedBox(
+        width: 240,
+        child: FloatingActionButton.extended(
+          onPressed: _readPickedFileAsBytes,
+          label: const Text('Read picked file as bytes'),
+          icon: const Icon(Icons.data_array),
+        ),
+      ),
+      SizedBox(
+        width: 180,
+        child: FloatingActionButton.extended(
+          onPressed: _cancelOperation,
+          backgroundColor: Colors.red.shade600,
+          label: const Text('Cancel operation'),
+          icon: const Icon(Icons.cancel),
+        ),
+      ),
+    ];
 
     final loadingIndicator = Row(
       children: const [

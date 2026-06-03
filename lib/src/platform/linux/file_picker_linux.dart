@@ -214,15 +214,15 @@ class FilePickerLinux extends FilePickerPlatform {
     return savedFilePath;
   }
 
-   Uint8List _encodeDirectory(String initialDirectory) {
-     return Uint8List.fromList([...utf8.encode(initialDirectory), 0]);
-   }
+  Uint8List _encodeDirectory(String initialDirectory) {
+    return Uint8List.fromList([...utf8.encode(initialDirectory), 0]);
+  }
 
-   @override
-   Future<bool> cancelOperation() async {
-     // Linux uses XDG portals which are system-managed dialogs.
-     // Canceling is not directly supported through the DBus interface.
-     // Users can cancel dialogs using standard methods (ESC key, Cancel button).
-     return false;
-   }
+  @override
+  Future<bool> cancelOperation() async {
+    // Linux uses XDG portals which are system-managed dialogs.
+    // Canceling is not directly supported through the DBus interface.
+    // Users can cancel dialogs using standard methods (ESC key, Cancel button).
+    return false;
+  }
 }

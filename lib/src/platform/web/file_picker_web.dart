@@ -54,52 +54,52 @@ class FilePickerWeb extends FilePickerPlatform {
     throw UnimplementedError('getDirectoryPath() has not been implemented.');
   }
 
-   @override
-   Future<FilePickerResult?> pickFiles({
-     String? dialogTitle,
-     String? initialDirectory,
-     FileType type = FileType.any,
-     List<String>? allowedExtensions,
-     bool allowMultiple = false,
-     Function(FilePickerStatus)? onFileLoading,
-     bool withData = true,
-     bool withReadStream = false,
-     bool lockParentWindow = false,
-     bool readSequential = false,
-     bool cancelUploadOnWindowBlur = true,
-     int compressionQuality = 0,
-     AndroidSAFOptions? androidSafOptions,
-   }) async {
-     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
-       throw Exception(
-         'You are setting a type [$type]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.',
-       );
-     }
+  @override
+  Future<FilePickerResult?> pickFiles({
+    String? dialogTitle,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    bool allowMultiple = false,
+    Function(FilePickerStatus)? onFileLoading,
+    bool withData = true,
+    bool withReadStream = false,
+    bool lockParentWindow = false,
+    bool readSequential = false,
+    bool cancelUploadOnWindowBlur = true,
+    int compressionQuality = 0,
+    AndroidSAFOptions? androidSafOptions,
+  }) async {
+    if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
+      throw Exception(
+        'You are setting a type [$type]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.',
+      );
+    }
 
-     _currentPickFilesCompleter = Completer<List<PlatformFile>?>();
-     _currentPickFilesChangeEventTriggered = false;
+    _currentPickFilesCompleter = Completer<List<PlatformFile>?>();
+    _currentPickFilesChangeEventTriggered = false;
 
-     String accept = _fileType(type, allowedExtensions);
-     HTMLInputElement uploadInput = HTMLInputElement();
-     _currentUploadInput = uploadInput;
-     uploadInput.type = 'file';
-     uploadInput.draggable = true;
-     uploadInput.multiple = allowMultiple;
-     uploadInput.accept = accept;
-     uploadInput.style.display = 'none';
+    String accept = _fileType(type, allowedExtensions);
+    HTMLInputElement uploadInput = HTMLInputElement();
+    _currentUploadInput = uploadInput;
+    uploadInput.type = 'file';
+    uploadInput.draggable = true;
+    uploadInput.multiple = allowMultiple;
+    uploadInput.accept = accept;
+    uploadInput.style.display = 'none';
 
-     bool changeEventTriggered = false;
+    bool changeEventTriggered = false;
 
-     if (onFileLoading != null) {
-       onFileLoading(FilePickerStatus.picking);
-     }
+    if (onFileLoading != null) {
+      onFileLoading(FilePickerStatus.picking);
+    }
 
-     void changeEventListener(Event e) async {
-       if (changeEventTriggered) {
-         return;
-       }
-       changeEventTriggered = true;
-       _currentPickFilesChangeEventTriggered = true;
+    void changeEventListener(Event e) async {
+      if (changeEventTriggered) {
+        return;
+      }
+      changeEventTriggered = true;
+      _currentPickFilesChangeEventTriggered = true;
 
       final FileList files = uploadInput.files!;
       final List<PlatformFile> pickedFiles = [];
@@ -139,12 +139,12 @@ class FilePickerWeb extends FilePickerPlatform {
           ),
         );
 
-         if (pickedFiles.length >= files.length) {
-           if (onFileLoading != null) {
-             onFileLoading(FilePickerStatus.done);
-           }
-           _currentPickFilesCompleter?.complete(pickedFiles);
-         }
+        if (pickedFiles.length >= files.length) {
+          if (onFileLoading != null) {
+            onFileLoading(FilePickerStatus.done);
+          }
+          _currentPickFilesCompleter?.complete(pickedFiles);
+        }
       }
 
       for (int i = 0; i < files.length; i++) {
@@ -177,20 +177,20 @@ class FilePickerWeb extends FilePickerPlatform {
       }
     }
 
-     void cancelledEventListener(Event _) {
-       window.removeEventListener('focus', cancelledEventListener.toJS);
+    void cancelledEventListener(Event _) {
+      window.removeEventListener('focus', cancelledEventListener.toJS);
 
-       // This listener is called before the input changed event,
-       // and the `uploadInput.files` value is still null
-       // Wait for results from js to dart
-       Future.delayed(Duration(seconds: 1)).then((value) {
-         if (!changeEventTriggered) {
-           changeEventTriggered = true;
-           _currentPickFilesChangeEventTriggered = true;
-           _currentPickFilesCompleter?.complete(null);
-         }
-       });
-     }
+      // This listener is called before the input changed event,
+      // and the `uploadInput.files` value is still null
+      // Wait for results from js to dart
+      Future.delayed(Duration(seconds: 1)).then((value) {
+        if (!changeEventTriggered) {
+          changeEventTriggered = true;
+          _currentPickFilesChangeEventTriggered = true;
+          _currentPickFilesCompleter?.complete(null);
+        }
+      });
+    }
 
     uploadInput.onChange.listen(changeEventListener);
     uploadInput.addEventListener('change', changeEventListener.toJS);
@@ -216,11 +216,11 @@ class FilePickerWeb extends FilePickerPlatform {
       firstChild = _target.firstChild;
     }
 
-     final List<PlatformFile>? files = await _currentPickFilesCompleter!.future;
-     _currentPickFilesCompleter = null;
-     _currentUploadInput = null;
+    final List<PlatformFile>? files = await _currentPickFilesCompleter!.future;
+    _currentPickFilesCompleter = null;
+    _currentUploadInput = null;
 
-     return files == null ? null : FilePickerResult(files);
+    return files == null ? null : FilePickerResult(files);
   }
 
   @override
@@ -316,35 +316,35 @@ class FilePickerWeb extends FilePickerPlatform {
         continue;
       }
 
-       if (readerResult.isA<JSArray>()) {
-         // Assume this is a List<int>.
-         yield (readerResult as JSArray).toDart.cast<int>();
-         start += _readStreamChunkSize;
-       }
-     }
-   }
-
-    @override
-    Future<bool> cancelOperation() async {
-     bool hadPendingOperation = false;
-
-      if (_currentPickFilesCompleter != null &&
-          !_currentPickFilesCompleter!.isCompleted &&
-          !_currentPickFilesChangeEventTriggered) {
-        hadPendingOperation = true;
-        _currentPickFilesChangeEventTriggered = true;
-        _currentPickFilesCompleter?.complete(null);
+      if (readerResult.isA<JSArray>()) {
+        // Assume this is a List<int>.
+        yield (readerResult as JSArray).toDart.cast<int>();
+        start += _readStreamChunkSize;
       }
-
-      if (_currentUploadInput != null) {
-        try {
-          _currentUploadInput?.remove();
-        } catch (_) {}
-        _currentUploadInput = null;
-      }
-
-      _currentPickFilesCompleter = null;
-
-      return hadPendingOperation;
     }
+  }
+
+  @override
+  Future<bool> cancelOperation() async {
+    bool hadPendingOperation = false;
+
+    if (_currentPickFilesCompleter != null &&
+        !_currentPickFilesCompleter!.isCompleted &&
+        !_currentPickFilesChangeEventTriggered) {
+      hadPendingOperation = true;
+      _currentPickFilesChangeEventTriggered = true;
+      _currentPickFilesCompleter?.complete(null);
+    }
+
+    if (_currentUploadInput != null) {
+      try {
+        _currentUploadInput?.remove();
+      } catch (_) {}
+      _currentUploadInput = null;
+    }
+
+    _currentPickFilesCompleter = null;
+
+    return hadPendingOperation;
+  }
 }

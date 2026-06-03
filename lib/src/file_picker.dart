@@ -285,34 +285,34 @@ abstract final class FilePicker {
     );
   }
 
-   /// Skips the entitlements checks on macOS, allowing the plugin to be used without Sandbox enabled.
-   ///
-   /// This is only relevant for macOS. On other platforms, this method does nothing.
-   /// Call this method before any other file picking method to ensure that the entitlements checks are skipped.
-   ///
-   /// Note: Skipping entitlements checks may lead to unexpected behavior or security issues. Use with caution.
-   static Future<void> skipEntitlementsChecks() {
-     return FilePickerPlatform.instance.skipEntitlementsChecks();
-   }
+  /// Skips the entitlements checks on macOS, allowing the plugin to be used without Sandbox enabled.
+  ///
+  /// This is only relevant for macOS. On other platforms, this method does nothing.
+  /// Call this method before any other file picking method to ensure that the entitlements checks are skipped.
+  ///
+  /// Note: Skipping entitlements checks may lead to unexpected behavior or security issues. Use with caution.
+  static Future<void> skipEntitlementsChecks() {
+    return FilePickerPlatform.instance.skipEntitlementsChecks();
+  }
 
-   /// Cancels any ongoing file picking or saving operation.
-   ///
-   /// This method will interrupt the current file picker dialog or save operation.
-   /// If you have an active file picking or saving process and want to cancel it
-   /// programmatically (e.g., user tapped a cancel button in your UI), you can call
-   /// this method to abort the operation.
-   ///
-   /// Example:
-   /// ```dart
-   /// // Start picking files
-   /// var pickingFuture = FilePicker.pickFiles();
-   ///
-   /// // Later, if you want to cancel it
-   /// await FilePicker.cancelOperation();
-   /// ```
-   ///
-   /// Returns `true` if an operation was successfully canceled, `false` otherwise.
-   static Future<bool> cancelOperation() {
-     return FilePickerPlatform.instance.cancelOperation();
-   }
+  /// Cancels any ongoing file picking or saving operation.
+  ///
+  /// This method will interrupt the current file picker dialog or save operation.
+  /// If you have an active file picking or saving process and want to cancel it
+  /// programmatically (e.g., user tapped a cancel button in your UI), you can call
+  /// this method to abort the operation.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Start picking files
+  /// var pickingFuture = FilePicker.pickFiles();
+  ///
+  /// // Later, if you want to cancel it
+  /// await FilePicker.cancelOperation();
+  /// ```
+  ///
+  /// Returns `true` if an operation was successfully canceled, `false` otherwise.
+  static Future<bool> cancelOperation() {
+    return FilePickerPlatform.instance.cancelOperation();
+  }
 }

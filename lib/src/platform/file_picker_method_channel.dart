@@ -193,26 +193,27 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         onFileLoading(FilePickerStatus.done);
       }
 
-       return savedPath;
-     } catch (e) {
-       rethrow;
-     } finally {
-       await _eventSubscription?.cancel();
-       _eventSubscription = null;
-     }
-   }
+      return savedPath;
+    } catch (e) {
+      rethrow;
+    } finally {
+      await _eventSubscription?.cancel();
+      _eventSubscription = null;
+    }
+  }
 
-   @override
-   Future<bool> cancelOperation() async {
-     try {
-       await _eventSubscription?.cancel();
-       _eventSubscription = null;
+  @override
+  Future<bool> cancelOperation() async {
+    try {
+      await _eventSubscription?.cancel();
+      _eventSubscription = null;
 
-       final bool cancelled = await methodChannel.invokeMethod<bool>('cancel') ?? false;
-       return cancelled;
-     } catch (e) {
-       debugPrint('[$_tag] Error canceling operation: $e');
-       return false;
-     }
-   }
+      final bool cancelled =
+          await methodChannel.invokeMethod<bool>('cancel') ?? false;
+      return cancelled;
+    } catch (e) {
+      debugPrint('[$_tag] Error canceling operation: $e');
+      return false;
+    }
+  }
 }
