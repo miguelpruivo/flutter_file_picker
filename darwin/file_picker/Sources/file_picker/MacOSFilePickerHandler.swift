@@ -16,236 +16,249 @@ private extension CFString {
 }
 
 final class MacOSFilePickerHandler {
-    private let registrar: FlutterPluginRegistrar
-    private var skipEntitlementsChecks: Bool = false
+     private let registrar: FlutterPluginRegistrar
+     private var skipEntitlementsChecks: Bool = false
+     private var currentPanel: NSSavePanel?
 
     init(registrar: FlutterPluginRegistrar) {
         self.registrar = registrar
     }
 
-    func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        switch call.method {
-        case "pickFiles":
-            handleFileSelection(call, result: result)
+     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+         switch call.method {
+         case "cancel":
+             let cancelled = cancelOperation()
+             result(NSNumber(value: cancelled))
 
-        case "getDirectoryPath":
-            handleDirectorySelection(call, result: result)
+         case "pickFiles":
+             handleFileSelection(call, result: result)
 
-        case "pickFileAndDirectoryPaths":
-            handleFileAndDirectorySelection(call, result: result)
+         case "getDirectoryPath":
+             handleDirectorySelection(call, result: result)
 
-        case "saveFile":
-            handleSaveFile(call, result: result)
+         case "pickFileAndDirectoryPaths":
+             handleFileAndDirectorySelection(call, result: result)
 
-        case "skipEntitlementsChecks":
-            skipEntitlementsChecks = true
-            result(nil)
+         case "saveFile":
+             handleSaveFile(call, result: result)
 
-        default:
-            result(FlutterMethodNotImplemented)
-        }
-    }
+         case "skipEntitlementsChecks":
+             skipEntitlementsChecks = true
+             result(nil)
 
-    private func handleFileSelection(
-        _ call: FlutterMethodCall,
-        result: @escaping FlutterResult
-    ) {
-        if let entitlementError = checkEntitlement(requiredMode: .readOrWrite) {
-            result(entitlementError)
-            return
-        }
-        let dialog = NSOpenPanel()
-        let args = call.arguments as! [String: Any]
+         default:
+             result(FlutterMethodNotImplemented)
+         }
+     }
 
-        if let initialDirectory = args["initialDirectory"] as? String,
-           !initialDirectory.isEmpty {
-            dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
-        }
-        if let title = args["dialogTitle"] as? String {
-            dialog.title = title
-            dialog.message = title
-        }
-        dialog.showsHiddenFiles = false
-        let allowMultiple = args["allowMultiple"] as? Bool ?? false
-        dialog.allowsMultipleSelection = allowMultiple
-        dialog.canChooseDirectories = false
-        dialog.canChooseFiles = true
-        let extensions = args["allowedExtensions"] as? [String] ?? []
-        applyExtensions(dialog, extensions)
+     private func handleFileSelection(
+         _ call: FlutterMethodCall,
+         result: @escaping FlutterResult
+     ) {
+         if let entitlementError = checkEntitlement(requiredMode: .readOrWrite) {
+             result(entitlementError)
+             return
+         }
+         let dialog = NSOpenPanel()
+         currentPanel = dialog
+         let args = call.arguments as! [String: Any]
 
-        guard let appWindow = getFlutterWindow() else {
-            result(nil)
-            return
-        }
+         if let initialDirectory = args["initialDirectory"] as? String,
+            !initialDirectory.isEmpty {
+             dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
+         }
+         if let title = args["dialogTitle"] as? String {
+             dialog.title = title
+             dialog.message = title
+         }
+         dialog.showsHiddenFiles = false
+         let allowMultiple = args["allowMultiple"] as? Bool ?? false
+         dialog.allowsMultipleSelection = allowMultiple
+         dialog.canChooseDirectories = false
+         dialog.canChooseFiles = true
+         let extensions = args["allowedExtensions"] as? [String] ?? []
+         applyExtensions(dialog, extensions)
 
-        dialog.beginSheetModal(for: appWindow) { response in
-            if response != .OK {
-                result(nil)
-                return
-            }
+         guard let appWindow = getFlutterWindow() else {
+             result(nil)
+             return
+         }
 
-            if allowMultiple {
-                let pathResult = dialog.urls
+         dialog.beginSheetModal(for: appWindow) { response in
+             self.currentPanel = nil
+             if response != .OK {
+                 result(nil)
+                 return
+             }
 
-                if pathResult.isEmpty {
-                    result(nil)
-                } else {
-                    let paths = pathResult.map { $0.path }
-                    result(paths)
-                }
-                return
-            }
+             if allowMultiple {
+                 let pathResult = dialog.urls
 
-            if let pathResult = dialog.url {
-                result([pathResult.path])
-                return
-            }
+                 if pathResult.isEmpty {
+                     result(nil)
+                 } else {
+                     let paths = pathResult.map { $0.path }
+                     result(paths)
+                 }
+                 return
+             }
 
-            result(nil)
-        }
-    }
+             if let pathResult = dialog.url {
+                 result([pathResult.path])
+                 return
+             }
 
-    private func handleFileAndDirectorySelection(
-        _ call: FlutterMethodCall,
-        result: @escaping FlutterResult
-    ) {
-        if let entitlementError = checkEntitlement(requiredMode: .readOrWrite) {
-            result(entitlementError)
-            return
-        }
+             result(nil)
+         }
+     }
 
-        let dialog: NSOpenPanel = NSOpenPanel()
-        let args = call.arguments as! [String: Any]
+     private func handleFileAndDirectorySelection(
+         _ call: FlutterMethodCall,
+         result: @escaping FlutterResult
+     ) {
+         if let entitlementError = checkEntitlement(requiredMode: .readOrWrite) {
+             result(entitlementError)
+             return
+         }
 
-        if let initialDirectory = args["initialDirectory"] as? String,
-           !initialDirectory.isEmpty {
-            dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
-        }
-        if let title = args["dialogTitle"] as? String {
-            dialog.title = title
-            dialog.message = title
-        }
-        dialog.showsHiddenFiles = false
-        dialog.allowsMultipleSelection = true
-        dialog.canChooseDirectories = true
-        dialog.canChooseFiles = true
-        let extensions = args["allowedExtensions"] as? [String] ?? []
-        applyExtensions(dialog, extensions)
+         let dialog: NSOpenPanel = NSOpenPanel()
+         currentPanel = dialog
+         let args = call.arguments as! [String: Any]
 
-        guard let appWindow: NSWindow = getFlutterWindow() else {
-            result(nil)
-            return
-        }
+         if let initialDirectory = args["initialDirectory"] as? String,
+            !initialDirectory.isEmpty {
+             dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
+         }
+         if let title = args["dialogTitle"] as? String {
+             dialog.title = title
+             dialog.message = title
+         }
+         dialog.showsHiddenFiles = false
+         dialog.allowsMultipleSelection = true
+         dialog.canChooseDirectories = true
+         dialog.canChooseFiles = true
+         let extensions = args["allowedExtensions"] as? [String] ?? []
+         applyExtensions(dialog, extensions)
 
-        dialog.beginSheetModal(for: appWindow) { response in
-            if response != .OK {
-                result(nil)
-                return
-            }
+         guard let appWindow: NSWindow = getFlutterWindow() else {
+             result(nil)
+             return
+         }
 
-            let pathResult = dialog.urls
+         dialog.beginSheetModal(for: appWindow) { response in
+             self.currentPanel = nil
+             if response != .OK {
+                 result(nil)
+                 return
+             }
 
-            if pathResult.isEmpty {
-                result(nil)
-            } else {
-                let paths = pathResult.map { $0.path }
-                result(paths)
-            }
-        }
-    }
+             let pathResult = dialog.urls
 
-    private func handleDirectorySelection(
-        _ call: FlutterMethodCall,
-        result: @escaping FlutterResult
-    ) {
-        if let entitlementError = checkEntitlement(requiredMode: .readOrWrite) {
-            result(entitlementError)
-            return
-        }
+             if pathResult.isEmpty {
+                 result(nil)
+             } else {
+                 let paths = pathResult.map { $0.path }
+                 result(paths)
+             }
+         }
+     }
 
-        let dialog = NSOpenPanel()
-        let args = call.arguments as! [String: Any]
+     private func handleDirectorySelection(
+         _ call: FlutterMethodCall,
+         result: @escaping FlutterResult
+     ) {
+         if let entitlementError = checkEntitlement(requiredMode: .readOrWrite) {
+             result(entitlementError)
+             return
+         }
 
-        if let initialDirectory = args["initialDirectory"] as? String,
-           !initialDirectory.isEmpty {
-            dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
-        }
-        if let title = args["dialogTitle"] as? String {
-            dialog.title = title
-            if #available(macOS 10.10, *) {
-                dialog.titleVisibility = .visible
-                dialog.titlebarAppearsTransparent = false
-            }
-            dialog.message = title
-        }
-        dialog.showsHiddenFiles = false
-        dialog.allowsMultipleSelection = false
-        dialog.canChooseDirectories = true
-        dialog.canChooseFiles = false
+         let dialog = NSOpenPanel()
+         currentPanel = dialog
+         let args = call.arguments as! [String: Any]
 
-        guard let appWindow = getFlutterWindow() else {
-            result(nil)
-            return
-        }
-        dialog.beginSheetModal(for: appWindow) { response in
-            if response != .OK {
-                result(nil)
-                return
-            }
+         if let initialDirectory = args["initialDirectory"] as? String,
+            !initialDirectory.isEmpty {
+             dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
+         }
+         if let title = args["dialogTitle"] as? String {
+             dialog.title = title
+             if #available(macOS 10.10, *) {
+                 dialog.titleVisibility = .visible
+                 dialog.titlebarAppearsTransparent = false
+             }
+             dialog.message = title
+         }
+         dialog.showsHiddenFiles = false
+         dialog.allowsMultipleSelection = false
+         dialog.canChooseDirectories = true
+         dialog.canChooseFiles = false
 
-            if let url = dialog.url {
-                result(url.path)
-                return
-            }
+         guard let appWindow = getFlutterWindow() else {
+             result(nil)
+             return
+         }
+         dialog.beginSheetModal(for: appWindow) { response in
+             self.currentPanel = nil
+             if response != .OK {
+                 result(nil)
+                 return
+             }
 
-            result(nil)
-        }
-    }
+             if let url = dialog.url {
+                 result(url.path)
+                 return
+             }
 
-    private func handleSaveFile(
-        _ call: FlutterMethodCall,
-        result: @escaping FlutterResult
-    ) {
-        if let entitlementError = checkEntitlement(requiredMode: .requireWrite) {
-            result(entitlementError)
-            return
-        }
+             result(nil)
+         }
+     }
 
-        let dialog = NSSavePanel()
-        let args = call.arguments as! [String: Any]
+     private func handleSaveFile(
+         _ call: FlutterMethodCall,
+         result: @escaping FlutterResult
+     ) {
+         if let entitlementError = checkEntitlement(requiredMode: .requireWrite) {
+             result(entitlementError)
+             return
+         }
 
-        dialog.title = args["dialogTitle"] as? String ?? ""
-        dialog.showsTagField = false
-        dialog.showsHiddenFiles = false
-        dialog.canCreateDirectories = true
-        dialog.nameFieldStringValue = args["fileName"] as? String ?? ""
+         let dialog = NSSavePanel()
+         currentPanel = dialog
+         let args = call.arguments as! [String: Any]
 
-        if let initialDirectory = args["initialDirectory"] as? String,
-           !initialDirectory.isEmpty {
-            dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
-        }
+         dialog.title = args["dialogTitle"] as? String ?? ""
+         dialog.showsTagField = false
+         dialog.showsHiddenFiles = false
+         dialog.canCreateDirectories = true
+         dialog.nameFieldStringValue = args["fileName"] as? String ?? ""
 
-        let extensions = args["allowedExtensions"] as? [String] ?? []
-        applyExtensions(dialog, extensions)
+         if let initialDirectory = args["initialDirectory"] as? String,
+            !initialDirectory.isEmpty {
+             dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
+         }
 
-        guard let appWindow = getFlutterWindow() else {
-            result(nil)
-            return
-        }
-        dialog.beginSheetModal(for: appWindow) { response in
-            if response != .OK {
-                result(nil)
-                return
-            }
+         let extensions = args["allowedExtensions"] as? [String] ?? []
+         applyExtensions(dialog, extensions)
 
-            if let url = dialog.url {
-                result(url.path)
-                return
-            }
+         guard let appWindow = getFlutterWindow() else {
+             result(nil)
+             return
+         }
+         dialog.beginSheetModal(for: appWindow) { response in
+             self.currentPanel = nil
+             if response != .OK {
+                 result(nil)
+                 return
+             }
 
-            result(nil)
-        }
-    }
+             if let url = dialog.url {
+                 result(url.path)
+                 return
+             }
+
+             result(nil)
+         }
+     }
 
     private func checkEntitlement(requiredMode: EntitlementMode) -> FlutterError? {
         if skipEntitlementsChecks {
@@ -305,8 +318,17 @@ final class MacOSFilePickerHandler {
         }
     }
 
-    private func getFlutterWindow() -> NSWindow? {
-        registrar.view?.window
-    }
+     private func getFlutterWindow() -> NSWindow? {
+         registrar.view?.window
+     }
+
+     private func cancelOperation() -> Bool {
+         guard let panel = currentPanel else {
+             return false
+         }
+         panel.cancel(nil)
+         currentPanel = nil
+         return true
+     }
 }
 #endif

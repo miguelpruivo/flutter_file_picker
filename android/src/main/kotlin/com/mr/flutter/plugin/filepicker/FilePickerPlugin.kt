@@ -126,11 +126,17 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
         val method = call.method
 
         when (method) {
-            "clear" -> {
-                result.success(activity?.applicationContext?.let { clearCache(it) })
-            }
+             "clear" -> {
+                 result.success(activity?.applicationContext?.let { clearCache(it) })
+             }
 
-            "releaseSafGrant" -> {
+             "cancel" -> {
+                 // Notify the delegate to cancel any ongoing operation
+                 val cancelled = delegate?.cancelOperation() ?: false
+                 result.success(cancelled)
+             }
+
+             "releaseSafGrant" -> {
                 val uriStr = arguments?.get("uri") as? String
                 if (uriStr == null) {
                   result.success(null)

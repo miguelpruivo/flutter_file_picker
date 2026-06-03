@@ -95,8 +95,19 @@ abstract class FilePickerPlatform extends PlatformInterface {
     throw UnimplementedError('saveFile() has not been implemented.');
   }
 
-  Future<void> skipEntitlementsChecks() async {
-    // By default, do nothing.
-    // This is only relevant for macOS, and the method is overridden there.
-  }
+   Future<void> skipEntitlementsChecks() async {
+     // By default, do nothing.
+     // This is only relevant for macOS, and the method is overridden there.
+   }
+
+   /// Cancels any ongoing file picking or saving operation.
+   ///
+   /// This method will interrupt the current file picker dialog or save operation
+   /// and return null as the result. If no operation is in progress, this method
+   /// does nothing.
+   ///
+   /// Returns `true` if an operation was canceled, `false` otherwise.
+   Future<bool> cancelOperation() async {
+     throw UnimplementedError('cancelOperation() has not been implemented.');
+   }
 }

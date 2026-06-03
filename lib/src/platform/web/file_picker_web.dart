@@ -307,11 +307,18 @@ class FilePickerWeb extends FilePickerPlatform {
         continue;
       }
 
-      if (readerResult.isA<JSArray>()) {
-        // Assume this is a List<int>.
-        yield (readerResult as JSArray).toDart.cast<int>();
-        start += _readStreamChunkSize;
-      }
-    }
-  }
+       if (readerResult.isA<JSArray>()) {
+         // Assume this is a List<int>.
+         yield (readerResult as JSArray).toDart.cast<int>();
+         start += _readStreamChunkSize;
+       }
+     }
+   }
+
+   @override
+   Future<bool> cancelOperation() async {
+     // On web, file dialogs are managed by the browser and cannot be canceled programmatically.
+     // Users can close the dialog using the browser's native controls (ESC key, close button).
+     return false;
+   }
 }

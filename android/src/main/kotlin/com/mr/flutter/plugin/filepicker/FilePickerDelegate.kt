@@ -143,7 +143,16 @@ class FilePickerDelegate(
         }
     }
 
-    private fun clearPendingResult() {
-        pendingResult = null
-    }
+     private fun clearPendingResult() {
+         pendingResult = null
+     }
+
+     fun cancelOperation(): Boolean {
+         return if (pendingResult != null) {
+             finishWithSuccess(null)
+             true
+         } else {
+             false
+         }
+     }
 }

@@ -23,6 +23,8 @@ class FilePickerWindows extends FilePickerPlatform {
     FilePickerPlatform.instance = FilePickerWindows();
   }
 
+  Isolate? _currentIsolate;
+
   @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
@@ -39,34 +41,35 @@ class FilePickerWindows extends FilePickerPlatform {
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
   }) async {
-    final port = ReceivePort();
-    await Isolate.spawn(
-      _callPickFiles,
-      _OpenSaveFileArgs(
-        port: port.sendPort,
-        dialogTitle: dialogTitle,
-        initialDirectory: initialDirectory,
-        type: type,
-        allowedExtensions: allowedExtensions,
-        allowMultiple: allowMultiple,
-        lockParentWindow: lockParentWindow,
-      ),
-    );
-    final fileNames = (await port.first) as List<String>?;
-    FilePickerResult? returnValue;
-    if (fileNames != null) {
-      final filePaths = fileNames;
-      final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
-        filePaths,
-        withReadStream,
-        withData,
-      );
+     final port = ReceivePort();
+     _currentIsolate = await Isolate.spawn(
+       _callPickFiles,
+       _OpenSaveFileArgs(
+         port: port.sendPort,
+         dialogTitle: dialogTitle,
+         initialDirectory: initialDirectory,
+         type: type,
+         allowedExtensions: allowedExtensions,
+         allowMultiple: allowMultiple,
+         lockParentWindow: lockParentWindow,
+       ),
+     );
+     final fileNames = (await port.first) as List<String>?;
+     _currentIsolate = null;
+     FilePickerResult? returnValue;
+     if (fileNames != null) {
+       final filePaths = fileNames;
+       final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
+         filePaths,
+         withReadStream,
+         withData,
+       );
 
-      returnValue = FilePickerResult(platformFiles);
-    }
+       returnValue = FilePickerResult(platformFiles);
+     }
 
-    return returnValue;
-  }
+     return returnValue;
+   }
 
   List<String>? _pickFiles(_OpenSaveFileArgs args) {
     final comdlg32 = DynamicLibrary.open('comdlg32.dll');
@@ -187,25 +190,26 @@ class FilePickerWindows extends FilePickerPlatform {
     required Uint8List bytes,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
-  }) async {
-    final port = ReceivePort();
-    await Isolate.spawn(
-      _callSaveFile,
-      _OpenSaveFileArgs(
-        port: port.sendPort,
-        defaultFileName: fileName,
-        dialogTitle: dialogTitle,
-        initialDirectory: initialDirectory,
-        type: type,
-        allowedExtensions: allowedExtensions,
-        lockParentWindow: lockParentWindow,
-        confirmOverwrite: true,
-      ),
-    );
-    final savedFilePath = (await port.first) as String?;
-    await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
-    return savedFilePath;
-  }
+   }) async {
+     final port = ReceivePort();
+     _currentIsolate = await Isolate.spawn(
+       _callSaveFile,
+       _OpenSaveFileArgs(
+         port: port.sendPort,
+         defaultFileName: fileName,
+         dialogTitle: dialogTitle,
+         initialDirectory: initialDirectory,
+         type: type,
+         allowedExtensions: allowedExtensions,
+         lockParentWindow: lockParentWindow,
+         confirmOverwrite: true,
+       ),
+     );
+     final savedFilePath = (await port.first) as String?;
+     _currentIsolate = null;
+     await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
+     return savedFilePath;
+   }
 
   String? _saveFile(_OpenSaveFileArgs args) {
     final comdlg32 = DynamicLibrary.open('comdlg32.dll');
@@ -389,15 +393,25 @@ class FilePickerWindows extends FilePickerPlatform {
     calloc.free(openFileNameW);
   }
 
-  static void _callPickFiles(_OpenSaveFileArgs args) {
-    final impl = FilePickerWindows();
-    args.port.send(impl._pickFiles(args));
-  }
+   static void _callPickFiles(_OpenSaveFileArgs args) {
+     final impl = FilePickerWindows();
+     args.port.send(impl._pickFiles(args));
+   }
 
-  static void _callSaveFile(_OpenSaveFileArgs args) {
-    final impl = FilePickerWindows();
-    args.port.send(impl._saveFile(args));
-  }
+   static void _callSaveFile(_OpenSaveFileArgs args) {
+     final impl = FilePickerWindows();
+     args.port.send(impl._saveFile(args));
+   }
+
+   @override
+   Future<bool> cancelOperation() async {
+     if (_currentIsolate != null) {
+       _currentIsolate!.kill();
+       _currentIsolate = null;
+       return true;
+     }
+     return false;
+   }
 }
 
 class _OpenSaveFileArgs {

@@ -12,30 +12,37 @@ final class IOSFilePickerHandler: NSObject,
     UIDocumentPickerDelegate,
     UIAdaptivePresentationControllerDelegate {
 
-    private var result: FlutterResult?
-    private var eventSink: FlutterEventSink?
-    private var allowMultipleSelection = false
-    private var loadDataToMemory = false
-    private var isDirectoryPicker = false
-    private var isSaveFile = false
+     private var result: FlutterResult?
+     private var eventSink: FlutterEventSink?
+     private var allowMultipleSelection = false
+     private var loadDataToMemory = false
+     private var isDirectoryPicker = false
+     private var isSaveFile = false
+     private var currentPickerViewController: UIViewController?
 
-    func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        if self.result != nil {
-            result(
-                FlutterError(
-                    code: "multiple_request",
-                    message: "Cancelled by a second request",
-                    details: nil))
-            return
-        }
+     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+         if call.method == "cancel" {
+             _ = cancelOperation()
+             result(NSNumber(value: true))
+             return
+         }
 
-        self.result = result
+         if self.result != nil {
+             result(
+                 FlutterError(
+                     code: "multiple_request",
+                     message: "Cancelled by a second request",
+                     details: nil))
+             return
+         }
 
-        if call.method == "clear" {
-            self.result?(clearTemporaryFiles())
-            self.result = nil
-            return
-        }
+         self.result = result
+
+         if call.method == "clear" {
+             self.result?(clearTemporaryFiles())
+             self.result = nil
+             return
+         }
 
         if call.method == "dir" {
             isDirectoryPicker = true
@@ -217,41 +224,43 @@ final class IOSFilePickerHandler: NSObject,
         result = nil
     }
 
-    private func presentMediaPicker(type: String, allowsMultipleSelection: Bool) {
-        var configuration = PHPickerConfiguration(photoLibrary: .shared())
-        configuration.selectionLimit = allowsMultipleSelection ? 0 : 1
-        if #available(iOS 15.0, *) {
-            configuration.selection = .ordered
-        }
+     private func presentMediaPicker(type: String, allowsMultipleSelection: Bool) {
+         var configuration = PHPickerConfiguration(photoLibrary: .shared())
+         configuration.selectionLimit = allowsMultipleSelection ? 0 : 1
+         if #available(iOS 15.0, *) {
+             configuration.selection = .ordered
+         }
 
-        switch type {
-        case "image":
-            configuration.filter = .images
-        case "video":
-            configuration.filter = .videos
-        default:
-            configuration.filter = .any(of: [.images, .videos])
-        }
+         switch type {
+         case "image":
+             configuration.filter = .images
+         case "video":
+             configuration.filter = .videos
+         default:
+             configuration.filter = .any(of: [.images, .videos])
+         }
 
-        let picker = PHPickerViewController(configuration: configuration)
-        picker.delegate = self
-        picker.presentationController?.delegate = self
-        topViewController()?.present(picker, animated: true)
-    }
+         let picker = PHPickerViewController(configuration: configuration)
+         picker.delegate = self
+         picker.presentationController?.delegate = self
+         currentPickerViewController = picker
+         topViewController()?.present(picker, animated: true)
+     }
 
-    private func presentDocumentPicker(
-        contentTypes: [UTType],
-        allowsMultipleSelection: Bool,
-        asDirectoryPicker: Bool
-    ) {
-        let picker = UIDocumentPickerViewController(
-            forOpeningContentTypes: contentTypes,
-            asCopy: !asDirectoryPicker)
-        picker.delegate = self
-        picker.presentationController?.delegate = self
-        picker.allowsMultipleSelection = allowsMultipleSelection
-        topViewController()?.present(picker, animated: true)
-    }
+     private func presentDocumentPicker(
+         contentTypes: [UTType],
+         allowsMultipleSelection: Bool,
+         asDirectoryPicker: Bool
+     ) {
+         let picker = UIDocumentPickerViewController(
+             forOpeningContentTypes: contentTypes,
+             asCopy: !asDirectoryPicker)
+         picker.delegate = self
+         picker.presentationController?.delegate = self
+         picker.allowsMultipleSelection = allowsMultipleSelection
+         currentPickerViewController = picker
+         topViewController()?.present(picker, animated: true)
+     }
 
     private func saveFile(_ arguments: [String: Any]) {
         isSaveFile = true
@@ -369,18 +378,30 @@ final class IOSFilePickerHandler: NSObject,
         }
     }
 
-    private func finishCurrentRequest(_ value: Any?) {
-        guard let currentResult = result else {
-            return
-        }
+     private func finishCurrentRequest(_ value: Any?) {
+         guard let currentResult = result else {
+             return
+         }
 
-        if isSaveFile {
-            eventSink?(false)
-            isSaveFile = false
-        }
+         if isSaveFile {
+             eventSink?(false)
+             isSaveFile = false
+         }
 
-        result = nil
-        currentResult(value)
-    }
+         result = nil
+         currentResult(value)
+     }
+
+     private func cancelOperation() -> Bool {
+         guard let pickerViewController = currentPickerViewController else {
+             return false
+         }
+
+         pickerViewController.dismiss(animated: true)
+         currentPickerViewController = nil
+         eventSink?(false)
+         finishCurrentRequest(nil)
+         return true
+     }
 }
 #endif
