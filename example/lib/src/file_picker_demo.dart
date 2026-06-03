@@ -484,8 +484,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
        SnackBar(
          content: Text(
            cancelled
-               ? '✅ Operación cancelada exitosamente'
-               : 'ℹ️ No había operación para cancelar',
+               ? '✅ Operation successfully cancelled'
+               : 'ℹ️ There was no operation to cancel',
            style: const TextStyle(color: Colors.white),
          ),
          duration: const Duration(milliseconds: 1500),
