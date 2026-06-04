@@ -65,6 +65,7 @@ class FilePickerWeb extends FilePickerPlatform {
     int compressionQuality = 0,
     AndroidSAFOptions? androidSafOptions,
     bool withPersistentAccess = false,
+    bool copyToCache = false,
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(

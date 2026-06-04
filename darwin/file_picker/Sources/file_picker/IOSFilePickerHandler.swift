@@ -17,6 +17,7 @@ final class IOSFilePickerHandler: NSObject,
     private var allowMultipleSelection = false
     private var loadDataToMemory = false
     private var withPersistentAccess = false
+    private var copyToCache = true
     private var isDirectoryPicker = false
     private var isSaveFile = false
     private var saveSourceTeardown: (() -> Void)?
@@ -73,6 +74,7 @@ final class IOSFilePickerHandler: NSObject,
             (arguments["allowMultipleSelection"] as? Bool) ?? false
         loadDataToMemory = (arguments["withData"] as? Bool) ?? false
         withPersistentAccess = (arguments["withPersistentAccess"] as? Bool) ?? false
+        copyToCache = (arguments["copyToCache"] as? Bool) ?? true
 
         switch call.method {
         case "any":
@@ -98,7 +100,7 @@ final class IOSFilePickerHandler: NSObject,
                 allowsMultipleSelection: allowMultipleSelection,
                 asDirectoryPicker: false)
         case "image", "video", "media":
-            if withPersistentAccess {
+            if withPersistentAccess || !copyToCache {
                 presentDocumentPicker(
                     contentTypes: resolveDocumentContentTypes(for: call.method),
                     allowsMultipleSelection: allowMultipleSelection,
@@ -227,7 +229,7 @@ final class IOSFilePickerHandler: NSObject,
         var resolved: [[String: Any]] = []
 
         for sourceURL in urls {
-            if withPersistentAccess {
+            if withPersistentAccess || !copyToCache {
                 guard let fileInfo = makePersistentFileInfo(from: sourceURL) else {
                     continue
                 }
@@ -275,7 +277,7 @@ final class IOSFilePickerHandler: NSObject,
     ) {
         let picker = UIDocumentPickerViewController(
             forOpeningContentTypes: contentTypes,
-            asCopy: !asDirectoryPicker && !withPersistentAccess)
+            asCopy: !asDirectoryPicker && !withPersistentAccess && copyToCache)
         picker.delegate = self
         picker.presentationController?.delegate = self
         picker.allowsMultipleSelection = allowsMultipleSelection

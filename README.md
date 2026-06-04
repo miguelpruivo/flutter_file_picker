@@ -140,6 +140,22 @@ if (outputFile == null) {
   // User canceled the picker
 }
 ```
+
+To pick a file and then save/export it somewhere else without creating an
+intermediate cached file on iOS or Android, disable cache copying when picking
+and pass the returned `PlatformFile` as the save source:
+
+```dart
+final PlatformFile? file = await FilePicker.pickFile(copyToCache: false);
+
+if (file != null) {
+  await FilePicker.saveFile(
+    fileName: file.name,
+    sourceFile: file,
+  );
+}
+```
+
 ### Load result and file details
 ```dart
 FilePickerResult? result = await FilePicker.pickFiles();

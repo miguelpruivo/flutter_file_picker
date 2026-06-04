@@ -45,6 +45,7 @@ class FilePickerDelegate(
     var saveMimeType: String? = null
     var androidSafOptions: java.util.HashMap<*, *>? = null
     var withPersistentAccess = false
+    var copyToCache = true
 
     fun setEventHandler(eventSink: EventSink?) {
         this.eventSink = eventSink
@@ -111,7 +112,7 @@ class FilePickerDelegate(
         return when (resultCode) {
             Activity.RESULT_OK -> {
                 dispatchEventStatus(true)
-                processFiles(activity, data, compressionQuality, loadDataToMemory, type.orEmpty(), androidSafOptions)
+                processFiles(activity, data, compressionQuality, loadDataToMemory, type.orEmpty(), androidSafOptions, copyToCache)
                 true
             }
 

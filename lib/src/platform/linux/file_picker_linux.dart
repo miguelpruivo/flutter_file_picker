@@ -47,6 +47,7 @@ class FilePickerLinux extends FilePickerPlatform {
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
     bool withPersistentAccess = false,
+    bool copyToCache = true,
   }) async {
     final filter = Filter(type, allowedExtensions);
     Map<String, DBusValue> xdpOption = {

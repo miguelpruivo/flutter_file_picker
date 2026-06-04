@@ -43,6 +43,7 @@ import java.util.concurrent.ConcurrentHashMap
 object FileUtils {
     private const val TAG = "FilePickerUtils"
     private const val MAX_RENAME_ATTEMPTS = 20
+    private const val COPY_BUFFER_SIZE = 1024 * 1024
     private val readSessions = ConcurrentHashMap<String, InputStream>()
     // On Android, the CSV mime type from getMimeTypeFromExtension() returns
     // "text/comma-separated-values" which is non-standard and doesn't filter
@@ -58,7 +59,8 @@ object FileUtils {
         compressionQuality: Int,
         loadDataToMemory: Boolean,
         type: String,
-        androidSafOptions: java.util.HashMap<*, *>?
+        androidSafOptions: java.util.HashMap<*, *>?,
+        copyToCache: Boolean
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             if (data == null) {
@@ -74,7 +76,7 @@ object FileUtils {
              } else {
                  (androidSafOptions?.get("autoPersist") as? Boolean) ?: true
              }
-            val shouldAvoidCaching = withPersistentAccess
+            val shouldAvoidCaching = withPersistentAccess || !copyToCache
 
             val isPersist = withPersistentAccess || grantStr == "lifetime"
             val shouldExposePersistentIdentifier = isPersist && autoPersist
@@ -208,13 +210,13 @@ object FileUtils {
                 !sourcePersistentIdentifier.isNullOrEmpty() || !sourceIdentifier.isNullOrEmpty() -> {
                     val sourceUri = Uri.parse(sourcePersistentIdentifier ?: sourceIdentifier)
                     context.contentResolver.openInputStream(sourceUri)?.use { input ->
-                        input.copyTo(output)
+                        input.copyTo(output, COPY_BUFFER_SIZE)
                     } ?: throw FileNotFoundException("Could not open input stream for source URI: $sourceUri")
                 }
 
                 !sourcePath.isNullOrEmpty() -> {
                     FileInputStream(File(sourcePath)).use { input ->
-                        input.copyTo(output)
+                        input.copyTo(output, COPY_BUFFER_SIZE)
                     }
                 }
 
@@ -246,7 +248,7 @@ object FileUtils {
      */
     fun FilePickerDelegate.startFileExplorer() {
         val intent: Intent
-        val shouldUseOpenDocument = withPersistentAccess || androidSafOptions != null
+        val shouldUseOpenDocument = withPersistentAccess || androidSafOptions != null || !copyToCache
 
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (type == null) {
@@ -335,6 +337,7 @@ object FileUtils {
         isMultipleSelection: Boolean?,
         withData: Boolean?,
         withPersistentAccess: Boolean,
+        copyToCache: Boolean,
         allowedExtensions: ArrayList<String>,
         compressionQuality: Int? = 0,
         androidSafOptions: java.util.HashMap<*, *>?,
@@ -352,6 +355,7 @@ object FileUtils {
             this?.loadDataToMemory = withData
         }
         this?.withPersistentAccess = withPersistentAccess
+        this?.copyToCache = copyToCache
         this?.allowedExtensions = allowedExtensions
         if (compressionQuality != null) {
             this?.compressionQuality = compressionQuality

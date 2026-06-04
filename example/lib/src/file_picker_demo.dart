@@ -5,7 +5,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:typed_data';
 
 import 'file_picker_results.dart';
 import 'picked_directory_result.dart';
@@ -30,7 +29,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   final _fileExtensionController = TextEditingController();
   String? _extension;
   bool _isLoading = false;
-  bool _isStreaming = false;
   bool _lockParentWindow = false;
   bool _userAborted = false;
   bool _multiPick = false;
@@ -38,9 +36,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   bool _safPersist = false;
   bool _safReadWrite = false;
   bool _supportsSafOptions = false;
-  String? _streamingProgressText;
-  Uint8List? _pickedFileBytes;
-  String? _pickedFileBytesSource;
   String? _savedPersistentIdentifier;
   FileType _pickingType = FileType.any;
   List<PlatformFile>? pickedFiles;
@@ -89,7 +84,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   void _pickFiles() async {
     bool hasUserAborted = true;
     _resetState();
-    _clearPickedFileBytes();
 
     try {
       if (_multiPick) {
@@ -118,6 +112,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           androidSafOptions: _androidSafOptionsFromFlags(),
           withPersistentAccess: false,
           withData: _withData,
+          copyToCache: false,
         );
         printInDebug("pickedFile: $file");
         pickedFiles = file != null ? [file] : null;
@@ -188,7 +183,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   void _clearCachedFiles() async {
     pickedFiles = [];
     _resetState();
-    _clearPickedFileBytes();
     try {
       bool? result = await FilePicker.clearTemporaryFiles();
       _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -270,21 +264,11 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       return;
     }
 
-    _pickedFileBytes = _withData ? file.bytes : _pickedFileBytes;
     final fileName = _defaultFileNameController.text.trim();
     final targetFileName = fileName.isNotEmpty ? fileName : file.name;
 
     if (targetFileName.isEmpty) {
       _logException('Unable to determine a file name to save.');
-      return;
-    }
-
-    final bytes = _withData ? _pickedFileBytes : null;
-    if (bytes == null) {
-      _logException(
-        'No file bytes loaded yet. Press "Stream picked file" or '
-        '"Read picked file as bytes" first.',
-      );
       return;
     }
 
@@ -299,7 +283,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
         sourceFile: file,
-        bytes: bytes,
       );
       hasUserAborted = pickedSaveFilePath == null;
     } on PlatformException catch (e) {
@@ -319,107 +302,13 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
             title: const Text('Save file path:'),
             subtitle: Text(
               pickedSaveFilePath != null
-                  ? _pickedFileBytesSource == null
-                        ? '$pickedSaveFilePath (saved via native file reference)'
-                        : '$pickedSaveFilePath (bytes loaded via ${_pickedFileBytesSource!})'
+                  ? '$pickedSaveFilePath (saved via native file reference)'
                   : '',
             ),
           );
         },
       );
     });
-  }
-
-  Future<void> _streamPickedFile() async {
-    final file = pickedFiles?.firstOrNull;
-    if (file == null) {
-      _logException('No file picked. Pick a file first to stream it.');
-      return;
-    }
-    _clearPickedFileBytes();
-    _resetState();
-    if (!mounted) return;
-    setState(() {
-      _userAborted = false;
-      _isStreaming = true;
-      _resultsWidget = const Center(child: Text('Starting stream...'));
-    });
-
-    int total = 0;
-    int chunks = 0;
-    final bytes = BytesBuilder(copy: false);
-
-    try {
-      await for (final chunk in file.readAsByteStream()) {
-        total += chunk.length;
-        chunks++;
-        bytes.add(chunk);
-        if (!mounted) return;
-        setState(() {
-          _streamingProgressText =
-              'Streaming... chunks: $chunks, bytes: $total';
-          _resultsWidget = Center(child: Text(_streamingProgressText!));
-        });
-      }
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _isStreaming = false;
-        _streamingProgressText = null;
-        _userAborted = false;
-        _pickedFileBytes = bytes.takeBytes();
-        _pickedFileBytesSource = 'stream';
-        _resultsWidget = Center(
-          child: Text('Stream completed: $chunks chunks, $total bytes'),
-        );
-      });
-    } catch (e) {
-      _logException(e.toString());
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _isStreaming = false;
-          _streamingProgressText = null;
-          _userAborted = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _readPickedFileAsBytes() async {
-    final file = pickedFiles?.firstOrNull;
-    if (file == null) {
-      _logException('No file picked. Pick a file first to read its bytes.');
-      return;
-    }
-    _clearPickedFileBytes();
-    _resetState();
-
-    try {
-      final bytes = await file.readAsBytes();
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _isStreaming = false;
-        _streamingProgressText = null;
-        _userAborted = false;
-        _pickedFileBytes = bytes;
-        _pickedFileBytesSource = 'readAsBytes';
-        _resultsWidget = Center(
-          child: Text('readAsBytes completed: ${bytes.lengthInBytes} bytes'),
-        );
-      });
-    } catch (e) {
-      _logException(e.toString());
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _isStreaming = false;
-          _streamingProgressText = null;
-          _userAborted = false;
-        });
-      }
-    }
   }
 
   Future<void> _restorePersistentFile() async {
@@ -431,7 +320,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       return;
     }
 
-    _clearPickedFileBytes();
     _resetState();
 
     try {
@@ -442,8 +330,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       setState(() {
         pickedFiles = [restoredFile];
         _isLoading = false;
-        _isStreaming = false;
-        _streamingProgressText = null;
         _userAborted = false;
         _updatePickedFilesResults();
       });
@@ -481,15 +367,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
 
     setState(() {
       _isLoading = true;
-      _isStreaming = false;
-      _streamingProgressText = null;
       _userAborted = true;
     });
-  }
-
-  void _clearPickedFileBytes() {
-    _pickedFileBytesSource = null;
-    _pickedFileBytes = null;
   }
 
   void _updatePickedFilesResults() {
@@ -730,22 +609,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         ),
       ),
       SizedBox(
-        width: 200,
-        child: FloatingActionButton.extended(
-          onPressed: _streamPickedFile,
-          label: const Text('Stream picked file'),
-          icon: const Icon(Icons.stream),
-        ),
-      ),
-      SizedBox(
-        width: 240,
-        child: FloatingActionButton.extended(
-          onPressed: _readPickedFileAsBytes,
-          label: const Text('Read picked file as bytes'),
-          icon: const Icon(Icons.data_array),
-        ),
-      ),
-      SizedBox(
         width: 220,
         child: FloatingActionButton.extended(
           onPressed: _restorePersistentFile,
@@ -768,19 +631,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       ],
     );
 
-    final streamingIndicator = Column(
-      children: [
-        loadingIndicator,
-        if (_streamingProgressText != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 24.0),
-            child: Center(
-              child: Text(_streamingProgressText!, textAlign: TextAlign.center),
-            ),
-          ),
-      ],
-    );
-
     final userAbortedContent = Row(
       children: const [
         Expanded(
@@ -799,9 +649,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     );
 
     late final Widget resultsContent;
-    if (_isLoading && _isStreaming) {
-      resultsContent = streamingIndicator;
-    } else if (_isLoading) {
+    if (_isLoading) {
       resultsContent = loadingIndicator;
     } else if (_userAborted) {
       resultsContent = userAbortedContent;

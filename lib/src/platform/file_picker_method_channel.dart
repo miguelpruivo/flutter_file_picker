@@ -49,6 +49,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
     bool withPersistentAccess = false,
+    bool copyToCache = true,
   }) => _getPath(
     type,
     allowMultiple,
@@ -59,6 +60,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     compressionQuality,
     androidSafOptions,
     withPersistentAccess,
+    copyToCache,
   );
 
   @override
@@ -175,6 +177,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     int? compressionQuality,
     AndroidSAFOptions? androidSafOptions,
     bool withPersistentAccess,
+    bool copyToCache,
   ) async {
     final String type = fileType.name;
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -203,6 +206,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         'withData': withData,
         'compressionQuality': compressionQuality,
         'withPersistentAccess': withPersistentAccess,
+        'copyToCache': copyToCache,
         if (androidSafOptions != null)
           'androidSafOptions': androidSafOptions.toMap(),
       });

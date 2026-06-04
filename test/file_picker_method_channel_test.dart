@@ -79,6 +79,7 @@ void main() {
         'withData': false,
         'compressionQuality': 0,
         'withPersistentAccess': false,
+        'copyToCache': true,
       });
     });
 
@@ -91,6 +92,17 @@ void main() {
 
       expect(log, hasLength(1));
       expect(log.first.arguments, containsPair('withPersistentAccess', true));
+    });
+
+    test('pickFiles forwards copyToCache when disabled', () async {
+      await picker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+        copyToCache: false,
+      );
+
+      expect(log, hasLength(1));
+      expect(log.first.arguments, containsPair('copyToCache', false));
     });
 
     test(

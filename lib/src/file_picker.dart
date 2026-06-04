@@ -61,6 +61,16 @@ abstract final class FilePicker {
   ///
   /// Persisted files can be restored later with [restorePersistentFile].
   ///
+  /// If [copyToCache] is `false`, Android and iOS avoid creating a cached copy
+  /// and return native file references instead. This is useful for a
+  /// pick-then-save flow:
+  /// `final file = await FilePicker.pickFile(copyToCache: false);`
+  /// followed by `FilePicker.saveFile(sourceFile: file, ...)`, so the native
+  /// platform streams from the picked source directly into the user-selected
+  /// destination. In this mode [PlatformFile.path] may be `null`; use
+  /// [PlatformFile.readAsBytes], [PlatformFile.readAsByteStream] or pass the
+  /// file to [saveFile].
+  ///
   /// The result is wrapped in a [FilePickerResult] which contains helper getters
   /// with useful information regarding the picked [List<PlatformFile>].
   ///
@@ -101,6 +111,7 @@ abstract final class FilePicker {
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
     bool withPersistentAccess = false,
+    bool copyToCache = true,
   }) {
     return FilePickerPlatform.instance.pickFiles(
       dialogTitle: dialogTitle,
@@ -117,6 +128,7 @@ abstract final class FilePicker {
       cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
       androidSafOptions: androidSafOptions,
       withPersistentAccess: withPersistentAccess,
+      copyToCache: copyToCache,
     );
   }
 
@@ -138,6 +150,7 @@ abstract final class FilePicker {
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
     bool withPersistentAccess = false,
+    bool copyToCache = true,
     bool withData = false,
   }) async {
     final result = await FilePickerPlatform.instance.pickFiles(
@@ -155,6 +168,7 @@ abstract final class FilePicker {
       cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
       androidSafOptions: androidSafOptions,
       withPersistentAccess: withPersistentAccess,
+      copyToCache: copyToCache,
     );
 
     return result?.files.firstOrNull;
