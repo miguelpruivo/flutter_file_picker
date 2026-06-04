@@ -36,7 +36,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   bool _safPersist = false;
   bool _safReadWrite = false;
   bool _supportsSafOptions = false;
-  String? _savedPersistentIdentifier;
   FileType _pickingType = FileType.any;
   List<PlatformFile>? pickedFiles;
   bool get _isSaveFileDisabled => _multiPick;
@@ -118,8 +117,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         pickedFiles = file != null ? [file] : null;
       }
       hasUserAborted = pickedFiles == null;
-      _savedPersistentIdentifier =
-          pickedFiles?.firstOrNull?.persistentIdentifier;
     } on PlatformException catch (e) {
       _logException('Unsupported operation: $e');
     } catch (e) {
@@ -309,35 +306,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         },
       );
     });
-  }
-
-  Future<void> _restorePersistentFile() async {
-    final persistentIdentifier = _savedPersistentIdentifier?.trim();
-    if (persistentIdentifier == null || persistentIdentifier.isEmpty) {
-      _logException(
-        'No persistent identifier saved yet. Pick a file with persistent access first.',
-      );
-      return;
-    }
-
-    _resetState();
-
-    try {
-      final restoredFile = await FilePicker.restorePersistentFile(
-        persistentIdentifier,
-      );
-      if (!mounted) return;
-      setState(() {
-        pickedFiles = [restoredFile];
-        _isLoading = false;
-        _userAborted = false;
-        _updatePickedFilesResults();
-      });
-    } on PlatformException catch (e) {
-      _logException('Unsupported operation: $e');
-    } catch (e) {
-      _logException(e.toString());
-    }
   }
 
   void _logException(String message) {
@@ -606,14 +574,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           onPressed: _clearCachedFiles,
           label: const Text('Clear temporary files'),
           icon: const Icon(Icons.delete_forever),
-        ),
-      ),
-      SizedBox(
-        width: 220,
-        child: FloatingActionButton.extended(
-          onPressed: _restorePersistentFile,
-          label: const Text('Restore persistent file'),
-          icon: const Icon(Icons.bookmarks),
         ),
       ),
     ];

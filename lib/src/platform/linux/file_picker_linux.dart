@@ -168,7 +168,6 @@ class FilePickerLinux extends FilePickerPlatform {
     Uint8List? bytes,
     String? sourcePath,
     String? sourceIdentifier,
-    String? sourcePersistentIdentifier,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {

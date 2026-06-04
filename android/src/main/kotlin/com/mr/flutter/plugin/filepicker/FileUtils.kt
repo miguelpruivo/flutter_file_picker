@@ -202,13 +202,12 @@ object FileUtils {
         destinationUri: Uri,
         bytes: ByteArray?,
         sourcePath: String?,
-        sourceIdentifier: String?,
-        sourcePersistentIdentifier: String?
+        sourceIdentifier: String?
     ): Uri {
         context.contentResolver.openOutputStream(destinationUri)?.use { output ->
             when {
-                !sourcePersistentIdentifier.isNullOrEmpty() || !sourceIdentifier.isNullOrEmpty() -> {
-                    val sourceUri = Uri.parse(sourcePersistentIdentifier ?: sourceIdentifier)
+                !sourceIdentifier.isNullOrEmpty() -> {
+                    val sourceUri = Uri.parse(sourceIdentifier)
                     context.contentResolver.openInputStream(sourceUri)?.use { input ->
                         input.copyTo(output, COPY_BUFFER_SIZE)
                     } ?: throw FileNotFoundException("Could not open input stream for source URI: $sourceUri")
@@ -222,7 +221,7 @@ object FileUtils {
 
                 bytes != null -> output.write(bytes)
                 else -> throw IllegalArgumentException(
-                    "Missing source reference. Provide bytes or one of sourcePath/sourceIdentifier/sourcePersistentIdentifier."
+                    "Missing source reference. Provide bytes or one of sourcePath/sourceIdentifier."
                 )
             }
         }
@@ -398,7 +397,6 @@ object FileUtils {
         bytes: ByteArray?,
         sourcePath: String?,
         sourceIdentifier: String?,
-        sourcePersistentIdentifier: String?,
         result: MethodChannel.Result
     ) {
         if (!this.setPendingMethodCallResult(result)) {
@@ -413,7 +411,6 @@ object FileUtils {
         this.bytes = bytes
         this.sourcePath = sourcePath
         this.sourceIdentifier = sourceIdentifier
-        this.sourcePersistentIdentifier = sourcePersistentIdentifier
         this.saveFileName = fileName
         if ("dir" != type) {
             try {
@@ -846,7 +843,6 @@ object FileUtils {
                 .withPath(null)
                 .withName(fileName)
                 .withUri(uri)
-                .withPersistentIdentifier(if (exposePersistentIdentifier) uri.toString() else null)
                 .withSize(getFileSize(context, uri))
 
             if (hasSafOptions) {
@@ -905,7 +901,6 @@ object FileUtils {
             .withPath(path)
             .withName(fileName)
             .withUri(uri)
-            .withPersistentIdentifier(if (exposePersistentIdentifier) uri.toString() else null)
             .withSize(file.length())
 
         if (hasSafOptions) {
@@ -919,30 +914,8 @@ object FileUtils {
     }
 
     @JvmStatic
-    fun resolvePersistentFile(
-        context: Context,
-        persistentIdentifier: String,
-        withData: Boolean
-    ): FileInfo? {
-        return try {
-            openFileStream(
-                context = context,
-                uri = Uri.parse(persistentIdentifier),
-                withData = withData,
-                hasSafOptions = true,
-                isReadWrite = false,
-                cacheToFile = false,
-                exposePersistentIdentifier = true
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to resolve persistent file for $persistentIdentifier", e)
-            null
-        }
-    }
-
-    @JvmStatic
-    fun readFileBytes(context: Context, identifier: String?, persistentIdentifier: String?): ByteArray? {
-        val uriString = persistentIdentifier ?: identifier ?: return null
+    fun readFileBytes(context: Context, identifier: String?): ByteArray? {
+        val uriString = identifier ?: return null
         return try {
             context.contentResolver.openInputStream(Uri.parse(uriString))?.use { inputStream ->
                 inputStream.readBytes()
@@ -954,8 +927,8 @@ object FileUtils {
     }
 
     @JvmStatic
-    fun openReadSession(context: Context, identifier: String?, persistentIdentifier: String?): String? {
-        val uriString = persistentIdentifier ?: identifier ?: return null
+    fun openReadSession(context: Context, identifier: String?): String? {
+        val uriString = identifier ?: return null
         return try {
             val inputStream = context.contentResolver.openInputStream(Uri.parse(uriString)) ?: return null
             val sessionId = UUID.randomUUID().toString()

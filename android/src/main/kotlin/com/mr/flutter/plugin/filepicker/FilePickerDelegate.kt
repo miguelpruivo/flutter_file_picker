@@ -40,7 +40,6 @@ class FilePickerDelegate(
     var bytes: ByteArray? = null
     var sourcePath: String? = null
     var sourceIdentifier: String? = null
-    var sourcePersistentIdentifier: String? = null
     var saveFileName: String? = null
     var saveMimeType: String? = null
     var androidSafOptions: java.util.HashMap<*, *>? = null
@@ -86,8 +85,7 @@ class FilePickerDelegate(
                     destinationUri = uri,
                     bytes = bytes,
                     sourcePath = sourcePath,
-                    sourceIdentifier = sourceIdentifier,
-                    sourcePersistentIdentifier = sourcePersistentIdentifier
+                    sourceIdentifier = sourceIdentifier
                 ) ?: uri
                 val renamedUri = maybeRenameGenericMimeDuplicate(
                     context = activity,

@@ -329,23 +329,8 @@ abstract final class FilePicker {
       bytes: bytesToSave,
       sourcePath: sourceFile?.path,
       sourceIdentifier: sourceFile?.identifier,
-      sourcePersistentIdentifier: sourceFile?.persistentIdentifier,
       onFileLoading: onFileLoading,
       lockParentWindow: lockParentWindow,
-    );
-  }
-
-  /// Restores a file from a previously saved persistent identifier.
-  ///
-  /// On Android this identifier is typically a persistable `content://` URI.
-  /// On iOS this identifier is a base64-encoded security-scoped bookmark.
-  static Future<PlatformFile> restorePersistentFile(
-    String persistentIdentifier, {
-    bool withData = false,
-  }) {
-    return FilePickerPlatform.instance.resolvePersistentFile(
-      persistentIdentifier: persistentIdentifier,
-      withData: withData,
     );
   }
 
