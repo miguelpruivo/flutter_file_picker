@@ -38,7 +38,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   bool _safPersist = false;
   bool _safReadWrite = false;
   bool _supportsSafOptions = false;
-  bool _withPersistentAccess = false;
   String? _streamingProgressText;
   Uint8List? _pickedFileBytes;
   String? _pickedFileBytesSource;
@@ -104,7 +103,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           lockParentWindow: _lockParentWindow,
           withData: _withData,
           androidSafOptions: _androidSafOptionsFromFlags(),
-          withPersistentAccess: _withPersistentAccess,
+          withPersistentAccess: false,
         );
         printInDebug("pickedFiles: $result");
         pickedFiles = result?.files;
@@ -117,7 +116,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           initialDirectory: _initialDirectoryController.text,
           lockParentWindow: _lockParentWindow,
           androidSafOptions: _androidSafOptionsFromFlags(),
-          withPersistentAccess: _withPersistentAccess,
+          withPersistentAccess: false,
           withData: _withData,
         );
         printInDebug("pickedFile: $file");
@@ -644,19 +643,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           ),
           onChanged: (value) => setState(() => _withData = value),
           value: _withData,
-        ),
-      ),
-      ConstrainedBox(
-        constraints: const BoxConstraints.tightFor(width: 400.0),
-        child: SwitchListTile.adaptive(
-          title: const Text('Persistent access'),
-          subtitle: const Text(
-            'Avoid cache copies when the platform can return a long-term file reference.',
-          ),
-          onChanged: !kIsWeb
-              ? (value) => setState(() => _withPersistentAccess = value)
-              : null,
-          value: _withPersistentAccess,
         ),
       ),
       if (_multiPick && _withData)
