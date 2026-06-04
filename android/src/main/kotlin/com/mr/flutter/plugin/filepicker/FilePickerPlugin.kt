@@ -199,7 +199,6 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 val initialDirectory = arguments?.get("initialDirectory") as? String?
                 val bytes = arguments?.get("bytes") as? ByteArray?
                 val sourcePath = arguments?.get("sourcePath") as? String?
-                val sourceIdentifier = arguments?.get("sourceIdentifier") as? String?
                 val fileNameWithoutExtension = "${arguments?.get("fileName")}".trim()
                 val fileName =
                     if (bytes != null &&
@@ -215,7 +214,6 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                     initialDirectory,
                     bytes,
                     sourcePath,
-                    sourceIdentifier,
                     result
                 )
             }
@@ -228,7 +226,6 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                     resolveType(method),
                     arguments?.get("allowMultipleSelection") as? Boolean?,
                     arguments?.get("withData") as? Boolean?,
-                    arguments?.get("withPersistentAccess") as Boolean ?: false,
                     arguments?.get("copyToCache") as? Boolean ?: true,
                     allowedExtensions,
                     arguments?.get("compressionQuality") as? Int?,
@@ -249,7 +246,6 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                     fileType,
                     arguments?.get("allowMultipleSelection") as Boolean?,
                     arguments?.get("withData") as Boolean?,
-                    arguments?.get("withPersistentAccess") as Boolean ?: false,
                     arguments?.get("copyToCache") as? Boolean ?: true,
                     arrayListOf(),
                     arguments?.get("compressionQuality") as? Int?,

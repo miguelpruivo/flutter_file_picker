@@ -50,17 +50,6 @@ abstract final class FilePicker {
   /// [cancelUploadOnWindowBlur] prevents upload cancellation when window focus is lost.
   /// Only supported on web.
   ///
-  /// If [withPersistentAccess] is set, the picker will avoid copying files to cache
-  /// and instead return platform-specific persistent file references:
-  /// - Android: a persistable `content://` URI with Storage Access Framework
-  /// - iOS: a security-scoped bookmark
-  ///
-  /// When enabled, files are NOT copied to cache directory. Use [PlatformFile.readAsBytes()]
-  /// or [PlatformFile.readAsByteStream()] to access file content on-demand.
-  /// This avoids memory issues with large files and eliminates unnecessary copying.
-  ///
-  /// Persisted files can be restored later with [restorePersistentFile].
-  ///
   /// If [copyToCache] is `false`, Android and iOS avoid creating a cached copy
   /// and return native file references instead. This is useful for a
   /// pick-then-save flow:
@@ -110,7 +99,6 @@ abstract final class FilePicker {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
-    bool withPersistentAccess = false,
     bool copyToCache = true,
   }) {
     return FilePickerPlatform.instance.pickFiles(
@@ -127,7 +115,6 @@ abstract final class FilePicker {
       readSequential: readSequential,
       cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
       androidSafOptions: androidSafOptions,
-      withPersistentAccess: withPersistentAccess,
       copyToCache: copyToCache,
     );
   }
@@ -149,7 +136,6 @@ abstract final class FilePicker {
     bool lockParentWindow = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
-    bool withPersistentAccess = false,
     bool copyToCache = true,
     bool withData = false,
   }) async {
@@ -167,7 +153,6 @@ abstract final class FilePicker {
       readSequential: false,
       cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
       androidSafOptions: androidSafOptions,
-      withPersistentAccess: withPersistentAccess,
       copyToCache: copyToCache,
     );
 
@@ -328,7 +313,6 @@ abstract final class FilePicker {
       allowedExtensions: allowedExtensions,
       bytes: bytesToSave,
       sourcePath: sourceFile?.path,
-      sourceIdentifier: sourceFile?.identifier,
       onFileLoading: onFileLoading,
       lockParentWindow: lockParentWindow,
     );

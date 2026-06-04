@@ -96,7 +96,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           lockParentWindow: _lockParentWindow,
           withData: _withData,
           androidSafOptions: _androidSafOptionsFromFlags(),
-          withPersistentAccess: false,
         );
         printInDebug("pickedFiles: $result");
         pickedFiles = result?.files;
@@ -109,7 +108,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           initialDirectory: _initialDirectoryController.text,
           lockParentWindow: _lockParentWindow,
           androidSafOptions: _androidSafOptionsFromFlags(),
-          withPersistentAccess: false,
           withData: _withData,
           copyToCache: false,
         );

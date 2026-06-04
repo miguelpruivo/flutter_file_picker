@@ -64,7 +64,6 @@ class FilePickerWeb extends FilePickerPlatform {
     bool cancelUploadOnWindowBlur = true,
     int compressionQuality = 0,
     AndroidSAFOptions? androidSafOptions,
-    bool withPersistentAccess = false,
     bool copyToCache = false,
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -225,7 +224,6 @@ class FilePickerWeb extends FilePickerPlatform {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     String? sourcePath,
-    String? sourceIdentifier,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
@@ -241,11 +239,7 @@ class FilePickerWeb extends FilePickerPlatform {
       );
     }
 
-    final sourceUrl = sourcePath?.isNotEmpty == true
-        ? sourcePath
-        : sourceIdentifier?.isNotEmpty == true
-        ? sourceIdentifier
-        : null;
+    final sourceUrl = sourcePath?.isNotEmpty == true ? sourcePath : null;
 
     if (bytes == null && sourceUrl == null) {
       throw ArgumentError(

@@ -48,7 +48,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
-    bool withPersistentAccess = false,
     bool copyToCache = true,
   }) => _getPath(
     type,
@@ -59,7 +58,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     withReadStream,
     compressionQuality,
     androidSafOptions,
-    withPersistentAccess,
     copyToCache,
   );
 
@@ -153,7 +151,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool? withReadStream,
     int? compressionQuality,
     AndroidSAFOptions? androidSafOptions,
-    bool withPersistentAccess,
     bool copyToCache,
   ) async {
     final String type = fileType.name;
@@ -182,7 +179,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         'allowedExtensions': allowedExtensions,
         'withData': withData,
         'compressionQuality': compressionQuality,
-        'withPersistentAccess': withPersistentAccess,
         'copyToCache': copyToCache,
         if (androidSafOptions != null)
           'androidSafOptions': androidSafOptions.toMap(),
@@ -223,15 +219,13 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     String? sourcePath,
-    String? sourceIdentifier,
-    String? sourcePersistentIdentifier,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
     // Ensure at least one source is provided: bytes OR a native reference
-    if (bytes == null && sourcePath == null && sourceIdentifier == null) {
+    if (bytes == null && sourcePath == null) {
       throw ArgumentError(
-        'Either bytes or a source reference (sourcePath/sourceIdentifier) must be provided.',
+        'Either bytes or a source reference (sourcePath) must be provided.',
       );
     }
     try {
@@ -255,7 +249,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
             "allowedExtensions": allowedExtensions,
             if (bytes != null) "bytes": bytes,
             if (sourcePath != null) "sourcePath": sourcePath,
-            if (sourceIdentifier != null) "sourceIdentifier": sourceIdentifier,
           });
 
       if (onFileLoading != null) {

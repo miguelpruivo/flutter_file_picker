@@ -70,19 +70,15 @@ object FileUtils {
 
             val grantStr = androidSafOptions?.get("grant") as? String
             val accessStr = androidSafOptions?.get("access") as? String
-            val shouldLoadData = loadDataToMemory && !withPersistentAccess
-            val autoPersist = if (withPersistentAccess) {
-                 true
-             } else {
-                 (androidSafOptions?.get("autoPersist") as? Boolean) ?: true
-             }
-            val shouldAvoidCaching = withPersistentAccess || !copyToCache
+            val shouldLoadData = loadDataToMemory
+            val autoPersist = (androidSafOptions?.get("autoPersist") as? Boolean) ?: true
+            val shouldAvoidCaching = !copyToCache
 
-            val isPersist = withPersistentAccess || grantStr == "lifetime"
+            val isPersist = grantStr == "lifetime"
             val shouldExposePersistentIdentifier = isPersist && autoPersist
             val isReadWrite = accessStr == "readWrite"
 
-            val hasSafOptions = androidSafOptions != null || withPersistentAccess
+            val hasSafOptions = androidSafOptions != null
 
             fun maybeTakePersistableUriPermission(uri: Uri) {
                  if (isPersist && autoPersist) {
@@ -201,18 +197,10 @@ object FileUtils {
         context: Context,
         destinationUri: Uri,
         bytes: ByteArray?,
-        sourcePath: String?,
-        sourceIdentifier: String?
+        sourcePath: String?
     ): Uri {
         context.contentResolver.openOutputStream(destinationUri)?.use { output ->
             when {
-                !sourceIdentifier.isNullOrEmpty() -> {
-                    val sourceUri = Uri.parse(sourceIdentifier)
-                    context.contentResolver.openInputStream(sourceUri)?.use { input ->
-                        input.copyTo(output, COPY_BUFFER_SIZE)
-                    } ?: throw FileNotFoundException("Could not open input stream for source URI: $sourceUri")
-                }
-
                 !sourcePath.isNullOrEmpty() -> {
                     FileInputStream(File(sourcePath)).use { input ->
                         input.copyTo(output, COPY_BUFFER_SIZE)
@@ -221,7 +209,7 @@ object FileUtils {
 
                 bytes != null -> output.write(bytes)
                 else -> throw IllegalArgumentException(
-                    "Missing source reference. Provide bytes or one of sourcePath/sourceIdentifier."
+                    "Missing source reference. Provide bytes or sourcePath."
                 )
             }
         }
@@ -247,7 +235,7 @@ object FileUtils {
      */
     fun FilePickerDelegate.startFileExplorer() {
         val intent: Intent
-        val shouldUseOpenDocument = withPersistentAccess || androidSafOptions != null || !copyToCache
+        val shouldUseOpenDocument = androidSafOptions != null || !copyToCache
 
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (type == null) {
@@ -335,7 +323,6 @@ object FileUtils {
         type: String?,
         isMultipleSelection: Boolean?,
         withData: Boolean?,
-        withPersistentAccess: Boolean,
         copyToCache: Boolean,
         allowedExtensions: ArrayList<String>,
         compressionQuality: Int? = 0,
@@ -353,7 +340,6 @@ object FileUtils {
         if (withData != null) {
             this?.loadDataToMemory = withData
         }
-        this?.withPersistentAccess = withPersistentAccess
         this?.copyToCache = copyToCache
         this?.allowedExtensions = allowedExtensions
         if (compressionQuality != null) {
@@ -396,7 +382,6 @@ object FileUtils {
         initialDirectory: String?,
         bytes: ByteArray?,
         sourcePath: String?,
-        sourceIdentifier: String?,
         result: MethodChannel.Result
     ) {
         if (!this.setPendingMethodCallResult(result)) {
@@ -410,7 +395,6 @@ object FileUtils {
         }
         this.bytes = bytes
         this.sourcePath = sourcePath
-        this.sourceIdentifier = sourceIdentifier
         this.saveFileName = fileName
         if ("dir" != type) {
             try {

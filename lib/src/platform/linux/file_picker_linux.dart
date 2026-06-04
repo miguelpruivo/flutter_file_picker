@@ -46,7 +46,6 @@ class FilePickerLinux extends FilePickerPlatform {
     int compressionQuality = 0,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
-    bool withPersistentAccess = false,
     bool copyToCache = true,
   }) async {
     final filter = Filter(type, allowedExtensions);
@@ -167,7 +166,6 @@ class FilePickerLinux extends FilePickerPlatform {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     String? sourcePath,
-    String? sourceIdentifier,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {

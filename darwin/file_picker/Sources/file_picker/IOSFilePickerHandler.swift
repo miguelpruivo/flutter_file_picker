@@ -16,7 +16,6 @@ final class IOSFilePickerHandler: NSObject,
     private var eventSink: FlutterEventSink?
     private var allowMultipleSelection = false
     private var loadDataToMemory = false
-    private var withPersistentAccess = false
     private var copyToCache = true
     private var isDirectoryPicker = false
     private var isSaveFile = false
@@ -72,7 +71,6 @@ final class IOSFilePickerHandler: NSObject,
         allowMultipleSelection =
             (arguments["allowMultipleSelection"] as? Bool) ?? false
         loadDataToMemory = (arguments["withData"] as? Bool) ?? false
-        withPersistentAccess = (arguments["withPersistentAccess"] as? Bool) ?? false
         copyToCache = (arguments["copyToCache"] as? Bool) ?? true
 
         switch call.method {
@@ -99,7 +97,7 @@ final class IOSFilePickerHandler: NSObject,
                 allowsMultipleSelection: allowMultipleSelection,
                 asDirectoryPicker: false)
         case "image", "video", "media":
-            if withPersistentAccess || !copyToCache {
+            if !copyToCache {
                 presentDocumentPicker(
                     contentTypes: resolveDocumentContentTypes(for: call.method),
                     allowsMultipleSelection: allowMultipleSelection,
@@ -228,7 +226,7 @@ final class IOSFilePickerHandler: NSObject,
         var resolved: [[String: Any]] = []
 
         for sourceURL in urls {
-            if withPersistentAccess || !copyToCache {
+            if !copyToCache {
                 guard let fileInfo = makeFileInfo(from: sourceURL) else {
                     continue
                 }
@@ -276,7 +274,7 @@ final class IOSFilePickerHandler: NSObject,
     ) {
         let picker = UIDocumentPickerViewController(
             forOpeningContentTypes: contentTypes,
-            asCopy: !asDirectoryPicker && !withPersistentAccess && copyToCache)
+            asCopy: !asDirectoryPicker && copyToCache)
         picker.delegate = self
         picker.presentationController?.delegate = self
         picker.allowsMultipleSelection = allowsMultipleSelection
@@ -288,7 +286,6 @@ final class IOSFilePickerHandler: NSObject,
         let fileName = (arguments["fileName"] as? String) ?? UUID().uuidString
         let bytes = arguments["bytes"] as? FlutterStandardTypedData
         let sourcePath = arguments["sourcePath"] as? String
-        let sourceIdentifier = arguments["sourceIdentifier"] as? String
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self else { return }
@@ -297,8 +294,7 @@ final class IOSFilePickerHandler: NSObject,
                 let resolvedSource = try self.resolveSaveSource(
                     fileName: fileName,
                     bytes: bytes,
-                    sourcePath: sourcePath,
-                    sourceIdentifier: sourceIdentifier)
+                    sourcePath: sourcePath)
 
                 DispatchQueue.main.async { [weak self] in
                     guard let self else {
@@ -336,13 +332,8 @@ final class IOSFilePickerHandler: NSObject,
     private func resolveSaveSource(
         fileName: String,
         bytes: FlutterStandardTypedData?,
-        sourcePath: String?,
-        sourceIdentifier: String?
+        sourcePath: String?
     ) throws -> ResolvedFileAccess {
-        if let sourceIdentifier, let sourceURL = URL(string: sourceIdentifier) {
-            return ResolvedFileAccess(url: sourceURL, teardown: {})
-        }
-
         if let sourcePath, !sourcePath.isEmpty {
             return ResolvedFileAccess(
                 url: URL(fileURLWithPath: sourcePath),
@@ -363,7 +354,7 @@ final class IOSFilePickerHandler: NSObject,
         throw NSError(
             domain: "file_picker",
             code: 5,
-            userInfo: [NSLocalizedDescriptionKey: "Missing source reference. Provide bytes or sourcePath/sourceIdentifier."])
+            userInfo: [NSLocalizedDescriptionKey: "Missing source reference. Provide bytes or sourcePath."])
     }
 
     private func resolveCustomContentTypes(_ allowedExtensions: [String]) -> [UTType] {
@@ -576,7 +567,6 @@ final class IOSFilePickerHandler: NSObject,
     private func makeFileInfo(from fileURL: URL) -> [String: Any]? {
         fileInfo(
             from: fileURL,
-            persistentIdentifier: nil,
             path: fileURL.path)
     }
 

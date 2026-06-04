@@ -58,7 +58,6 @@ class FilePickerMacOS extends FilePickerPlatform {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
-    bool withPersistentAccess = false,
     bool copyToCache = true,
   }) async {
     final fileFilter = fileTypeToFileFilter(type, allowedExtensions);
@@ -117,7 +116,6 @@ class FilePickerMacOS extends FilePickerPlatform {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     String? sourcePath,
-    String? sourceIdentifier,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
