@@ -366,9 +366,9 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       setState(() {
         _isLoading = false;
         _isStreaming = false;
-        _pickedFileBytes = bytes.takeBytes();
         _streamingProgressText = null;
         _userAborted = false;
+        _pickedFileBytes = bytes.takeBytes();
         _pickedFileBytesSource = 'stream';
         _resultsWidget = Center(
           child: Text('Stream completed: $chunks chunks, $total bytes'),
