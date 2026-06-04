@@ -222,14 +222,7 @@ class PlatformFile {
   int get hashCode {
     return kIsWeb
         ? 0
-        : Object.hash(
-            path,
-            name,
-            bytes,
-            readStream,
-            identifier,
-            size,
-          );
+        : Object.hash(path, name, bytes, readStream, identifier, size);
   }
 
   @override

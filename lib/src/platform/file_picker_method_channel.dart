@@ -64,9 +64,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
   );
 
   @override
-  Future<Uint8List> readFileAsBytes({
-    String? identifier,
-  }) async {
+  Future<Uint8List> readFileAsBytes({String? identifier}) async {
     final Uint8List? bytes = await methodChannel.invokeMethod<Uint8List>(
       'readFileBytes',
       {'identifier': identifier},

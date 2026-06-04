@@ -50,9 +50,7 @@ abstract class FilePickerPlatform extends PlatformInterface {
   }
 
   /// Reads a file identified by [identifier].
-  Future<Uint8List> readFileAsBytes({
-    String? identifier,
-  }) async {
+  Future<Uint8List> readFileAsBytes({String? identifier}) async {
     throw UnimplementedError('readFileAsBytes() has not been implemented.');
   }
 

@@ -244,12 +244,12 @@ class FilePickerWeb extends FilePickerPlatform {
     final sourceUrl = sourcePath?.isNotEmpty == true
         ? sourcePath
         : sourceIdentifier?.isNotEmpty == true
-            ? sourceIdentifier
-            : null;
+        ? sourceIdentifier
+        : null;
 
     if (bytes == null && sourceUrl == null) {
       throw ArgumentError(
-          'Either bytes or a web source URL are required when saving a file on the web.',
+        'Either bytes or a web source URL are required when saving a file on the web.',
       );
     }
 
