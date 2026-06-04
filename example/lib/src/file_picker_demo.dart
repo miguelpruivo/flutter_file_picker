@@ -401,10 +401,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _pickedFileBytes = bytes;
         _isStreaming = false;
         _streamingProgressText = null;
         _userAborted = false;
+        _pickedFileBytes = bytes;
         _pickedFileBytesSource = 'readAsBytes';
         _resultsWidget = Center(
           child: Text('readAsBytes completed: ${bytes.lengthInBytes} bytes'),
