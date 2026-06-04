@@ -316,13 +316,17 @@ abstract final class FilePicker {
       );
     }
 
+    final bytesToSave =
+        bytes ??
+        (kIsWeb && sourceFile?.path == null ? sourceFile?.bytes : null);
+
     return FilePickerPlatform.instance.saveFile(
       dialogTitle: dialogTitle,
       fileName: fileName,
       initialDirectory: initialDirectory,
       type: type,
       allowedExtensions: allowedExtensions,
-      bytes: bytes,
+      bytes: bytesToSave,
       sourcePath: sourceFile?.path,
       sourceIdentifier: sourceFile?.identifier,
       sourcePersistentIdentifier: sourceFile?.persistentIdentifier,

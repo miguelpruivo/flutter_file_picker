@@ -230,12 +230,6 @@ class FilePickerWeb extends FilePickerPlatform {
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
-    if (bytes == null || bytes.isEmpty) {
-      throw ArgumentError(
-        'The bytes are required when saving a file on the web.',
-      );
-    }
-
     if (fileName.isEmpty) {
       throw ArgumentError(
         'A file name is required when saving a file on the web.',
@@ -248,8 +242,30 @@ class FilePickerWeb extends FilePickerPlatform {
       );
     }
 
-    final blob = Blob([bytes.toJS].toJS);
-    final url = URL.createObjectURL(blob);
+    final sourceUrl = sourcePath?.isNotEmpty == true
+        ? sourcePath
+        : sourceIdentifier?.isNotEmpty == true
+        ? sourceIdentifier
+        : sourcePersistentIdentifier?.isNotEmpty == true
+        ? sourcePersistentIdentifier
+        : null;
+
+    if (bytes == null && sourceUrl == null) {
+      throw ArgumentError(
+        'Either bytes or a web source URL are required when saving a file on the web.',
+      );
+    }
+
+    final String url;
+    final bool shouldRevokeUrl;
+    if (bytes != null) {
+      final blob = Blob([bytes.toJS].toJS);
+      url = URL.createObjectURL(blob);
+      shouldRevokeUrl = true;
+    } else {
+      url = sourceUrl!;
+      shouldRevokeUrl = false;
+    }
 
     // Start a download by using a click event on an anchor element that contains the Blob.
     HTMLAnchorElement()
@@ -259,8 +275,11 @@ class FilePickerWeb extends FilePickerPlatform {
       ..download = fileName
       ..click();
 
-    // Release the Blob URL after the download started.
-    URL.revokeObjectURL(url);
+    // Release only Blob URLs created by this method. Source URLs belong to the
+    // picked PlatformFile and may still be used by callers after saveFile().
+    if (shouldRevokeUrl) {
+      URL.revokeObjectURL(url);
+    }
     return null;
   }
 
