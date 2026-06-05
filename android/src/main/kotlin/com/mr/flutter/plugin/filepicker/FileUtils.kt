@@ -798,7 +798,6 @@ object FileUtils {
                 .withPath(uri.toString())
                 .withName(fileName)
                 .withUri(uri)
-                .withPersistentIdentifier(if (exposePersistentIdentifier) uri.toString() else null)
                 .withSize(getFileSize(context, uri))
 
             if (hasSafOptions) {
@@ -857,7 +856,6 @@ object FileUtils {
             .withPath(path)
             .withName(fileName)
             .withUri(uri)
-            .withPersistentIdentifier(if (exposePersistentIdentifier) uri.toString() else null)
             .withSize(file.length())
 
         if (hasSafOptions) {
