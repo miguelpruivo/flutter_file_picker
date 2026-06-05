@@ -134,7 +134,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 val type = resolveType(arguments?.get("fileType") as String)
                 val initialDirectory = arguments?.get("initialDirectory") as? String?
                 val bytes = arguments?.get("bytes") as? ByteArray?
-                val sourceIdentifier = arguments?.get("sourceIdentifier") as? String?
+                val path = arguments?.get("path") as? String?
                 val fileNameWithoutExtension = "${arguments?.get("fileName")}".trim()
                 val fileName =
                     if (bytes != null &&
@@ -149,7 +149,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                     type,
                     initialDirectory,
                     bytes,
-                    sourceIdentifier,
+                    path,
                     result
                 )
             }

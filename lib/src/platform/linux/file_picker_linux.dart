@@ -171,7 +171,7 @@ class FilePickerLinux extends FilePickerPlatform {
         (path != null ? await FilePickerUtils.readBytesFromFile(path) : null);
     if (bytesToSave == null) {
       throw ArgumentError(
-        'Linux saveFile requires bytes or a readable sourceIdentifier.',
+        'Linux saveFile requires bytes or a readable path.',
       );
     }
 

@@ -200,7 +200,7 @@ class FilePickerWindows extends FilePickerPlatform {
         (path != null ? await FilePickerUtils.readBytesFromFile(path) : null);
     if (bytesToSave == null) {
       throw ArgumentError(
-        'Windows saveFile requires bytes or a readable sourceIdentifier.',
+        'Windows saveFile requires bytes or a readable path.',
       );
     }
 

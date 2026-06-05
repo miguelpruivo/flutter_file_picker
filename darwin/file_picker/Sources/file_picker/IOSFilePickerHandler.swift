@@ -263,7 +263,7 @@ final class IOSFilePickerHandler: NSObject,
         isSaveFile = true
         let fileName = (arguments["fileName"] as? String) ?? UUID().uuidString
         let bytes = arguments["bytes"] as? FlutterStandardTypedData
-        let sourceIdentifier = arguments["sourceIdentifier"] as? String
+        let path = arguments["path"] as? String
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self else { return }
@@ -272,7 +272,7 @@ final class IOSFilePickerHandler: NSObject,
                 let resolvedSource = try self.resolveSaveSource(
                     fileName: fileName,
                     bytes: bytes,
-                    sourceIdentifier: sourceIdentifier)
+                    path: path)
 
                 DispatchQueue.main.async { [weak self] in
                     guard let self else {
@@ -310,9 +310,9 @@ final class IOSFilePickerHandler: NSObject,
     private func resolveSaveSource(
         fileName: String,
         bytes: FlutterStandardTypedData?,
-        sourceIdentifier: String?
+        path: String?
     ) throws -> ResolvedFileAccess {
-        if let sourceIdentifier, let sourceURL = URL(string: sourceIdentifier) {
+        if let path, let sourceURL = URL(string: path) {
             return ResolvedFileAccess(url: sourceURL, teardown: {})
         }
 
@@ -330,7 +330,7 @@ final class IOSFilePickerHandler: NSObject,
         throw NSError(
             domain: "file_picker",
             code: 5,
-            userInfo: [NSLocalizedDescriptionKey: "Missing source reference. Provide bytes or sourceIdentifier."])
+            userInfo: [NSLocalizedDescriptionKey: "Missing source reference. Provide bytes or path."])
     }
 
     private func fileInfo(from fileURL: URL, path: String?) -> [String: Any]? {

@@ -240,7 +240,7 @@ class FilePickerWeb extends FilePickerPlatform {
 
     if (bytes == null && sourceUrl == null) {
       throw ArgumentError(
-        'Either bytes or a web source URL (sourceIdentifier) are required when saving a file on the web.',
+        'Either bytes or a web source URL (path) are required when saving a file on the web.',
       );
     }
 

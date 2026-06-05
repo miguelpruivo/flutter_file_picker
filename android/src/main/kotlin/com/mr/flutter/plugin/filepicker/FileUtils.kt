@@ -154,12 +154,12 @@ object FileUtils {
         context: Context,
         destinationUri: Uri,
         bytes: ByteArray?,
-        sourceIdentifier: String?
+        path: String?
     ): Uri {
         context.contentResolver.openOutputStream(destinationUri)?.use { output ->
             when {
-                !sourceIdentifier.isNullOrEmpty() -> {
-                    val sourceUri = Uri.parse(sourceIdentifier)
+                !path.isNullOrEmpty() -> {
+                    val sourceUri = Uri.parse(path)
                     context.contentResolver.openInputStream(sourceUri)?.use { input ->
                         input.copyTo(output, COPY_BUFFER_SIZE)
                     } ?: throw FileNotFoundException("Could not open input stream for source URI: $sourceUri")
@@ -167,7 +167,7 @@ object FileUtils {
 
                 bytes != null -> output.write(bytes)
                 else -> throw IllegalArgumentException(
-                    "Missing source reference. Provide bytes or sourceIdentifier."
+                    "Missing source reference. Provide bytes or path."
                 )
             }
         }
@@ -336,7 +336,7 @@ object FileUtils {
         type: String?,
         initialDirectory: String?,
         bytes: ByteArray?,
-        sourceIdentifier: String?,
+        path: String?,
         result: MethodChannel.Result
     ) {
         if (!this.setPendingMethodCallResult(result)) {
@@ -349,7 +349,7 @@ object FileUtils {
             intent.putExtra(Intent.EXTRA_TITLE, fileName)
         }
         this.bytes = bytes
-        this.sourceIdentifier = sourceIdentifier
+        this.path = path
         this.saveFileName = fileName
         if ("dir" != type) {
             try {

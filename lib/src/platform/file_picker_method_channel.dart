@@ -156,7 +156,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     // Ensure at least one source is provided: bytes OR a native reference
     if (bytes == null && path == null) {
       throw ArgumentError(
-        'Either bytes or a source reference (sourceIdentifier) must be provided.',
+        'Either bytes or a source reference (path) must be provided.',
       );
     }
     try {
@@ -179,7 +179,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
             "initialDirectory": initialDirectory,
             "allowedExtensions": allowedExtensions,
             if (bytes != null) "bytes": bytes,
-            if (path != null) "sourceIdentifier": path,
+            if (path != null) "path": path,
           });
 
       if (onFileLoading != null) {
