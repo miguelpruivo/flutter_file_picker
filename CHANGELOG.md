@@ -1,19 +1,14 @@
 ## 12.0.0-beta.6
 ### General
-- Added opt-in persistent file access via `withPersistentAccess` on `pickFiles()` and `pickFile()`. When supported, the picker can now return a platform-backed reference instead of forcing a cached copy for large files.
-- Added `FilePicker.restorePersistentFile()` and `PlatformFile.persistentIdentifier` so apps can persist a native file reference and restore it later.
-- `PlatformFile.readAsBytes()` and `PlatformFile.readAsByteStream()` can now transparently read from persistent platform references when no local cache path is available.
-- Added support in desktop platforms for picking files with path references that cannot be copied to the plugin cache, such as network shares or virtual files.
+- `FilePicker.saveFile()` now accepts a `sourceFile` (PlatformFile) parameter, allowing file saving via native file references without loading all bytes in Dart.
+- `PlatformFile.readAsBytes()` reads from local file paths when `bytes` is null.
+- Desktop platforms (macOS, Windows, Linux) now support saving files from a source path reference.
 ### Android
-- Added native support for restoring and reading previously persisted SAF document URIs without copying them into the plugin cache.
-- When `withPersistentAccess` is enabled, Android now uses persistable `content://` URI permissions and avoids creating cached copies for picked files.
-
+- `saveFile` writes file data from a `sourceIdentifier` (URI) on Android, copying from the source URI to the save destination natively.
 ### iOS
-- Added support for security-scoped bookmarks, allowing apps to save a base64 bookmark for a picked file and regain access on a future app launch without copying the file into the app sandbox.
-- When `withPersistentAccess` is enabled for document picks, iOS now returns security-scoped bookmark metadata instead of forcing a temporary copy.
-
+- `saveFile` on iOS resolves a `sourceIdentifier` URL reference natively for document export.
 ### Desktop (macOS)
-- FilePicker.pickFiles() now use DispatchQueue.main.async to avoid blocking the UI when opening the file picker dialog.
+- `FilePicker.pickFiles()` now uses `DispatchQueue.main.async` to avoid blocking the UI when opening the file picker dialog.
 
 ## 12.0.0-beta.5
 ### Android

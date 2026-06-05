@@ -26,10 +26,8 @@ import org.apache.tika.Tika
 import org.apache.tika.io.TikaInputStream
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.metadata.TikaCoreProperties
-import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
@@ -37,14 +35,11 @@ import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 
 object FileUtils {
     private const val TAG = "FilePickerUtils"
     private const val MAX_RENAME_ATTEMPTS = 20
     private const val COPY_BUFFER_SIZE = 1024 * 1024
-    private val readSessions = ConcurrentHashMap<String, InputStream>()
     // On Android, the CSV mime type from getMimeTypeFromExtension() returns
     // "text/comma-separated-values" which is non-standard and doesn't filter
     // CSV files in Google Drive.
@@ -67,10 +62,8 @@ object FileUtils {
                 return@launch
             }
 
-            val shouldLoadData = loadDataToMemory
             val hasSafOptions = androidSafOptions != null
             val isReadWrite = (androidSafOptions?.get("access") as? String) == "readWrite"
-            val shouldExposePersistentIdentifier = false
 
             val files = mutableListOf<FileInfo>()
 
@@ -86,9 +79,7 @@ object FileUtils {
                                 loadDataToMemory,
                                 files,
                                 hasSafOptions,
-                                isReadWrite,
-                                false,
-                                shouldExposePersistentIdentifier
+                                isReadWrite
                             )
                         }
                         finishWithSuccess(files)
@@ -117,12 +108,10 @@ object FileUtils {
                             addFile(
                                 activity,
                                 uri,
-                                shouldLoadData,
+                                loadDataToMemory,
                                 files,
                                 hasSafOptions,
-                                isReadWrite,
-                                false,
-                                shouldExposePersistentIdentifier
+                                isReadWrite
                             )
                             handleFileResult(files)
                         }
@@ -135,12 +124,10 @@ object FileUtils {
                             addFile(
                                 activity,
                                 uri,
-                                shouldLoadData,
+                                loadDataToMemory,
                                 files,
                                 hasSafOptions,
-                                isReadWrite,
-                                false,
-                                shouldExposePersistentIdentifier
+                                isReadWrite
                             )
                         }
                         finishWithSuccess(files)
@@ -206,8 +193,6 @@ object FileUtils {
      */
     fun FilePickerDelegate.startFileExplorer() {
         val intent: Intent
-        // copyToCache is removed; behavior is as if copyToCache == false, so always use open document flows
-        val shouldUseOpenDocument = true
 
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (type == null) {
@@ -526,14 +511,6 @@ object FileUtils {
         return normalizedBaseName to normalizedSuffix
     }
 
-    private fun processUri(activity: Activity, uri: Uri, compressionQuality: Int): Uri {
-        return if (compressionQuality > 0 && isImage(activity.applicationContext, uri)) {
-            compressImage(uri, compressionQuality, activity.applicationContext)
-        } else {
-            uri
-        }
-    }
-
     private fun addFile(
         activity: Activity,
         uri: Uri,
@@ -541,8 +518,7 @@ object FileUtils {
         files: MutableList<FileInfo>,
         hasSafOptions: Boolean = false,
         isReadWrite: Boolean = false,
-        cacheToFile: Boolean = true,
-        exposePersistentIdentifier: Boolean = false
+        cacheToFile: Boolean = true
     ) {
         openFileStream(
             activity,
@@ -550,8 +526,7 @@ object FileUtils {
             loadDataToMemory,
             hasSafOptions,
             isReadWrite,
-            cacheToFile,
-            exposePersistentIdentifier
+            cacheToFile
         )
             ?.let { file ->
             files.add(file)
@@ -715,42 +690,6 @@ object FileUtils {
         return true
     }
 
-    private fun loadData(file: File, fileInfo: FileInfo.Builder) {
-        try {
-            val size = file.length().toInt()
-            val bytes = ByteArray(size)
-
-            try {
-                val buf = BufferedInputStream(FileInputStream(file))
-                buf.read(bytes, 0, bytes.size)
-                buf.close()
-            } catch (e: FileNotFoundException) {
-                Log.e(TAG, "File not found: " + e.message, null)
-            } catch (e: IOException) {
-                Log.e(TAG, "Failed to close file streams: " + e.message, null)
-            }
-            fileInfo.withData(bytes)
-        } catch (e: Exception) {
-            Log.e(
-                TAG,
-                "Failed to load bytes into memory with error $e. Probably the file is too big to fit device memory. Bytes won't be added to the file this time."
-            )
-        }
-    }
-
-    private fun loadData(context: Context, uri: Uri, fileInfo: FileInfo.Builder) {
-        try {
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                fileInfo.withData(inputStream.readBytes())
-            }
-        } catch (e: Exception) {
-            Log.e(
-                TAG,
-                "Failed to load bytes from URI $uri with error $e. Bytes won't be added to the file this time."
-            )
-        }
-    }
-
     private fun getFileSize(context: Context, uri: Uri): Long {
         try {
             context.contentResolver.query(
@@ -785,8 +724,7 @@ object FileUtils {
         withData: Boolean,
         hasSafOptions: Boolean = false,
         isReadWrite: Boolean = false,
-        cacheToFile: Boolean = true,
-        exposePersistentIdentifier: Boolean = false
+        cacheToFile: Boolean = true
     ): FileInfo? {
         val fileInfo = FileInfo.Builder()
         val fileName = getFileName(uri, context)
@@ -866,82 +804,6 @@ object FileUtils {
         }
 
         return fileInfo.build()
-    }
-
-    @JvmStatic
-    fun resolvePersistentFile(
-        context: Context,
-        persistentIdentifier: String,
-        withData: Boolean
-    ): FileInfo? {
-        return try {
-            openFileStream(
-                context = context,
-                uri = Uri.parse(persistentIdentifier),
-                withData = withData,
-                hasSafOptions = true,
-                isReadWrite = false,
-                cacheToFile = false,
-                exposePersistentIdentifier = true
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to resolve persistent file for $persistentIdentifier", e)
-            null
-        }
-    }
-
-    @JvmStatic
-    fun readFileBytes(context: Context, identifier: String?, persistentIdentifier: String?): ByteArray? {
-        val uriString = persistentIdentifier ?: identifier ?: return null
-        return try {
-            context.contentResolver.openInputStream(Uri.parse(uriString))?.use { inputStream ->
-                inputStream.readBytes()
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to read bytes for URI $uriString", e)
-            null
-        }
-    }
-
-    @JvmStatic
-    fun openReadSession(context: Context, identifier: String?, persistentIdentifier: String?): String? {
-        val uriString = persistentIdentifier ?: identifier ?: return null
-        return try {
-            val inputStream = context.contentResolver.openInputStream(Uri.parse(uriString)) ?: return null
-            val sessionId = UUID.randomUUID().toString()
-            readSessions[sessionId] = BufferedInputStream(inputStream)
-            sessionId
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to open read session for URI $uriString", e)
-            null
-        }
-    }
-
-    @JvmStatic
-    fun readSessionChunk(sessionId: String, chunkSize: Int): ByteArray? {
-        val inputStream = readSessions[sessionId] ?: return null
-        return try {
-            val buffer = ByteArray(chunkSize)
-            val bytesRead = inputStream.read(buffer)
-            when {
-                bytesRead < 0 -> null
-                bytesRead == 0 -> ByteArray(0)
-                bytesRead == chunkSize -> buffer
-                else -> buffer.copyOf(bytesRead)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to read stream chunk for session $sessionId", e)
-            null
-        }
-    }
-
-    @JvmStatic
-    fun closeReadSession(sessionId: String) {
-        try {
-            readSessions.remove(sessionId)?.close()
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to close read session $sessionId", e)
-        }
     }
 
     private fun getPathFromTreeUri(uri: Uri): String {

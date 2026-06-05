@@ -49,8 +49,7 @@ abstract final class FilePicker {
   /// [cancelUploadOnWindowBlur] prevents upload cancellation when window focus is lost.
   /// Only supported on web.
   ///
-  /// The plugin does not create cached copies on mobile platforms and behaves
-  /// like the previous copyToCache == false mode: native file references are
+  /// The plugin does not create cached copies on mobile platforms. Native file
   /// returned when possible and callers should use [PlatformFile.readAsBytes]
   /// or [PlatformFile.readAsByteStream] to access file contents or pass the
   /// file to [saveFile].
