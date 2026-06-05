@@ -141,12 +141,11 @@ if (outputFile == null) {
 }
 ```
 
-To pick a file and then save/export it somewhere else without creating an
-intermediate cached file on iOS or Android, disable cache copying when picking
-and pass the returned `PlatformFile` as the save source:
+To pick a file and then save/export it somewhere else, pick the file and pass
+the returned `PlatformFile` as the save source when calling `saveFile`:
 
 ```dart
-final PlatformFile? file = await FilePicker.pickFile(copyToCache: false);
+final PlatformFile? file = await FilePicker.pickFile();
 
 if (file != null) {
   await FilePicker.saveFile(

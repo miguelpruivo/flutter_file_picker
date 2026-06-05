@@ -43,7 +43,6 @@ abstract class FilePickerPlatform extends PlatformInterface {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
-    bool copyToCache = true,
   }) async {
     throw UnimplementedError('pickFiles() has not been implemented.');
   }

@@ -109,7 +109,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           lockParentWindow: _lockParentWindow,
           androidSafOptions: _androidSafOptionsFromFlags(),
           withData: _withData,
-          copyToCache: false,
         );
         printInDebug("pickedFile: $file");
         pickedFiles = file != null ? [file] : null;

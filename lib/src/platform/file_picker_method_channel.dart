@@ -48,7 +48,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
-    bool copyToCache = true,
   }) => _getPath(
     type,
     allowMultiple,
@@ -58,7 +57,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     withReadStream,
     compressionQuality,
     androidSafOptions,
-    copyToCache,
   );
 
   @override
@@ -151,7 +149,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool? withReadStream,
     int? compressionQuality,
     AndroidSAFOptions? androidSafOptions,
-    bool copyToCache,
   ) async {
     final String type = fileType.name;
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -179,7 +176,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         'allowedExtensions': allowedExtensions,
         'withData': withData,
         'compressionQuality': compressionQuality,
-        'copyToCache': copyToCache,
         if (androidSafOptions != null)
           'androidSafOptions': androidSafOptions.toMap(),
       });

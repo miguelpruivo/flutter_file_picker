@@ -40,7 +40,6 @@ class FilePickerWindows extends FilePickerPlatform {
     int compressionQuality = 0,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
-    bool copyToCache = false,
   }) async {
     final port = ReceivePort();
     await Isolate.spawn(

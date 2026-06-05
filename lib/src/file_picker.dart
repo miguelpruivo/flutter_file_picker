@@ -50,14 +50,10 @@ abstract final class FilePicker {
   /// [cancelUploadOnWindowBlur] prevents upload cancellation when window focus is lost.
   /// Only supported on web.
   ///
-  /// If [copyToCache] is `false`, Android and iOS avoid creating a cached copy
-  /// and return native file references instead. This is useful for a
-  /// pick-then-save flow:
-  /// `final file = await FilePicker.pickFile(copyToCache: false);`
-  /// followed by `FilePicker.saveFile(sourceFile: file, ...)`, so the native
-  /// platform streams from the picked source directly into the user-selected
-  /// destination. In this mode [PlatformFile.path] may be `null`; use
-  /// [PlatformFile.readAsBytes], [PlatformFile.readAsByteStream] or pass the
+  /// The plugin does not create cached copies on mobile platforms and behaves
+  /// like the previous copyToCache == false mode: native file references are
+  /// returned when possible and callers should use [PlatformFile.readAsBytes]
+  /// or [PlatformFile.readAsByteStream] to access file contents or pass the
   /// file to [saveFile].
   ///
   /// The result is wrapped in a [FilePickerResult] which contains helper getters
@@ -99,7 +95,6 @@ abstract final class FilePicker {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
-    bool copyToCache = true,
   }) {
     return FilePickerPlatform.instance.pickFiles(
       dialogTitle: dialogTitle,
@@ -115,7 +110,6 @@ abstract final class FilePicker {
       readSequential: readSequential,
       cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
       androidSafOptions: androidSafOptions,
-      copyToCache: copyToCache,
     );
   }
 
@@ -136,7 +130,6 @@ abstract final class FilePicker {
     bool lockParentWindow = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
-    bool copyToCache = true,
     bool withData = false,
   }) async {
     final result = await FilePickerPlatform.instance.pickFiles(
@@ -153,7 +146,6 @@ abstract final class FilePicker {
       readSequential: false,
       cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
       androidSafOptions: androidSafOptions,
-      copyToCache: copyToCache,
     );
 
     return result?.files.firstOrNull;
