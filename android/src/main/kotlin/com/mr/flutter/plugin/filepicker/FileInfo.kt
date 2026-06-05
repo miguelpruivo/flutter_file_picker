@@ -62,7 +62,7 @@ class FileInfo(
 
     fun toMap(): HashMap<String, Any?> {
         return hashMapOf<String, Any?>(
-            Pair("path", path ?: uri?.toString()),
+            Pair("path", path),
             Pair("name", name),
             Pair("size", size),
             Pair("bytes", bytes),
