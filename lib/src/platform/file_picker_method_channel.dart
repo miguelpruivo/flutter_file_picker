@@ -241,12 +241,12 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Uint8List? bytes,
-    String? sourceIdentifier,
+    String? path,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
     // Ensure at least one source is provided: bytes OR a native reference
-    if (bytes == null && sourceIdentifier == null) {
+    if (bytes == null && path == null) {
       throw ArgumentError(
         'Either bytes or a source reference (sourceIdentifier) must be provided.',
       );
@@ -271,7 +271,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
             "initialDirectory": initialDirectory,
             "allowedExtensions": allowedExtensions,
             if (bytes != null) "bytes": bytes,
-            if (sourceIdentifier != null) "sourceIdentifier": sourceIdentifier,
+            if (path != null) "sourceIdentifier": path,
           });
 
       if (onFileLoading != null) {

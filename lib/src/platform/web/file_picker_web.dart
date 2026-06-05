@@ -223,7 +223,7 @@ class FilePickerWeb extends FilePickerPlatform {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Uint8List? bytes,
-    String? sourceIdentifier,
+    String? path,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
@@ -239,8 +239,8 @@ class FilePickerWeb extends FilePickerPlatform {
       );
     }
 
-    final sourceUrl = sourceIdentifier?.isNotEmpty == true
-        ? sourceIdentifier
+    final sourceUrl = path?.isNotEmpty == true
+        ? path
         : null;
 
     if (bytes == null && sourceUrl == null) {

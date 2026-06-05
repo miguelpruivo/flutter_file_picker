@@ -165,14 +165,14 @@ class FilePickerLinux extends FilePickerPlatform {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Uint8List? bytes,
-    String? sourceIdentifier,
+    String? path,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
     final Uint8List? bytesToSave =
         bytes ??
-        (sourceIdentifier != null
-            ? await FilePickerUtils.readBytesFromFile(sourceIdentifier)
+        (path != null
+            ? await FilePickerUtils.readBytesFromFile(path)
             : null);
     if (bytesToSave == null) {
       throw ArgumentError(
