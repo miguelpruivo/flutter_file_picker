@@ -96,6 +96,19 @@ class FilePickerUtils {
     return compute(_readBytesFromPath, path);
   }
 
+  /// Copies the file at [sourcePath] to [destinationPath].
+  ///
+  /// Returns `true` if the copy succeeded, `false` otherwise.
+  static Future<bool> copyFile(String? sourcePath, String? destinationPath) async {
+    if (sourcePath == null || destinationPath == null) return false;
+    try {
+      await File(sourcePath).copy(destinationPath);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Saves the given [bytes] to a file at [path].
   ///
   /// Does nothing if [path] or [bytes] is null or empty.

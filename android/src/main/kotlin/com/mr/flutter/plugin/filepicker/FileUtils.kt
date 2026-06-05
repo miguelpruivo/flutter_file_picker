@@ -159,10 +159,14 @@ object FileUtils {
         context.contentResolver.openOutputStream(destinationUri)?.use { output ->
             when {
                 !path.isNullOrEmpty() -> {
-                    val sourceUri = Uri.parse(path)
+                    val sourceUri = if (path.startsWith("content://") || path.startsWith("file://")) {
+                        Uri.parse(path)
+                    } else {
+                        Uri.fromFile(File(path))
+                    }
                     context.contentResolver.openInputStream(sourceUri)?.use { input ->
                         input.copyTo(output, COPY_BUFFER_SIZE)
-                    } ?: throw FileNotFoundException("Could not open input stream for source URI: $sourceUri")
+                    } ?: throw FileNotFoundException("Could not open input stream for source: $path")
                 }
 
                 bytes != null -> output.write(bytes)

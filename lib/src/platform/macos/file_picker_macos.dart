@@ -116,11 +116,8 @@ class FilePickerMacOS extends FilePickerPlatform {
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
-    final Uint8List? bytesToSave =
-        bytes ??
-        (path != null ? await FilePickerUtils.readBytesFromFile(path) : null);
-    if (bytesToSave == null) {
-      throw ArgumentError('macOS saveFile requires bytes or a readable path.');
+    if (bytes == null && path == null) {
+      throw ArgumentError('macOS saveFile requires bytes or a path.');
     }
 
     final fileFilter = fileTypeToFileFilter(type, allowedExtensions);
@@ -135,7 +132,14 @@ class FilePickerMacOS extends FilePickerPlatform {
           'allowedExtensions': fileFilter,
         });
 
-    FilePickerUtils.saveBytesToFile(bytesToSave, savedFilePath);
+    if (savedFilePath == null) return null;
+
+    if (bytes != null) {
+      await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
+    } else if (path != null) {
+      await FilePickerUtils.copyFile(path, savedFilePath);
+    }
+
     return savedFilePath;
   }
 
