@@ -195,5 +195,3 @@ class PlatformFile {
     return 'PlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, size: $size)';
   }
 }
-
-

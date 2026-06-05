@@ -99,7 +99,10 @@ class FilePickerUtils {
   /// Copies the file at [sourcePath] to [destinationPath].
   ///
   /// Returns `true` if the copy succeeded, `false` otherwise.
-  static Future<bool> copyFile(String? sourcePath, String? destinationPath) async {
+  static Future<bool> copyFile(
+    String? sourcePath,
+    String? destinationPath,
+  ) async {
     if (sourcePath == null || destinationPath == null) return false;
     try {
       await File(sourcePath).copy(destinationPath);

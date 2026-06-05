@@ -302,9 +302,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   void _updatePickedFilesResults() {
-    _resultsWidget = PickedFilesResults(
-      pickedFiles: pickedFiles,
-    );
+    _resultsWidget = PickedFilesResults(pickedFiles: pickedFiles);
   }
 
   void _onFileLoading(FilePickerStatus status) {

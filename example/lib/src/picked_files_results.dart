@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 import 'file_picker_results.dart';
 
 class PickedFilesResults extends StatelessWidget {
-  const PickedFilesResults({
-    super.key,
-    required this.pickedFiles,
-  });
+  const PickedFilesResults({super.key, required this.pickedFiles});
 
   final List<PlatformFile>? pickedFiles;
 
