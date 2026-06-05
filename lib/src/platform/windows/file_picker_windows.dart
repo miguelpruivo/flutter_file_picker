@@ -10,7 +10,6 @@ import 'package:ffi/ffi.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/platform_file.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
 
 import 'package:file_picker/src/api/exceptions.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
@@ -39,7 +38,6 @@ class FilePickerWindows extends FilePickerPlatform {
     bool readSequential = false,
     int compressionQuality = 0,
     bool cancelUploadOnWindowBlur = true,
-    AndroidSAFOptions? androidSafOptions,
   }) async {
     final port = ReceivePort();
     await Isolate.spawn(
@@ -112,7 +110,6 @@ class FilePickerWindows extends FilePickerPlatform {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-    AndroidSAFOptions? androidSafOptions,
   }) async {
     return compute(_getDirectoryPathIsolate, {
       'dialogTitle': dialogTitle,
@@ -200,9 +197,7 @@ class FilePickerWindows extends FilePickerPlatform {
   }) async {
     final Uint8List? bytesToSave =
         bytes ??
-        (path != null
-            ? await FilePickerUtils.readBytesFromFile(path)
-            : null);
+        (path != null ? await FilePickerUtils.readBytesFromFile(path) : null);
     if (bytesToSave == null) {
       throw ArgumentError(
         'Windows saveFile requires bytes or a readable sourceIdentifier.',

@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/platform_file.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 
 /// An implementation of [FilePickerPlatform] that uses method channels.
@@ -47,7 +46,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool lockParentWindow = false,
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
-    AndroidSAFOptions? androidSafOptions,
   }) => _getPath(
     type,
     allowMultiple,
@@ -56,13 +54,10 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     withData,
     withReadStream,
     compressionQuality,
-    androidSafOptions,
   );
 
   @override
-  Future<Uint8List> readFileAsBytes({
-    String? identifier,
-  }) async {
+  Future<Uint8List> readFileAsBytes({String? identifier}) async {
     final Uint8List? bytes = await methodChannel.invokeMethod<Uint8List>(
       'readFileBytes',
       {'identifier': identifier},
@@ -112,11 +107,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
   }
 
   @override
-  Future<void> releaseSAFGrant(String uri) async {
-    await methodChannel.invokeMethod('releaseSafGrant', {'uri': uri});
-  }
-
-  @override
   Future<bool?> clearTemporaryFiles() async =>
       methodChannel.invokeMethod<bool>('clear');
 
@@ -125,13 +115,9 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-    AndroidSAFOptions? androidSafOptions,
   }) async {
     try {
-      return await methodChannel.invokeMethod('dir', {
-        if (androidSafOptions != null)
-          'androidSafOptions': androidSafOptions.toMap(),
-      });
+      return await methodChannel.invokeMethod('dir', {});
     } on PlatformException catch (ex) {
       if (ex.code == "unknown_path") {
         print(
@@ -142,7 +128,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     return null;
   }
 
-   Future<FilePickerResult?> _getPath(
+  Future<FilePickerResult?> _getPath(
     FileType fileType,
     bool allowMultipleSelection,
     List<String>? allowedExtensions,
@@ -150,7 +136,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool? withData,
     bool? withReadStream,
     int? compressionQuality,
-    AndroidSAFOptions? androidSafOptions,
   ) async {
     final String type = fileType.name;
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -173,13 +158,11 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         }, onError: (error) => throw Exception(error));
       }
 
-       final List<Map>? result = await methodChannel.invokeListMethod(type, {
+      final List<Map>? result = await methodChannel.invokeListMethod(type, {
         'allowMultipleSelection': allowMultipleSelection,
         'allowedExtensions': allowedExtensions,
         'withData': withData,
         'compressionQuality': compressionQuality,
-        if (androidSafOptions != null)
-          'androidSafOptions': androidSafOptions.toMap(),
       });
 
       if (result == null) {

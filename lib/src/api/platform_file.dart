@@ -3,9 +3,7 @@ import 'dart:async';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
 
-import 'android_saf_handle.dart';
 import '../file_picker_utils.dart';
-import '../platform/file_picker_platform_interface.dart';
 import '../platform/web/platform_file_web_fetch_stub.dart'
     if (dart.library.js_interop) '../platform/web/platform_file_web_fetch.dart';
 
@@ -27,13 +25,6 @@ class PlatformFile {
       size: data['size'],
       readStream: readStream,
     );
-
-    if (data case {'safHandle': final Map<Object?, Object?> safHandle}) {
-      return AndroidPlatformFile(
-        file: file,
-        safHandle: AndroidSAFHandle.fromMap(safHandle),
-      );
-    }
 
     return file;
   }
@@ -79,10 +70,8 @@ class PlatformFile {
   /// determined.
   final int size;
 
-  /// The platform identifier for the original file, refers to an [Uri](https://developer.android.com/reference/android/net/Uri) on Android and
-  /// to a [NSURL](https://developer.apple.com/documentation/foundation/nsurl) on iOS.
-  /// NOTE: `identifier` and `persistentIdentifier` were removed. The `path` field must contain either a local filesystem path
-  /// or a platform URL/URI that uniquely identifies the selected file. Do not rely on any separate identifier fields.
+  /// The platform identifier for the original file (platform-specific). The `path` field must contain either
+  /// a local filesystem path or a platform URL/URI that uniquely identifies the selected file.
 
   /// File extension for this file.
   String? get extension => name.split('.').last;
@@ -189,7 +178,7 @@ class PlatformFile {
     }
   }
 
-  // identifier/persistentIdentifier removed — identification must be provided in `path`.
+  // Identification must be provided in `path`.
 
   @override
   bool operator ==(Object other) {
@@ -202,21 +191,13 @@ class PlatformFile {
         other.name == name &&
         other.bytes == bytes &&
         other.readStream == readStream &&
-        // Removed identifier/persistentIdentifier from equality — rely on path instead.
+        // Rely on path as the canonical identifier.
         other.size == size;
   }
 
   @override
   int get hashCode {
-    return kIsWeb
-        ? 0
-        : Object.hash(
-            path,
-            name,
-            bytes,
-            readStream,
-            size,
-          );
+    return kIsWeb ? 0 : Object.hash(path, name, bytes, readStream, size);
   }
 
   @override
@@ -227,7 +208,7 @@ class PlatformFile {
 
 /// A [PlatformFile] implementation that includes a handle to a Android's Storage Access Framework document URI.
 class AndroidPlatformFile extends PlatformFile {
-  AndroidPlatformFile({required PlatformFile file, required this.safHandle})
+  AndroidPlatformFile({required PlatformFile file})
     : super(
         path: file.path,
         name: file.name,
@@ -236,21 +217,8 @@ class AndroidPlatformFile extends PlatformFile {
         readStream: file.readStream,
       );
 
-  /// The handle to the Storage Access Framework URI.
-  final AndroidSAFHandle safHandle;
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! AndroidPlatformFile) return false;
-    return super == other && other.safHandle == safHandle;
-  }
-
-  @override
-  int get hashCode => Object.hash(super.hashCode, safHandle);
-
   @override
   String toString() {
-    return 'AndroidPlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, size: $size, safHandle: $safHandle)';
+    return 'AndroidPlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, size: $size)';
   }
 }

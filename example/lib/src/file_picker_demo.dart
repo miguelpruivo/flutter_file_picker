@@ -33,9 +33,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   bool _userAborted = false;
   bool _multiPick = false;
   bool _withData = kIsWeb ? true : false;
-  bool _safPersist = false;
-  bool _safReadWrite = false;
-  bool _supportsSafOptions = false;
+
   FileType _pickingType = FileType.any;
   List<PlatformFile>? pickedFiles;
   bool get _isSaveFileDisabled => _multiPick;
@@ -66,9 +64,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _fileExtensionController.addListener(
       () => _extension = _fileExtensionController.text,
     );
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      _supportsSafOptions = true;
-    }
   }
 
   @override
@@ -95,7 +90,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           initialDirectory: _initialDirectoryController.text,
           lockParentWindow: _lockParentWindow,
           withData: _withData,
-          androidSafOptions: _androidSafOptionsFromFlags(),
         );
         printInDebug("pickedFiles: $result");
         pickedFiles = result?.files;
@@ -107,7 +101,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           dialogTitle: _dialogTitleController.text,
           initialDirectory: _initialDirectoryController.text,
           lockParentWindow: _lockParentWindow,
-          androidSafOptions: _androidSafOptionsFromFlags(),
           withData: _withData,
         );
         printInDebug("pickedFile: $file");
@@ -210,7 +203,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         dialogTitle: _dialogTitleController.text,
         initialDirectory: _initialDirectoryController.text,
         lockParentWindow: _lockParentWindow,
-        androidSafOptions: _androidSafOptionsFromFlags(),
       );
       hasUserAborted = pickedDirectoryPath == null;
     } on PlatformException catch (e) {
@@ -226,7 +218,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       void updateResults() {
         _resultsWidget = PickedDirectoryResult(
           pickedDirectoryPath: pickedDirectoryPath,
-          readWriteAccess: _safReadWrite,
+          readWriteAccess: false,
           onDirectoryRemoved: () {
             _scaffoldMessengerKey.currentState?.showSnackBar(
               const SnackBar(content: Text("SAF Permission Released!")),
@@ -305,7 +297,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     });
   }
 
-
   void _logException(String message) {
     printInDebug(message);
     _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
@@ -342,7 +333,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       pickedFiles: pickedFiles,
       onRemoveAndroidFile:
           (int index, AndroidPlatformFile androidPlatformFile) {
-            androidPlatformFile.safHandle.releaseGrant();
             _scaffoldMessengerKey.currentState?.showSnackBar(
               const SnackBar(content: Text("SAF Permission Released!")),
             );
@@ -363,19 +353,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   List<String>? _allowedExtensionsFromInput() {
     return (_extension?.isNotEmpty ?? false)
         ? _extension?.replaceAll(' ', '').split(',')
-        : null;
-  }
-
-  AndroidSAFOptions? _androidSafOptionsFromFlags() {
-    return (_safPersist || _safReadWrite)
-        ? AndroidSAFOptions(
-            grant: _safPersist
-                ? AndroidSAFGrant.lifetime
-                : AndroidSAFGrant.transient,
-            accessMode: _safReadWrite
-                ? AndroidSAFAccessMode.readWrite
-                : AndroidSAFAccessMode.readOnly,
-          )
         : null;
   }
 
@@ -502,32 +479,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
             ),
           ),
         ),
-      ConstrainedBox(
-        constraints: const BoxConstraints.tightFor(width: 400.0),
-        child: SwitchListTile.adaptive(
-          title: const Text(
-            'SAF Persist (Android 10+)',
-            textAlign: TextAlign.left,
-          ),
-          onChanged: _supportsSafOptions
-              ? (value) => setState(() => _safPersist = value)
-              : null,
-          value: _safPersist,
-        ),
-      ),
-      ConstrainedBox(
-        constraints: const BoxConstraints.tightFor(width: 400.0),
-        child: SwitchListTile.adaptive(
-          title: const Text(
-            'SAF ReadWrite (Android 10+)',
-            textAlign: TextAlign.left,
-          ),
-          onChanged: _supportsSafOptions
-              ? (value) => setState(() => _safReadWrite = value)
-              : null,
-          value: _safReadWrite,
-        ),
-      ),
     ];
 
     final actionButtons = <Widget>[
@@ -573,7 +524,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           label: const Text('Clear temporary files'),
           icon: const Icon(Icons.delete_forever),
         ),
-      )
+      ),
     ];
 
     final loadingIndicator = Row(

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
+
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/file_picker_utils.dart';
 import 'package:flutter/foundation.dart';
@@ -57,7 +57,6 @@ class FilePickerMacOS extends FilePickerPlatform {
     bool lockParentWindow = false,
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
-    AndroidSAFOptions? androidSafOptions
   }) async {
     final fileFilter = fileTypeToFileFilter(type, allowedExtensions);
 
@@ -94,7 +93,6 @@ class FilePickerMacOS extends FilePickerPlatform {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-    AndroidSAFOptions? androidSafOptions,
   }) async {
     final String? directoryPath = await methodChannel.invokeMethod<String>(
       'getDirectoryPath',
@@ -120,13 +118,9 @@ class FilePickerMacOS extends FilePickerPlatform {
   }) async {
     final Uint8List? bytesToSave =
         bytes ??
-        (path != null
-            ? await FilePickerUtils.readBytesFromFile(path)
-            : null);
+        (path != null ? await FilePickerUtils.readBytesFromFile(path) : null);
     if (bytesToSave == null) {
-      throw ArgumentError(
-        'macOS saveFile requires bytes or a readable path.',
-      );
+      throw ArgumentError('macOS saveFile requires bytes or a readable path.');
     }
 
     final fileFilter = fileTypeToFileFilter(type, allowedExtensions);

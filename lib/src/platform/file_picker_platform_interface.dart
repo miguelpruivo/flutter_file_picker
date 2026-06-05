@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
 import 'package:file_picker/src/platform/file_picker_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -42,18 +41,16 @@ abstract class FilePickerPlatform extends PlatformInterface {
     bool lockParentWindow = false,
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
-    AndroidSAFOptions? androidSafOptions,
   }) async {
     throw UnimplementedError('pickFiles() has not been implemented.');
   }
-  /// Reads a file identified by [identifier] or [persistentIdentifier].
-  Future<Uint8List> readFileAsBytes({
-    String? identifier,
-  }) async {
+
+  /// Reads a file identified by [identifier].
+  Future<Uint8List> readFileAsBytes({String? identifier}) async {
     throw UnimplementedError('readFileAsBytes() has not been implemented.');
   }
 
-  /// Streams a file identified by [identifier] or [persistentIdentifier].
+  /// Streams a file identified by [identifier].
   Stream<Uint8List> readFileAsStream({
     String? identifier,
     int chunkSize = 64 * 1024,
@@ -74,11 +71,6 @@ abstract class FilePickerPlatform extends PlatformInterface {
     );
   }
 
-  /// Releases the given SAF grant.
-  Future<void> releaseSAFGrant(String uri) async {
-    throw UnimplementedError('releaseSAFGrant() has not been implemented.');
-  }
-
   /// Asks the underlying platform to remove any temporary files created by this plugin.
   Future<bool?> clearTemporaryFiles() async {
     throw UnimplementedError('clearTemporaryFiles() has not been implemented.');
@@ -89,7 +81,6 @@ abstract class FilePickerPlatform extends PlatformInterface {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-    AndroidSAFOptions? androidSafOptions,
   }) async {
     throw UnimplementedError('getDirectoryPath() has not been implemented.');
   }

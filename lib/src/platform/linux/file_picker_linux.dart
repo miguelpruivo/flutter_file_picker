@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:file_picker/src/api/file_picker_types.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
+
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/platform_file.dart';
@@ -45,7 +45,6 @@ class FilePickerLinux extends FilePickerPlatform {
     bool readSequential = false,
     int compressionQuality = 0,
     bool cancelUploadOnWindowBlur = true,
-    AndroidSAFOptions? androidSafOptions,
   }) async {
     final filter = Filter(type, allowedExtensions);
     Map<String, DBusValue> xdpOption = {
@@ -106,7 +105,6 @@ class FilePickerLinux extends FilePickerPlatform {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-    AndroidSAFOptions? androidSafOptions,
   }) async {
     Map<String, DBusValue> xdpOption = {
       'handle_token': DBusString('flutter_picker'),
@@ -170,9 +168,7 @@ class FilePickerLinux extends FilePickerPlatform {
   }) async {
     final Uint8List? bytesToSave =
         bytes ??
-        (path != null
-            ? await FilePickerUtils.readBytesFromFile(path)
-            : null);
+        (path != null ? await FilePickerUtils.readBytesFromFile(path) : null);
     if (bytesToSave == null) {
       throw ArgumentError(
         'Linux saveFile requires bytes or a readable sourceIdentifier.',

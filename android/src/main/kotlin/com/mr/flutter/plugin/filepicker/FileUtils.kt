@@ -79,7 +79,7 @@ object FileUtils {
                     data.clipData != null -> {
                         for (i in 0 until data.clipData!!.itemCount) {
                             var uri = data.clipData!!.getItemAt(i).uri
-                            // persistent access removed — no persistable URI permission will be taken
+
                             addFile(
                                 activity,
                                 uri,
@@ -98,7 +98,7 @@ object FileUtils {
                         var uri = data.data!!
 
                         if (type == "dir") {
-                            // persistent access removed — no persistable URI permission will be taken
+
                             if (androidSafOptions != null) {
                                 finishWithSuccess(data.data!!.toString())
                             } else {
@@ -131,7 +131,7 @@ object FileUtils {
                     data.extras?.containsKey("selectedItems") == true -> {
                         val fileUris = getSelectedItems(data.extras!!)
                         fileUris?.filterIsInstance<Uri>()?.forEach { uri ->
-                            // persistent access removed — no persistable URI permission will be taken
+
                             addFile(
                                 activity,
                                 uri,

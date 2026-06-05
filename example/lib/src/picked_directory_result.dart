@@ -1,4 +1,3 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'file_picker_results.dart';
@@ -27,18 +26,10 @@ class PickedDirectoryResult extends StatelessWidget {
 
         final isContentUri = directoryPath.startsWith('content://');
 
-        final accessMode = readWriteAccess
-            ? AndroidSAFAccessMode.readWrite
-            : AndroidSAFAccessMode.readOnly;
         final Widget? trailingWidget = isContentUri
             ? IconButton(
                 icon: const Icon(Icons.delete_forever),
                 onPressed: () {
-                  final safHandle = AndroidSAFHandle(
-                    uri: Uri.parse(directoryPath),
-                    accessMode: accessMode,
-                  );
-                  safHandle.releaseGrant();
                   onDirectoryRemoved();
                 },
               )

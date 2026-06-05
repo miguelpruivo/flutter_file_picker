@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/platform_file.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
+
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:path/path.dart' as p;
@@ -44,7 +44,6 @@ class FilePickerWeb extends FilePickerPlatform {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-    AndroidSAFOptions? androidSafOptions,
   }) async {
     throw UnimplementedError('getDirectoryPath() has not been implemented.');
   }
@@ -63,7 +62,6 @@ class FilePickerWeb extends FilePickerPlatform {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     int compressionQuality = 0,
-    AndroidSAFOptions? androidSafOptions,
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
@@ -238,9 +236,7 @@ class FilePickerWeb extends FilePickerPlatform {
       );
     }
 
-    final sourceUrl = path?.isNotEmpty == true
-        ? path
-        : null;
+    final sourceUrl = path?.isNotEmpty == true ? path : null;
 
     if (bytes == null && sourceUrl == null) {
       throw ArgumentError(

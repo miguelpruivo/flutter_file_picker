@@ -5,7 +5,6 @@ import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
 
 abstract final class FilePicker {
   /// Retrieves the file(s) from the underlying platform
@@ -94,7 +93,6 @@ abstract final class FilePicker {
     )
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
-    AndroidSAFOptions? androidSafOptions,
   }) {
     return FilePickerPlatform.instance.pickFiles(
       dialogTitle: dialogTitle,
@@ -109,7 +107,6 @@ abstract final class FilePicker {
       lockParentWindow: lockParentWindow,
       readSequential: readSequential,
       cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
-      androidSafOptions: androidSafOptions,
     );
   }
 
@@ -129,7 +126,6 @@ abstract final class FilePicker {
     int compressionQuality = 0,
     bool lockParentWindow = false,
     bool cancelUploadOnWindowBlur = true,
-    AndroidSAFOptions? androidSafOptions,
     bool withData = false,
   }) async {
     final result = await FilePickerPlatform.instance.pickFiles(
@@ -145,7 +141,6 @@ abstract final class FilePicker {
       lockParentWindow: lockParentWindow,
       readSequential: false,
       cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
-      androidSafOptions: androidSafOptions,
     );
 
     return result?.files.firstOrNull;
@@ -223,19 +218,15 @@ abstract final class FilePicker {
   /// could not be instantiated or the dialog result could not be interpreted.
   /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
   /// Note: The User Selected File Read entitlement is required on macOS.
-  /// Note: On Android, if [androidSafOptions] is provided, the returned string will be a
-  /// `content://` document tree URI instead of an absolute path.
   static Future<String?> getDirectoryPath({
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-    AndroidSAFOptions? androidSafOptions,
   }) {
     return FilePickerPlatform.instance.getDirectoryPath(
       dialogTitle: dialogTitle,
       lockParentWindow: lockParentWindow,
       initialDirectory: initialDirectory,
-      androidSafOptions: androidSafOptions,
     );
   }
 
