@@ -202,7 +202,7 @@ object FileUtils {
         if (type == "dir") {
             intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         } else {
-            if (type == "image/*" && !shouldUseOpenDocument) {
+            if (type == "image/*") {
                 intent = Intent(Intent.ACTION_GET_CONTENT).apply {
                     type = this@startFileExplorer.type
                     putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this@startFileExplorer.isMultipleSelection)
@@ -212,7 +212,7 @@ object FileUtils {
                     }
                 }
             }
-            else if (type == "audio/*" && !shouldUseOpenDocument ){
+            else if (type == "audio/*"){
                 intent = Intent(Intent.ACTION_GET_CONTENT).apply {
                     this.type = this@startFileExplorer.type
                     addCategory(Intent.CATEGORY_OPENABLE)
@@ -224,7 +224,7 @@ object FileUtils {
                         putExtra(DocumentsContract.EXTRA_INITIAL_URI, audioRootUri)
                     }
                 }
-            } else if(type == "video/*" && !shouldUseOpenDocument){
+            } else if(type == "video/*"){
                 intent = Intent(Intent.ACTION_GET_CONTENT).apply {
                     this.type = this@startFileExplorer.type
                     addCategory(Intent.CATEGORY_OPENABLE)
@@ -232,7 +232,7 @@ object FileUtils {
                     putExtra("multi-pick", this@startFileExplorer.isMultipleSelection)
                 }
             }
-            else if (type == "media" && !shouldUseOpenDocument) {
+            else if (type == "media") {
                 intent = Intent(Intent.ACTION_GET_CONTENT)
                 intent.type = "*/*"
                 val mimeTypes = arrayOf("image/*", "video/*", "audio/*")
