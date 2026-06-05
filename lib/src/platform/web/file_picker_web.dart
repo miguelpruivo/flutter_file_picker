@@ -223,9 +223,7 @@ class FilePickerWeb extends FilePickerPlatform {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Uint8List? bytes,
-    String? sourcePath,
     String? sourceIdentifier,
-    String? sourcePersistentIdentifier,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
@@ -241,17 +239,13 @@ class FilePickerWeb extends FilePickerPlatform {
       );
     }
 
-    final sourceUrl = sourcePath?.isNotEmpty == true
-        ? sourcePath
-        : sourceIdentifier?.isNotEmpty == true
+    final sourceUrl = sourceIdentifier?.isNotEmpty == true
         ? sourceIdentifier
-        : sourcePersistentIdentifier?.isNotEmpty == true
-        ? sourcePersistentIdentifier
         : null;
 
     if (bytes == null && sourceUrl == null) {
       throw ArgumentError(
-        'Either bytes or a web source URL are required when saving a file on the web.',
+        'Either bytes or a web source URL (sourceIdentifier) are required when saving a file on the web.',
       );
     }
 

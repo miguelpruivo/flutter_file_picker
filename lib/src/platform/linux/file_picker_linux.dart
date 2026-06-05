@@ -46,6 +46,7 @@ class FilePickerLinux extends FilePickerPlatform {
     int compressionQuality = 0,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
+    bool withPersistentAccess = false,
   }) async {
     final filter = Filter(type, allowedExtensions);
     Map<String, DBusValue> xdpOption = {
@@ -164,20 +165,18 @@ class FilePickerLinux extends FilePickerPlatform {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Uint8List? bytes,
-    String? sourcePath,
     String? sourceIdentifier,
-    String? sourcePersistentIdentifier,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
     final Uint8List? bytesToSave =
         bytes ??
-        (sourcePath != null
-            ? await FilePickerUtils.readBytesFromFile(sourcePath)
+        (sourceIdentifier != null
+            ? await FilePickerUtils.readBytesFromFile(sourceIdentifier)
             : null);
     if (bytesToSave == null) {
       throw ArgumentError(
-        'Linux saveFile requires bytes or a readable sourcePath.',
+        'Linux saveFile requires bytes or a readable sourceIdentifier.',
       );
     }
 

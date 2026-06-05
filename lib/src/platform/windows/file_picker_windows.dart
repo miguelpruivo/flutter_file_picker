@@ -195,20 +195,18 @@ class FilePickerWindows extends FilePickerPlatform {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Uint8List? bytes,
-    String? sourcePath,
     String? sourceIdentifier,
-    String? sourcePersistentIdentifier,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
     final Uint8List? bytesToSave =
         bytes ??
-        (sourcePath != null
-            ? await FilePickerUtils.readBytesFromFile(sourcePath)
+        (sourceIdentifier != null
+            ? await FilePickerUtils.readBytesFromFile(sourceIdentifier)
             : null);
     if (bytesToSave == null) {
       throw ArgumentError(
-        'Windows saveFile requires bytes or a readable sourcePath.',
+        'Windows saveFile requires bytes or a readable sourceIdentifier.',
       );
     }
 

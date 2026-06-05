@@ -306,9 +306,7 @@ abstract final class FilePicker {
       type: type,
       allowedExtensions: allowedExtensions,
       bytes: bytesToSave,
-      sourcePath: sourceFile?.path,
       sourceIdentifier: sourceFile?.identifier,
-      sourcePersistentIdentifier: sourceFile?.persistentIdentifier,
       onFileLoading: onFileLoading,
       lockParentWindow: lockParentWindow,
     );

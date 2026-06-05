@@ -194,28 +194,20 @@ object FileUtils {
         context: Context,
         destinationUri: Uri,
         bytes: ByteArray?,
-        sourcePath: String?,
-        sourceIdentifier: String?,
-        sourcePersistentIdentifier: String?
+        sourceIdentifier: String?
     ): Uri {
         context.contentResolver.openOutputStream(destinationUri)?.use { output ->
             when {
-                !sourcePersistentIdentifier.isNullOrEmpty() || !sourceIdentifier.isNullOrEmpty() -> {
-                    val sourceUri = Uri.parse(sourcePersistentIdentifier ?: sourceIdentifier)
+                !sourceIdentifier.isNullOrEmpty() -> {
+                    val sourceUri = Uri.parse(sourceIdentifier)
                     context.contentResolver.openInputStream(sourceUri)?.use { input ->
                         input.copyTo(output, COPY_BUFFER_SIZE)
                     } ?: throw FileNotFoundException("Could not open input stream for source URI: $sourceUri")
                 }
 
-                !sourcePath.isNullOrEmpty() -> {
-                    FileInputStream(File(sourcePath)).use { input ->
-                        input.copyTo(output, COPY_BUFFER_SIZE)
-                    }
-                }
-
                 bytes != null -> output.write(bytes)
                 else -> throw IllegalArgumentException(
-                    "Missing source reference. Provide bytes or one of sourcePath/sourceIdentifier/sourcePersistentIdentifier."
+                    "Missing source reference. Provide bytes or sourceIdentifier."
                 )
             }
         }
@@ -389,9 +381,7 @@ object FileUtils {
         type: String?,
         initialDirectory: String?,
         bytes: ByteArray?,
-        sourcePath: String?,
         sourceIdentifier: String?,
-        sourcePersistentIdentifier: String?,
         result: MethodChannel.Result
     ) {
         if (!this.setPendingMethodCallResult(result)) {
@@ -404,9 +394,7 @@ object FileUtils {
             intent.putExtra(Intent.EXTRA_TITLE, fileName)
         }
         this.bytes = bytes
-        this.sourcePath = sourcePath
         this.sourceIdentifier = sourceIdentifier
-        this.sourcePersistentIdentifier = sourcePersistentIdentifier
         this.saveFileName = fileName
         if ("dir" != type) {
             try {

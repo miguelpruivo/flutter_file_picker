@@ -44,6 +44,7 @@ abstract class FilePickerPlatform extends PlatformInterface {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
+    bool withPersistentAccess = false,
   }) async {
     throw UnimplementedError('pickFiles() has not been implemented.');
   }
@@ -117,9 +118,7 @@ abstract class FilePickerPlatform extends PlatformInterface {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     Uint8List? bytes,
-    String? sourcePath,
     String? sourceIdentifier,
-    String? sourcePersistentIdentifier,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {

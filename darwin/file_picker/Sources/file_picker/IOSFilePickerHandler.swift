@@ -272,9 +272,7 @@ final class IOSFilePickerHandler: NSObject,
         isSaveFile = true
         let fileName = (arguments["fileName"] as? String) ?? UUID().uuidString
         let bytes = arguments["bytes"] as? FlutterStandardTypedData
-        let sourcePath = arguments["sourcePath"] as? String
         let sourceIdentifier = arguments["sourceIdentifier"] as? String
-        let sourcePersistentIdentifier = arguments["sourcePersistentIdentifier"] as? String
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self else { return }
@@ -283,9 +281,7 @@ final class IOSFilePickerHandler: NSObject,
                 let resolvedSource = try self.resolveSaveSource(
                     fileName: fileName,
                     bytes: bytes,
-                    sourcePath: sourcePath,
-                    sourceIdentifier: sourceIdentifier,
-                    sourcePersistentIdentifier: sourcePersistentIdentifier)
+                    sourceIdentifier: sourceIdentifier)
 
                 DispatchQueue.main.async { [weak self] in
                     guard let self else {
@@ -323,42 +319,10 @@ final class IOSFilePickerHandler: NSObject,
     private func resolveSaveSource(
         fileName: String,
         bytes: FlutterStandardTypedData?,
-        sourcePath: String?,
-        sourceIdentifier: String?,
-        sourcePersistentIdentifier: String?
+        sourceIdentifier: String?
     ) throws -> ResolvedFileAccess {
-        if let sourcePersistentIdentifier,
-           let bookmarkData = Data(base64Encoded: sourcePersistentIdentifier)
-        {
-            var isStale = false
-            let url = try URL(
-                resolvingBookmarkData: bookmarkData,
-                options: [],
-                relativeTo: nil,
-                bookmarkDataIsStale: &isStale)
-
-            guard url.startAccessingSecurityScopedResource() else {
-                throw NSError(
-                    domain: "file_picker",
-                    code: 2,
-                    userInfo: [NSLocalizedDescriptionKey: "Could not access the security-scoped resource for save."])
-            }
-
-            return ResolvedFileAccess(
-                url: url,
-                persistentIdentifier: sourcePersistentIdentifier,
-                teardown: { url.stopAccessingSecurityScopedResource() })
-        }
-
         if let sourceIdentifier, let sourceURL = URL(string: sourceIdentifier) {
             return ResolvedFileAccess(url: sourceURL, persistentIdentifier: nil, teardown: {})
-        }
-
-        if let sourcePath, !sourcePath.isEmpty {
-            return ResolvedFileAccess(
-                url: URL(fileURLWithPath: sourcePath),
-                persistentIdentifier: nil,
-                teardown: {})
         }
 
         if let data = bytes?.data {
@@ -375,7 +339,7 @@ final class IOSFilePickerHandler: NSObject,
         throw NSError(
             domain: "file_picker",
             code: 5,
-            userInfo: [NSLocalizedDescriptionKey: "Missing source reference. Provide bytes or sourcePath/sourceIdentifier/sourcePersistentIdentifier."])
+            userInfo: [NSLocalizedDescriptionKey: "Missing source reference. Provide bytes or sourceIdentifier."])
     }
 
     private func resolveCustomContentTypes(_ allowedExtensions: [String]) -> [UTType] {
