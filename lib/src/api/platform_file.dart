@@ -7,7 +7,6 @@ import '../file_picker_utils.dart';
 import '../platform/web/platform_file_web_fetch_stub.dart'
     if (dart.library.js_interop) '../platform/web/platform_file_web_fetch.dart';
 
-/// Represents a file returned by the file picker.
 class PlatformFile {
   PlatformFile({
     this.path,
@@ -18,15 +17,13 @@ class PlatformFile {
   });
 
   factory PlatformFile.fromMap(Map data, {Stream<List<int>>? readStream}) {
-    final file = PlatformFile(
+    return PlatformFile(
       name: data['name'],
       path: data['path'],
       bytes: data['bytes'],
       size: data['size'],
       readStream: readStream,
     );
-
-    return file;
   }
 
   /// The absolute path for a cached copy of this file. It can be used to create a
@@ -70,9 +67,6 @@ class PlatformFile {
   /// determined.
   final int size;
 
-  /// The platform identifier for the original file (platform-specific). The `path` field must contain either
-  /// a local filesystem path or a platform URL/URI that uniquely identifies the selected file.
-
   /// File extension for this file.
   String? get extension => name.split('.').last;
 
@@ -115,8 +109,7 @@ class PlatformFile {
       if (fetchedBytes != null) return fetchedBytes;
     }
 
-    // No platform identifiers: rely only on `path` or `bytes`. If `path` exists and file read failed earlier,
-    // fall through to error because we no longer support resolving platform-only identifiers.
+    // No platform identifiers: rely only on `path` or `bytes`.
 
     throw StateError(
       'PlatformFile.readAsBytes(): file data is not available. '
@@ -178,8 +171,6 @@ class PlatformFile {
     }
   }
 
-  // Identification must be provided in `path`.
-
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) {
@@ -191,7 +182,6 @@ class PlatformFile {
         other.name == name &&
         other.bytes == bytes &&
         other.readStream == readStream &&
-        // Rely on path as the canonical identifier.
         other.size == size;
   }
 
@@ -206,19 +196,4 @@ class PlatformFile {
   }
 }
 
-/// A [PlatformFile] implementation that includes a handle to a Android's Storage Access Framework document URI.
-class AndroidPlatformFile extends PlatformFile {
-  AndroidPlatformFile({required PlatformFile file})
-    : super(
-        path: file.path,
-        name: file.name,
-        size: file.size,
-        bytes: file.bytes,
-        readStream: file.readStream,
-      );
 
-  @override
-  String toString() {
-    return 'AndroidPlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, size: $size)';
-  }
-}

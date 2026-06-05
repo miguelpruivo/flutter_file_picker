@@ -301,8 +301,6 @@ abstract final class FilePicker {
     );
   }
 
-  // persistent identifier / persistent access API removed
-
   /// Skips the entitlements checks on macOS, allowing the plugin to be used without Sandbox enabled.
   ///
   /// This is only relevant for macOS. On other platforms, this method does nothing.

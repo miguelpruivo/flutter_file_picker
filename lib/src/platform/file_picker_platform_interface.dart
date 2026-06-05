@@ -45,19 +45,6 @@ abstract class FilePickerPlatform extends PlatformInterface {
     throw UnimplementedError('pickFiles() has not been implemented.');
   }
 
-  /// Reads a file identified by [identifier].
-  Future<Uint8List> readFileAsBytes({String? identifier}) async {
-    throw UnimplementedError('readFileAsBytes() has not been implemented.');
-  }
-
-  /// Streams a file identified by [identifier].
-  Stream<Uint8List> readFileAsStream({
-    String? identifier,
-    int chunkSize = 64 * 1024,
-  }) async* {
-    throw UnimplementedError('readFileAsStream() has not been implemented.');
-  }
-
   /// Displays a dialog that allows the user to select both files and
   /// directories simultaneously, returning their absolute paths.
   Future<List<String>?> pickFileAndDirectoryPaths({

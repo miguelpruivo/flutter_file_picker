@@ -330,16 +330,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   void _updatePickedFilesResults() {
     _resultsWidget = PickedFilesResults(
       pickedFiles: pickedFiles,
-      onRemoveAndroidFile:
-          (int index, AndroidPlatformFile androidPlatformFile) {
-            _scaffoldMessengerKey.currentState?.showSnackBar(
-              const SnackBar(content: Text("SAF Permission Released!")),
-            );
-            setState(() {
-              pickedFiles!.removeAt(index);
-              _updatePickedFilesResults();
-            });
-          },
     );
   }
 

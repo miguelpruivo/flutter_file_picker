@@ -57,56 +57,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
   );
 
   @override
-  Future<Uint8List> readFileAsBytes({String? identifier}) async {
-    final Uint8List? bytes = await methodChannel.invokeMethod<Uint8List>(
-      'readFileBytes',
-      {'identifier': identifier},
-    );
-
-    if (bytes == null) {
-      throw StateError(
-        'The platform could not read bytes for the requested file.',
-      );
-    }
-
-    return bytes;
-  }
-
-  @override
-  Stream<Uint8List> readFileAsStream({
-    String? identifier,
-    int chunkSize = 64 * 1024,
-  }) async* {
-    final String? sessionId = await methodChannel.invokeMethod<String>(
-      'openReadSession',
-      {'identifier': identifier},
-    );
-
-    if (sessionId == null) {
-      throw StateError(
-        'The platform could not open a read session for the requested file.',
-      );
-    }
-
-    try {
-      while (true) {
-        final Uint8List? chunk = await methodChannel.invokeMethod<Uint8List>(
-          'readSessionChunk',
-          {'sessionId': sessionId, 'chunkSize': chunkSize},
-        );
-        if (chunk == null || chunk.isEmpty) {
-          break;
-        }
-        yield chunk;
-      }
-    } finally {
-      await methodChannel.invokeMethod<void>('closeReadSession', {
-        'sessionId': sessionId,
-      });
-    }
-  }
-
-  @override
   Future<bool?> clearTemporaryFiles() async =>
       methodChannel.invokeMethod<bool>('clear');
 

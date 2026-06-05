@@ -43,6 +43,7 @@ class FilePickerMacOS extends FilePickerPlatform {
     return filePaths;
   }
 
+  @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
@@ -52,7 +53,6 @@ class FilePickerMacOS extends FilePickerPlatform {
     int compressionQuality = 0,
     bool allowMultiple = false,
     bool withData = false,
-    bool withPersistentAccess = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,

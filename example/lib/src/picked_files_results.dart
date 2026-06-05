@@ -3,18 +3,13 @@ import 'package:flutter/material.dart';
 
 import 'file_picker_results.dart';
 
-typedef OnRemoveAndroidFile =
-    void Function(int index, AndroidPlatformFile androidPlatformFile);
-
 class PickedFilesResults extends StatelessWidget {
   const PickedFilesResults({
     super.key,
     required this.pickedFiles,
-    this.onRemoveAndroidFile,
   });
 
   final List<PlatformFile>? pickedFiles;
-  final OnRemoveAndroidFile? onRemoveAndroidFile;
 
   @override
   Widget build(BuildContext context) {
@@ -22,26 +17,14 @@ class PickedFilesResults extends StatelessWidget {
       itemCount: pickedFiles?.length ?? 0,
       itemBuilder: (BuildContext context, int index) {
         final pickedFile = pickedFiles![index];
-        final AndroidPlatformFile? androidPlatformFile =
-            pickedFile is AndroidPlatformFile ? pickedFile : null;
-        final Widget? trailingWidget = androidPlatformFile == null
-            ? null
-            : IconButton(
-                icon: const Icon(Icons.delete_forever),
-                onPressed: onRemoveAndroidFile == null
-                    ? null
-                    : () => onRemoveAndroidFile!(index, androidPlatformFile),
-              );
-        final path = pickedFile.name;
 
         return ListTile(
           leading: Text(
             index.toString(),
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
           ),
-          title: Text('File path: '),
-          subtitle: Text(path),
-          trailing: trailingWidget,
+          title: const Text('File path: '),
+          subtitle: Text(pickedFile.name),
         );
       },
     );
