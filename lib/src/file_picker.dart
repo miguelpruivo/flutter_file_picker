@@ -177,19 +177,6 @@ abstract final class FilePicker {
     );
   }
 
-  /// Asks the underlying platform to remove any temporary files created by this plugin.
-  ///
-  /// This typically relates to cached files that are stored in the cache directory of
-  /// each platform and it isn't required to invoke this as the system should take care
-  /// of it whenever needed. However, this will force the cleanup if you want to manage those on your own.
-  ///
-  /// This method is only available on mobile platforms (Android & iOS).
-  ///
-  /// Returns `true` if the files were removed with success, `false` otherwise.
-  static Future<bool?> clearTemporaryFiles() {
-    return FilePickerPlatform.instance.clearTemporaryFiles();
-  }
-
   /// Selects a directory and returns its absolute path.
   ///
   /// On Android, this requires to be running on SDK 21 or above, else won't work.

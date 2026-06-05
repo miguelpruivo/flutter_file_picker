@@ -58,11 +58,6 @@ abstract class FilePickerPlatform extends PlatformInterface {
     );
   }
 
-  /// Asks the underlying platform to remove any temporary files created by this plugin.
-  Future<bool?> clearTemporaryFiles() async {
-    throw UnimplementedError('clearTemporaryFiles() has not been implemented.');
-  }
-
   /// Selects a directory and returns its absolute path.
   Future<String?> getDirectoryPath({
     String? dialogTitle,

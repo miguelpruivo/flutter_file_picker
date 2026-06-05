@@ -57,10 +57,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
   );
 
   @override
-  Future<bool?> clearTemporaryFiles() async =>
-      methodChannel.invokeMethod<bool>('clear');
-
-  @override
   Future<String?> getDirectoryPath({
     String? dialogTitle,
     bool lockParentWindow = false,

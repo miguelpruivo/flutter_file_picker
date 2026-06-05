@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import com.mr.flutter.plugin.filepicker.FileUtils.clearCache
 import com.mr.flutter.plugin.filepicker.FileUtils.getFileExtension
 import com.mr.flutter.plugin.filepicker.FileUtils.getMimeTypes
 import com.mr.flutter.plugin.filepicker.FileUtils.saveFile
@@ -126,10 +125,6 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
         val method = call.method
 
         when (method) {
-            "clear" -> {
-                result.success(activity?.applicationContext?.let { clearCache(it) })
-            }
-
             "save" -> {
                 val type = resolveType(arguments?.get("fileType") as String)
                 val initialDirectory = arguments?.get("initialDirectory") as? String?

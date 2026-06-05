@@ -167,32 +167,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     });
   }
 
-  void _clearCachedFiles() async {
-    pickedFiles = [];
-    _resetState();
-    try {
-      bool? result = await FilePicker.clearTemporaryFiles();
-      _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-      _scaffoldMessengerKey.currentState?.showSnackBar(
-        SnackBar(
-          content: Text(
-            (result!
-                ? 'Temporary files removed with success.'
-                : 'Failed to clean temporary files'),
-            style: const TextStyle(color: Colors.white),
-          ),
-        ),
-      );
-    } on PlatformException catch (e) {
-      _logException('Unsupported operation: $e');
-    } catch (e) {
-      _logException(e.toString());
-    }
-
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-  }
-
   void _selectFolder() async {
     String? pickedDirectoryPath;
     bool hasUserAborted = true;
@@ -506,14 +480,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           icon: const Icon(Icons.save_as),
         ),
       ),
-      SizedBox(
-        width: 200,
-        child: FloatingActionButton.extended(
-          onPressed: _clearCachedFiles,
-          label: const Text('Clear temporary files'),
-          icon: const Icon(Icons.delete_forever),
-        ),
-      ),
+      // Clear temporary files action removed - not applicable anymore.
     ];
 
     final loadingIndicator = Row(

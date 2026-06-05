@@ -26,9 +26,6 @@ final class IOSFilePickerHandler: NSObject,
     }
 
     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        if handleNonInteractiveMethod(call, result: result) {
-            return
-        }
 
         if self.result != nil {
             result(
@@ -374,32 +371,6 @@ final class IOSFilePickerHandler: NSObject,
             return [.image, .movie, .video, .audio]
         default:
             return [.item]
-        }
-    }
-
-    private func handleNonInteractiveMethod(
-        _ call: FlutterMethodCall,
-        result: @escaping FlutterResult
-    ) -> Bool {
-        if call.method == "clear" {
-            result(clearTemporaryFiles())
-            return true
-        }
-        return false
-    }
-
-    private func clearTemporaryFiles() -> Bool {
-        let tmpDirectory = NSTemporaryDirectory()
-
-        do {
-            let files = try FileManager.default.contentsOfDirectory(atPath: tmpDirectory)
-            for file in files {
-                let filePath = (tmpDirectory as NSString).appendingPathComponent(file)
-                try FileManager.default.removeItem(atPath: filePath)
-            }
-            return true
-        } catch {
-            return false
         }
     }
 

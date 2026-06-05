@@ -26,12 +26,10 @@ import org.apache.tika.Tika
 import org.apache.tika.io.TikaInputStream
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.metadata.TikaCoreProperties
-import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -517,16 +515,14 @@ object FileUtils {
         loadDataToMemory: Boolean,
         files: MutableList<FileInfo>,
         hasSafOptions: Boolean = false,
-        isReadWrite: Boolean = false,
-        cacheToFile: Boolean = true
+        isReadWrite: Boolean = false
     ) {
         openFileStream(
             activity,
             uri,
             loadDataToMemory,
             hasSafOptions,
-            isReadWrite,
-            cacheToFile
+            isReadWrite
         )
             ?.let { file ->
             files.add(file)
@@ -675,21 +671,6 @@ object FileUtils {
         return uri.authority == "com.android.providers.downloads.documents"
     }
 
-    @JvmStatic
-    fun clearCache(context: Context): Boolean {
-        try {
-            val cacheDir = File(context.cacheDir.toString() + "/file_picker/")
-            recursiveDeleteFile(cacheDir)
-        } catch (ex: Exception) {
-            Log.e(
-                TAG,
-                "There was an error while clearing cached files: $ex"
-            )
-            return false
-        }
-        return true
-    }
-
     private fun getFileSize(context: Context, uri: Uri): Long {
         try {
             context.contentResolver.query(
@@ -719,82 +700,21 @@ object FileUtils {
 
     @JvmStatic
     fun openFileStream(
-        context: Context, 
-        uri: Uri, 
+        context: Context,
+        uri: Uri,
         withData: Boolean,
         hasSafOptions: Boolean = false,
-        isReadWrite: Boolean = false,
-        cacheToFile: Boolean = true
+        isReadWrite: Boolean = false
     ): FileInfo? {
         val fileInfo = FileInfo.Builder()
         val fileName = getFileName(uri, context)
 
-        if (!cacheToFile) {
-
-            fileInfo
-                // Do not leave path null. Use the URI string as the path when we are not caching to a local file.
-                .withPath(uri.toString())
-                .withName(fileName)
-                .withUri(uri)
-                .withSize(getFileSize(context, uri))
-
-            if (hasSafOptions) {
-                val safHandleMap = java.util.HashMap<String, Any>()
-                safHandleMap["uri"] = uri.toString()
-                safHandleMap["access"] = if (isReadWrite) "readWrite" else "readOnly"
-                fileInfo.withSafHandle(safHandleMap)
-            }
-
-            return fileInfo.build()
-        }
-
-        var fileInputStream: InputStream? = null
-        var fileOutputStream: FileOutputStream? = null
-        val path =
-            context.cacheDir.absolutePath + "/file_picker/" + System.currentTimeMillis() + "/" + (fileName
-                ?: "unamed")
-
-        val file = File(path)
-        
-        val safeDir = File(context.cacheDir.absolutePath + "/file_picker/").canonicalPath
-        if (!file.canonicalPath.startsWith(safeDir)) {
-            throw SecurityException("Path traversal detected. Escaping the intended cache directory is not allowed.")
-        }
-
-        if (!file.exists()) {
-            try {
-                file.parentFile?.mkdirs()
-
-                fileInputStream = context.contentResolver.openInputStream(uri)
-                fileOutputStream = FileOutputStream(file)
-
-                val out = BufferedOutputStream(fileOutputStream)
-                val buffer = ByteArray(8192)
-                var len: Int
-
-                while ((fileInputStream!!.read(buffer).also { len = it }) >= 0) {
-                    out.write(buffer, 0, len)
-                }
-                out.flush()
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to retrieve and cache file: " + e.message, e)
-                return null
-            } finally {
-                try {
-                    fileOutputStream?.fd?.sync()
-                    fileOutputStream?.close()
-                    fileInputStream?.close()
-                } catch (ex: IOException) {
-                    Log.e(TAG, "Failed to close file streams: " + ex.message, ex)
-                }
-            }
-        }
-
         fileInfo
-            .withPath(path)
+            .withPath(uri.toString())
             .withName(fileName)
             .withUri(uri)
-            .withSize(file.length())
+            .withSize(getFileSize(context, uri))
+
 
         if (hasSafOptions) {
             val safHandleMap = java.util.HashMap<String, Any>()
