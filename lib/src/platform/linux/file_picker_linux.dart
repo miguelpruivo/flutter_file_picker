@@ -166,13 +166,8 @@ class FilePickerLinux extends FilePickerPlatform {
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
-    final Uint8List? bytesToSave =
-        bytes ??
-        (path != null ? await FilePickerUtils.readBytesFromFile(path) : null);
-    if (bytesToSave == null) {
-      throw ArgumentError(
-        'Linux saveFile requires bytes or a readable path.',
-      );
+    if (bytes == null && path == null) {
+      throw ArgumentError('Linux saveFile requires bytes or a path.');
     }
 
     Map<String, DBusValue> xdpOption = {
@@ -200,7 +195,6 @@ class FilePickerLinux extends FilePickerPlatform {
     List<Uri> saveUris = [];
     await for (var response in request.response) {
       final status = response.response;
-      // Maybe cancelled
       if (status != 0) {
         return null;
       }
@@ -216,8 +210,13 @@ class FilePickerLinux extends FilePickerPlatform {
 
     final savedFilePaths = saveUris.map((uri) => uri.toFilePath()).toList();
     final savedFilePath = savedFilePaths.firstOrNull;
+    if (savedFilePath == null) return null;
 
-    await FilePickerUtils.saveBytesToFile(bytesToSave, savedFilePath);
+    if (bytes != null) {
+      await FilePickerUtils.saveBytesToFile(bytes, savedFilePath);
+    } else if (path != null) {
+      await FilePickerUtils.copyFile(path, savedFilePath);
+    }
 
     return savedFilePath;
   }
