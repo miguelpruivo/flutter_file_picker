@@ -156,7 +156,10 @@ object FileUtils {
         bytes: ByteArray?,
         path: String?
     ): Uri {
-        context.contentResolver.openOutputStream(destinationUri)?.use { output ->
+        val outputStream = context.contentResolver.openOutputStream(destinationUri)
+            ?: throw IOException("Could not open output stream for destination URI: $destinationUri")
+
+        outputStream.use { output ->
             when {
                 !path.isNullOrEmpty() -> {
                     val sourceUri = if (path.startsWith("content://") || path.startsWith("file://")) {
@@ -164,16 +167,38 @@ object FileUtils {
                     } else {
                         Uri.fromFile(File(path))
                     }
-                    context.contentResolver.openInputStream(sourceUri)?.use { input ->
+
+                    val copied = context.contentResolver.openInputStream(sourceUri)?.use { input ->
                         input.copyTo(output, COPY_BUFFER_SIZE)
                     } ?: throw FileNotFoundException("Could not open input stream for source: $path")
+
+                    if (copied == 0L) {
+                        throw IOException("Source stream appears empty for URI: $sourceUri")
+                    }
                 }
 
-                bytes != null -> output.write(bytes)
+                bytes != null -> {
+                    if (bytes.isEmpty()) {
+                        throw IllegalArgumentException("Provided bytes are empty. Cannot save 0-byte file.")
+                    }
+                    output.write(bytes)
+                    output.flush()
+                }
+
                 else -> throw IllegalArgumentException(
                     "Missing source reference. Provide bytes or path."
                 )
             }
+        }
+
+        val finalSize = try {
+            getFileSize(context, destinationUri)
+        } catch (e: Exception) {
+            0L
+        }
+
+        if (finalSize == 0L) {
+            throw IOException("Saved file has zero bytes for destination URI: $destinationUri")
         }
 
         return destinationUri
