@@ -6,12 +6,10 @@ class PickedDirectoryResult extends StatelessWidget {
   const PickedDirectoryResult({
     super.key,
     required this.pickedDirectoryPath,
-    required this.readWriteAccess,
     required this.onDirectoryRemoved,
   });
 
   final String? pickedDirectoryPath;
-  final bool readWriteAccess;
   final VoidCallback onDirectoryRemoved;
 
   @override

@@ -218,7 +218,6 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       void updateResults() {
         _resultsWidget = PickedDirectoryResult(
           pickedDirectoryPath: pickedDirectoryPath,
-          readWriteAccess: false,
           onDirectoryRemoved: () {
             _scaffoldMessengerKey.currentState?.showSnackBar(
               const SnackBar(content: Text("SAF Permission Released!")),
