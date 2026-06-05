@@ -18,6 +18,7 @@ class PlatformFile {
     this.bytes,
     this.readStream,
     this.identifier,
+    this.persistentIdentifier,
   });
 
   factory PlatformFile.fromMap(Map data, {Stream<List<int>>? readStream}) {
@@ -27,6 +28,7 @@ class PlatformFile {
       bytes: data['bytes'],
       size: data['size'],
       identifier: data['identifier'],
+      persistentIdentifier: data['persistentIdentifier'],
       readStream: readStream,
     );
 
@@ -93,6 +95,14 @@ class PlatformFile {
   /// that the [path] property should be used instead.
   final String? identifier;
 
+  /// A platform-specific identifier that can be stored and later resolved to
+  /// regain access to the original file without relying on a cached copy.
+  ///
+  /// - Android: usually the same persistable `content://` URI returned in
+  ///   [identifier].
+  /// - iOS: a base64-encoded security-scoped bookmark.
+  final String? persistentIdentifier;
+
   /// File extension for this file.
   String? get extension => name.split('.').last;
 
@@ -138,6 +148,7 @@ class PlatformFile {
     if (!kIsWeb && _hasPlatformIdentifier()) {
       return FilePickerPlatform.instance.readFileAsBytes(
         identifier: identifier,
+        persistentIdentifier: persistentIdentifier,
       );
     }
 
@@ -180,6 +191,7 @@ class PlatformFile {
     if (path == null && _hasPlatformIdentifier()) {
       yield* FilePickerPlatform.instance.readFileAsStream(
         identifier: identifier,
+        persistentIdentifier: persistentIdentifier,
       );
       return;
     }
@@ -201,7 +213,8 @@ class PlatformFile {
     }
   }
 
-  bool _hasPlatformIdentifier() => identifier != null;
+  bool _hasPlatformIdentifier() =>
+      identifier != null || persistentIdentifier != null;
 
   @override
   bool operator ==(Object other) {
@@ -215,6 +228,7 @@ class PlatformFile {
         other.bytes == bytes &&
         other.readStream == readStream &&
         other.identifier == identifier &&
+        other.persistentIdentifier == persistentIdentifier &&
         other.size == size;
   }
 
@@ -222,12 +236,20 @@ class PlatformFile {
   int get hashCode {
     return kIsWeb
         ? 0
-        : Object.hash(path, name, bytes, readStream, identifier, size);
+        : Object.hash(
+            path,
+            name,
+            bytes,
+            readStream,
+            identifier,
+            persistentIdentifier,
+            size,
+          );
   }
 
   @override
   String toString() {
-    return 'PlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, identifier: $identifier, size: $size)';
+    return 'PlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, identifier: $identifier, persistentIdentifier: ${persistentIdentifier != null}, size: $size)';
   }
 }
 
@@ -241,6 +263,7 @@ class AndroidPlatformFile extends PlatformFile {
         bytes: file.bytes,
         readStream: file.readStream,
         identifier: file.identifier,
+        persistentIdentifier: file.persistentIdentifier,
       );
 
   /// The handle to the Storage Access Framework URI.
@@ -258,6 +281,6 @@ class AndroidPlatformFile extends PlatformFile {
 
   @override
   String toString() {
-    return 'AndroidPlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, identifier: $identifier, size: $size, safHandle: $safHandle)';
+    return 'AndroidPlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, identifier: $identifier, persistentIdentifier: ${persistentIdentifier != null}, size: $size, safHandle: $safHandle)';
   }
 }

@@ -6,6 +6,7 @@ class FileInfo(
     val path: String?,
     val name: String?,
     val uri: Uri?,
+    val persistentIdentifier: String?,
     val size: Long,
     val bytes: ByteArray?,
     val safHandle: java.util.HashMap<String, Any>? = null
@@ -14,6 +15,7 @@ class FileInfo(
         private var path: String? = null
         private var name: String? = null
         private var uri: Uri? = null
+        private var persistentIdentifier: String? = null
         private var size: Long = 0
         private var bytes: ByteArray? = null
         private var safHandle: java.util.HashMap<String, Any>? = null
@@ -43,6 +45,11 @@ class FileInfo(
             return this
         }
 
+        fun withPersistentIdentifier(persistentIdentifier: String?): Builder {
+            this.persistentIdentifier = persistentIdentifier
+            return this
+        }
+
         fun withSafHandle(safHandle: java.util.HashMap<String, Any>?): Builder {
             this.safHandle = safHandle
             return this
@@ -53,6 +60,7 @@ class FileInfo(
                 this.path,
                 this.name,
                 this.uri,
+                this.persistentIdentifier,
                 this.size,
                 this.bytes,
                 this.safHandle
@@ -67,6 +75,7 @@ class FileInfo(
             Pair("size", size),
             Pair("identifier", uri?.toString()),
             Pair("bytes", bytes),
+            Pair("persistentIdentifier", persistentIdentifier),
             Pair("safHandle", safHandle)
         )
     }

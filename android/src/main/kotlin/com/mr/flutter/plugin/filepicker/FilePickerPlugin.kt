@@ -13,6 +13,7 @@ import com.mr.flutter.plugin.filepicker.FileUtils.getMimeTypes
 import com.mr.flutter.plugin.filepicker.FileUtils.openReadSession
 import com.mr.flutter.plugin.filepicker.FileUtils.readFileBytes
 import com.mr.flutter.plugin.filepicker.FileUtils.readSessionChunk
+import com.mr.flutter.plugin.filepicker.FileUtils.resolvePersistentFile
 import com.mr.flutter.plugin.filepicker.FileUtils.saveFile
 import com.mr.flutter.plugin.filepicker.FileUtils.startFileExplorer
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -153,11 +154,29 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 result.success(null)
             }
 
+            "resolvePersistentFile" -> {
+                val persistentIdentifier = arguments?.get("persistentIdentifier") as? String
+                if (persistentIdentifier == null) {
+                    result.error("invalid_arguments", "Missing persistentIdentifier.", null)
+                    return
+                }
+
+                val fileInfo = activity?.applicationContext?.let {
+                    resolvePersistentFile(
+                        context = it,
+                        persistentIdentifier = persistentIdentifier,
+                        withData = arguments["withData"] as? Boolean ?: false
+                    )
+                }
+                result.success(fileInfo?.toMap())
+            }
+
             "readFileBytes" -> {
                 val bytes = activity?.applicationContext?.let {
                     readFileBytes(
                         context = it,
-                        identifier = arguments?.get("identifier") as? String
+                        identifier = arguments?.get("identifier") as? String,
+                        persistentIdentifier = arguments?.get("persistentIdentifier") as? String
                     )
                 }
                 result.success(bytes)
@@ -167,7 +186,8 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 val sessionId = activity?.applicationContext?.let {
                     openReadSession(
                         context = it,
-                        identifier = arguments?.get("identifier") as? String
+                        identifier = arguments?.get("identifier") as? String,
+                        persistentIdentifier = arguments?.get("persistentIdentifier") as? String
                     )
                 }
                 result.success(sessionId)
@@ -199,6 +219,9 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 val initialDirectory = arguments?.get("initialDirectory") as? String?
                 val bytes = arguments?.get("bytes") as? ByteArray?
                 val sourcePath = arguments?.get("sourcePath") as? String?
+                val sourceIdentifier = arguments?.get("sourceIdentifier") as? String?
+                val sourcePersistentIdentifier =
+                    arguments?.get("sourcePersistentIdentifier") as? String?
                 val fileNameWithoutExtension = "${arguments?.get("fileName")}".trim()
                 val fileName =
                     if (bytes != null &&
@@ -214,6 +237,8 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                     initialDirectory,
                     bytes,
                     sourcePath,
+                    sourceIdentifier,
+                    sourcePersistentIdentifier,
                     result
                 )
             }
@@ -226,6 +251,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                     resolveType(method),
                     arguments?.get("allowMultipleSelection") as? Boolean?,
                     arguments?.get("withData") as? Boolean?,
+                    arguments?.get("withPersistentAccess") as Boolean ?: false,
                     arguments?.get("copyToCache") as? Boolean ?: true,
                     allowedExtensions,
                     arguments?.get("compressionQuality") as? Int?,
@@ -246,6 +272,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                     fileType,
                     arguments?.get("allowMultipleSelection") as Boolean?,
                     arguments?.get("withData") as Boolean?,
+                    arguments?.get("withPersistentAccess") as Boolean ?: false,
                     arguments?.get("copyToCache") as? Boolean ?: true,
                     arrayListOf(),
                     arguments?.get("compressionQuality") as? Int?,

@@ -39,10 +39,12 @@ class FilePickerDelegate(
     var eventSink: EventSink? = null
     var bytes: ByteArray? = null
     var sourcePath: String? = null
+    var sourceIdentifier: String? = null
+    var sourcePersistentIdentifier: String? = null
     var saveFileName: String? = null
     var saveMimeType: String? = null
     var androidSafOptions: java.util.HashMap<*, *>? = null
-
+    var withPersistentAccess = false
     var copyToCache = true
 
     fun setEventHandler(eventSink: EventSink?) {
@@ -83,7 +85,9 @@ class FilePickerDelegate(
                     context = activity,
                     destinationUri = uri,
                     bytes = bytes,
-                    sourcePath = sourcePath
+                    sourcePath = sourcePath,
+                    sourceIdentifier = sourceIdentifier,
+                    sourcePersistentIdentifier = sourcePersistentIdentifier
                 ) ?: uri
                 val renamedUri = maybeRenameGenericMimeDuplicate(
                     context = activity,

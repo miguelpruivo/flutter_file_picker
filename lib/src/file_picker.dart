@@ -95,6 +95,7 @@ abstract final class FilePicker {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
+    bool withPersistentAccess = false,
   }) {
     return FilePickerPlatform.instance.pickFiles(
       dialogTitle: dialogTitle,
@@ -130,6 +131,7 @@ abstract final class FilePicker {
     bool lockParentWindow = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
+    bool withPersistentAccess = false,
     bool withData = false,
   }) async {
     final result = await FilePickerPlatform.instance.pickFiles(
@@ -305,8 +307,24 @@ abstract final class FilePicker {
       allowedExtensions: allowedExtensions,
       bytes: bytesToSave,
       sourcePath: sourceFile?.path,
+      sourceIdentifier: sourceFile?.identifier,
+      sourcePersistentIdentifier: sourceFile?.persistentIdentifier,
       onFileLoading: onFileLoading,
       lockParentWindow: lockParentWindow,
+    );
+  }
+
+  /// Restores a file from a previously saved persistent identifier.
+  ///
+  /// On Android this identifier is typically a persistable `content://` URI.
+  /// On iOS this identifier is a base64-encoded security-scoped bookmark.
+  static Future<PlatformFile> restorePersistentFile(
+    String persistentIdentifier, {
+    bool withData = false,
+  }) {
+    return FilePickerPlatform.instance.resolvePersistentFile(
+      persistentIdentifier: persistentIdentifier,
+      withData: withData,
     );
   }
 

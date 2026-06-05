@@ -1,11 +1,16 @@
 ## 12.0.0-beta.6
 ### General
+- Added opt-in persistent file access via `withPersistentAccess` on `pickFiles()` and `pickFile()`. When supported, the picker can now return a platform-backed reference instead of forcing a cached copy for large files.
+- Added `FilePicker.restorePersistentFile()` and `PlatformFile.persistentIdentifier` so apps can persist a native file reference and restore it later.
+- `PlatformFile.readAsBytes()` and `PlatformFile.readAsByteStream()` can now transparently read from persistent platform references when no local cache path is available.
 - Added support in desktop platforms for picking files with path references that cannot be copied to the plugin cache, such as network shares or virtual files.
 ### Android
-- When `copyToCache` is false, Android uses persistable `content://` URI permissions and avoids creating cached copies for picked files.
+- Added native support for restoring and reading previously persisted SAF document URIs without copying them into the plugin cache.
+- When `withPersistentAccess` is enabled, Android now uses persistable `content://` URI permissions and avoids creating cached copies for picked files.
 
 ### iOS
-- When `copyToCache` is false for document picks, iOS previously returned a platform reference instead of forcing a temporary copy. That behavior has been removed.
+- Added support for security-scoped bookmarks, allowing apps to save a base64 bookmark for a picked file and regain access on a future app launch without copying the file into the app sandbox.
+- When `withPersistentAccess` is enabled for document picks, iOS now returns security-scoped bookmark metadata instead of forcing a temporary copy.
 
 ### Desktop (macOS)
 - FilePicker.pickFiles() now use DispatchQueue.main.async to avoid blocking the UI when opening the file picker dialog.

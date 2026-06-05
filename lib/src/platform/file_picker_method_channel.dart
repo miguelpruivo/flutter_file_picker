@@ -48,6 +48,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
+    bool withPersistentAccess = false,
   }) => _getPath(
     type,
     allowMultiple,
@@ -57,13 +58,36 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     withReadStream,
     compressionQuality,
     androidSafOptions,
+    withPersistentAccess,
   );
 
   @override
-  Future<Uint8List> readFileAsBytes({String? identifier}) async {
+  Future<PlatformFile> resolvePersistentFile({
+    required String persistentIdentifier,
+    bool withData = false,
+  }) async {
+    final Map<dynamic, dynamic>? result = await methodChannel.invokeMethod(
+      'resolvePersistentFile',
+      {'persistentIdentifier': persistentIdentifier, 'withData': withData},
+    );
+
+    if (result == null) {
+      throw StateError(
+        'Could not restore a PlatformFile from the provided persistent identifier.',
+      );
+    }
+
+    return PlatformFile.fromMap(result);
+  }
+
+  @override
+  Future<Uint8List> readFileAsBytes({
+    String? identifier,
+    String? persistentIdentifier,
+  }) async {
     final Uint8List? bytes = await methodChannel.invokeMethod<Uint8List>(
       'readFileBytes',
-      {'identifier': identifier},
+      {'identifier': identifier, 'persistentIdentifier': persistentIdentifier},
     );
 
     if (bytes == null) {
@@ -78,11 +102,12 @@ class MethodChannelFilePicker extends FilePickerPlatform {
   @override
   Stream<Uint8List> readFileAsStream({
     String? identifier,
+    String? persistentIdentifier,
     int chunkSize = 64 * 1024,
   }) async* {
     final String? sessionId = await methodChannel.invokeMethod<String>(
       'openReadSession',
-      {'identifier': identifier},
+      {'identifier': identifier, 'persistentIdentifier': persistentIdentifier},
     );
 
     if (sessionId == null) {
@@ -149,6 +174,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool? withReadStream,
     int? compressionQuality,
     AndroidSAFOptions? androidSafOptions,
+    bool withPersistentAccess,
   ) async {
     final String type = fileType.name;
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -176,6 +202,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         'allowedExtensions': allowedExtensions,
         'withData': withData,
         'compressionQuality': compressionQuality,
+        'withPersistentAccess': withPersistentAccess,
         if (androidSafOptions != null)
           'androidSafOptions': androidSafOptions.toMap(),
       });
@@ -215,13 +242,18 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     String? sourcePath,
+    String? sourceIdentifier,
+    String? sourcePersistentIdentifier,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
   }) async {
     // Ensure at least one source is provided: bytes OR a native reference
-    if (bytes == null && sourcePath == null) {
+    if (bytes == null &&
+        sourcePath == null &&
+        sourceIdentifier == null &&
+        sourcePersistentIdentifier == null) {
       throw ArgumentError(
-        'Either bytes or a source reference (sourcePath) must be provided.',
+        'Either bytes or a source reference (sourcePath/sourceIdentifier/sourcePersistentIdentifier) must be provided.',
       );
     }
     try {
@@ -245,6 +277,9 @@ class MethodChannelFilePicker extends FilePickerPlatform {
             "allowedExtensions": allowedExtensions,
             if (bytes != null) "bytes": bytes,
             if (sourcePath != null) "sourcePath": sourcePath,
+            if (sourceIdentifier != null) "sourceIdentifier": sourceIdentifier,
+            if (sourcePersistentIdentifier != null)
+              "sourcePersistentIdentifier": sourcePersistentIdentifier,
           });
 
       if (onFileLoading != null) {

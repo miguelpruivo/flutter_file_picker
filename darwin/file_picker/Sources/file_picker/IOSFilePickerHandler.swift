@@ -16,7 +16,7 @@ final class IOSFilePickerHandler: NSObject,
     private var eventSink: FlutterEventSink?
     private var allowMultipleSelection = false
     private var loadDataToMemory = false
-    private var copyToCache = true
+    private var withPersistentAccess = false
     private var isDirectoryPicker = false
     private var isSaveFile = false
     private var saveSourceTeardown: (() -> Void)?
@@ -29,6 +29,7 @@ final class IOSFilePickerHandler: NSObject,
 
     private struct ResolvedFileAccess {
         let url: URL
+        let persistentIdentifier: String?
         let teardown: () -> Void
     }
 
@@ -71,7 +72,7 @@ final class IOSFilePickerHandler: NSObject,
         allowMultipleSelection =
             (arguments["allowMultipleSelection"] as? Bool) ?? false
         loadDataToMemory = (arguments["withData"] as? Bool) ?? false
-        copyToCache = (arguments["copyToCache"] as? Bool) ?? true
+        withPersistentAccess = (arguments["withPersistentAccess"] as? Bool) ?? false
 
         switch call.method {
         case "any":
@@ -97,16 +98,11 @@ final class IOSFilePickerHandler: NSObject,
                 allowsMultipleSelection: allowMultipleSelection,
                 asDirectoryPicker: false)
         case "image", "video", "media":
-            if !copyToCache {
                 presentDocumentPicker(
                     contentTypes: resolveDocumentContentTypes(for: call.method),
                     allowsMultipleSelection: allowMultipleSelection,
                     asDirectoryPicker: false)
-            } else {
-                presentMediaPicker(
-                    type: call.method,
-                    allowsMultipleSelection: allowMultipleSelection)
-            }
+
         case "audio":
             presentDocumentPicker(
                 contentTypes: [.audio],
@@ -226,19 +222,10 @@ final class IOSFilePickerHandler: NSObject,
         var resolved: [[String: Any]] = []
 
         for sourceURL in urls {
-            if !copyToCache {
-                guard let fileInfo = makeFileInfo(from: sourceURL) else {
+                guard let fileInfo = makePersistentFileInfo(from: sourceURL) else {
                     continue
                 }
                 resolved.append(fileInfo)
-            } else {
-                guard let copiedURL = copyToTemporaryDirectory(sourceURL),
-                      let fileInfo = makeFileInfo(from: copiedURL)
-                else {
-                    continue
-                }
-                resolved.append(fileInfo)
-            }
         }
 
         currentResult(resolved.isEmpty ? nil : resolved)
@@ -274,7 +261,7 @@ final class IOSFilePickerHandler: NSObject,
     ) {
         let picker = UIDocumentPickerViewController(
             forOpeningContentTypes: contentTypes,
-            asCopy: !asDirectoryPicker && copyToCache)
+            asCopy: false)
         picker.delegate = self
         picker.presentationController?.delegate = self
         picker.allowsMultipleSelection = allowsMultipleSelection
@@ -286,6 +273,8 @@ final class IOSFilePickerHandler: NSObject,
         let fileName = (arguments["fileName"] as? String) ?? UUID().uuidString
         let bytes = arguments["bytes"] as? FlutterStandardTypedData
         let sourcePath = arguments["sourcePath"] as? String
+        let sourceIdentifier = arguments["sourceIdentifier"] as? String
+        let sourcePersistentIdentifier = arguments["sourcePersistentIdentifier"] as? String
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self else { return }
@@ -294,7 +283,9 @@ final class IOSFilePickerHandler: NSObject,
                 let resolvedSource = try self.resolveSaveSource(
                     fileName: fileName,
                     bytes: bytes,
-                    sourcePath: sourcePath)
+                    sourcePath: sourcePath,
+                    sourceIdentifier: sourceIdentifier,
+                    sourcePersistentIdentifier: sourcePersistentIdentifier)
 
                 DispatchQueue.main.async { [weak self] in
                     guard let self else {
@@ -332,11 +323,41 @@ final class IOSFilePickerHandler: NSObject,
     private func resolveSaveSource(
         fileName: String,
         bytes: FlutterStandardTypedData?,
-        sourcePath: String?
+        sourcePath: String?,
+        sourceIdentifier: String?,
+        sourcePersistentIdentifier: String?
     ) throws -> ResolvedFileAccess {
+        if let sourcePersistentIdentifier,
+           let bookmarkData = Data(base64Encoded: sourcePersistentIdentifier)
+        {
+            var isStale = false
+            let url = try URL(
+                resolvingBookmarkData: bookmarkData,
+                options: [],
+                relativeTo: nil,
+                bookmarkDataIsStale: &isStale)
+
+            guard url.startAccessingSecurityScopedResource() else {
+                throw NSError(
+                    domain: "file_picker",
+                    code: 2,
+                    userInfo: [NSLocalizedDescriptionKey: "Could not access the security-scoped resource for save."])
+            }
+
+            return ResolvedFileAccess(
+                url: url,
+                persistentIdentifier: sourcePersistentIdentifier,
+                teardown: { url.stopAccessingSecurityScopedResource() })
+        }
+
+        if let sourceIdentifier, let sourceURL = URL(string: sourceIdentifier) {
+            return ResolvedFileAccess(url: sourceURL, persistentIdentifier: nil, teardown: {})
+        }
+
         if let sourcePath, !sourcePath.isEmpty {
             return ResolvedFileAccess(
                 url: URL(fileURLWithPath: sourcePath),
+                persistentIdentifier: nil,
                 teardown: {})
         }
 
@@ -348,13 +369,13 @@ final class IOSFilePickerHandler: NSObject,
                 try fileManager.removeItem(at: tempFile)
             }
             try data.write(to: tempFile, options: .atomic)
-            return ResolvedFileAccess(url: tempFile, teardown: {})
+            return ResolvedFileAccess(url: tempFile, persistentIdentifier: nil, teardown: {})
         }
 
         throw NSError(
             domain: "file_picker",
             code: 5,
-            userInfo: [NSLocalizedDescriptionKey: "Missing source reference. Provide bytes or sourcePath."])
+            userInfo: [NSLocalizedDescriptionKey: "Missing source reference. Provide bytes or sourcePath/sourceIdentifier/sourcePersistentIdentifier."])
     }
 
     private func resolveCustomContentTypes(_ allowedExtensions: [String]) -> [UTType] {
@@ -385,6 +406,37 @@ final class IOSFilePickerHandler: NSObject,
         case "clear":
             result(clearTemporaryFiles())
             return true
+        case "resolvePersistentFile":
+            guard let arguments = call.arguments as? [String: Any],
+                  let persistentIdentifier = arguments["persistentIdentifier"] as? String
+            else {
+                result(
+                    FlutterError(
+                        code: "invalid_arguments",
+                        message: "Missing persistentIdentifier.",
+                        details: nil))
+                return true
+            }
+
+            do {
+                let access = try resolveFileAccess(
+                    identifier: nil,
+                    persistentIdentifier: persistentIdentifier)
+                defer { access.teardown() }
+                let withData = (arguments["withData"] as? Bool) ?? false
+                result(
+                    fileInfo(
+                        from: access.url,
+                        persistentIdentifier: access.persistentIdentifier,
+                        path: nil))
+            } catch {
+                result(
+                    FlutterError(
+                        code: "resolve_persistent_file_error",
+                        message: error.localizedDescription,
+                        details: nil))
+            }
+            return true
         case "readFileBytes":
             guard let arguments = call.arguments as? [String: Any] else {
                 result(nil)
@@ -393,7 +445,8 @@ final class IOSFilePickerHandler: NSObject,
 
             do {
                 let access = try resolveFileAccess(
-                    identifier: arguments["identifier"] as? String)
+                    identifier: arguments["identifier"] as? String,
+                    persistentIdentifier: arguments["persistentIdentifier"] as? String)
                 defer { access.teardown() }
                 let data = try Data(contentsOf: access.url)
                 result(FlutterStandardTypedData(bytes: data))
@@ -413,7 +466,8 @@ final class IOSFilePickerHandler: NSObject,
 
             do {
                 let access = try resolveFileAccess(
-                    identifier: arguments["identifier"] as? String)
+                    identifier: arguments["identifier"] as? String,
+                    persistentIdentifier: arguments["persistentIdentifier"] as? String)
                 guard let inputStream = InputStream(url: access.url) else {
                     access.teardown()
                     throw NSError(
@@ -476,8 +530,39 @@ final class IOSFilePickerHandler: NSObject,
     }
 
     private func resolveFileAccess(
-        identifier: String?
+        identifier: String?,
+        persistentIdentifier: String?
     ) throws -> ResolvedFileAccess {
+        if let persistentIdentifier,
+           let bookmarkData = Data(base64Encoded: persistentIdentifier)
+        {
+            var isStale = false
+            let url = try URL(
+                resolvingBookmarkData: bookmarkData,
+                options: [],
+                relativeTo: nil,
+                bookmarkDataIsStale: &isStale)
+
+            guard url.startAccessingSecurityScopedResource() else {
+                throw NSError(
+                    domain: "file_picker",
+                    code: 2,
+                    userInfo: [NSLocalizedDescriptionKey: "Could not access the security-scoped resource."])
+            }
+
+            let refreshedIdentifier: String?
+            if isStale {
+                refreshedIdentifier = try createSecurityScopedBookmark(for: url)
+            } else {
+                refreshedIdentifier = persistentIdentifier
+            }
+
+            return ResolvedFileAccess(
+                url: url,
+                persistentIdentifier: refreshedIdentifier,
+                teardown: { url.stopAccessingSecurityScopedResource() })
+        }
+
         guard let identifier, let url = URL(string: identifier) else {
             throw NSError(
                 domain: "file_picker",
@@ -485,29 +570,61 @@ final class IOSFilePickerHandler: NSObject,
                 userInfo: [NSLocalizedDescriptionKey: "Missing file identifier."])
         }
 
-        return ResolvedFileAccess(url: url, teardown: {})
+        return ResolvedFileAccess(url: url, persistentIdentifier: nil, teardown: {})
     }
 
-    private func fileInfo(
-        from fileURL: URL,
-        path: String?
-    ) -> [String: Any]? {
-        do {
-            let values = try fileURL.resourceValues(forKeys: [.fileSizeKey])
-            let size = values.fileSize ?? 0
-
-            var fileInfo: [String: Any] = [
-                "path": path,
-                "identifier": fileURL.absoluteString,
-                "name": fileURL.lastPathComponent,
-                "size": size,
-            ]
-
-            return fileInfo
-        } catch {
-            return nil
-        }
+    private func createSecurityScopedBookmark(for url: URL) throws -> String {
+        let bookmarkData = try url.bookmarkData(
+            options: [],
+            includingResourceValuesForKeys: nil,
+            relativeTo: nil)
+        return bookmarkData.base64EncodedString()
     }
+
+     private func makePersistentFileInfo(from fileURL: URL) -> [String: Any]? {
+         do {
+             guard fileURL.startAccessingSecurityScopedResource() else {
+                 return nil
+             }
+             defer { fileURL.stopAccessingSecurityScopedResource() }
+
+             let persistentIdentifier = try createSecurityScopedBookmark(for: fileURL)
+             // When using persistent access, never load data into memory
+             // Users should use PlatformFile.readAsByteStream() or readAsBytes() instead
+             return fileInfo(
+                 from: fileURL,
+                 persistentIdentifier: persistentIdentifier,
+                 path: nil)
+         } catch {
+             return nil
+         }
+     }
+
+     private func fileInfo(
+         from fileURL: URL,
+         persistentIdentifier: String?,
+         path: String?
+     ) -> [String: Any]? {
+         do {
+             let values = try fileURL.resourceValues(forKeys: [.fileSizeKey])
+             let size = values.fileSize ?? 0
+
+             var fileInfo: [String: Any] = [
+                 "path": path,
+                 "identifier": fileURL.absoluteString,
+                 "name": fileURL.lastPathComponent,
+                 "size": size,
+             ]
+
+             if let persistentIdentifier {
+                 fileInfo["persistentIdentifier"] = persistentIdentifier
+             }
+
+             return fileInfo
+         } catch {
+             return nil
+         }
+     }
 
     private func closeReadSession(
         _ result: FlutterResult?,
@@ -567,6 +684,7 @@ final class IOSFilePickerHandler: NSObject,
     private func makeFileInfo(from fileURL: URL) -> [String: Any]? {
         fileInfo(
             from: fileURL,
+            persistentIdentifier: nil,
             path: fileURL.path)
     }
 

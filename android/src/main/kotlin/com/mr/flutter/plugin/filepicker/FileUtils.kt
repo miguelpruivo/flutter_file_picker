@@ -70,15 +70,18 @@ object FileUtils {
 
             val grantStr = androidSafOptions?.get("grant") as? String
             val accessStr = androidSafOptions?.get("access") as? String
-            val shouldLoadData = loadDataToMemory
-            val autoPersist = (androidSafOptions?.get("autoPersist") as? Boolean) ?: true
-            val shouldAvoidCaching = !copyToCache
+            val shouldLoadData = loadDataToMemory && !withPersistentAccess
+            val autoPersist = if (withPersistentAccess) {
+                 true
+             } else {
+                 (androidSafOptions?.get("autoPersist") as? Boolean) ?: true
+             }
 
-            val isPersist = grantStr == "lifetime"
+            val isPersist = withPersistentAccess || grantStr == "lifetime"
             val shouldExposePersistentIdentifier = isPersist && autoPersist
             val isReadWrite = accessStr == "readWrite"
 
-            val hasSafOptions = androidSafOptions != null
+            val hasSafOptions = androidSafOptions != null || withPersistentAccess
 
             fun maybeTakePersistableUriPermission(uri: Uri) {
                  if (isPersist && autoPersist) {
@@ -103,9 +106,6 @@ object FileUtils {
                         for (i in 0 until data.clipData!!.itemCount) {
                             var uri = data.clipData!!.getItemAt(i).uri
                             maybeTakePersistableUriPermission(uri)
-                            if (!shouldAvoidCaching) {
-                                uri = processUri(activity, uri, compressionQuality)
-                            }
                             addFile(
                                 activity,
                                 uri,
@@ -113,7 +113,7 @@ object FileUtils {
                                 files,
                                 hasSafOptions,
                                 isReadWrite,
-                                !shouldAvoidCaching,
+                                false,
                                 shouldExposePersistentIdentifier
                             )
                         }
@@ -122,9 +122,6 @@ object FileUtils {
 
                     data.data != null -> {
                         var uri = data.data!!
-                        if (!shouldAvoidCaching) {
-                            uri = processUri(activity, uri, compressionQuality)
-                        }
 
                         if (type == "dir") {
                             maybeTakePersistableUriPermission(data.data!!)
@@ -151,7 +148,7 @@ object FileUtils {
                                 files,
                                 hasSafOptions,
                                 isReadWrite,
-                                !shouldAvoidCaching,
+                                false,
                                 shouldExposePersistentIdentifier
                             )
                             handleFileResult(files)
@@ -169,7 +166,7 @@ object FileUtils {
                                 files,
                                 hasSafOptions,
                                 isReadWrite,
-                                !shouldAvoidCaching,
+                                false,
                                 shouldExposePersistentIdentifier
                             )
                         }
@@ -197,10 +194,19 @@ object FileUtils {
         context: Context,
         destinationUri: Uri,
         bytes: ByteArray?,
-        sourcePath: String?
+        sourcePath: String?,
+        sourceIdentifier: String?,
+        sourcePersistentIdentifier: String?
     ): Uri {
         context.contentResolver.openOutputStream(destinationUri)?.use { output ->
             when {
+                !sourcePersistentIdentifier.isNullOrEmpty() || !sourceIdentifier.isNullOrEmpty() -> {
+                    val sourceUri = Uri.parse(sourcePersistentIdentifier ?: sourceIdentifier)
+                    context.contentResolver.openInputStream(sourceUri)?.use { input ->
+                        input.copyTo(output, COPY_BUFFER_SIZE)
+                    } ?: throw FileNotFoundException("Could not open input stream for source URI: $sourceUri")
+                }
+
                 !sourcePath.isNullOrEmpty() -> {
                     FileInputStream(File(sourcePath)).use { input ->
                         input.copyTo(output, COPY_BUFFER_SIZE)
@@ -209,7 +215,7 @@ object FileUtils {
 
                 bytes != null -> output.write(bytes)
                 else -> throw IllegalArgumentException(
-                    "Missing source reference. Provide bytes or sourcePath."
+                    "Missing source reference. Provide bytes or one of sourcePath/sourceIdentifier/sourcePersistentIdentifier."
                 )
             }
         }
@@ -235,7 +241,7 @@ object FileUtils {
      */
     fun FilePickerDelegate.startFileExplorer() {
         val intent: Intent
-        val shouldUseOpenDocument = androidSafOptions != null || !copyToCache
+        val shouldUseOpenDocument = withPersistentAccess || androidSafOptions != null || !copyToCache
 
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (type == null) {
@@ -323,6 +329,7 @@ object FileUtils {
         type: String?,
         isMultipleSelection: Boolean?,
         withData: Boolean?,
+        withPersistentAccess: Boolean,
         copyToCache: Boolean,
         allowedExtensions: ArrayList<String>,
         compressionQuality: Int? = 0,
@@ -340,6 +347,7 @@ object FileUtils {
         if (withData != null) {
             this?.loadDataToMemory = withData
         }
+        this?.withPersistentAccess = withPersistentAccess
         this?.copyToCache = copyToCache
         this?.allowedExtensions = allowedExtensions
         if (compressionQuality != null) {
@@ -382,6 +390,8 @@ object FileUtils {
         initialDirectory: String?,
         bytes: ByteArray?,
         sourcePath: String?,
+        sourceIdentifier: String?,
+        sourcePersistentIdentifier: String?,
         result: MethodChannel.Result
     ) {
         if (!this.setPendingMethodCallResult(result)) {
@@ -395,6 +405,8 @@ object FileUtils {
         }
         this.bytes = bytes
         this.sourcePath = sourcePath
+        this.sourceIdentifier = sourceIdentifier
+        this.sourcePersistentIdentifier = sourcePersistentIdentifier
         this.saveFileName = fileName
         if ("dir" != type) {
             try {
@@ -827,6 +839,7 @@ object FileUtils {
                 .withPath(null)
                 .withName(fileName)
                 .withUri(uri)
+                .withPersistentIdentifier(if (exposePersistentIdentifier) uri.toString() else null)
                 .withSize(getFileSize(context, uri))
 
             if (hasSafOptions) {
@@ -885,6 +898,7 @@ object FileUtils {
             .withPath(path)
             .withName(fileName)
             .withUri(uri)
+            .withPersistentIdentifier(if (exposePersistentIdentifier) uri.toString() else null)
             .withSize(file.length())
 
         if (hasSafOptions) {
@@ -898,8 +912,30 @@ object FileUtils {
     }
 
     @JvmStatic
-    fun readFileBytes(context: Context, identifier: String?): ByteArray? {
-        val uriString = identifier ?: return null
+    fun resolvePersistentFile(
+        context: Context,
+        persistentIdentifier: String,
+        withData: Boolean
+    ): FileInfo? {
+        return try {
+            openFileStream(
+                context = context,
+                uri = Uri.parse(persistentIdentifier),
+                withData = withData,
+                hasSafOptions = true,
+                isReadWrite = false,
+                cacheToFile = false,
+                exposePersistentIdentifier = true
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to resolve persistent file for $persistentIdentifier", e)
+            null
+        }
+    }
+
+    @JvmStatic
+    fun readFileBytes(context: Context, identifier: String?, persistentIdentifier: String?): ByteArray? {
+        val uriString = persistentIdentifier ?: identifier ?: return null
         return try {
             context.contentResolver.openInputStream(Uri.parse(uriString))?.use { inputStream ->
                 inputStream.readBytes()
@@ -911,8 +947,8 @@ object FileUtils {
     }
 
     @JvmStatic
-    fun openReadSession(context: Context, identifier: String?): String? {
-        val uriString = identifier ?: return null
+    fun openReadSession(context: Context, identifier: String?, persistentIdentifier: String?): String? {
+        val uriString = persistentIdentifier ?: identifier ?: return null
         return try {
             val inputStream = context.contentResolver.openInputStream(Uri.parse(uriString)) ?: return null
             val sessionId = UUID.randomUUID().toString()
