@@ -52,12 +52,12 @@ class FilePickerMacOS extends FilePickerPlatform {
     int compressionQuality = 0,
     bool allowMultiple = false,
     bool withData = false,
+    bool withPersistentAccess = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
-    AndroidSAFOptions? androidSafOptions,
-    bool withPersistentAccess = false,
+    AndroidSAFOptions? androidSafOptions
   }) async {
     final fileFilter = fileTypeToFileFilter(type, allowedExtensions);
 
@@ -125,7 +125,7 @@ class FilePickerMacOS extends FilePickerPlatform {
             : null);
     if (bytesToSave == null) {
       throw ArgumentError(
-        'macOS saveFile requires bytes or a readable sourceIdentifier.',
+        'macOS saveFile requires bytes or a readable path.',
       );
     }
 

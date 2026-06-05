@@ -86,7 +86,6 @@ void main() {
       await picker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
-        withPersistentAccess: true,
       );
 
       expect(log, hasLength(1));

@@ -70,12 +70,10 @@ class FileInfo(
 
     fun toMap(): HashMap<String, Any?> {
         return hashMapOf<String, Any?>(
-            Pair("path", path),
+            Pair("path", path ?: uri?.toString()),
             Pair("name", name),
             Pair("size", size),
-            Pair("identifier", uri?.toString()),
             Pair("bytes", bytes),
-            Pair("persistentIdentifier", persistentIdentifier),
             Pair("safHandle", safHandle)
         )
     }

@@ -67,35 +67,10 @@ object FileUtils {
                 return@launch
             }
 
-            val grantStr = androidSafOptions?.get("grant") as? String
-            val accessStr = androidSafOptions?.get("access") as? String
-            val shouldLoadData = loadDataToMemory && !withPersistentAccess
-            val autoPersist = if (withPersistentAccess) {
-                 true
-             } else {
-                 (androidSafOptions?.get("autoPersist") as? Boolean) ?: true
-             }
-
-            val isPersist = withPersistentAccess || grantStr == "lifetime"
-            val shouldExposePersistentIdentifier = isPersist && autoPersist
-            val isReadWrite = accessStr == "readWrite"
-
-            val hasSafOptions = androidSafOptions != null || withPersistentAccess
-
-            fun maybeTakePersistableUriPermission(uri: Uri) {
-                 if (isPersist && autoPersist) {
-                     try {
-                         val flags = if (isReadWrite) {
-                            android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                         } else {
-                            android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
-                         }
-                         activity.contentResolver.takePersistableUriPermission(uri, flags)
-                     } catch (e: SecurityException) {
-                         Log.e(TAG, "Failed to take persistable URI permission for $uri", e)
-                     }
-                 }
-            }
+            val shouldLoadData = loadDataToMemory
+            val hasSafOptions = androidSafOptions != null
+            val isReadWrite = (androidSafOptions?.get("access") as? String) == "readWrite"
+            val shouldExposePersistentIdentifier = false
 
             val files = mutableListOf<FileInfo>()
 
@@ -104,7 +79,7 @@ object FileUtils {
                     data.clipData != null -> {
                         for (i in 0 until data.clipData!!.itemCount) {
                             var uri = data.clipData!!.getItemAt(i).uri
-                            maybeTakePersistableUriPermission(uri)
+                            // persistent access removed — no persistable URI permission will be taken
                             addFile(
                                 activity,
                                 uri,
@@ -123,7 +98,7 @@ object FileUtils {
                         var uri = data.data!!
 
                         if (type == "dir") {
-                            maybeTakePersistableUriPermission(data.data!!)
+                            // persistent access removed — no persistable URI permission will be taken
                             if (androidSafOptions != null) {
                                 finishWithSuccess(data.data!!.toString())
                             } else {
@@ -139,7 +114,6 @@ object FileUtils {
                                 }
                             }
                         } else {
-                            maybeTakePersistableUriPermission(data.data!!)
                             addFile(
                                 activity,
                                 uri,
@@ -157,7 +131,7 @@ object FileUtils {
                     data.extras?.containsKey("selectedItems") == true -> {
                         val fileUris = getSelectedItems(data.extras!!)
                         fileUris?.filterIsInstance<Uri>()?.forEach { uri ->
-                            maybeTakePersistableUriPermission(uri)
+                            // persistent access removed — no persistable URI permission will be taken
                             addFile(
                                 activity,
                                 uri,
@@ -321,7 +295,6 @@ object FileUtils {
         type: String?,
         isMultipleSelection: Boolean?,
         withData: Boolean?,
-        withPersistentAccess: Boolean,
         allowedExtensions: ArrayList<String>,
         compressionQuality: Int? = 0,
         androidSafOptions: java.util.HashMap<*, *>?,
@@ -338,7 +311,6 @@ object FileUtils {
         if (withData != null) {
             this?.loadDataToMemory = withData
         }
-        this?.withPersistentAccess = withPersistentAccess
         this?.allowedExtensions = allowedExtensions
         if (compressionQuality != null) {
             this?.compressionQuality = compressionQuality
@@ -822,7 +794,8 @@ object FileUtils {
         if (!cacheToFile) {
 
             fileInfo
-                .withPath(null)
+                // Do not leave path null. Use the URI string as the path when we are not caching to a local file.
+                .withPath(uri.toString())
                 .withName(fileName)
                 .withUri(uri)
                 .withPersistentIdentifier(if (exposePersistentIdentifier) uri.toString() else null)

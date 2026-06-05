@@ -17,8 +17,6 @@ class PlatformFile {
     required this.size,
     this.bytes,
     this.readStream,
-    this.identifier,
-    this.persistentIdentifier,
   });
 
   factory PlatformFile.fromMap(Map data, {Stream<List<int>>? readStream}) {
@@ -27,8 +25,6 @@ class PlatformFile {
       path: data['path'],
       bytes: data['bytes'],
       size: data['size'],
-      identifier: data['identifier'],
-      persistentIdentifier: data['persistentIdentifier'],
       readStream: readStream,
     );
 
@@ -85,23 +81,8 @@ class PlatformFile {
 
   /// The platform identifier for the original file, refers to an [Uri](https://developer.android.com/reference/android/net/Uri) on Android and
   /// to a [NSURL](https://developer.apple.com/documentation/foundation/nsurl) on iOS.
-  /// Is set to `null` on all other platforms since those are all already referencing the original file content.
-  ///
-  /// This property may be `null` in the following cases:
-  /// - On Web, where local file paths are not available (it may point to a Blob URL instead).
-  /// - On Android/iOS, when the picker returns a persistent platform reference instead of a cached file copy.
-  ///
-  /// Note: You can't use this to create a Dart `File` instance since this is a safe-reference for the original platform files, for
-  /// that the [path] property should be used instead.
-  final String? identifier;
-
-  /// A platform-specific identifier that can be stored and later resolved to
-  /// regain access to the original file without relying on a cached copy.
-  ///
-  /// - Android: usually the same persistable `content://` URI returned in
-  ///   [identifier].
-  /// - iOS: a base64-encoded security-scoped bookmark.
-  final String? persistentIdentifier;
+  /// NOTE: `identifier` and `persistentIdentifier` were removed. The `path` field must contain either a local filesystem path
+  /// or a platform URL/URI that uniquely identifies the selected file. Do not rely on any separate identifier fields.
 
   /// File extension for this file.
   String? get extension => name.split('.').last;
@@ -145,12 +126,8 @@ class PlatformFile {
       if (fetchedBytes != null) return fetchedBytes;
     }
 
-    if (!kIsWeb && _hasPlatformIdentifier()) {
-      return FilePickerPlatform.instance.readFileAsBytes(
-        identifier: identifier,
-        persistentIdentifier: persistentIdentifier,
-      );
-    }
+    // No platform identifiers: rely only on `path` or `bytes`. If `path` exists and file read failed earlier,
+    // fall through to error because we no longer support resolving platform-only identifiers.
 
     throw StateError(
       'PlatformFile.readAsBytes(): file data is not available. '
@@ -188,12 +165,11 @@ class PlatformFile {
       return;
     }
 
-    if (path == null && _hasPlatformIdentifier()) {
-      yield* FilePickerPlatform.instance.readFileAsStream(
-        identifier: identifier,
-        persistentIdentifier: persistentIdentifier,
+    if (path == null) {
+      throw StateError(
+        'PlatformFile.readAsByteStream(): no local path or in-memory data available to stream. '
+        'Ensure the picker returned a path or call pickFiles(withData: true).',
       );
-      return;
     }
 
     yield* xFile.openRead();
@@ -213,8 +189,7 @@ class PlatformFile {
     }
   }
 
-  bool _hasPlatformIdentifier() =>
-      identifier != null || persistentIdentifier != null;
+  // identifier/persistentIdentifier removed — identification must be provided in `path`.
 
   @override
   bool operator ==(Object other) {
@@ -227,8 +202,7 @@ class PlatformFile {
         other.name == name &&
         other.bytes == bytes &&
         other.readStream == readStream &&
-        other.identifier == identifier &&
-        other.persistentIdentifier == persistentIdentifier &&
+        // Removed identifier/persistentIdentifier from equality — rely on path instead.
         other.size == size;
   }
 
@@ -241,15 +215,13 @@ class PlatformFile {
             name,
             bytes,
             readStream,
-            identifier,
-            persistentIdentifier,
             size,
           );
   }
 
   @override
   String toString() {
-    return 'PlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, identifier: $identifier, persistentIdentifier: ${persistentIdentifier != null}, size: $size)';
+    return 'PlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, size: $size)';
   }
 }
 
@@ -262,8 +234,6 @@ class AndroidPlatformFile extends PlatformFile {
         size: file.size,
         bytes: file.bytes,
         readStream: file.readStream,
-        identifier: file.identifier,
-        persistentIdentifier: file.persistentIdentifier,
       );
 
   /// The handle to the Storage Access Framework URI.
@@ -281,6 +251,6 @@ class AndroidPlatformFile extends PlatformFile {
 
   @override
   String toString() {
-    return 'AndroidPlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, identifier: $identifier, persistentIdentifier: ${persistentIdentifier != null}, size: $size, safHandle: $safHandle)';
+    return 'AndroidPlatformFile(${kIsWeb ? '' : 'path $path, '}name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, size: $size, safHandle: $safHandle)';
   }
 }

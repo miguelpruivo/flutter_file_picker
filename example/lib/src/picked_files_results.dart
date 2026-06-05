@@ -32,14 +32,14 @@ class PickedFilesResults extends StatelessWidget {
                     ? null
                     : () => onRemoveAndroidFile!(index, androidPlatformFile),
               );
-        final path = pickedFile.path ?? pickedFile.name;
+        final path = pickedFile.name;
 
         return ListTile(
           leading: Text(
             index.toString(),
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
           ),
-          title: Text('File path (SAF Grant: ${androidPlatformFile != null}):'),
+          title: Text('File path: '),
           subtitle: Text(path),
           trailing: trailingWidget,
         );

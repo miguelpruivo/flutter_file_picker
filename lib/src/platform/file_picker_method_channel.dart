@@ -48,7 +48,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
-    bool withPersistentAccess = false,
   }) => _getPath(
     type,
     allowMultiple,
@@ -58,36 +57,15 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     withReadStream,
     compressionQuality,
     androidSafOptions,
-    withPersistentAccess,
   );
-
-  @override
-  Future<PlatformFile> resolvePersistentFile({
-    required String persistentIdentifier,
-    bool withData = false,
-  }) async {
-    final Map<dynamic, dynamic>? result = await methodChannel.invokeMethod(
-      'resolvePersistentFile',
-      {'persistentIdentifier': persistentIdentifier, 'withData': withData},
-    );
-
-    if (result == null) {
-      throw StateError(
-        'Could not restore a PlatformFile from the provided persistent identifier.',
-      );
-    }
-
-    return PlatformFile.fromMap(result);
-  }
 
   @override
   Future<Uint8List> readFileAsBytes({
     String? identifier,
-    String? persistentIdentifier,
   }) async {
     final Uint8List? bytes = await methodChannel.invokeMethod<Uint8List>(
       'readFileBytes',
-      {'identifier': identifier, 'persistentIdentifier': persistentIdentifier},
+      {'identifier': identifier},
     );
 
     if (bytes == null) {
@@ -102,12 +80,11 @@ class MethodChannelFilePicker extends FilePickerPlatform {
   @override
   Stream<Uint8List> readFileAsStream({
     String? identifier,
-    String? persistentIdentifier,
     int chunkSize = 64 * 1024,
   }) async* {
     final String? sessionId = await methodChannel.invokeMethod<String>(
       'openReadSession',
-      {'identifier': identifier, 'persistentIdentifier': persistentIdentifier},
+      {'identifier': identifier},
     );
 
     if (sessionId == null) {
@@ -165,7 +142,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     return null;
   }
 
-  Future<FilePickerResult?> _getPath(
+   Future<FilePickerResult?> _getPath(
     FileType fileType,
     bool allowMultipleSelection,
     List<String>? allowedExtensions,
@@ -174,7 +151,6 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     bool? withReadStream,
     int? compressionQuality,
     AndroidSAFOptions? androidSafOptions,
-    bool withPersistentAccess,
   ) async {
     final String type = fileType.name;
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -197,12 +173,11 @@ class MethodChannelFilePicker extends FilePickerPlatform {
         }, onError: (error) => throw Exception(error));
       }
 
-      final List<Map>? result = await methodChannel.invokeListMethod(type, {
+       final List<Map>? result = await methodChannel.invokeListMethod(type, {
         'allowMultipleSelection': allowMultipleSelection,
         'allowedExtensions': allowedExtensions,
         'withData': withData,
         'compressionQuality': compressionQuality,
-        'withPersistentAccess': withPersistentAccess,
         if (androidSafOptions != null)
           'androidSafOptions': androidSafOptions.toMap(),
       });

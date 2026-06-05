@@ -573,16 +573,13 @@ final class IOSFilePickerHandler: NSObject,
              let values = try fileURL.resourceValues(forKeys: [.fileSizeKey])
              let size = values.fileSize ?? 0
 
-             var fileInfo: [String: Any] = [
-                 "path": path,
-                 "identifier": fileURL.absoluteString,
-                 "name": fileURL.lastPathComponent,
-                 "size": size,
-             ]
+              // Ensure `path` always contains either a filesystem path or an identifying URL.
+              var fileInfo: [String: Any] = [
+                  "path": path ?? fileURL.absoluteString,
+                  "name": fileURL.lastPathComponent,
+                  "size": size,
+              ]
 
-             if let persistentIdentifier {
-                 fileInfo["persistentIdentifier"] = persistentIdentifier
-             }
 
              return fileInfo
          } catch {
