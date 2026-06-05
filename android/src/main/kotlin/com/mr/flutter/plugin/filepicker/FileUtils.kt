@@ -59,8 +59,7 @@ object FileUtils {
         compressionQuality: Int,
         loadDataToMemory: Boolean,
         type: String,
-        androidSafOptions: java.util.HashMap<*, *>?,
-        copyToCache: Boolean
+        androidSafOptions: java.util.HashMap<*, *>?
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             if (data == null) {
@@ -233,7 +232,8 @@ object FileUtils {
      */
     fun FilePickerDelegate.startFileExplorer() {
         val intent: Intent
-        val shouldUseOpenDocument = withPersistentAccess || androidSafOptions != null || !copyToCache
+        // copyToCache is removed; behavior is as if copyToCache == false, so always use open document flows
+        val shouldUseOpenDocument = true
 
         // Temporary fix, remove this null-check after Flutter Engine 1.14 has landed on stable
         if (type == null) {
@@ -322,7 +322,6 @@ object FileUtils {
         isMultipleSelection: Boolean?,
         withData: Boolean?,
         withPersistentAccess: Boolean,
-        copyToCache: Boolean,
         allowedExtensions: ArrayList<String>,
         compressionQuality: Int? = 0,
         androidSafOptions: java.util.HashMap<*, *>?,
@@ -340,7 +339,6 @@ object FileUtils {
             this?.loadDataToMemory = withData
         }
         this?.withPersistentAccess = withPersistentAccess
-        this?.copyToCache = copyToCache
         this?.allowedExtensions = allowedExtensions
         if (compressionQuality != null) {
             this?.compressionQuality = compressionQuality

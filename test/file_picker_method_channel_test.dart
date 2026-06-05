@@ -79,7 +79,6 @@ void main() {
         'withData': false,
         'compressionQuality': 0,
         'withPersistentAccess': false,
-        'copyToCache': true,
       });
     });
 
