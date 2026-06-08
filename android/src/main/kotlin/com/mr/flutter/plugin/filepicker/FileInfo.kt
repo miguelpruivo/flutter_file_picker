@@ -7,7 +7,7 @@ class FileInfo(
     val name: String?,
     val uri: Uri?,
     val size: Long,
-    val bytes: ByteArray?,
+    val bytes: ByteArray? ,
     val safHandle: java.util.HashMap<String, Any>? = null
 ) {
     class Builder {
