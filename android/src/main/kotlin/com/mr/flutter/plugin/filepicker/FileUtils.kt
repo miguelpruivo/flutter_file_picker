@@ -161,7 +161,7 @@ object FileUtils {
             when {
                 !path.isNullOrEmpty() -> {
                     val sourceUri = if (path.startsWith("content://") || path.startsWith("file://")) {
-                        Uri.parse(path)
+                        path.toUri()
                     } else {
                         Uri.fromFile(File(path))
                     }
