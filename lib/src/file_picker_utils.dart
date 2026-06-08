@@ -192,11 +192,13 @@ class FilePickerUtils {
 
   static String? _magicNumberTypeToExtension(FileMagicNumberType type) {
     switch (type) {
-      case FileMagicNumberType.sevenZ: return '7z';
+      case FileMagicNumberType.sevenZ:
+        return '7z';
       case FileMagicNumberType.unknown:
       case FileMagicNumberType.emptyFile:
         return null;
-      default: return type.name;
+      default:
+        return type.name;
     }
   }
 }
