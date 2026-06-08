@@ -19,6 +19,7 @@ dependencies:
   cross_file: ^0.3.5+2
   web: ^1.1.1
   dbus: ^0.7.12
+  file_magic_number: ^1.4.2
 
 dev_dependencies:
   flutter_lints: ^5.0.0

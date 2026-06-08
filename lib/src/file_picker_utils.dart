@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:file_magic_number/file_magic_number.dart';
 import 'package:path/path.dart';
 
 Future<Uint8List> _readBytesFromPath(String path) => File(path).readAsBytes();
@@ -142,6 +143,61 @@ class FilePickerUtils {
     final int codeUnit = x.codeUnitAt(0);
     return (codeUnit >= 65 && codeUnit <= 90) || // A-Z
         (codeUnit >= 97 && codeUnit <= 122); // a-z
+  }
+
+  static const int _magicHeaderSize = 64;
+
+  /// Reads the first [magicHeaderSize] bytes from the file at [path].
+  static Future<Uint8List> readMagicHeader(String path) async {
+    final raf = await File(path).open();
+    try {
+      return await raf.read(_magicHeaderSize);
+    } finally {
+      await raf.close();
+    }
+  }
+
+  /// Detects a file extension from [bytes] if available, or reads the magic
+  /// header from [path] otherwise. Falls back to extracting the extension
+  /// from [fileName] when magic number detection fails.
+  static Future<String?> detectExtension({
+    Uint8List? bytes,
+    String? path,
+    required String fileName,
+  }) async {
+    String? detectedExt;
+    if (bytes != null) {
+      detectedExt = _magicNumberTypeToExtension(
+        FileMagicNumber.detectFileTypeFromBytes(bytes),
+      );
+    } else if (path != null) {
+      try {
+        final header = await readMagicHeader(path);
+        detectedExt = _magicNumberTypeToExtension(
+          FileMagicNumber.detectFileTypeFromBytes(header),
+        );
+      } catch (_) {}
+    }
+    return detectedExt ?? extensionFromFileName(fileName);
+  }
+
+  /// Extracts the file extension from [fileName].
+  ///
+  /// Returns `null` if no extension is found.
+  static String? extensionFromFileName(String fileName) {
+    final dotIndex = fileName.lastIndexOf('.');
+    if (dotIndex == -1 || dotIndex == fileName.length - 1) return null;
+    return fileName.substring(dotIndex + 1);
+  }
+
+  static String? _magicNumberTypeToExtension(FileMagicNumberType type) {
+    switch (type) {
+      case FileMagicNumberType.sevenZ: return '7z';
+      case FileMagicNumberType.unknown:
+      case FileMagicNumberType.emptyFile:
+        return null;
+      default: return type.name;
+    }
   }
 }
 

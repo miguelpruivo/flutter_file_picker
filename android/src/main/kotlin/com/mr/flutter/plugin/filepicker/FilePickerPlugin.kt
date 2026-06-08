@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import com.mr.flutter.plugin.filepicker.FileUtils.getFileExtension
 import com.mr.flutter.plugin.filepicker.FileUtils.getMimeTypes
 import com.mr.flutter.plugin.filepicker.FileUtils.saveFile
 import com.mr.flutter.plugin.filepicker.FileUtils.startFileExplorer
@@ -130,15 +129,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
                 val initialDirectory = arguments?.get("initialDirectory") as? String?
                 val bytes = arguments?.get("bytes") as? ByteArray?
                 val path = arguments?.get("path") as? String?
-                val fileNameWithoutExtension = "${arguments?.get("fileName")}".trim()
-                val fileName =
-                    if (bytes != null &&
-                        fileNameWithoutExtension.isNotEmpty() &&
-                        !fileNameWithoutExtension.contains(".")) {
-                        "$fileNameWithoutExtension.${getFileExtension(bytes)}"
-                    } else {
-                        fileNameWithoutExtension
-                    }
+                val fileName = "${arguments?.get("fileName")}".trim()
                 delegate?.saveFile(
                     fileName,
                     type,

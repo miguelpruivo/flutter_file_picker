@@ -170,10 +170,32 @@ class FilePickerLinux extends FilePickerPlatform {
       throw ArgumentError('Linux saveFile requires bytes or a path.');
     }
 
+    var effectiveType = type;
+    var effectiveExtensions = allowedExtensions;
+    var effectiveFileName = fileName;
+    if (type == FileType.any &&
+        (allowedExtensions == null || allowedExtensions.isEmpty)) {
+      final detectedExt = await FilePickerUtils.detectExtension(
+        bytes: bytes,
+        path: path,
+        fileName: fileName,
+      );
+      if (detectedExt != null) {
+        effectiveType = FileType.custom;
+        effectiveExtensions = [detectedExt];
+        final dotIndex = effectiveFileName.lastIndexOf('.');
+        if (dotIndex == -1 || dotIndex == effectiveFileName.length - 1) {
+          effectiveFileName = '$effectiveFileName.$detectedExt';
+        }
+      }
+    }
+
+    final filter = Filter(effectiveType, effectiveExtensions);
     Map<String, DBusValue> xdpOption = {
       'handle_token': DBusString('flutter_picker'),
-      'current_name': DBusString(fileName),
+      'current_name': DBusString(effectiveFileName),
       'modal': DBusBoolean(lockParentWindow),
+      'filters': filter.toDBusArray(),
     };
     if (initialDirectory != null) {
       final Uint8List tmp = _encodeDirectory(initialDirectory);

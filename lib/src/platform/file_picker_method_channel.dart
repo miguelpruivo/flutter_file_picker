@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/platform_file.dart';
+import 'package:file_picker/src/file_picker_utils.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 
 /// An implementation of [FilePickerPlatform] that uses method channels.
@@ -153,6 +154,27 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     if (bytes == null && path == null) {
       throw ArgumentError('Either bytes or a path must be provided.');
     }
+
+    var effectiveType = type;
+    var effectiveExtensions = allowedExtensions;
+    var effectiveFileName = fileName;
+    if (type == FileType.any &&
+        (allowedExtensions == null || allowedExtensions.isEmpty)) {
+      final detectedExt = await FilePickerUtils.detectExtension(
+        bytes: bytes,
+        path: path,
+        fileName: fileName,
+      );
+      if (detectedExt != null) {
+        effectiveType = FileType.custom;
+        effectiveExtensions = [detectedExt];
+        final dotIndex = effectiveFileName.lastIndexOf('.');
+        if (dotIndex == -1 || dotIndex == effectiveFileName.length - 1) {
+          effectiveFileName = '$effectiveFileName.$detectedExt';
+        }
+      }
+    }
+
     try {
       if (onFileLoading != null) {
         onFileLoading(FilePickerStatus.picking);
@@ -168,10 +190,10 @@ class MethodChannelFilePicker extends FilePickerPlatform {
 
       final String? savedPath = await methodChannel
           .invokeMethod<String>("save", {
-            "fileName": fileName,
-            "fileType": type.name,
+            "fileName": effectiveFileName,
+            "fileType": effectiveType.name,
             "initialDirectory": initialDirectory,
-            "allowedExtensions": allowedExtensions,
+            "allowedExtensions": effectiveExtensions,
             if (bytes != null) "bytes": bytes,
             if (path != null) "path": path,
           });

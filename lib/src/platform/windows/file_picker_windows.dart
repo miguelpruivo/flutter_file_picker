@@ -199,16 +199,36 @@ class FilePickerWindows extends FilePickerPlatform {
       throw ArgumentError('Windows saveFile requires bytes or a path.');
     }
 
+    var effectiveType = type;
+    var effectiveExtensions = allowedExtensions;
+    var effectiveFileName = fileName;
+    if (type == FileType.any &&
+        (allowedExtensions == null || allowedExtensions.isEmpty)) {
+      final detectedExt = await FilePickerUtils.detectExtension(
+        bytes: bytes,
+        path: path,
+        fileName: fileName,
+      );
+      if (detectedExt != null) {
+        effectiveType = FileType.custom;
+        effectiveExtensions = [detectedExt];
+        final dotIndex = effectiveFileName.lastIndexOf('.');
+        if (dotIndex == -1 || dotIndex == effectiveFileName.length - 1) {
+          effectiveFileName = '$effectiveFileName.$detectedExt';
+        }
+      }
+    }
+
     final port = ReceivePort();
     await Isolate.spawn(
       _callSaveFile,
       _OpenSaveFileArgs(
         port: port.sendPort,
-        defaultFileName: fileName,
+        defaultFileName: effectiveFileName,
         dialogTitle: dialogTitle,
         initialDirectory: initialDirectory,
-        type: type,
-        allowedExtensions: allowedExtensions,
+        type: effectiveType,
+        allowedExtensions: effectiveExtensions,
         lockParentWindow: lockParentWindow,
         confirmOverwrite: true,
       ),

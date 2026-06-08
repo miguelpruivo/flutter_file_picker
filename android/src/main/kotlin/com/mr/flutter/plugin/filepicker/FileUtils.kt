@@ -332,13 +332,18 @@ object FileUtils {
         this?.startFileExplorer()
     }
 
-    fun getFileExtension(bytes: ByteArray?): String {
-        val tika = Tika()
-        val mimeType = tika.detect(bytes)
-        return mimeType.substringAfter("/")
+    private fun getMimeTypeFromFileName(fileName: String?): String {
+        val extension = fileName
+            ?.substringAfterLast('.', "")
+            ?.lowercase(Locale.getDefault())
+        return if (extension.isNullOrEmpty()) {
+            "*/*"
+        } else {
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "*/*"
+        }
     }
 
-    private fun getMimeTypeForBytes(fileName: String?, bytes: ByteArray?): String {
+    private fun getMimeTypeForBytes (fileName: String?, bytes: ByteArray?): String {
         val tika = Tika()
 
         val detectedType = if (fileName.isNullOrEmpty()) {
@@ -382,16 +387,19 @@ object FileUtils {
             try {
                 intent.type = when {
                     bytes != null -> getMimeTypeForBytes(fileName = fileName, bytes = bytes)
-                    else -> {
-                        val extension = fileName
-                            ?.substringAfterLast('.', "")
-                            ?.lowercase(Locale.getDefault())
-                        if (extension.isNullOrEmpty()) {
-                            "*/*"
-                        } else {
-                            MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "*/*"
+                    path != null -> {
+                        try {
+                            val pathBytes = File(path).readBytes()
+                            getMimeTypeForBytes(fileName = fileName, bytes = pathBytes)
+                        } catch (e: Exception) {
+                            Log.e(
+                                FilePickerDelegate.TAG,
+                                "Failed to read bytes from path for mime detection. $e"
+                            )
+                            getMimeTypeFromFileName(fileName)
                         }
                     }
+                    else -> getMimeTypeFromFileName(fileName)
                 }
                 this.saveMimeType = intent.type
             } catch (t: Throwable) {

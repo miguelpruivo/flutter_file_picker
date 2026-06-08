@@ -120,14 +120,34 @@ class FilePickerMacOS extends FilePickerPlatform {
       throw ArgumentError('macOS saveFile requires bytes or a path.');
     }
 
-    final fileFilter = fileTypeToFileFilter(type, allowedExtensions);
+    var effectiveType = type;
+    var effectiveExtensions = allowedExtensions;
+    var effectiveFileName = fileName;
+    if (type == FileType.any &&
+        (allowedExtensions == null || allowedExtensions.isEmpty)) {
+      final detectedExt = await FilePickerUtils.detectExtension(
+        bytes: bytes,
+        path: path,
+        fileName: fileName,
+      );
+      if (detectedExt != null) {
+        effectiveType = FileType.custom;
+        effectiveExtensions = [detectedExt];
+        final dotIndex = effectiveFileName.lastIndexOf('.');
+        if (dotIndex == -1 || dotIndex == effectiveFileName.length - 1) {
+          effectiveFileName = '$effectiveFileName.$detectedExt';
+        }
+      }
+    }
+
+    final fileFilter = fileTypeToFileFilter(effectiveType, effectiveExtensions);
 
     final String? savedFilePath = await methodChannel
         .invokeMethod<String>('saveFile', <String, dynamic>{
           'dialogTitle': escapeDialogTitle(
             dialogTitle ?? FilePickerUtils.defaultDialogTitle,
           ),
-          'fileName': fileName,
+          'fileName': effectiveFileName,
           'initialDirectory': escapeInitialDirectory(initialDirectory),
           'allowedExtensions': fileFilter,
         });
