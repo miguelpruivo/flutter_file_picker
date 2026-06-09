@@ -51,7 +51,7 @@ final class MacOSFilePickerHandler {
         result: @escaping FlutterResult
     ) {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            if let entitlementError = self?.checkEntitlement(requiredMode: .readOrWrite) {
+            if let entitlementError = checkEntitlement(requiredMode: .readOrWrite) {
                 DispatchQueue.main.async {
                     result(entitlementError)
                 }
@@ -117,7 +117,7 @@ final class MacOSFilePickerHandler {
         result: @escaping FlutterResult
     ) {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            if let entitlementError = self?.checkEntitlement(requiredMode: .readOrWrite) {
+            if let entitlementError = checkEntitlement(requiredMode: .readOrWrite) {
                 DispatchQueue.main.async {
                     result(entitlementError)
                 }
@@ -172,7 +172,7 @@ final class MacOSFilePickerHandler {
         result: @escaping FlutterResult
     ) {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            if let entitlementError = self?.checkEntitlement(requiredMode: .readOrWrite) {
+            if let entitlementError = checkEntitlement(requiredMode: .readOrWrite) {
                 DispatchQueue.main.async {
                     result(entitlementError)
                 }
@@ -226,7 +226,7 @@ final class MacOSFilePickerHandler {
         result: @escaping FlutterResult
     ) {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            if let entitlementError = self?.checkEntitlement(requiredMode: .requireWrite) {
+            if let entitlementError = checkEntitlement(requiredMode: .requireWrite) {
                 DispatchQueue.main.async {
                     result(entitlementError)
                 }
