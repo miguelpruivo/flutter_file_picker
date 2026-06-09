@@ -86,10 +86,9 @@ final class IOSFilePickerHandler: NSObject,
                 allowsMultipleSelection: allowMultipleSelection,
                 asDirectoryPicker: false)
         case "image", "video", "media":
-                presentDocumentPicker(
-                    contentTypes: resolveDocumentContentTypes(for: call.method),
-                    allowsMultipleSelection: allowMultipleSelection,
-                    asDirectoryPicker: false)
+                presentMediaPicker(
+                    type: call.method,
+                    allowsMultipleSelection: allowMultipleSelection)
 
         case "audio":
             presentDocumentPicker(
