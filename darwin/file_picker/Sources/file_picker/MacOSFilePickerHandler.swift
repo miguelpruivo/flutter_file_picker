@@ -51,7 +51,7 @@ final class MacOSFilePickerHandler {
         result: @escaping FlutterResult
     ) {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            if let entitlementError = checkEntitlement(requiredMode: .readOrWrite) {
+            if let entitlementError = self?.checkEntitlement(requiredMode: .readOrWrite) {
                 DispatchQueue.main.async {
                     result(entitlementError)
                 }
@@ -76,9 +76,9 @@ final class MacOSFilePickerHandler {
         dialog.canChooseDirectories = false
         dialog.canChooseFiles = true
         let extensions = args["allowedExtensions"] as? [String] ?? []
-        applyExtensions(dialog, extensions)
+         self?.applyExtensions(dialog, extensions)
 
-        guard let appWindow = getFlutterWindow() else {
+        guard let appWindow = self?.getFlutterWindow() else {
             result(nil)
             return
         }
@@ -117,7 +117,7 @@ final class MacOSFilePickerHandler {
         result: @escaping FlutterResult
     ) {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            if let entitlementError = checkEntitlement(requiredMode: .readOrWrite) {
+            if let entitlementError = self?.checkEntitlement(requiredMode: .readOrWrite) {
                 DispatchQueue.main.async {
                     result(entitlementError)
                 }
@@ -140,10 +140,10 @@ final class MacOSFilePickerHandler {
         dialog.allowsMultipleSelection = true
         dialog.canChooseDirectories = true
         dialog.canChooseFiles = true
-        let extensions = args["allowedExtensions"] as? [String] ?? []
-        applyExtensions(dialog, extensions)
+         let extensions = args["allowedExtensions"] as? [String] ?? []
+         self?.applyExtensions(dialog, extensions)
 
-        guard let appWindow: NSWindow = getFlutterWindow() else {
+          guard let appWindow: NSWindow = self?.getFlutterWindow() else {
             result(nil)
             return
         }
@@ -172,7 +172,7 @@ final class MacOSFilePickerHandler {
         result: @escaping FlutterResult
     ) {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            if let entitlementError = checkEntitlement(requiredMode: .readOrWrite) {
+            if let entitlementError = self?.checkEntitlement(requiredMode: .readOrWrite) {
                 DispatchQueue.main.async {
                     result(entitlementError)
                 }
@@ -200,7 +200,7 @@ final class MacOSFilePickerHandler {
         dialog.canChooseDirectories = true
         dialog.canChooseFiles = false
 
-        guard let appWindow = getFlutterWindow() else {
+        guard let appWindow = self?.getFlutterWindow() else {
             result(nil)
             return
         }
@@ -226,7 +226,7 @@ final class MacOSFilePickerHandler {
         result: @escaping FlutterResult
     ) {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            if let entitlementError = checkEntitlement(requiredMode: .requireWrite) {
+            if let entitlementError = self?.checkEntitlement(requiredMode: .requireWrite) {
                 DispatchQueue.main.async {
                     result(entitlementError)
                 }
@@ -234,7 +234,7 @@ final class MacOSFilePickerHandler {
             }
 
             DispatchQueue.main.async {
-        let dialog = NSSavePanel()
+                let dialog = NSSavePanel()
         let args = call.arguments as! [String: Any]
 
         dialog.title = args["dialogTitle"] as? String ?? ""
@@ -248,10 +248,10 @@ final class MacOSFilePickerHandler {
             dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
         }
 
-        let extensions = args["allowedExtensions"] as? [String] ?? []
-        applyExtensions(dialog, extensions)
+         let extensions = args["allowedExtensions"] as? [String] ?? []
+         self?.applyExtensions(dialog, extensions)
 
-        guard let appWindow = getFlutterWindow() else {
+          guard let appWindow = self?.getFlutterWindow() else {
             result(nil)
             return
         }
