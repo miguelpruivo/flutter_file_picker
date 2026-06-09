@@ -76,9 +76,9 @@ final class MacOSFilePickerHandler {
         dialog.canChooseDirectories = false
         dialog.canChooseFiles = true
         let extensions = args["allowedExtensions"] as? [String] ?? []
-        self?.applyExtensions(dialog, extensions)
+        applyExtensions(dialog, extensions)
 
-        guard let appWindow = self?.getFlutterWindow() else {
+        guard let appWindow = getFlutterWindow() else {
             result(nil)
             return
         }
@@ -141,9 +141,9 @@ final class MacOSFilePickerHandler {
         dialog.canChooseDirectories = true
         dialog.canChooseFiles = true
         let extensions = args["allowedExtensions"] as? [String] ?? []
-        self?.applyExtensions(dialog, extensions)
+        applyExtensions(dialog, extensions)
 
-        guard let appWindow: NSWindow = self?.getFlutterWindow() else {
+        guard let appWindow: NSWindow = getFlutterWindow() else {
             result(nil)
             return
         }
@@ -200,7 +200,7 @@ final class MacOSFilePickerHandler {
         dialog.canChooseDirectories = true
         dialog.canChooseFiles = false
 
-        guard let appWindow = self?.getFlutterWindow() else {
+        guard let appWindow = getFlutterWindow() else {
             result(nil)
             return
         }
@@ -249,9 +249,9 @@ final class MacOSFilePickerHandler {
         }
 
         let extensions = args["allowedExtensions"] as? [String] ?? []
-        self?.applyExtensions(dialog, extensions)
+        applyExtensions(dialog, extensions)
 
-        guard let appWindow = self?.getFlutterWindow() else {
+        guard let appWindow = getFlutterWindow() else {
             result(nil)
             return
         }
