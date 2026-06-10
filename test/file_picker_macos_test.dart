@@ -2,7 +2,7 @@
 library;
 
 import 'package:file_picker/src/platform/macos/file_picker_macos.dart';
-import 'package:file_picker/src/api/file_picker_types.dart';
+import 'package:file_picker_platform_interface/file_picker.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
