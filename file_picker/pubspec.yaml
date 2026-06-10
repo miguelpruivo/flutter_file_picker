@@ -51,6 +51,3 @@ flutter:
         dartPluginClass: FilePickerMacOS
       linux:
         dartPluginClass: FilePickerLinux
-dependency_overrides:
-  ffi_leak_tracker:
-    path: ../ffi_leak_tracker_stub
