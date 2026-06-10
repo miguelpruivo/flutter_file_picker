@@ -1,0 +1,10 @@
+# Git ignore rules consolidated into repository root .gitignore
+# See /.gitignore for the canonical list.
+
+# Keep package-specific ignores here only if strictly necessary.
+
+# iOS example generated files
+Flutter/ephemeral/
+ios/Flutter/ephemeral/
+ios/Flutter/GeneratedPluginRegistrant.*
+**/GeneratedPluginRegistrant.*

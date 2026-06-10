@@ -1,0 +1,4 @@
+# Git ignore rules consolidated into repository root .gitignore
+# See /.gitignore for the canonical list.
+
+# Keep package-specific ignores here only if strictly necessary.

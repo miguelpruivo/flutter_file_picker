@@ -1,0 +1,23 @@
+# Git ignore rules consolidated into repository root .gitignore
+# See /.gitignore for the canonical list.
+
+# Keep package-specific ignores here only if strictly necessary.
+
+# Example-specific generated files and ephemeral artefacts
+# Flutter ephemeral build/runtime caches
+Flutter/ephemeral/
+**/Flutter/ephemeral/
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
+
+# Generated plugin registrants
+**/GeneratedPluginRegistrant.*
+**/GeneratedPluginRegistrant.*
+
+# Local Flutter/dependency files
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+.dart_tool/
+pubspec.lock
