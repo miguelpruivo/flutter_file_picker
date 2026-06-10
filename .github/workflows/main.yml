@@ -43,6 +43,7 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+        working-directory: file_picker
 
       - name: Verify formatting
         if: matrix.flutter == 'stable'
@@ -50,9 +51,11 @@ jobs:
 
       - name: Analyze project source
         run: flutter analyze
+        working-directory: file_picker
 
       - name: Run tests
         run: flutter test
+        working-directory: file_picker
 
   test_os_matrix:
     needs: test_flutter_versions
@@ -71,15 +74,18 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+        working-directory: file_picker
 
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze project source
         run: flutter analyze
+        working-directory: file_picker
 
       - name: Run tests
         run: flutter test
+        working-directory: file_picker
 
       # Linux build (example app)
       - name: Install Linux desktop dependencies
@@ -94,7 +100,7 @@ jobs:
 
       - name: Build Linux example
         if: matrix.os == 'ubuntu-latest'
-        working-directory: example
+        working-directory: file_picker/example
         run: |
           flutter pub get
           flutter build linux
@@ -106,7 +112,7 @@ jobs:
 
       - name: Build Windows example
         if: matrix.os == 'windows-latest'
-        working-directory: example
+        working-directory: file_picker/example
         run: |
           flutter pub get
           flutter build windows
@@ -118,7 +124,7 @@ jobs:
 
       - name: Build macOS example
         if: matrix.os == 'macos-latest'
-        working-directory: example
+        working-directory: file_picker/example
         run: |
           flutter pub get
           flutter build macos
@@ -135,10 +141,11 @@ jobs:
       - run: flutter --version
       - name: Install dependencies
         run: flutter pub get
+        working-directory: file_picker
       - name: Enable Web
         run: flutter config --enable-web
       - name: Build Web example
-        working-directory: example
+        working-directory: file_picker/example
         run: |
           flutter pub get
           flutter build web --wasm

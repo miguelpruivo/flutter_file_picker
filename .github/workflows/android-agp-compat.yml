@@ -62,9 +62,9 @@ jobs:
           import re
 
           root = Path.cwd()
-          settings_file = root / 'example/android/settings.gradle.kts'
-          wrapper_file = root / 'example/android/gradle/wrapper/gradle-wrapper.properties'
-          gradle_properties_file = root / 'example/android/gradle.properties'
+          settings_file = root / 'file_picker/example/android/settings.gradle.kts'
+          wrapper_file = root / 'file_picker/example/android/gradle/wrapper/gradle-wrapper.properties'
+          gradle_properties_file = root / 'file_picker/example/android/gradle.properties'
 
           agp_version = os.environ['AGP_VERSION']
           gradle_version = os.environ['GRADLE_VERSION']
@@ -114,14 +114,14 @@ jobs:
           PY
 
       - name: Show Android diff under test
-        run: git --no-pager diff -- example/android | cat
+        run: git --no-pager diff -- file_picker/example/android | cat
 
       - name: Install example dependencies
-        working-directory: example
+        working-directory: file_picker/example
         run: flutter pub get
 
       - name: Build Android example
-        working-directory: example
+        working-directory: file_picker/example
         run: flutter build apk --debug
 
 
