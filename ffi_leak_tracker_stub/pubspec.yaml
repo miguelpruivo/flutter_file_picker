@@ -1,0 +1,10 @@
+name: ffi_leak_tracker
+description: Web-compatible stub for ffi_leak_tracker.
+version: 0.1.2
+publish_to: none
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+
+dependencies:
+  ffi: ^2.1.3
