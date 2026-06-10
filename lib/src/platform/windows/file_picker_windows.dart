@@ -6,13 +6,10 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
-import 'package:file_picker/src/api/file_picker_types.dart';
-import 'package:file_picker/src/api/file_picker_result.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
-
-import 'package:file_picker/src/api/exceptions.dart';
-import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
-import 'package:file_picker/src/file_picker_utils.dart';
+import 'package:file_picker_platform_interface/file_picker.dart';
+import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
+import 'package:file_picker_platform_interface/file_picker_utils.dart';
+import 'package:file_picker_platform_interface/file_picker_exceptions.dart';
 import 'package:file_picker/src/platform/windows/file_picker_windows_ffi_types.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
