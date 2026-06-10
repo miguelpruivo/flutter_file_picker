@@ -3,7 +3,7 @@ import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
-import 'package:file_picker_platform_interface/file_picker.dart';
+import '../file_picker.dart';
 import 'package:path/path.dart';
 
 /// Utility class for [FilePicker] that provides common helper methods
