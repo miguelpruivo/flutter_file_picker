@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:file_picker_platform_interface/file_picker.dart';
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
-import 'package:file_picker_platform_interface/file_picker_utils.dart';
 import 'package:file_picker/src/platform/linux/xdp_filechooser.dart';
 import 'package:file_picker/src/platform/linux/xdp_request.dart';
 import 'package:file_picker/src/platform/linux/filters.dart';

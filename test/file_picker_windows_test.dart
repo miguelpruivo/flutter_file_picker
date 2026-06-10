@@ -4,7 +4,6 @@ library;
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
-import 'package:file_picker_platform_interface/file_picker_exceptions.dart';
 import 'package:file_picker_platform_interface/file_picker.dart';
 
 import 'package:file_picker/src/platform/windows/file_picker_windows.dart';

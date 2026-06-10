@@ -1,6 +1,5 @@
 import 'package:file_picker_platform_interface/file_picker.dart';
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
-import 'package:file_picker_platform_interface/file_picker_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
