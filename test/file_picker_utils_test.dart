@@ -2,7 +2,7 @@
 library;
 
 import 'dart:io';
-import 'package:file_picker/src/utils/file_picker_utils.dart';
+import 'package:file_picker_platform_interface/src/file_picker_utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'common.dart';

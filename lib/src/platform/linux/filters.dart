@@ -1,5 +1,5 @@
-import 'package:file_picker/src/api/file_picker_types.dart';
-import 'package:file_picker/src/utils/file_picker_utils.dart';
+import 'package:file_picker_platform_interface/src/api/file_picker_types.dart';
+import 'package:file_picker_platform_interface/src/file_picker_utils.dart';
 import 'package:dbus/dbus.dart';
 
 typedef FilterInfo = Map<String, List<(int, String)>>;
