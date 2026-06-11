@@ -2,12 +2,7 @@ import 'dart:async';
 import 'dart:js_interop';
 import 'dart:typed_data';
 
-import 'package:file_picker_platform_interface/src/api/file_picker_types.dart';
-import 'package:file_picker_platform_interface/src/api/file_picker_result.dart';
-import 'package:file_picker_platform_interface/src/api/platform_file.dart';
-import 'package:file_picker_platform_interface/src/api/android_saf_options.dart';
-import 'package:file_picker_platform_interface/src/platform/file_picker_platform_interface.dart';
-import 'package:file_picker_platform_interface/src/file_picker_utils.dart';
+import 'package:file_picker_platform_interface/file_picker.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:path/path.dart' as p;
 import 'package:web/web.dart';
