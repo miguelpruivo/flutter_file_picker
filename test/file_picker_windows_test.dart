@@ -66,6 +66,20 @@ void main() {
         );
       },
     );
+
+    test('should throw when FileType.custom has no extensions', () {
+      final picker = FilePickerWindows();
+
+      expect(
+        () => picker.fileTypeToFileFilter(FileType.custom, null),
+        throwsArgumentError,
+      );
+
+      expect(
+        () => picker.fileTypeToFileFilter(FileType.custom, []),
+        throwsArgumentError,
+      );
+    });
   });
 
   group('validateFileName()', () {
