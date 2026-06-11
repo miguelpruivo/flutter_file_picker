@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
@@ -109,9 +110,19 @@ class PlatformFile {
   Future<Uint8List> readAsBytes() async {
     if (bytes != null) return bytes!;
 
+    if (readStream != null) {
+      final builder = BytesBuilder();
+      await for (final chunk in readStream!) {
+        builder.add(chunk);
+      }
+      return builder.takeBytes();
+    }
+
     if (kIsWeb) {
       final fetchedBytes = await fetchBytesFromWebPath(path);
       if (fetchedBytes != null) return fetchedBytes;
+    } else if (path != null) {
+      return xFile.readAsBytes();
     }
 
     throw StateError(

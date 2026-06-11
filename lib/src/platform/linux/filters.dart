@@ -1,4 +1,5 @@
 import 'package:file_picker/src/api/file_picker_types.dart';
+import 'package:file_picker/src/utils/file_picker_utils.dart';
 import 'package:dbus/dbus.dart';
 
 typedef FilterInfo = Map<String, List<(int, String)>>;
@@ -6,14 +7,7 @@ typedef FilterInfo = Map<String, List<(int, String)>>;
 class Filter {
   FilterInfo info = {};
   Filter(FileType type, List<String>? allowedExtensions) {
-    if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
-      throw ArgumentError.value(
-        allowedExtensions,
-        'allowedExtensions',
-        'Custom extension filters are only allowed with FileType.custom. '
-            'Remove the extension filter or change the FileType to FileType.custom.',
-      );
-    }
+    FilePickerUtils.validateAllowedExtensions(type, allowedExtensions);
     switch (type) {
       case FileType.any:
         return;

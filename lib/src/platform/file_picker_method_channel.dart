@@ -9,6 +9,7 @@ import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
+import 'package:file_picker/src/utils/file_picker_utils.dart';
 
 /// An implementation of [FilePickerPlatform] that uses method channels.
 class MethodChannelFilePicker extends FilePickerPlatform {
@@ -101,14 +102,7 @@ class MethodChannelFilePicker extends FilePickerPlatform {
     AndroidSAFOptions? androidSafOptions,
   ) async {
     final String type = fileType.name;
-    if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
-      throw ArgumentError.value(
-        allowedExtensions,
-        'allowedExtensions',
-        'Custom extension filters are only allowed with FileType.custom. '
-            'Remove the extension filter or change the FileType to FileType.custom.',
-      );
-    }
+    FilePickerUtils.validateAllowedExtensions(fileType, allowedExtensions);
     try {
       if (onFileLoading != null) {
         _eventSubscription = eventChannel.receiveBroadcastStream().listen((

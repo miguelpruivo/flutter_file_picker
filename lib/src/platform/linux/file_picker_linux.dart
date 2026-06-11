@@ -7,7 +7,7 @@ import 'package:file_picker/src/api/android_saf_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/platform_file.dart';
-import 'package:file_picker/src/file_picker_utils.dart';
+import 'package:file_picker/src/utils/file_picker_utils.dart';
 import 'package:file_picker/src/platform/linux/xdp_filechooser.dart';
 import 'package:file_picker/src/platform/linux/xdp_request.dart';
 import 'package:file_picker/src/platform/linux/filters.dart';
@@ -94,8 +94,8 @@ class FilePickerLinux extends FilePickerPlatform {
     final List<PlatformFile> platformFiles =
         await FilePickerUtils.filePathsToPlatformFiles(
           filePaths,
-          withReadStream,
-          withData,
+          withReadStream: withReadStream,
+          withData: withData,
         );
 
     return FilePickerResult(platformFiles);
@@ -151,7 +151,7 @@ class FilePickerLinux extends FilePickerPlatform {
     final filePaths = uriPaths.map((uri) => uri.toFilePath()).toList();
 
     final List<PlatformFile> platformFiles =
-        await FilePickerUtils.filePathsToPlatformFiles(filePaths, false, false);
+        await FilePickerUtils.filePathsToPlatformFiles(filePaths);
 
     return platformFiles.firstOrNull?.path;
   }
