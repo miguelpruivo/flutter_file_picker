@@ -4,6 +4,7 @@ homepage: https://github.com/miguelpruivo/plugins_flutter_file_picker
 repository: https://github.com/miguelpruivo/flutter_file_picker
 issue_tracker: https://github.com/miguelpruivo/flutter_file_picker/issues
 version: 12.0.0-beta.6
+publish_to: none
 
 dependencies:
   flutter:
@@ -19,16 +20,13 @@ dependencies:
   cross_file: ^0.3.5+2
   web: ^1.1.1
   dbus: ^0.7.12
-  file_picker_platform_interface: ^1.0.0
+  file_picker_platform_interface:
+    path: file_picker_platform_interface
 
 dev_dependencies:
   flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
-
-dependency_overrides:
-  file_picker_platform_interface:
-    path: file_picker_platform_interface
 
 environment:
   sdk: ">=3.10.0 <4.0.0"
