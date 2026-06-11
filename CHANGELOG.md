@@ -1,4 +1,8 @@
 ## 12.0.0-beta.6
+### General
+- Improved `PlatformFile.readAsBytes()` so picked files can be read even when `withData` was not used and the file only has a local `path` or a stream source.
+- `FileType.custom` now shares a consistent `allowedExtensions` validation across platforms, throwing `ArgumentError` when filters are missing or used with a non-custom file type.
+
 ## Darwin
 - Fixed an issue that prevented the file extension from being preserved when saving a picked file on iOS and macOS.
 

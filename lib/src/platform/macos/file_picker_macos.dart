@@ -3,7 +3,7 @@ import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
-import 'package:file_picker/src/file_picker_utils.dart';
+import 'package:file_picker/src/utils/file_picker_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -72,8 +72,8 @@ class FilePickerMacOS extends FilePickerPlatform {
     final List<PlatformFile> platformFiles =
         await FilePickerUtils.filePathsToPlatformFiles(
           filePaths,
-          withReadStream,
-          withData,
+          withReadStream: withReadStream,
+          withData: withData,
         );
 
     return FilePickerResult(platformFiles);
@@ -132,14 +132,7 @@ class FilePickerMacOS extends FilePickerPlatform {
     FileType type,
     List<String>? allowedExtensions,
   ) {
-    if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
-      throw ArgumentError.value(
-        allowedExtensions,
-        'allowedExtensions',
-        'Custom extension filters are only allowed with FileType.custom. '
-            'Remove the extension filter or change the FileType to FileType.custom.',
-      );
-    }
+    FilePickerUtils.validateAllowedExtensions(type, allowedExtensions);
     switch (type) {
       case FileType.any:
         return [];

@@ -12,7 +12,7 @@ import 'package:file_picker/src/api/android_saf_options.dart';
 
 import 'package:file_picker/src/api/exceptions.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
-import 'package:file_picker/src/file_picker_utils.dart';
+import 'package:file_picker/src/utils/file_picker_utils.dart';
 import 'package:file_picker/src/platform/windows/file_picker_windows_ffi_types.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
@@ -58,8 +58,8 @@ class FilePickerWindows extends FilePickerPlatform {
       final filePaths = fileNames;
       final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
         filePaths,
-        withReadStream,
-        withData,
+        withReadStream: withReadStream,
+        withData: withData,
       );
 
       returnValue = FilePickerResult(platformFiles);
@@ -234,6 +234,7 @@ class FilePickerWindows extends FilePickerPlatform {
   }
 
   String fileTypeToFileFilter(FileType type, List<String>? allowedExtensions) {
+    FilePickerUtils.validateAllowedExtensions(type, allowedExtensions);
     switch (type) {
       case FileType.any:
         return 'All Files (*.*)\x00*.*\x00\x00';
