@@ -1,8 +1,8 @@
-import 'package:file_picker/src/api/file_picker_types.dart';
-import 'package:file_picker/src/api/platform_file.dart';
-import 'package:file_picker/src/api/file_picker_result.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
-import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
+import 'package:file_picker_platform_interface/src/api/file_picker_types.dart';
+import 'package:file_picker_platform_interface/src/api/platform_file.dart';
+import 'package:file_picker_platform_interface/src/api/file_picker_result.dart';
+import 'package:file_picker_platform_interface/src/api/android_saf_options.dart';
+import 'package:file_picker_platform_interface/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/utils/file_picker_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';

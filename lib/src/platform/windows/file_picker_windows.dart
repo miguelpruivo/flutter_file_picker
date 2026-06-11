@@ -6,12 +6,11 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
-import 'package:file_picker/src/api/file_picker_types.dart';
-import 'package:file_picker/src/api/file_picker_result.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
-
-import 'package:file_picker/src/api/exceptions.dart';
-import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
+import 'package:file_picker_platform_interface/src/api/file_picker_types.dart';
+import 'package:file_picker_platform_interface/src/api/file_picker_result.dart';
+import 'package:file_picker_platform_interface/src/api/android_saf_options.dart';
+import 'package:file_picker_platform_interface/src/api/exceptions.dart';
+import 'package:file_picker_platform_interface/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/utils/file_picker_utils.dart';
 import 'package:file_picker/src/platform/windows/file_picker_windows_ffi_types.dart';
 import 'package:flutter/foundation.dart';
@@ -234,14 +233,16 @@ class FilePickerWindows extends FilePickerPlatform {
   }
 
   String fileTypeToFileFilter(FileType type, List<String>? allowedExtensions) {
-    FilePickerUtils.validateAllowedExtensions(type, allowedExtensions);
     switch (type) {
       case FileType.any:
         return 'All Files (*.*)\x00*.*\x00\x00';
       case FileType.audio:
         return 'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav,*.m4a)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav;*.m4a\x00\x00';
       case FileType.custom:
-        return 'Files (*.${allowedExtensions!.join(',*.')})\x00*.${allowedExtensions.join(';*.')}\x00\x00';
+        if (allowedExtensions == null || allowedExtensions.isEmpty) {
+          return 'All Files (*.*)\x00*.*\x00\x00';
+        }
+        return 'Files (*.${allowedExtensions.join(',*.')})\x00*.${allowedExtensions.join(';*.')}\x00\x00';
       case FileType.image:
         return 'Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png,*.webp)\x00*.bmp;*.gif;*.jpeg;*.jpg;*.png;*.webp\x00\x00';
       case FileType.media:
