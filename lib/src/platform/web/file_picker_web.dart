@@ -5,6 +5,7 @@ import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
+import 'package:file_picker/src/utils/file_picker_utils.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:path/path.dart' as p;
 import 'package:web/web.dart';
@@ -61,11 +62,7 @@ class FilePickerWeb extends FilePickerPlatform {
     bool cancelUploadOnWindowBlur = true,
     int compressionQuality = 0,
   }) async {
-    if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
-      throw Exception(
-        'You are setting a type [$type]. Custom extension filters are only allowed with FileType.custom, please change it or remove filters.',
-      );
-    }
+    FilePickerUtils.validateAllowedExtensions(type, allowedExtensions);
 
     Completer<List<PlatformFile>?>? filesCompleter =
         Completer<List<PlatformFile>?>();

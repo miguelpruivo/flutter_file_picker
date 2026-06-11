@@ -2,6 +2,7 @@ export 'src/api/file_picker_result.dart';
 export 'src/api/file_picker_types.dart';
 export 'src/api/platform_file.dart';
 export 'src/file_picker.dart';
+export 'src/platform/file_picker_platform_interface.dart';
 // Platform-specific implementations are exported only for plugin registration.
 // These exports are hidden on Web to avoid dart:ffi and dart:io compatibility issues.
 export 'src/platform/linux/file_picker_linux.dart'
