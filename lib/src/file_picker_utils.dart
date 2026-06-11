@@ -201,14 +201,15 @@ class FilePickerUtils {
         return type.name;
     }
   }
+
   /// Validates the [allowedExtensions] parameter against the provided [type].
   ///
   /// Throws an [ArgumentError] if extension filters are provided while the
   /// [type] is not [FileType.custom].
   static void validateAllowedExtensions(
-      FileType type,
-      List<String>? allowedExtensions,
-      ) {
+    FileType type,
+    List<String>? allowedExtensions,
+  ) {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw ArgumentError.value(
         allowedExtensions,
@@ -254,4 +255,3 @@ Future<void> _saveBytesIsolateEntry(List<Object?> args) async {
     port.send(Exception('Invalid isolate arguments'));
   }
 }
-
