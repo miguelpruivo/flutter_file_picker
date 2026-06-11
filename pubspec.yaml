@@ -4,7 +4,6 @@ homepage: https://github.com/miguelpruivo/plugins_flutter_file_picker
 repository: https://github.com/miguelpruivo/flutter_file_picker
 issue_tracker: https://github.com/miguelpruivo/flutter_file_picker/issues
 version: 12.0.0-beta.6
-publish_to: none
 
 dependencies:
   flutter:
