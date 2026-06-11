@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';

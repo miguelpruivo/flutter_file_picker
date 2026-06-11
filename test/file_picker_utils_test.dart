@@ -2,7 +2,7 @@
 library;
 
 import 'dart:io';
-import 'package:file_picker/src/utils/file_picker_utils.dart';
+import 'package:file_picker/src/file_picker_utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'common.dart';
@@ -100,6 +100,8 @@ void main() {
 
         final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
           filePaths,
+          false,
+          false,
         );
 
         expect(platformFiles.length, equals(filePaths.length));
@@ -137,6 +139,8 @@ void main() {
 
         final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
           filePaths,
+          false,
+          false,
         );
 
         expect(platformFiles.length, equals(filePaths.length));
@@ -150,7 +154,8 @@ void main() {
 
         final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
           filePaths,
-          withReadStream: true,
+          true,
+          false,
         );
 
         expect(platformFiles.length, equals(filePaths.length));
@@ -164,7 +169,8 @@ void main() {
 
         final platformFiles = await FilePickerUtils.filePathsToPlatformFiles(
           filePaths,
-          withData: true,
+          false,
+          true,
         );
 
         expect(platformFiles.length, equals(filePaths.length));

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/platform_file.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
