@@ -5,12 +5,16 @@
 - `FilePicker.saveFile()` now accepts a `sourceFile` (PlatformFile) parameter, allowing file saving via native file references without loading all bytes in Dart.
 - `PlatformFile.readAsBytes()` reads from local file paths when `bytes` is null.
 - Desktop platforms (macOS, Windows, Linux) now support saving files from a source path reference.
+- The `ffi`, `win32`, and `flutter_lints` dependencies have been updated.
+
+
 ### Android
 - `saveFile` writes file data from a `sourceIdentifier` (URI) on Android, copying from the source URI to the save destination natively.
 ### iOS
 - `saveFile` on iOS resolves a `sourceIdentifier` URL reference natively for document export.
 ### Desktop (macOS)
 - `FilePicker.pickFiles()` now uses `DispatchQueue.main.async` to avoid blocking the UI when opening the file picker dialog.
+
 
  ### Android
 - Prevents unresolved references when extracting hashCode under a forced JVM version. [#2070](https://github.com/miguelpruivo/flutter_file_picker/issues/2070)
