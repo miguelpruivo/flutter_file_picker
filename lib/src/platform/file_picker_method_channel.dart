@@ -186,8 +186,8 @@ class MethodChannelFilePicker extends FilePickerPlatform {
             "fileType": effectiveType.name,
             "initialDirectory": initialDirectory,
             "allowedExtensions": effectiveExtensions,
-            if (bytes != null) "bytes": bytes,
-            if (path != null) "path": path,
+            "bytes": ?bytes,
+            "path": ?path,
           });
 
       if (onFileLoading != null) {
