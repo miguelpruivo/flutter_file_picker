@@ -2,6 +2,7 @@
 ### General
 - Improved `PlatformFile.readAsBytes()` so picked files can be read even when `withData` was not used and the file only has a local `path` or a stream source.
 - `FileType.custom` now shares a consistent `allowedExtensions` validation across platforms, throwing `ArgumentError` when filters are missing or used with a non-custom file type.
+- The `ffi`, `win32`, and `flutter_lints` dependencies have been updated.
 
  ### Android
 - Prevents unresolved references when extracting hashCode under a forced JVM version. [#2070](https://github.com/miguelpruivo/flutter_file_picker/issues/2070)

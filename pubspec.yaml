@@ -13,15 +13,15 @@ dependencies:
 
   flutter_plugin_android_lifecycle: ^2.0.34
   plugin_platform_interface: ^2.1.8
-  ffi: ^2.1.3
+  ffi: ^2.2.0
   path: ^1.9.1
-  win32: ^6.2.0
+  win32: ^6.3.0
   cross_file: ^0.3.5+2
   web: ^1.1.1
   dbus: ^0.7.12
 
 dev_dependencies:
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
 
