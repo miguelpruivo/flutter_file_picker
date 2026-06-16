@@ -3,6 +3,9 @@
 - Improved `PlatformFile.readAsBytes()` so picked files can be read even when `withData` was not used and the file only has a local `path` or a stream source.
 - `FileType.custom` now shares a consistent `allowedExtensions` validation across platforms, throwing `ArgumentError` when filters are missing or used with a non-custom file type.
 
+ ### Android
+- Prevents unresolved references when extracting hashCode under a forced JVM version. [#2070](https://github.com/miguelpruivo/flutter_file_picker/issues/2070)
+
 ## 12.0.0-beta.5
 ### Android
 - `saveFile` now writes file data using Kotlin Coroutines (`CoroutineScope(Dispatchers.IO).launch`), keeping all I/O off the main thread and preventing UI freezes.
