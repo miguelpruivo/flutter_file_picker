@@ -12,6 +12,9 @@
 ### Desktop (macOS)
 - `FilePicker.pickFiles()` now uses `DispatchQueue.main.async` to avoid blocking the UI when opening the file picker dialog.
 
+ ### Android
+- Prevents unresolved references when extracting hashCode under a forced JVM version. [#2070](https://github.com/miguelpruivo/flutter_file_picker/issues/2070)
+
 ## 12.0.0-beta.5
 ### Android
 - `saveFile` now writes file data using Kotlin Coroutines (`CoroutineScope(Dispatchers.IO).launch`), keeping all I/O off the main thread and preventing UI freezes.

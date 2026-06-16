@@ -23,8 +23,8 @@ class FilePickerDelegate(
 
     companion object {
         const val TAG = "FilePickerDelegate"
-        val REQUEST_CODE = (FilePickerPlugin::class.java.hashCode() + 43) and 0x0000ffff
-        val SAVE_FILE_CODE = (FilePickerPlugin::class.java.hashCode() + 83) and 0x0000ffff
+        const val REQUEST_CODE = 0x4F50
+        const val SAVE_FILE_CODE = 0x4F51
 
         fun finishWithAlreadyActiveError(result: MethodChannel.Result) {
             result.error("already_active", "File picker is already active", null)
