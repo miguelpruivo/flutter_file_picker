@@ -1,3 +1,7 @@
+## 12.0.0-beta.7
+## Web
+- Ensures `XFile.fromData` is only used on the web if bytes is not null, preventing potential null check errors.
+
 ## 12.0.0-beta.6
 ### General
 - Improved `PlatformFile.readAsBytes()` so picked files can be read even when `withData` was not used and the file only has a local `path` or a stream source.
