@@ -42,10 +42,9 @@ val isBuiltInKotlinEnabled = agpVersion >= 9 &&
     (builtInKotlinProperty == null || builtInKotlinProperty.toBoolean())
 val shouldApplyKotlinAndroidPlugin = agpVersion < 9 || !isBuiltInKotlinEnabled
 
-apply(plugin = "com.android.library")
-if (shouldApplyKotlinAndroidPlugin) {
-    apply(plugin = "org.jetbrains.kotlin.android")
-}
+    apply(plugin = "com.android.library")
+apply(plugin = "org.jetbrains.kotlin.android")
+
 
 val flutterExtension = extensions.getByName("flutter") as GroovyObject
 val flutterCompileSdkVersion = flutterExtension.intProperty("compileSdkVersion")
