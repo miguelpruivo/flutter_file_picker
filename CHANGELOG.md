@@ -11,6 +11,9 @@
 - Deprecated top-level `lockParentWindow` parameter in favor of `WindowsOptions.lockParentWindow` and `LinuxOptions.lockParentWindow`.
 - Deprecated top-level `cancelUploadOnWindowBlur` parameter in favor of `WebOptions.cancelUploadOnWindowBlur`.
 
+### macOS
+- Offloaded file picker initialization and entitlement checks to a background thread to prevent UI freezing on picker opening. [#2056](https://github.com/miguelpruivo/flutter_file_picker/issues/2056)
+
 ## 12.0.0-beta.7
 ### Web
 - Ensures `XFile.fromData` is only used on the web if bytes is not null, preventing potential null check errors.
