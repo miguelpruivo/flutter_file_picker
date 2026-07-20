@@ -78,12 +78,7 @@ final class MacOSFilePickerHandler {
                 let extensions = args["allowedExtensions"] as? [String] ?? []
                 self?.applyExtensions(dialog, extensions)
 
-                guard let appWindow = self?.getFlutterWindow() else {
-                    result(nil)
-                    return
-                }
-
-                dialog.beginSheetModal(for: appWindow) { response in
+                dialog.begin { response in
                     if response != .OK {
                         result(nil)
                         return
@@ -143,12 +138,7 @@ final class MacOSFilePickerHandler {
                 let extensions = args["allowedExtensions"] as? [String] ?? []
                 self?.applyExtensions(dialog, extensions)
 
-                guard let appWindow: NSWindow = self?.getFlutterWindow() else {
-                    result(nil)
-                    return
-                }
-
-                dialog.beginSheetModal(for: appWindow) { response in
+                dialog.begin { response in
                     if response != .OK {
                         result(nil)
                         return
@@ -200,11 +190,7 @@ final class MacOSFilePickerHandler {
                 dialog.canChooseDirectories = true
                 dialog.canChooseFiles = false
 
-                guard let appWindow = self?.getFlutterWindow() else {
-                    result(nil)
-                    return
-                }
-                dialog.beginSheetModal(for: appWindow) { response in
+                dialog.begin { response in
                     if response != .OK {
                         result(nil)
                         return
@@ -251,11 +237,7 @@ final class MacOSFilePickerHandler {
                 let extensions = args["allowedExtensions"] as? [String] ?? []
                 self?.applyExtensions(dialog, extensions)
 
-                guard let appWindow = self?.getFlutterWindow() else {
-                    result(nil)
-                    return
-                }
-                dialog.beginSheetModal(for: appWindow) { response in
+                dialog.begin { response in
                     if response != .OK {
                         result(nil)
                         return
