@@ -48,6 +48,13 @@ object FileUtils {
     // (see https://android.googlesource.com/platform/frameworks/base/+/61ae88e/core/java/android/webkit/MimeTypeMap.java#439)
     private const val CSV_EXTENSION = "csv"
     private const val CSV_MIME_TYPE = "text/csv"
+    // Maximum dimension (width or height) allowed when decoding an image for
+    // compression. Images larger than this are subsampled via
+    // BitmapFactory.Options.inSampleSize to avoid excessive memory usage
+    // (see https://developer.android.com/topic/performance/graphics/load-bitmap).
+    // 4096 matches the common GPU texture size limit, so regular photos are
+    // decoded at full resolution and only unusually large images are downscaled.
+    private const val MAX_COMPRESSED_IMAGE_DIMENSION = 4096
 
     fun FilePickerDelegate.processFiles(
         activity: Activity,
@@ -617,10 +624,24 @@ object FileUtils {
     fun compressImage(originalImageUri: Uri, compressionQuality: Int, context: Context): Uri {
         val compressedUri: Uri
         try {
+            // First pass: decode only the image bounds so a subsampling factor
+            // can be computed without loading the full bitmap into memory.
+            val boundsOptions = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            context.contentResolver.openInputStream(originalImageUri).use { imageStream ->
+                BitmapFactory.decodeStream(imageStream, null, boundsOptions)
+            }
+            val decodeOptions = BitmapFactory.Options().apply {
+                inSampleSize = calculateInSampleSize(
+                    boundsOptions,
+                    MAX_COMPRESSED_IMAGE_DIMENSION,
+                    MAX_COMPRESSED_IMAGE_DIMENSION
+                )
+            }
             context.contentResolver.openInputStream(originalImageUri).use { imageStream ->
                 val compressFormat = getCompressFormat(context, originalImageUri)
                 val compressedFile = createImageFile(context, compressFormat)
-                val originalBitmap = BitmapFactory.decodeStream(imageStream)
+                val originalBitmap = BitmapFactory.decodeStream(imageStream, null, decodeOptions)
+                    ?: throw IOException("Failed to decode image: $originalImageUri")
                 // Compress and save the image
                 val fileOutputStream = FileOutputStream(compressedFile)
                 originalBitmap.compress(compressFormat, compressionQuality, fileOutputStream)
@@ -632,6 +653,29 @@ object FileUtils {
             throw RuntimeException(e)
         }
         return compressedUri
+    }
+
+    /**
+     * Calculates the largest power-of-two [BitmapFactory.Options.inSampleSize]
+     * that keeps both dimensions at least as large as the requested size, as
+     * recommended by https://developer.android.com/topic/performance/graphics/load-bitmap.
+     */
+    private fun calculateInSampleSize(
+        options: BitmapFactory.Options,
+        reqWidth: Int,
+        reqHeight: Int
+    ): Int {
+        val height = options.outHeight
+        val width = options.outWidth
+        var inSampleSize = 1
+        if (height > reqHeight || width > reqWidth) {
+            val halfHeight = height / 2
+            val halfWidth = width / 2
+            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+                inSampleSize *= 2
+            }
+        }
+        return inSampleSize
     }
 
     @Throws(IOException::class)

@@ -3,6 +3,9 @@ export 'src/api/file_picker_types.dart';
 export 'src/api/platform_file.dart';
 export 'src/api/android_saf_options.dart';
 export 'src/api/android_saf_handle.dart';
+export 'src/api/windows_options.dart';
+export 'src/api/linux_options.dart';
+export 'src/api/web_options.dart';
 export 'src/file_picker.dart';
 export 'src/platform/file_picker_platform_interface.dart';
 // Platform-specific implementations are exported only for plugin registration.

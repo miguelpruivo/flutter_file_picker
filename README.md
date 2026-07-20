@@ -140,6 +140,34 @@ if (outputFile == null) {
   // User canceled the picker
 }
 ```
+
+### Platform Specific Options
+
+You can configure platform-specific behavior using dedicated configuration classes:
+
+#### Desktop Modal & Parent Window Locking (`LinuxOptions` & `WindowsOptions`)
+```dart
+FilePickerResult? result = await FilePicker.pickFiles(
+  linuxOptions: LinuxOptions(
+    lockParentWindow: true,
+    parentWindow: 'x11:0x3a00001', // Accepts 'x11:0x...', hex '0x...', raw decimal X11 window IDs ('60817409', converted to X11), or 'wayland:handle_123'
+  ),
+  windowsOptions: WindowsOptions(
+    lockParentWindow: true,
+    parentWindowHandle: 123456, // Win32 HWND as int
+  ),
+);
+```
+
+#### Web Options (`WebOptions`)
+```dart
+FilePickerResult? result = await FilePicker.pickFiles(
+  webOptions: WebOptions(
+    cancelUploadOnWindowBlur: false,
+  ),
+);
+```
+
 ### Load result and file details
 ```dart
 FilePickerResult? result = await FilePicker.pickFiles();

@@ -9,6 +9,9 @@ import 'package:ffi/ffi.dart';
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
+import 'package:file_picker/src/api/windows_options.dart';
+import 'package:file_picker/src/api/linux_options.dart';
+import 'package:file_picker/src/api/web_options.dart';
 
 import 'package:file_picker/src/api/exceptions.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
@@ -38,6 +41,9 @@ class FilePickerWindows extends FilePickerPlatform {
     int compressionQuality = 0,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
+    WindowsOptions windowsOptions = const WindowsOptions(),
+    LinuxOptions linuxOptions = const LinuxOptions(),
+    WebOptions webOptions = const WebOptions(),
   }) async {
     final port = ReceivePort();
     await Isolate.spawn(
@@ -49,7 +55,8 @@ class FilePickerWindows extends FilePickerPlatform {
         type: type,
         allowedExtensions: allowedExtensions,
         allowMultiple: allowMultiple,
-        lockParentWindow: lockParentWindow,
+        lockParentWindow: windowsOptions.lockParentWindow || lockParentWindow,
+        parentWindowHandle: windowsOptions.parentWindowHandle,
       ),
     );
     final fileNames = (await port.first) as List<String>?;
@@ -104,11 +111,15 @@ class FilePickerWindows extends FilePickerPlatform {
     bool lockParentWindow = false,
     String? initialDirectory,
     AndroidSAFOptions? androidSafOptions,
+    WindowsOptions windowsOptions = const WindowsOptions(),
+    LinuxOptions linuxOptions = const LinuxOptions(),
+    WebOptions webOptions = const WebOptions(),
   }) async {
     return compute(_getDirectoryPathIsolate, {
       'dialogTitle': dialogTitle,
       'initialDirectory': initialDirectory,
-      'lockParentWindow': lockParentWindow,
+      'lockParentWindow': windowsOptions.lockParentWindow || lockParentWindow,
+      'parentWindowHandle': windowsOptions.parentWindowHandle,
     });
   }
 
@@ -116,6 +127,7 @@ class FilePickerWindows extends FilePickerPlatform {
     String? dialogTitle = args['dialogTitle'] as String?;
     String? initialDirectory = args['initialDirectory'] as String?;
     bool lockParentWindow = args['lockParentWindow'] as bool? ?? false;
+    int? parentWindowHandle = args['parentWindowHandle'] as int?;
 
     final hr = CoInitializeEx(
       COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE,
@@ -151,7 +163,13 @@ class FilePickerWindows extends FilePickerPlatform {
         }
 
         try {
-          fileDialog.show(lockParentWindow ? GetForegroundWindow() : null);
+          HWND? parentHwnd;
+          if (lockParentWindow) {
+            parentHwnd = parentWindowHandle != null
+                ? Pointer.fromAddress(parentWindowHandle) as HWND
+                : GetForegroundWindow();
+          }
+          fileDialog.show(parentHwnd);
         } on WindowsException catch (e) {
           if (e.hr == HRESULT_FROM_WIN32(ERROR_CANCELLED)) {
             return null;
@@ -187,6 +205,9 @@ class FilePickerWindows extends FilePickerPlatform {
     required Uint8List bytes,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
+    WindowsOptions windowsOptions = const WindowsOptions(),
+    LinuxOptions linuxOptions = const LinuxOptions(),
+    WebOptions webOptions = const WebOptions(),
   }) async {
     final port = ReceivePort();
     await Isolate.spawn(
@@ -198,8 +219,9 @@ class FilePickerWindows extends FilePickerPlatform {
         initialDirectory: initialDirectory,
         type: type,
         allowedExtensions: allowedExtensions,
-        lockParentWindow: lockParentWindow,
+        lockParentWindow: windowsOptions.lockParentWindow || lockParentWindow,
         confirmOverwrite: true,
+        parentWindowHandle: windowsOptions.parentWindowHandle,
       ),
     );
     final savedFilePath = (await port.first) as String?;
@@ -336,7 +358,9 @@ class FilePickerWindows extends FilePickerPlatform {
         ofnExplorer | ofnFileMustExist | ofnHideReadOnly | ofnNoChangeDir;
 
     if (args.lockParentWindow) {
-      openFileNameW.ref.hwndOwner = _getWindowHandle();
+      openFileNameW.ref.hwndOwner = args.parentWindowHandle != null
+          ? Pointer.fromAddress(args.parentWindowHandle!)
+          : _getWindowHandle();
     }
 
     if (args.allowMultiple) {
@@ -412,6 +436,7 @@ class _OpenSaveFileArgs {
   final bool allowMultiple;
   final bool lockParentWindow;
   final bool confirmOverwrite;
+  final int? parentWindowHandle;
 
   _OpenSaveFileArgs({
     required this.port,
@@ -423,5 +448,6 @@ class _OpenSaveFileArgs {
     this.allowMultiple = false,
     this.lockParentWindow = false,
     this.confirmOverwrite = false,
+    this.parentWindowHandle,
   });
 }

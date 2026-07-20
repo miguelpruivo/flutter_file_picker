@@ -4,6 +4,9 @@ import 'dart:typed_data';
 
 import 'package:file_picker/src/api/file_picker_types.dart';
 import 'package:file_picker/src/api/android_saf_options.dart';
+import 'package:file_picker/src/api/windows_options.dart';
+import 'package:file_picker/src/api/linux_options.dart';
+import 'package:file_picker/src/api/web_options.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:file_picker/src/api/file_picker_result.dart';
 import 'package:file_picker/src/api/platform_file.dart';
@@ -46,12 +49,15 @@ class FilePickerLinux extends FilePickerPlatform {
     int compressionQuality = 0,
     bool cancelUploadOnWindowBlur = true,
     AndroidSAFOptions? androidSafOptions,
+    WindowsOptions windowsOptions = const WindowsOptions(),
+    LinuxOptions linuxOptions = const LinuxOptions(),
+    WebOptions webOptions = const WebOptions(),
   }) async {
     final filter = Filter(type, allowedExtensions);
     Map<String, DBusValue> xdpOption = {
       'handle_token': DBusString('flutter_picker'),
       'multiple': DBusBoolean(allowMultiple),
-      'modal': DBusBoolean(lockParentWindow),
+      'modal': DBusBoolean(linuxOptions.lockParentWindow || lockParentWindow),
       'filters': filter.toDBusArray(),
     };
     if (initialDirectory != null) {
@@ -60,7 +66,7 @@ class FilePickerLinux extends FilePickerPlatform {
       xdpOption["current_folder"] = directory;
     }
     final replyPath = await _xdpChooser.callOpenFile(
-      "",
+      _formatParentWindow(linuxOptions.parentWindow),
       dialogTitle ?? "flutter picker",
       xdpOption,
     );
@@ -107,11 +113,14 @@ class FilePickerLinux extends FilePickerPlatform {
     bool lockParentWindow = false,
     String? initialDirectory,
     AndroidSAFOptions? androidSafOptions,
+    WindowsOptions windowsOptions = const WindowsOptions(),
+    LinuxOptions linuxOptions = const LinuxOptions(),
+    WebOptions webOptions = const WebOptions(),
   }) async {
     Map<String, DBusValue> xdpOption = {
       'handle_token': DBusString('flutter_picker'),
       'directory': DBusBoolean(true),
-      'modal': DBusBoolean(lockParentWindow),
+      'modal': DBusBoolean(linuxOptions.lockParentWindow || lockParentWindow),
     };
     if (initialDirectory != null) {
       final Uint8List tmp = _encodeDirectory(initialDirectory);
@@ -119,7 +128,7 @@ class FilePickerLinux extends FilePickerPlatform {
       xdpOption["current_folder"] = directory;
     }
     final replyPath = await _xdpChooser.callOpenFile(
-      "",
+      _formatParentWindow(linuxOptions.parentWindow),
       dialogTitle ?? "flutter picker",
       xdpOption,
     );
@@ -166,11 +175,14 @@ class FilePickerLinux extends FilePickerPlatform {
     required Uint8List bytes,
     Function(FilePickerStatus)? onFileLoading,
     bool lockParentWindow = false,
+    WindowsOptions windowsOptions = const WindowsOptions(),
+    LinuxOptions linuxOptions = const LinuxOptions(),
+    WebOptions webOptions = const WebOptions(),
   }) async {
     Map<String, DBusValue> xdpOption = {
       'handle_token': DBusString('flutter_picker'),
       'current_name': DBusString(fileName),
-      'modal': DBusBoolean(lockParentWindow),
+      'modal': DBusBoolean(linuxOptions.lockParentWindow || lockParentWindow),
     };
     if (initialDirectory != null) {
       final Uint8List tmp = _encodeDirectory(initialDirectory);
@@ -179,7 +191,7 @@ class FilePickerLinux extends FilePickerPlatform {
     }
 
     final replyPath = await _xdpChooser.callSaveFile(
-      "",
+      _formatParentWindow(linuxOptions.parentWindow),
       dialogTitle ?? "flutter picker",
       xdpOption,
     );
@@ -216,5 +228,23 @@ class FilePickerLinux extends FilePickerPlatform {
 
   Uint8List _encodeDirectory(String initialDirectory) {
     return Uint8List.fromList([...utf8.encode(initialDirectory), 0]);
+  }
+
+  static String _formatParentWindow(String? parentWindow) {
+    if (parentWindow == null || parentWindow.trim().isEmpty) {
+      return '';
+    }
+    final trimmed = parentWindow.trim();
+    if (trimmed.startsWith('x11:') || trimmed.startsWith('wayland:')) {
+      return trimmed;
+    }
+    if (trimmed.startsWith('0x')) {
+      return 'x11:$trimmed';
+    }
+    final intVal = int.tryParse(trimmed);
+    if (intVal != null) {
+      return 'x11:0x${intVal.toRadixString(16)}';
+    }
+    return trimmed;
   }
 }

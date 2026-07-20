@@ -27,6 +27,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   final _defaultFileNameController = TextEditingController();
   final _dialogTitleController = TextEditingController();
   final _initialDirectoryController = TextEditingController();
+  final _parentWindowController = TextEditingController();
   final _fileExtensionController = TextEditingController();
   String? _extension;
   bool _isLoading = false;
@@ -43,6 +44,15 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   String? _pickedFileBytesSource;
   FileType _pickingType = FileType.any;
   List<PlatformFile>? pickedFiles;
+
+  String? get _customParentWindow =>
+      _parentWindowController.text.trim().isNotEmpty
+      ? _parentWindowController.text.trim()
+      : null;
+
+  int? get _customWindowsHwnd =>
+      int.tryParse(_parentWindowController.text.trim());
+
   bool get _isSaveFileDisabled => _multiPick;
   Widget _resultsWidget = const Row(
     children: [
@@ -81,6 +91,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _defaultFileNameController.dispose();
     _dialogTitleController.dispose();
     _initialDirectoryController.dispose();
+    _parentWindowController.dispose();
     _fileExtensionController.dispose();
     super.dispose();
   }
@@ -91,6 +102,9 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _clearPickedFileBytes();
 
     try {
+      printInDebug(
+        "lockParentWindow: $_lockParentWindow, parentWindow: $_customParentWindow",
+      );
       if (_multiPick) {
         final result = await FilePicker.pickFiles(
           type: _pickingType,
@@ -99,7 +113,14 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           allowedExtensions: _allowedExtensionsFromInput(),
           dialogTitle: _dialogTitleController.text,
           initialDirectory: _initialDirectoryController.text,
-          lockParentWindow: _lockParentWindow,
+          windowsOptions: WindowsOptions(
+            lockParentWindow: _lockParentWindow,
+            parentWindowHandle: _customWindowsHwnd,
+          ),
+          linuxOptions: LinuxOptions(
+            lockParentWindow: _lockParentWindow,
+            parentWindow: _customParentWindow,
+          ),
           withData: _withData,
           androidSafOptions: _androidSafOptionsFromFlags(),
         );
@@ -112,7 +133,14 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           allowedExtensions: _allowedExtensionsFromInput(),
           dialogTitle: _dialogTitleController.text,
           initialDirectory: _initialDirectoryController.text,
-          lockParentWindow: _lockParentWindow,
+          windowsOptions: WindowsOptions(
+            lockParentWindow: _lockParentWindow,
+            parentWindowHandle: _customWindowsHwnd,
+          ),
+          linuxOptions: LinuxOptions(
+            lockParentWindow: _lockParentWindow,
+            parentWindow: _customParentWindow,
+          ),
           androidSafOptions: _androidSafOptionsFromFlags(),
         );
         printInDebug("pickedFile: $file");
@@ -233,7 +261,14 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       pickedDirectoryPath = await FilePicker.getDirectoryPath(
         dialogTitle: _dialogTitleController.text,
         initialDirectory: _initialDirectoryController.text,
-        lockParentWindow: _lockParentWindow,
+        windowsOptions: WindowsOptions(
+          lockParentWindow: _lockParentWindow,
+          parentWindowHandle: _customWindowsHwnd,
+        ),
+        linuxOptions: LinuxOptions(
+          lockParentWindow: _lockParentWindow,
+          parentWindow: _customParentWindow,
+        ),
         androidSafOptions: _androidSafOptionsFromFlags(),
       );
       hasUserAborted = pickedDirectoryPath == null;
@@ -308,7 +343,14 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         dialogTitle: _dialogTitleController.text,
         fileName: targetFileName,
         initialDirectory: _initialDirectoryController.text,
-        lockParentWindow: _lockParentWindow,
+        windowsOptions: WindowsOptions(
+          lockParentWindow: _lockParentWindow,
+          parentWindowHandle: _customWindowsHwnd,
+        ),
+        linuxOptions: LinuxOptions(
+          lockParentWindow: _lockParentWindow,
+          parentWindow: _customParentWindow,
+        ),
         bytes: bytes,
       );
       hasUserAborted = pickedSaveFilePath == null;
@@ -525,6 +567,16 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
             labelText: 'Initial Directory',
           ),
           controller: _initialDirectoryController,
+        ),
+      ),
+      SizedBox(
+        width: 400,
+        child: TextField(
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Custom Parent Window (e.g. x11:0x... or HWND int)',
+          ),
+          controller: _parentWindowController,
         ),
       ),
       SizedBox(
