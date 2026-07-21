@@ -27,7 +27,10 @@ void main() {
     test('Default implementations throw UnimplementedError', () async {
       final ExtendsFilePickerPlatform instance = ExtendsFilePickerPlatform();
       expect(() => instance.pickFiles(), throwsUnimplementedError);
-      expect(() => instance.pickFileAndDirectoryPaths(), throwsUnimplementedError);
+      expect(
+        () => instance.pickFileAndDirectoryPaths(),
+        throwsUnimplementedError,
+      );
       expect(() => instance.releaseSAFGrant('uri'), throwsUnimplementedError);
       expect(() => instance.clearTemporaryFiles(), throwsUnimplementedError);
       expect(() => instance.getDirectoryPath(), throwsUnimplementedError);
