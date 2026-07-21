@@ -1,0 +1,14 @@
+name: file_picker_workspace
+
+packages:
+  - .
+  - packages/*
+
+scripts:
+  analyze:
+    exec: flutter analyze .
+    description: Run flutter analyze in all packages.
+
+  test:
+    exec: flutter test
+    description: Run flutter test in all packages.
