@@ -1,5 +1,4 @@
-name: file_picker_workspace
-
+name: file_picker
 packages:
   - .
   - packages/*
