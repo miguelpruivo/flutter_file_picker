@@ -1,3 +1,7 @@
+## 12.0.0
+### General
+- Extracted `file_picker_platform_interface` into `/packages/file_picker_platform_interface` as part of plugin federation.
+
 ## 12.0.0-beta.8
 ### General
 - Exported `IllegalCharacterInFileNameException` in `file_picker.dart` so exception handling can be performed by callers. [#2077](https://github.com/miguelpruivo/flutter_file_picker/pull/2077)
