@@ -49,8 +49,12 @@ abstract class FilePickerPlatform extends PlatformInterface {
     bool allowMultiple = false,
     bool withData = false,
     bool withReadStream = false,
+    @Deprecated(
+      'Use WindowsOptions.lockParentWindow or LinuxOptions.lockParentWindow instead.',
+    )
     bool lockParentWindow = false,
     bool readSequential = false,
+    @Deprecated('Use WebOptions.cancelUploadOnWindowBlur instead.')
     bool cancelUploadOnWindowBlur = true,
     AndroidOptions androidOptions = const AndroidOptions(),
     WindowsOptions windowsOptions = const WindowsOptions(),
@@ -86,6 +90,9 @@ abstract class FilePickerPlatform extends PlatformInterface {
   /// Selects a directory and returns its absolute path.
   Future<String?> getDirectoryPath({
     String? dialogTitle,
+    @Deprecated(
+      'Use WindowsOptions.lockParentWindow or LinuxOptions.lockParentWindow instead.',
+    )
     bool lockParentWindow = false,
     String? initialDirectory,
     AndroidOptions androidOptions = const AndroidOptions(),
@@ -106,6 +113,9 @@ abstract class FilePickerPlatform extends PlatformInterface {
     List<String>? allowedExtensions,
     required Uint8List bytes,
     Function(FilePickerStatus)? onFileLoading,
+    @Deprecated(
+      'Use WindowsOptions.lockParentWindow or LinuxOptions.lockParentWindow instead.',
+    )
     bool lockParentWindow = false,
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
