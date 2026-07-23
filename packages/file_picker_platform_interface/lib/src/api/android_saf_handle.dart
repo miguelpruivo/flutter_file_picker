@@ -4,7 +4,7 @@ import 'package:file_picker_platform_interface/file_picker_platform_interface.da
 final class AndroidSAFHandle {
   const AndroidSAFHandle({required this.accessMode, required this.uri});
 
-  factory AndroidSAFHandle.fromMap(Map map) {
+  factory AndroidSAFHandle.fromMap(Map<Object?, Object?> map) {
     return AndroidSAFHandle(
       uri: Uri.parse(map['uri'] as String),
       accessMode: map['access'] == 'readWrite'
