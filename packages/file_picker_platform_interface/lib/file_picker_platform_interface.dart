@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'src/api/android_saf_options.dart';
+import 'src/api/android_options.dart';
 import 'src/api/file_picker_result.dart';
 import 'src/api/file_picker_types.dart';
 import 'src/api/linux_options.dart';
@@ -11,8 +11,8 @@ import 'src/api/web_options.dart';
 import 'src/api/windows_options.dart';
 import 'src/method_channel/file_picker_method_channel.dart';
 
+export 'src/api/android_options.dart';
 export 'src/api/android_saf_handle.dart';
-export 'src/api/android_saf_options.dart';
 export 'src/api/exceptions.dart';
 export 'src/api/file_picker_result.dart';
 export 'src/api/file_picker_types.dart';
@@ -52,7 +52,7 @@ abstract class FilePickerPlatform extends PlatformInterface {
     bool lockParentWindow = false,
     bool readSequential = false,
     bool cancelUploadOnWindowBlur = true,
-    AndroidSAFOptions? androidSafOptions,
+    AndroidOptions androidOptions = const AndroidOptions(),
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
@@ -88,7 +88,7 @@ abstract class FilePickerPlatform extends PlatformInterface {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-    AndroidSAFOptions? androidSafOptions,
+    AndroidOptions androidOptions = const AndroidOptions(),
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),

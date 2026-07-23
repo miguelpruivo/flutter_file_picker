@@ -16,10 +16,9 @@ enum AndroidSAFGrant {
   lifetime,
 }
 
-/// The configuration options for working with Android's Storage Access Framework.
-/// Only supported on Android 10+ (API 29+).
-final class AndroidSAFOptions {
-  const AndroidSAFOptions({
+/// Configuration options specific to the Android platform.
+final class AndroidOptions {
+  const AndroidOptions({
     this.grant = AndroidSAFGrant.transient,
     this.accessMode = AndroidSAFAccessMode.readOnly,
     this.persistGrant = true,
