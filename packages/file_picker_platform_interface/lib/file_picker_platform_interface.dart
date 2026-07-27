@@ -12,7 +12,6 @@ import 'src/api/windows_options.dart';
 import 'src/method_channel/file_picker_method_channel.dart';
 
 export 'src/api/android_options.dart';
-export 'src/api/android_saf_handle.dart';
 export 'src/api/exceptions.dart';
 export 'src/api/file_picker_result.dart';
 export 'src/api/file_picker_types.dart';
@@ -77,11 +76,6 @@ abstract class FilePickerPlatform extends PlatformInterface {
     );
   }
 
-  /// Releases the given SAF grant.
-  Future<void> releaseSAFGrant(String uri) async {
-    throw UnimplementedError('releaseSAFGrant() has not been implemented.');
-  }
-
   /// Asks the underlying platform to remove any temporary files created by this plugin.
   Future<bool?> clearTemporaryFiles() async {
     throw UnimplementedError('clearTemporaryFiles() has not been implemented.');
@@ -122,10 +116,5 @@ abstract class FilePickerPlatform extends PlatformInterface {
     WebOptions webOptions = const WebOptions(),
   }) async {
     throw UnimplementedError('saveFile() has not been implemented.');
-  }
-
-  Future<void> skipEntitlementsChecks() async {
-    // By default, do nothing.
-    // This is only relevant for macOS, and the method is overridden there.
   }
 }

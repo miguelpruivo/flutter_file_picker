@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
 
-import 'android_saf_handle.dart';
 import '../platform_file_web_fetch_stub.dart'
     if (dart.library.js_interop) '../platform_file_web_fetch.dart';
 
@@ -20,7 +19,7 @@ class PlatformFile {
   });
 
   factory PlatformFile.fromMap(Map data, {Stream<List<int>>? readStream}) {
-    final file = PlatformFile(
+    return PlatformFile(
       name: data['name'],
       path: data['path'],
       bytes: data['bytes'],
@@ -28,15 +27,6 @@ class PlatformFile {
       identifier: data['identifier'],
       readStream: readStream,
     );
-
-    if (data case {'safHandle': final Map<Object?, Object?> safHandle}) {
-      return AndroidPlatformFile(
-        file: file,
-        safHandle: AndroidSAFHandle.fromMap(safHandle),
-      );
-    }
-
-    return file;
   }
 
   /// The absolute path for a cached copy of this file.
@@ -150,36 +140,5 @@ class PlatformFile {
   @override
   String toString() {
     return 'PlatformFile(${kIsWeb ? '' : 'path $path'}, name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, size: $size)';
-  }
-}
-
-/// A [PlatformFile] implementation that includes a handle to an Android Storage Access Framework URI.
-class AndroidPlatformFile extends PlatformFile {
-  AndroidPlatformFile({required PlatformFile file, required this.safHandle})
-    : super(
-        path: file.path,
-        name: file.name,
-        size: file.size,
-        bytes: file.bytes,
-        readStream: file.readStream,
-        identifier: file.identifier,
-      );
-
-  /// The handle to the Storage Access Framework URI.
-  final AndroidSAFHandle safHandle;
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! AndroidPlatformFile) return false;
-    return super == other && other.safHandle == safHandle;
-  }
-
-  @override
-  int get hashCode => Object.hash(super.hashCode, safHandle);
-
-  @override
-  String toString() {
-    return 'AndroidPlatformFile(${kIsWeb ? '' : 'path $path'}, name: $name, bytesLength: ${bytes?.lengthInBytes}, readStream: ${readStream != null}, size: $size, safHandle: $safHandle)';
   }
 }

@@ -31,7 +31,6 @@ void main() {
         () => instance.pickFileAndDirectoryPaths(),
         throwsUnimplementedError,
       );
-      expect(() => instance.releaseSAFGrant('uri'), throwsUnimplementedError);
       expect(() => instance.clearTemporaryFiles(), throwsUnimplementedError);
       expect(() => instance.getDirectoryPath(), throwsUnimplementedError);
       expect(
