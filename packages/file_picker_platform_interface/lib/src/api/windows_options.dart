@@ -12,5 +12,7 @@ final class WindowsOptions {
 
   /// Whether the child window (file picker window) will stay in front of the
   /// Flutter window until it is closed (like a modal window).
+  ///
+  /// Defaults to false.
   final bool lockParentWindow;
 }
