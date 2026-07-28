@@ -28,11 +28,18 @@ void main() {
       final ExtendsFilePickerPlatform instance = ExtendsFilePickerPlatform();
       expect(() => instance.pickFile(), throwsUnimplementedError);
       expect(() => instance.pickFiles(), throwsUnimplementedError);
-      expect(() => instance.pickFileAndDirectoryPaths(), throwsUnimplementedError);
+      expect(
+        () => instance.pickFileAndDirectoryPaths(),
+        throwsUnimplementedError,
+      );
       expect(() => instance.clearTemporaryFiles(), throwsUnimplementedError);
       expect(() => instance.getDirectoryPath(), throwsUnimplementedError);
       expect(
-        () => instance.saveFile(fileName: 'test.txt', bytes: Uint8List(0), mimeType: 'text/plain'),
+        () => instance.saveFile(
+          fileName: 'test.txt',
+          bytes: Uint8List(0),
+          mimeType: 'text/plain',
+        ),
         throwsUnimplementedError,
       );
     });

@@ -107,7 +107,9 @@ abstract class FilePickerPlatform extends PlatformInterface {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
   }) async {
-    throw UnimplementedError('pickFileAndDirectoryPaths() has not been implemented.');
+    throw UnimplementedError(
+      'pickFileAndDirectoryPaths() has not been implemented.',
+    );
   }
 
   /// Pick a single directory using the native file picker.

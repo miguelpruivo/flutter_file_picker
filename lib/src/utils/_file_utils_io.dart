@@ -11,7 +11,9 @@ Future<List<PlatformFile>> filePathsToPlatformFiles(
   bool withData = false,
 }) {
   return Future.wait(
-    filePaths.where((String filePath) => filePath.isNotEmpty).map((String filePath) async {
+    filePaths.where((String filePath) => filePath.isNotEmpty).map((
+      String filePath,
+    ) async {
       final file = File(filePath);
 
       if (withReadStream) {
@@ -28,7 +30,11 @@ Future<List<PlatformFile>> filePathsToPlatformFiles(
   );
 }
 
-Future<PlatformFile> createPlatformFile(Object file, Uint8List? bytes, Stream<List<int>>? readStream) async {
+Future<PlatformFile> createPlatformFile(
+  Object file,
+  Uint8List? bytes,
+  Stream<List<int>>? readStream,
+) async {
   if (file case final File nativeFile) {
     return PlatformFile(
       bytes: bytes,
@@ -50,7 +56,11 @@ Future<void> saveBytesToFile(Uint8List? bytes, String? path) async {
   final receivePort = ReceivePort();
   final transferable = TransferableTypedData.fromList([bytes]);
 
-  await Isolate.spawn(_saveBytesIsolateEntry, [receivePort.sendPort, path, transferable]);
+  await Isolate.spawn(_saveBytesIsolateEntry, [
+    receivePort.sendPort,
+    path,
+    transferable,
+  ]);
 
   final result = await receivePort.first;
   receivePort.close();
@@ -60,7 +70,11 @@ Future<void> saveBytesToFile(Uint8List? bytes, String? path) async {
 }
 
 Future<void> _saveBytesIsolateEntry(List<Object?> args) async {
-  if (args case [SendPort send, String path, TransferableTypedData transferable]) {
+  if (args case [
+    SendPort send,
+    String path,
+    TransferableTypedData transferable,
+  ]) {
     try {
       final Uint8List bytes = transferable.materialize().asUint8List();
       final file = File(path);

@@ -12,7 +12,11 @@ final class FilePickerSaveUtils {
     final receivePort = ReceivePort();
     final transferable = TransferableTypedData.fromList([bytes]);
 
-    await Isolate.spawn(_saveBytesIsolateEntry, [receivePort.sendPort, path, transferable]);
+    await Isolate.spawn(_saveBytesIsolateEntry, [
+      receivePort.sendPort,
+      path,
+      transferable,
+    ]);
 
     final result = await receivePort.first;
 
@@ -24,7 +28,11 @@ final class FilePickerSaveUtils {
   }
 
   static Future<void> _saveBytesIsolateEntry(List<Object?> args) async {
-    if (args case [SendPort send, String path, TransferableTypedData transferable]) {
+    if (args case [
+      SendPort send,
+      String path,
+      TransferableTypedData transferable,
+    ]) {
       try {
         final Uint8List bytes = transferable.materialize().asUint8List();
         final file = File(path);

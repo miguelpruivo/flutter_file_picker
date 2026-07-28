@@ -1,7 +1,9 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 
-import '_file_utils_web.dart' if (dart.library.io) '_file_utils_io.dart' as impl;
+import '_file_utils_web.dart'
+    if (dart.library.io) '_file_utils_io.dart'
+    as impl;
 
 /// Utility class for [FilePicker] that provides common helper methods
 /// used across different platform implementations.
@@ -19,7 +21,11 @@ class FilePickerUtils {
     List<String> filePaths, {
     bool withReadStream = false,
     bool withData = false,
-  }) => impl.filePathsToPlatformFiles(filePaths, withReadStream: withReadStream, withData: withData);
+  }) => impl.filePathsToPlatformFiles(
+    filePaths,
+    withReadStream: withReadStream,
+    withData: withData,
+  );
 
   /// Creates a [PlatformFile] instance from a [File] object.
   ///
@@ -28,13 +34,17 @@ class FilePickerUtils {
   /// The [bytes] are the file bytes.
   /// The [readStream] is a [Stream] of the file content.
   @visibleForTesting
-  static Future<PlatformFile> createPlatformFile(Object file, Uint8List? bytes, Stream<List<int>>? readStream) =>
-      impl.createPlatformFile(file, bytes, readStream);
+  static Future<PlatformFile> createPlatformFile(
+    Object file,
+    Uint8List? bytes,
+    Stream<List<int>>? readStream,
+  ) => impl.createPlatformFile(file, bytes, readStream);
 
   /// Saves the given [bytes] to a file at [path].
   ///
   /// Does nothing if [path] or [bytes] is null or empty.
-  static Future<void> saveBytesToFile(Uint8List? bytes, String? path) => impl.saveBytesToFile(bytes, path);
+  static Future<void> saveBytesToFile(Uint8List? bytes, String? path) =>
+      impl.saveBytesToFile(bytes, path);
 
   /// Checks if the start of the string [x] is an alphabetical character (a-z or A-Z).
   ///
@@ -50,7 +60,10 @@ class FilePickerUtils {
   ///
   /// Throws an [ArgumentError] if extension filters are provided while the
   /// [type] is not [FileType.custom].
-  static void validateAllowedExtensions(FileType type, List<String>? allowedExtensions) {
+  static void validateAllowedExtensions(
+    FileType type,
+    List<String>? allowedExtensions,
+  ) {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw ArgumentError.value(
         allowedExtensions,
@@ -60,7 +73,8 @@ class FilePickerUtils {
       );
     }
 
-    if (type == FileType.custom && (allowedExtensions == null || allowedExtensions.isEmpty)) {
+    if (type == FileType.custom &&
+        (allowedExtensions == null || allowedExtensions.isEmpty)) {
       throw ArgumentError.value(
         allowedExtensions,
         'allowedExtensions',
