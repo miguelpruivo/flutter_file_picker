@@ -101,6 +101,27 @@ abstract class FilePickerPlatform extends PlatformInterface {
     throw UnimplementedError('pickFileAndDirectoryPaths() has not been implemented.');
   }
 
+  /// Pick a single directory using the native file picker.
+  ///
+  /// The [dialogTitle], if provided, will be used as title for the picker dialog.
+  /// The [initialDirectory], if provided, will be used as the path for the initial directory of the directory picker.
+  ///
+  /// The [androidOptions], [windowsOptions], [linuxOptions],
+  /// and [webOptions] parameters allow for platform-specific configurations when configuring the directory picker.
+  /// See their respective classes for more details on the available options.
+  ///
+  /// Returns the absolute path of the selected directory, or `null` if the user cancels the operation.
+  Future<String?> getDirectoryPath({
+    String? dialogTitle,
+    String? initialDirectory,
+    AndroidOptions androidOptions = const AndroidOptions(),
+    WindowsOptions windowsOptions = const WindowsOptions(),
+    LinuxOptions linuxOptions = const LinuxOptions(),
+    WebOptions webOptions = const WebOptions(),
+  }) async {
+    throw UnimplementedError('getDirectoryPath() has not been implemented.');
+  }
+
   /// Clear the temporary files created by the underlying file picker.
   Future<void> clearTemporaryFiles() async {
     throw UnimplementedError('clearTemporaryFiles() has not been implemented.');
