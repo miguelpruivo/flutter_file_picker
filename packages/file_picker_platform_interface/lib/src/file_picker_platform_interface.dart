@@ -80,4 +80,29 @@ abstract class FilePickerPlatform extends PlatformInterface {
   }) {
     throw UnimplementedError('pickFiles() has not been implemented.');
   }
+
+  /// Pick files and directories using the native file picker.
+  ///
+  /// The [dialogTitle], if provided, will be used as title for the picker dialog.
+  /// The [initialDirectory], if provided, will be used as the path for the initial directory of the file picker.
+  /// The [type] parameter specifies the type of files to be picked and defaults to [FileType.any].
+  /// The [allowedExtensions] parameter, if provided,
+  /// will restrict the file picker to allow only files with the specified extensions,
+  /// and defaults to allowing all files.
+  ///
+  /// Returns a list of absolute paths for the selected files and directories, if any.
+  /// The resulting list will be empty if the user cancels the operation.
+  Future<List<String>> pickFileAndDirectoryPaths({
+    String? dialogTitle,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+  }) async {
+    throw UnimplementedError('pickFileAndDirectoryPaths() has not been implemented.');
+  }
+
+  /// Clear the temporary files created by the underlying file picker.
+  Future<void> clearTemporaryFiles() async {
+    throw UnimplementedError('clearTemporaryFiles() has not been implemented.');
+  }
 }
