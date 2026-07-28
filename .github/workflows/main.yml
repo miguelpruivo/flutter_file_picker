@@ -43,18 +43,20 @@ jobs:
 
       - run: flutter --version
 
-      - name: Install dependencies
-        run: flutter pub get
+      - name: Install dependencies & Bootstrap
+        run: |
+          flutter pub get
+          dart run melos bootstrap
 
       - name: Verify formatting
         if: matrix.flutter == 'stable'
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze project source
-        run: dart analyze .
+        run: dart run melos run analyze
 
       - name: Run tests
-        run: flutter test
+        run: dart run melos run test
 
   test_os_matrix:
     needs: test_flutter_versions
@@ -72,17 +74,19 @@ jobs:
 
       - run: flutter --version
 
-      - name: Install dependencies
-        run: flutter pub get
+      - name: Install dependencies & Bootstrap
+        run: |
+          flutter pub get
+          dart run melos bootstrap
 
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze project source
-        run: dart analyze .
+        run: dart run melos run analyze
 
       - name: Run tests
-        run: flutter test
+        run: dart run melos run test
 
       # Linux build (example app)
       - name: Install Linux desktop dependencies
@@ -98,7 +102,9 @@ jobs:
       - name: Build Linux example
         if: matrix.os == 'ubuntu-latest'
         working-directory: example
-        run: flutter build linux
+        run: |
+          flutter pub get
+          flutter build linux
 
       # Windows build (example app)
       - name: Enable Windows desktop
@@ -108,7 +114,9 @@ jobs:
       - name: Build Windows example
         if: matrix.os == 'windows-latest'
         working-directory: example
-        run: flutter build windows
+        run: |
+          flutter pub get
+          flutter build windows
 
       # macOS build (example app)
       - name: Enable macOS desktop
@@ -118,7 +126,9 @@ jobs:
       - name: Build macOS example
         if: matrix.os == 'macos-latest'
         working-directory: example
-        run: flutter build macos
+        run: |
+          flutter pub get
+          flutter build macos
 
   build_web:
     needs: test_flutter_versions
@@ -137,4 +147,6 @@ jobs:
         run: flutter config --enable-web
       - name: Build Web example
         working-directory: example
-        run: flutter build web --wasm
+        run: |
+          flutter pub get
+          flutter build web --wasm
