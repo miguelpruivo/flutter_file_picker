@@ -139,10 +139,9 @@ abstract class FilePickerPlatform extends PlatformInterface {
   /// allow for platform-specific configurations when configuring the save file dialog.
   /// See their respective classes for more details on the available options.
   ///
-  /// Returns the result of the save file operation, or null if the user cancels the operation.
-  /// Depending on the platform, the result may contain an absolute path to the file,
-  /// a URL to the saved file, a content URI, or no information about where the file was eventually saved.
-  Future<SaveFileResult?> saveFile({
+  /// Returns the [Uri] of the saved file, or null if the user cancels the operation.
+  /// Depending on the platform, the [Uri.scheme] may be `file`, `content`, `http(s)`, `data` or `blob`.
+  Future<Uri?> saveFile({
     required String fileName,
     required Uint8List bytes,
     required String mimeType,
