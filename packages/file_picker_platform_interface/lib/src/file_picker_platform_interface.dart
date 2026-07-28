@@ -9,6 +9,7 @@ import 'file_picker_options/android_options.dart';
 import 'file_picker_options/linux_options.dart';
 import 'file_picker_options/web_options.dart';
 import 'file_picker_options/windows_options.dart';
+import 'platform_file.dart';
 
 /// The interface that implementations of file_picker must implement.
 abstract class FilePickerPlatform extends PlatformInterface {
