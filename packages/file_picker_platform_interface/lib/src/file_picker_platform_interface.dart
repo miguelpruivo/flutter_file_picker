@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+import 'enums/file_picker_status.dart';
+import 'enums/file_type.dart';
 import 'file_picker_options/android_options.dart';
 import 'file_picker_options/linux_options.dart';
 import 'file_picker_options/web_options.dart';
