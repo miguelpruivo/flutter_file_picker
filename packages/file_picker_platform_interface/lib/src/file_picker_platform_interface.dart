@@ -3,6 +3,11 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+import 'file_picker_options/android_options.dart';
+import 'file_picker_options/linux_options.dart';
+import 'file_picker_options/web_options.dart';
+import 'file_picker_options/windows_options.dart';
+
 /// The interface that implementations of file_picker must implement.
 abstract class FilePickerPlatform extends PlatformInterface {
   FilePickerPlatform() : super(token: _token);
