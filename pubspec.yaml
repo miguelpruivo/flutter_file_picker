@@ -5,6 +5,9 @@ repository: https://github.com/miguelpruivo/flutter_file_picker
 issue_tracker: https://github.com/miguelpruivo/flutter_file_picker/issues
 version: 12.0.0-beta.8
 
+workspace:
+  - packages/file_picker_platform_interface
+
 dependencies:
   flutter:
     sdk: flutter

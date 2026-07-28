@@ -33,11 +33,13 @@ jobs:
         if: matrix.flutter == 'stable' || matrix.flutter == 'beta'
         with:
           channel: ${{ matrix.flutter }}
+          cache: true
 
       - uses: subosito/flutter-action@v2
         if: matrix.flutter != 'stable' && matrix.flutter != 'beta'
         with:
           flutter-version: ${{ matrix.flutter }}
+          cache: true
 
       - run: flutter --version
 
@@ -49,7 +51,7 @@ jobs:
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze project source
-        run: flutter analyze
+        run: dart analyze .
 
       - name: Run tests
         run: flutter test
@@ -66,6 +68,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
       - run: flutter --version
 
@@ -76,7 +79,7 @@ jobs:
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze project source
-        run: flutter analyze
+        run: dart analyze .
 
       - name: Run tests
         run: flutter test
@@ -95,9 +98,7 @@ jobs:
       - name: Build Linux example
         if: matrix.os == 'ubuntu-latest'
         working-directory: example
-        run: |
-          flutter pub get
-          flutter build linux
+        run: flutter build linux
 
       # Windows build (example app)
       - name: Enable Windows desktop
@@ -107,9 +108,7 @@ jobs:
       - name: Build Windows example
         if: matrix.os == 'windows-latest'
         working-directory: example
-        run: |
-          flutter pub get
-          flutter build windows
+        run: flutter build windows
 
       # macOS build (example app)
       - name: Enable macOS desktop
@@ -119,9 +118,7 @@ jobs:
       - name: Build macOS example
         if: matrix.os == 'macos-latest'
         working-directory: example
-        run: |
-          flutter pub get
-          flutter build macos
+        run: flutter build macos
 
   build_web:
     needs: test_flutter_versions
@@ -132,6 +129,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
       - run: flutter --version
       - name: Install dependencies
         run: flutter pub get
@@ -139,6 +137,4 @@ jobs:
         run: flutter config --enable-web
       - name: Build Web example
         working-directory: example
-        run: |
-          flutter pub get
-          flutter build web --wasm
+        run: flutter build web --wasm
