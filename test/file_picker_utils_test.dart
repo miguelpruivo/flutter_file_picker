@@ -172,17 +172,6 @@ void main() {
     );
   });
 
-  group('runExecutableWithArguments()', () {
-    test('should catch an exception when sending an empty filepath', () async {
-      final filepath = '';
-
-      expect(
-        () async => await FilePickerUtils.isExecutableOnPath(filepath),
-        throwsA(isA<Exception>()),
-      );
-    });
-  });
-
   group('isAlpha()', () {
     test('should identify alpha chars', () async {
       expect(FilePickerUtils.isAlpha('a'), equals(true));

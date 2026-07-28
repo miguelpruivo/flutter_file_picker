@@ -48,26 +48,6 @@ Future<PlatformFile> createPlatformFile(
   throw ArgumentError('Expected file to be a File.');
 }
 
-Future<String?> runExecutableWithArguments(
-  String executable,
-  List<String> arguments,
-) async {
-  final processResult = await Process.run(executable, arguments);
-  final path = processResult.stdout?.toString().trim();
-  if (processResult.exitCode != 0 || path == null || path.isEmpty) {
-    return null;
-  }
-  return path;
-}
-
-Future<String> isExecutableOnPath(String executable) async {
-  final path = await runExecutableWithArguments('which', [executable]);
-  if (path == null) {
-    throw Exception('Couldn\'t find the executable $executable in the path.');
-  }
-  return path;
-}
-
 Future<void> saveBytesToFile(Uint8List? bytes, String? path) async {
   if (path == null || bytes == null || bytes.isEmpty) {
     return;

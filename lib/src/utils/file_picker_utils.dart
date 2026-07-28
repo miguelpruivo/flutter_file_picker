@@ -40,22 +40,6 @@ class FilePickerUtils {
     Stream<List<int>>? readStream,
   ) => impl.createPlatformFile(file, bytes, readStream);
 
-  /// Runs an executable with the given arguments and returns the output.
-  ///
-  /// Returns the trimmed stdout as a [String], or null if the process fails
-  /// or produces no output.
-  static Future<String?> runExecutableWithArguments(
-    String executable,
-    List<String> arguments,
-  ) => impl.runExecutableWithArguments(executable, arguments);
-
-  /// Checks if an executable exists on the system path using `which`.
-  ///
-  /// Returns the absolute path to the executable if found.
-  /// Throws an [Exception] if the executable is not found.
-  static Future<String> isExecutableOnPath(String executable) =>
-      impl.isExecutableOnPath(executable);
-
   /// Saves the given [bytes] to a file at [path].
   ///
   /// Does nothing if [path] or [bytes] is null or empty.

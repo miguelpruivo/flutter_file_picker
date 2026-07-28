@@ -5,6 +5,22 @@ repository: https://github.com/miguelpruivo/flutter_file_picker
 issue_tracker: https://github.com/miguelpruivo/flutter_file_picker/issues
 version: 12.0.0-beta.8
 
+workspace:
+  - packages/file_picker_platform_interface
+
+melos:
+  packages:
+    - .
+    - packages/*
+  scripts:
+    analyze:
+      exec: flutter analyze .
+      description: Run flutter analyze in all packages.
+
+    test:
+      exec: flutter test
+      description: Run flutter test in all packages.
+
 dependencies:
   flutter:
     sdk: flutter
@@ -24,6 +40,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
+  melos: ^8.2.2
 
 environment:
   sdk: ">=3.10.0 <4.0.0"

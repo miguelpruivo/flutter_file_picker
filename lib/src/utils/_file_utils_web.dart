@@ -17,17 +17,6 @@ Future<PlatformFile> createPlatformFile(
   'createPlatformFile is only supported on native platforms',
 );
 
-Future<String?> runExecutableWithArguments(
-  String executable,
-  List<String> arguments,
-) => throw UnsupportedError(
-  'runExecutableWithArguments is only supported on native platforms',
-);
-
-Future<String> isExecutableOnPath(String executable) => throw UnsupportedError(
-  'isExecutableOnPath is only supported on native platforms',
-);
-
 Future<void> saveBytesToFile(Uint8List? bytes, String? path) =>
     throw UnsupportedError(
       'saveBytesToFile is only supported on native platforms',

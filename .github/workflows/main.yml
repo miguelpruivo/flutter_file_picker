@@ -33,26 +33,30 @@ jobs:
         if: matrix.flutter == 'stable' || matrix.flutter == 'beta'
         with:
           channel: ${{ matrix.flutter }}
+          cache: true
 
       - uses: subosito/flutter-action@v2
         if: matrix.flutter != 'stable' && matrix.flutter != 'beta'
         with:
           flutter-version: ${{ matrix.flutter }}
+          cache: true
 
       - run: flutter --version
 
-      - name: Install dependencies
-        run: flutter pub get
+      - name: Install dependencies & Bootstrap
+        run: |
+          flutter pub get
+          dart run melos bootstrap
 
       - name: Verify formatting
         if: matrix.flutter == 'stable'
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze project source
-        run: flutter analyze
+        run: dart run melos run analyze
 
       - name: Run tests
-        run: flutter test
+        run: dart run melos run test
 
   test_os_matrix:
     needs: test_flutter_versions
@@ -66,20 +70,23 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
       - run: flutter --version
 
-      - name: Install dependencies
-        run: flutter pub get
+      - name: Install dependencies & Bootstrap
+        run: |
+          flutter pub get
+          dart run melos bootstrap
 
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze project source
-        run: flutter analyze
+        run: dart run melos run analyze
 
       - name: Run tests
-        run: flutter test
+        run: dart run melos run test
 
       # Linux build (example app)
       - name: Install Linux desktop dependencies
@@ -132,6 +139,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
       - run: flutter --version
       - name: Install dependencies
         run: flutter pub get
