@@ -11,9 +11,7 @@ Future<List<PlatformFile>> filePathsToPlatformFiles(
   bool withData = false,
 }) {
   return Future.wait(
-    filePaths.where((String filePath) => filePath.isNotEmpty).map((
-      String filePath,
-    ) async {
+    filePaths.where((String filePath) => filePath.isNotEmpty).map((String filePath) async {
       final file = File(filePath);
 
       if (withReadStream) {
@@ -30,11 +28,7 @@ Future<List<PlatformFile>> filePathsToPlatformFiles(
   );
 }
 
-Future<PlatformFile> createPlatformFile(
-  Object file,
-  Uint8List? bytes,
-  Stream<List<int>>? readStream,
-) async {
+Future<PlatformFile> createPlatformFile(Object file, Uint8List? bytes, Stream<List<int>>? readStream) async {
   if (file case final File nativeFile) {
     return PlatformFile(
       bytes: bytes,
@@ -48,26 +42,6 @@ Future<PlatformFile> createPlatformFile(
   throw ArgumentError('Expected file to be a File.');
 }
 
-Future<String?> runExecutableWithArguments(
-  String executable,
-  List<String> arguments,
-) async {
-  final processResult = await Process.run(executable, arguments);
-  final path = processResult.stdout?.toString().trim();
-  if (processResult.exitCode != 0 || path == null || path.isEmpty) {
-    return null;
-  }
-  return path;
-}
-
-Future<String> isExecutableOnPath(String executable) async {
-  final path = await runExecutableWithArguments('which', [executable]);
-  if (path == null) {
-    throw Exception('Couldn\'t find the executable $executable in the path.');
-  }
-  return path;
-}
-
 Future<void> saveBytesToFile(Uint8List? bytes, String? path) async {
   if (path == null || bytes == null || bytes.isEmpty) {
     return;
@@ -76,11 +50,7 @@ Future<void> saveBytesToFile(Uint8List? bytes, String? path) async {
   final receivePort = ReceivePort();
   final transferable = TransferableTypedData.fromList([bytes]);
 
-  await Isolate.spawn(_saveBytesIsolateEntry, [
-    receivePort.sendPort,
-    path,
-    transferable,
-  ]);
+  await Isolate.spawn(_saveBytesIsolateEntry, [receivePort.sendPort, path, transferable]);
 
   final result = await receivePort.first;
   receivePort.close();
@@ -90,11 +60,7 @@ Future<void> saveBytesToFile(Uint8List? bytes, String? path) async {
 }
 
 Future<void> _saveBytesIsolateEntry(List<Object?> args) async {
-  if (args case [
-    SendPort send,
-    String path,
-    TransferableTypedData transferable,
-  ]) {
+  if (args case [SendPort send, String path, TransferableTypedData transferable]) {
     try {
       final Uint8List bytes = transferable.materialize().asUint8List();
       final file = File(path);
