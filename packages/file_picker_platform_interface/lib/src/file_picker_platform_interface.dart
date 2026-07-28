@@ -64,9 +64,9 @@ abstract class FilePickerPlatform extends PlatformInterface {
   /// and [webOptions] parameters allow for platform-specific configurations when configuring the file picker.
   /// See their respective classes for more details on the available options.
   ///
-  /// Returns the [FilePickerResult] containing the selected files, if any.
-  /// The result may contain no files if the user cancels the operation.
-  Future<FilePickerResult> pickFiles({
+  /// Returns a list of [PlatformFile] containing the selected files, if any.
+  /// The list may be empty if the user cancels the operation.
+  Future<List<PlatformFile>> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
     FileType type = FileType.any,
@@ -125,5 +125,34 @@ abstract class FilePickerPlatform extends PlatformInterface {
   /// Clear the temporary files created by the underlying file picker.
   Future<void> clearTemporaryFiles() async {
     throw UnimplementedError('clearTemporaryFiles() has not been implemented.');
+  }
+
+  /// Save the given [bytes] to a file with the given [fileName], using the native save file dialog.
+  ///
+  /// The [fileName] should include the file extension, e.g. `myFile.txt`.
+  /// The [mimeType] should be a valid MIME type for the file, e.g. `text/plain`.
+  /// The [dialogTitle], if provided, will be used as title for the save file dialog.
+  /// The [initialDirectory], if provided, will be used as the path for the initial directory of the save file dialog.
+  /// The [onFileSaving] callback, if provided, will be called when the save file dialog is saving the file.
+  ///
+  /// The [windowsOptions], [linuxOptions], and [webOptions] parameters
+  /// allow for platform-specific configurations when configuring the save file dialog.
+  /// See their respective classes for more details on the available options.
+  ///
+  /// Returns the result of the save file operation, or null if the user cancels the operation.
+  /// Depending on the platform, the result may contain an absolute path to the file,
+  /// a URL to the saved file, a content URI, or no information about where the file was eventually saved.
+  Future<SaveFileResult?> saveFile({
+    required String fileName,
+    required Uint8List bytes,
+    required String mimeType,
+    String? dialogTitle,
+    String? initialDirectory,
+    Function(FilePickerStatus)? onFileSaving,
+    WindowsOptions windowsOptions = const WindowsOptions(),
+    LinuxOptions linuxOptions = const LinuxOptions(),
+    WebOptions webOptions = const WebOptions(),
+  }) async {
+    throw UnimplementedError('saveFile() has not been implemented.');
   }
 }
