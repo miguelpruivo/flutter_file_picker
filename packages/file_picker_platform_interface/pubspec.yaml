@@ -1,0 +1,23 @@
+name: file_picker_platform_interface
+description: A common platform interface for the file_picker plugin.
+version: 1.0.0
+homepage: https://github.com/miguelpruivo/flutter_file_picker/tree/master/packages/file_picker_platform_interface
+repository: https://github.com/miguelpruivo/flutter_file_picker/tree/master/packages/file_picker_platform_interface
+
+resolution: workspace
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  plugin_platform_interface: ^2.1.8
+  cross_file: ^0.3.5+2
+  path: ^1.9.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
