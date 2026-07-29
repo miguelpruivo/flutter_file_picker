@@ -8,6 +8,7 @@ version: 12.0.0-beta.8
 workspace:
   - packages/file_picker_platform_interface
   - packages/file_picker_android
+  - packages/file_picker_darwin
 
 melos:
   packages:
