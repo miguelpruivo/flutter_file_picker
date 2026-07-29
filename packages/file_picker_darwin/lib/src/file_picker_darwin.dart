@@ -81,19 +81,20 @@ class FilePickerDarwin extends FilePickerPlatform {
         }, onError: (error) => throw Exception(error));
       }
 
-      final List<Map>? result = await methodChannel.invokeListMethod(typeName, {
-        'allowMultipleSelection': true,
-        'allowedExtensions': allowedExtensions,
-        'withData': false,
-        'compressionQuality': compressionQuality,
-      });
+      final List<Map<Object?, Object?>>? result = await methodChannel
+          .invokeListMethod<Map<Object?, Object?>>(typeName, {
+            'allowMultipleSelection': true,
+            'allowedExtensions': allowedExtensions,
+            'withData': false,
+            'compressionQuality': compressionQuality,
+          });
 
       if (result == null) {
         return [];
       }
 
       final platformFiles = <PlatformFile>[];
-      for (final Map platformFileMap in result) {
+      for (final Map<Object?, Object?> platformFileMap in result) {
         platformFiles.add(DarwinPlatformFile.fromMap(platformFileMap));
       }
 
