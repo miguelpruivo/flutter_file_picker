@@ -9,6 +9,7 @@ workspace:
   - packages/file_picker_platform_interface
   - packages/file_picker_android
   - packages/file_picker_darwin
+  - packages/file_picker_linux
 
 melos:
   packages:
