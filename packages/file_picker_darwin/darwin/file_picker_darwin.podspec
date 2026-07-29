@@ -15,7 +15,7 @@ iOS and macOS implementation of file_picker plugin
   s.source           = { :path => '.' }
   s.source_files     = 'Classes/**/*'
   s.resource_bundles = {
-    'file_picker_darwin_privacy' => ['Classes/PrivacyInfo.xcprivacy']
+    'file_picker_darwin_privacy' => ['Resources/PrivacyInfo.xcprivacy']
   }
 
   s.ios.dependency 'Flutter'
