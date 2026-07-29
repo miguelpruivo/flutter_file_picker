@@ -26,8 +26,7 @@ final class AndroidSAFHandle {
 
   /// Release the grant on the given [uri].
   Future<void> releaseGrant() async {
-    final instance = FilePickerPlatform.instance;
-    if (instance is FilePickerAndroid) {
+    if (FilePickerPlatform.instance case final FilePickerAndroid instance) {
       await instance.releaseSAFGrant(uri.toString());
     }
   }
