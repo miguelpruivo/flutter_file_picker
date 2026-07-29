@@ -11,13 +11,14 @@ void main() {
       expect(FilePickerPlatform.instance, isA<FilePickerAndroid>());
     });
 
-    test('FilePickerAndroidOptions toMap contains expected keys', () {
-      const options = FilePickerAndroidOptions(
+    test('AndroidSAFOptions toMap contains expected keys', () {
+      const safOptions = AndroidSAFOptions(
         grant: AndroidSAFGrant.lifetime,
         accessMode: AndroidSAFAccessMode.readWrite,
         persistGrant: true,
       );
-      final map = options.toMap();
+      const options = FilePickerAndroidOptions(safOptions: safOptions);
+      final map = options.safOptions.toMap();
       expect(map['grant'], equals('lifetime'));
       expect(map['access'], equals('readWrite'));
       expect(map['autoPersist'], isTrue);

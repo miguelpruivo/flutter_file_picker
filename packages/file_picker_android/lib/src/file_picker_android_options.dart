@@ -18,9 +18,9 @@ enum AndroidSAFGrant {
   lifetime,
 }
 
-/// Configuration options specific to the Android platform.
-final class FilePickerAndroidOptions extends AndroidOptions {
-  const FilePickerAndroidOptions({
+/// Configuration options for working with Android Storage Access Framework (SAF).
+final class AndroidSAFOptions {
+  const AndroidSAFOptions({
     this.grant = AndroidSAFGrant.transient,
     this.accessMode = AndroidSAFAccessMode.readOnly,
     this.persistGrant = true,
@@ -47,5 +47,17 @@ final class FilePickerAndroidOptions extends AndroidOptions {
       'access': accessMode.name,
       'autoPersist': persistGrant,
     };
+  }
+}
+
+/// Configuration options specific to the Android platform.
+final class FilePickerAndroidOptions extends AndroidOptions {
+  const FilePickerAndroidOptions({this.safOptions = const AndroidSAFOptions()});
+
+  /// Options for working with the Android Storage Access Framework.
+  final AndroidSAFOptions safOptions;
+
+  Map<String, Object?> toMap() {
+    return {'safOptions': safOptions.toMap()};
   }
 }
