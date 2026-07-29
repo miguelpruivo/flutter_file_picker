@@ -14,8 +14,8 @@ base class AndroidPlatformFile extends PlatformFile {
     this.safHandle,
     XFile? xFile,
     int? bytesLength,
-  })  : _xFile = xFile,
-        _bytesLength = bytesLength;
+  }) : _xFile = xFile,
+       _bytesLength = bytesLength;
 
   factory AndroidPlatformFile.fromMap(Map<Object?, Object?> data) {
     final String name = data['name'] as String? ?? '';
