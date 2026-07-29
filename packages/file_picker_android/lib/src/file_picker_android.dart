@@ -160,7 +160,7 @@ class FilePickerAndroid extends FilePickerPlatform {
 
   @override
   Future<void> clearTemporaryFiles() async {
-    await methodChannel.invokeMethod<bool>('clear');
+    await methodChannel.invokeMethod<void>('clear');
   }
 
   @override
