@@ -19,7 +19,7 @@ class MethodResultWrapper(private val methodResult: MethodChannel.Result) :
             } catch (oom: OutOfMemoryError) {
                 methodResult.error(
                     "out_of_memory",
-                    "Selected files are too large to return in memory. Disable withData or use withReadStream.",
+                    "Selected files are too large to load into memory.",
                     null
                 )
             }
