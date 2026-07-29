@@ -26,8 +26,8 @@ class FilePickerLinux extends FilePickerPlatform {
   FilePickerLinux({
     DBusClient? client,
     OrgFreedesktopPortalFileChooser? xdpChooser,
-  })  : _client = client,
-        _xdpChooser = xdpChooser;
+  }) : _client = client,
+       _xdpChooser = xdpChooser;
 
   /// Gets the [DBusClient] instance, lazy-initializing it if needed.
   DBusClient get client => _client ??= DBusClient.session();
