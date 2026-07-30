@@ -4,45 +4,33 @@ import 'dart:typed_data';
 @JS('fetch')
 external JSPromise<JSObject> _fetchJs(JSString url);
 
+/// Interop extension type representing a Web `Response` JS object.
 extension type _Response(JSObject _) implements JSObject {
   external JSPromise<JSArrayBuffer> arrayBuffer();
   external JSObject? get body;
 }
 
+/// Interop extension type representing a Web `ReadableStream` JS object.
 extension type _ReadableStream(JSObject _) implements JSObject {
   external JSObject getReader();
 }
 
+/// Interop extension type representing a Web `ReadableStreamDefaultReader` JS object.
 extension type _Reader(JSObject _) implements JSObject {
   external JSPromise<JSObject> read();
 }
 
+/// Interop extension type representing a Web `ReadableStreamReadResult` JS object.
 extension type _ReadResult(JSObject _) implements JSObject {
   external bool get done;
   external JSUint8Array? get value;
 }
 
-// Web helper: recover bytes or a chunked stream from `blob:` / `data:` URLs.
-//
-// - `fetchBytesFromWebPath(path)` returns the full file bytes (uses
-//   `fetch(...).arrayBuffer()` for `blob:` and parses `data:` URIs).
-// - `fetchStreamFromWebPath(path)` returns a `Stream<Uint8List>` when the
-//   browser/WebView exposes `Response.body` (a `ReadableStream`) and supports
-//   `getReader()`; otherwise it returns `null` and callers should fall back to
-//   `fetchBytesFromWebPath`.
-//
-// Compatibility notes:
-// - Modern desktop and mobile browsers expose ReadableStream and will allow
-//   streaming blobs without buffering the entire file in memory.
-// - Embedded/legacy WebViews (older iOS `WKWebView` or Android System
-//   WebView) may not expose `Response.body`; in that case streaming is
-//   unavailable and the implementation falls back to `arrayBuffer()` (full
-//   file in memory).
-// Prefer `PlatformFile.readAsBytes()` for small files and
-// `PlatformFile.readAsByteStream()` (streaming) for large files when supported.
-// For legacy WebViews, consider server-side streaming to avoid OOMs.
-
 /// Attempts to fetch bytes from a web-only path (`blob:` or `data:` URL).
+///
+/// Returns the full file bytes (`Uint8List`) using `fetch(...).arrayBuffer()`
+/// for `blob:` URLs, or parses `data:` URIs. Returns `null` if fetching fails
+/// or if [path] is empty or not a valid web URL.
 Future<Uint8List?> fetchBytesFromWebPath(String? path) async {
   if (path == null || path.isEmpty) return null;
 
@@ -64,17 +52,20 @@ Future<Uint8List?> fetchBytesFromWebPath(String? path) async {
 }
 
 /// Attempts to create a streaming `Stream<Uint8List>` from a web-only path
-/// (`blob:` or `data:` URL). Returns `null` when streaming isn't possible and
-/// the caller should fall back to `fetchBytesFromWebPath`.
+/// (`blob:` or `data:` URL).
+///
+/// Returns `null` when streaming isn't possible and the caller should
+/// fall back to [fetchBytesFromWebPath].
 Stream<Uint8List>? fetchStreamFromWebPath(String? path) {
   if (path == null || path.isEmpty) return null;
 
   return _streamFromWebPath(path);
 }
 
-/// Reads a `blob:` or `data:` URL and emits its bytes as a stream when the
-/// browser exposes a streaming `Response.body`; otherwise it falls back to a
-/// single in-memory chunk or no output if the URL cannot be read.
+/// Reads a `blob:` or `data:` URL and emits its bytes as a stream.
+///
+/// Uses `Response.body` (`ReadableStream`) when available; otherwise falls
+/// back to a single in-memory `arrayBuffer()` chunk.
 Stream<Uint8List> _streamFromWebPath(String path) async* {
   try {
     if (path.startsWith('data:')) {

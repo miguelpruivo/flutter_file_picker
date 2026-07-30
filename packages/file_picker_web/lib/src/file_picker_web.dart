@@ -29,7 +29,7 @@ class FilePickerWeb extends FilePickerPlatform {
     FilePickerPlatform.instance = FilePickerWeb._();
   }
 
-  /// Initializes a DOM container where we can host input elements.
+  /// Initializes a DOM container element where input elements can be appended.
   Element _ensureInitialized(String id) {
     Element? target = document.querySelector('#$id');
     if (target == null) {
@@ -298,6 +298,8 @@ class FilePickerWeb extends FilePickerPlatform {
     return Uri.parse(url);
   }
 
+  /// Converts a [FileType] enum and [allowedExtensions] list into an HTML
+  /// `accept` attribute string.
   static String _fileType(FileType type, List<String>? allowedExtensions) {
     return switch (type) {
       FileType.any => '',
@@ -312,6 +314,7 @@ class FilePickerWeb extends FilePickerPlatform {
     };
   }
 
+  /// Opens a chunked byte stream reader for a web [File].
   Stream<List<int>> _openFileReadStream(File file) async* {
     final reader = FileReader();
 
