@@ -60,9 +60,6 @@ class FilePickerWeb extends FilePickerPlatform {
     throw UnsupportedError('getDirectoryPath() is not supported on Web.');
   }
 
-  /// Opens an HTML file input dialog to pick a single file.
-  ///
-  /// Delegates to [pickFiles] with `allowMultiple` set to `false`.
   @override
   Future<PlatformFile?> pickFile({
     String? dialogTitle,
