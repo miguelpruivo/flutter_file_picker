@@ -7,6 +7,7 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:path/path.dart' as p;
 import 'package:web/web.dart';
 
+import 'file_picker_web_options.dart';
 import 'web_file_input_session.dart';
 import 'web_platform_file.dart';
 
@@ -75,6 +76,10 @@ class FilePickerWeb extends FilePickerPlatform {
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) async {
+    final effectiveWebOptions = webOptions is FilePickerWebOptions
+        ? webOptions.copyWith(allowMultiple: false)
+        : const FilePickerWebOptions(allowMultiple: false);
+
     final files = await pickFiles(
       dialogTitle: dialogTitle,
       initialDirectory: initialDirectory,
@@ -85,7 +90,7 @@ class FilePickerWeb extends FilePickerPlatform {
       androidOptions: androidOptions,
       windowsOptions: windowsOptions,
       linuxOptions: linuxOptions,
-      webOptions: webOptions.copyWith(allowMultiple: false),
+      webOptions: effectiveWebOptions,
     );
     return files.firstOrNull;
   }
@@ -93,8 +98,8 @@ class FilePickerWeb extends FilePickerPlatform {
   /// Opens an HTML file input dialog to pick one or more files.
   ///
   /// Supports filtering by [type] and [allowedExtensions]. Configure [webOptions]
-  /// to control in-memory data loading (`withData`), byte streaming (`withReadStream`),
-  /// or sequential file reading (`readSequential`).
+  /// with a [FilePickerWebOptions] instance to control in-memory data loading (`withData`),
+  /// byte streaming (`withReadStream`), or sequential file reading (`readSequential`).
   @override
   Future<List<PlatformFile>> pickFiles({
     String? dialogTitle,
@@ -115,10 +120,15 @@ class FilePickerWeb extends FilePickerPlatform {
       );
     }
 
+    final FilePickerWebOptions effectiveWebOptions =
+        webOptions is FilePickerWebOptions
+        ? webOptions
+        : const FilePickerWebOptions();
+
     final session = WebFileInputSession(
       target: _target,
       accept: _fileType(type, allowedExtensions),
-      webOptions: webOptions,
+      webOptions: effectiveWebOptions,
       onFileLoading: onFileLoading,
       processFiles: _processSelectedFiles,
     );
@@ -131,7 +141,7 @@ class FilePickerWeb extends FilePickerPlatform {
   /// a list of [PlatformFile] instances.
   Future<List<PlatformFile>> _processSelectedFiles(
     FileList files,
-    WebOptions webOptions,
+    FilePickerWebOptions webOptions,
   ) async {
     final List<PlatformFile> pickedFiles = [];
 
