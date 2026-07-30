@@ -47,7 +47,7 @@ class FilePickerWeb extends FilePickerPlatform {
 
   /// Directory picking is not supported on web platforms.
   ///
-  /// Always throws an [UnimplementedError].
+  /// Always throws an [UnsupportedError].
   @override
   Future<String?> getDirectoryPath({
     String? dialogTitle,
@@ -57,7 +57,7 @@ class FilePickerWeb extends FilePickerPlatform {
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) async {
-    throw UnimplementedError('getDirectoryPath() has not been implemented.');
+    throw UnsupportedError('getDirectoryPath() is not supported on Web.');
   }
 
   /// Opens an HTML file input dialog to pick a single file.
