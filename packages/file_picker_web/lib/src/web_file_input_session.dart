@@ -84,7 +84,7 @@ class WebFileInputSession {
   void _onCancel(Event _) {
     window.removeEventListener('focus', _onCancel.toJS);
 
-    Future.delayed(const Duration(seconds: 1)).then((_) {
+    Future.delayed(const Duration(milliseconds: 500)).then((_) {
       if (!_eventTriggered) {
         _eventTriggered = true;
         _completer.complete(null);
