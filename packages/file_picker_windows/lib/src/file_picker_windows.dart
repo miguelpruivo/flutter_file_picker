@@ -12,6 +12,7 @@ import 'package:win32/win32.dart';
 
 import 'file_picker_windows_ffi_types.dart';
 import 'file_picker_windows_options.dart';
+import 'open_save_file_args.dart';
 import 'windows_platform_file.dart';
 
 /// An implementation of [FilePickerPlatform] for Windows.
@@ -67,7 +68,7 @@ class FilePickerWindows extends FilePickerPlatform {
     final port = ReceivePort();
     await Isolate.spawn(
       _callPickFiles,
-      _OpenSaveFileArgs(
+      OpenSaveFileArgs(
         port: port.sendPort,
         dialogTitle: dialogTitle,
         initialDirectory: initialDirectory,
@@ -216,7 +217,7 @@ class FilePickerWindows extends FilePickerPlatform {
     final port = ReceivePort();
     await Isolate.spawn(
       _callSaveFile,
-      _OpenSaveFileArgs(
+      OpenSaveFileArgs(
         port: port.sendPort,
         defaultFileName: fileName,
         dialogTitle: dialogTitle,
@@ -244,7 +245,7 @@ class FilePickerWindows extends FilePickerPlatform {
   DynamicLibrary get _user32 => DynamicLibrary.open('user32.dll');
 
   /// Opens the Win32 file picker dialog using [GetOpenFileNameW].
-  List<String>? _pickFiles(_OpenSaveFileArgs args) {
+  List<String>? _pickFiles(OpenSaveFileArgs args) {
     final getOpenFileNameW = _comdlg32
         .lookupFunction<GetOpenFileNameW, GetOpenFileNameWDart>(
           'GetOpenFileNameW',
@@ -264,7 +265,7 @@ class FilePickerWindows extends FilePickerPlatform {
   }
 
   /// Opens the Win32 save file dialog using [GetSaveFileNameW].
-  String? _saveFile(_OpenSaveFileArgs args) {
+  String? _saveFile(OpenSaveFileArgs args) {
     final getSaveFileNameW = _comdlg32
         .lookupFunction<GetSaveFileNameW, GetSaveFileNameWDart>(
           'GetSaveFileNameW',
@@ -400,7 +401,7 @@ class FilePickerWindows extends FilePickerPlatform {
   static const _lpstrFileBufferSize = 8192 * maximumPathLength;
 
   /// Allocates and populates an [OPENFILENAMEW] struct with native memory for Win32 API calls.
-  Pointer<OPENFILENAMEW> _instantiateOpenFileNameW(_OpenSaveFileArgs args) {
+  Pointer<OPENFILENAMEW> _instantiateOpenFileNameW(OpenSaveFileArgs args) {
     final Pointer<OPENFILENAMEW> openFileNameW = calloc<OPENFILENAMEW>();
 
     openFileNameW.ref.lStructSize = sizeOf<OPENFILENAMEW>();
@@ -475,60 +476,14 @@ class FilePickerWindows extends FilePickerPlatform {
   }
 
   /// Top-level isolate callback to invoke [_pickFiles].
-  static void _callPickFiles(_OpenSaveFileArgs args) {
+  static void _callPickFiles(OpenSaveFileArgs args) {
     final impl = FilePickerWindows();
     args.port.send(impl._pickFiles(args));
   }
 
   /// Top-level isolate callback to invoke [_saveFile].
-  static void _callSaveFile(_OpenSaveFileArgs args) {
+  static void _callSaveFile(OpenSaveFileArgs args) {
     final impl = FilePickerWindows();
     args.port.send(impl._saveFile(args));
   }
-}
-
-/// Arguments passed to background isolates for open and save file dialogs.
-class _OpenSaveFileArgs {
-  /// SendPort used to reply to the main isolate.
-  final SendPort port;
-
-  /// Default file name suggested in the save dialog.
-  final String? defaultFileName;
-
-  /// Optional title for the dialog box.
-  final String? dialogTitle;
-
-  /// Optional initial directory to open.
-  final String? initialDirectory;
-
-  /// File type filter rule.
-  final FileType type;
-
-  /// List of custom allowed extensions when [type] is [FileType.custom].
-  final List<String>? allowedExtensions;
-
-  /// Whether multi-selection is enabled.
-  final bool allowMultiple;
-
-  /// Whether to lock the parent window modally.
-  final bool lockParentWindow;
-
-  /// Whether to prompt before overwriting an existing file in save dialogs.
-  final bool confirmOverwrite;
-
-  /// The HWND handle of the parent window.
-  final int? parentWindowHandle;
-
-  _OpenSaveFileArgs({
-    required this.port,
-    this.defaultFileName,
-    this.dialogTitle,
-    this.initialDirectory,
-    this.type = FileType.any,
-    this.allowedExtensions,
-    this.allowMultiple = false,
-    this.lockParentWindow = false,
-    this.confirmOverwrite = false,
-    this.parentWindowHandle,
-  });
 }
