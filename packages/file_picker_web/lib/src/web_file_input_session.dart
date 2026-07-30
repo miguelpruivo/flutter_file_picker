@@ -49,7 +49,6 @@ class WebFileInputSession {
 
     onFileLoading?.call(FilePickerStatus.picking);
 
-    uploadInput.onChange.listen(_onFileSelection);
     uploadInput.addEventListener('change', _onFileSelection.toJS);
     uploadInput.addEventListener('cancel', _onCancel.toJS);
 
