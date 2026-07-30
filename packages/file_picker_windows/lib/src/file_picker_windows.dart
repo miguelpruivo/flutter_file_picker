@@ -431,15 +431,15 @@ class FilePickerWindows extends FilePickerPlatform {
       openFileNameW.ref.flags |= ofnOverwritePrompt;
     }
 
-    if (args.defaultFileName != null) {
-      validateFileName(args.defaultFileName!);
+    if (args.defaultFileName case final defaultFileName?) {
+      validateFileName(defaultFileName);
 
       final Uint16List nativeString = openFileNameW.ref.lpstrFile
           .cast<Uint16>()
           .asTypedList(maximumPathLength);
-      final safeName = args.defaultFileName!.substring(
+      final safeName = defaultFileName.substring(
         0,
-        min(maximumPathLength - 1, args.defaultFileName!.length),
+        min(maximumPathLength - 1, defaultFileName.length),
       );
       final units = safeName.codeUnits;
       nativeString.setRange(0, units.length, units);
