@@ -318,20 +318,15 @@ class FilePickerWindows extends FilePickerPlatform {
         'If type is set to FileType.custom, allowedExtensions cannot be null or empty.',
       );
     }
-    switch (type) {
-      case FileType.any:
-        return _anyFilter;
-      case FileType.audio:
-        return _audioFilter;
-      case FileType.custom:
-        return 'Files (*.${allowedExtensions!.join(',*.')})\x00*.${allowedExtensions.join(';*.')}\x00\x00';
-      case FileType.image:
-        return _imageFilter;
-      case FileType.media:
-        return _mediaFilter;
-      case FileType.video:
-        return _videoFilter;
-    }
+    return switch (type) {
+      FileType.any => _anyFilter,
+      FileType.audio => _audioFilter,
+      FileType.custom =>
+        'Files (*.${allowedExtensions!.join(',*.')})\x00*.${allowedExtensions.join(';*.')}\x00\x00',
+      FileType.image => _imageFilter,
+      FileType.media => _mediaFilter,
+      FileType.video => _videoFilter,
+    };
   }
 
   /// Validates that a file name does not contain reserved Win32 characters.
