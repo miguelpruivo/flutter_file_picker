@@ -22,6 +22,28 @@ class FilePickerWindows extends FilePickerPlatform {
     FilePickerPlatform.instance = FilePickerWindows();
   }
 
+  /// The buffer size in characters allocated for `lpstrFile` in [OPENFILENAMEW].
+  static const _lpstrFileBufferSize = 8192 * maximumPathLength;
+
+  /// Filter string for any file type.
+  static const _anyFilter = 'All Files (*.*)\x00*.*\x00\x00';
+
+  /// Filter string for audio file types.
+  static const _audioFilter =
+      'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav,*.m4a)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav;*.m4a\x00\x00';
+
+  /// Filter string for image file types.
+  static const _imageFilter =
+      'Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png,*.webp)\x00*.bmp;*.gif;*.jpeg;*.jpg;*.png;*.webp\x00\x00';
+
+  /// Filter string for media (video and image) file types.
+  static const _mediaFilter =
+      'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)\x00*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv\x00Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png)\x00*.bmp;*.gif;*.jpeg;*.jpg;*.png\x00\x00';
+
+  /// Filter string for video file types.
+  static const _videoFilter =
+      'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)\x00*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv\x00\x00';
+
   @override
   Future<PlatformFile?> pickFile({
     String? dialogTitle,
@@ -287,25 +309,6 @@ class FilePickerWindows extends FilePickerPlatform {
     return returnValue;
   }
 
-  /// Filter string for any file type.
-  static const _anyFilter = 'All Files (*.*)\x00*.*\x00\x00';
-
-  /// Filter string for audio file types.
-  static const _audioFilter =
-      'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav,*.m4a)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav;*.m4a\x00\x00';
-
-  /// Filter string for image file types.
-  static const _imageFilter =
-      'Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png,*.webp)\x00*.bmp;*.gif;*.jpeg;*.jpg;*.png;*.webp\x00\x00';
-
-  /// Filter string for media (video and image) file types.
-  static const _mediaFilter =
-      'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)\x00*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv\x00Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png)\x00*.bmp;*.gif;*.jpeg;*.jpg;*.png\x00\x00';
-
-  /// Filter string for video file types.
-  static const _videoFilter =
-      'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)\x00*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv\x00\x00';
-
   /// Converts a [FileType] enum and allowed extension list into a null-terminated
   /// Win32 file filter string for `OPENFILENAMEW`.
   String fileTypeToFileFilter(FileType type, List<String>? allowedExtensions) {
@@ -396,9 +399,6 @@ class FilePickerWindows extends FilePickerPlatform {
 
     return filePaths;
   }
-
-  /// The buffer size in characters allocated for `lpstrFile` in [OPENFILENAMEW].
-  static const _lpstrFileBufferSize = 8192 * maximumPathLength;
 
   /// Allocates and populates an [OPENFILENAMEW] struct with native memory for Win32 API calls.
   Pointer<OPENFILENAMEW> _instantiateOpenFileNameW(OpenSaveFileArgs args) {
