@@ -191,10 +191,7 @@ class FilePickerWeb extends FilePickerPlatform {
         blobUrl = null;
       }
     } else if (bytes != null && bytes.isNotEmpty) {
-      final blob = Blob(
-        [bytes.toJS].toJS,
-        BlobPropertyBag(type: file.type),
-      );
+      final blob = Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
       blobUrl = URL.createObjectURL(blob);
     }
 
@@ -266,9 +263,9 @@ class FilePickerWeb extends FilePickerPlatform {
       FileType.video => 'video/*',
       FileType.media => 'video/*|image/*',
       FileType.custom => allowedExtensions!.fold(
-          '',
-          (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next',
-        ),
+        '',
+        (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next',
+      ),
     };
   }
 
