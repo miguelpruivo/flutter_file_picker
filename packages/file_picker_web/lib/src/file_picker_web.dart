@@ -83,11 +83,6 @@ class FilePickerWeb extends FilePickerPlatform {
     return files.firstOrNull;
   }
 
-  /// Opens an HTML file input dialog to pick one or more files.
-  ///
-  /// Supports filtering by [type] and [allowedExtensions]. Configure [webOptions]
-  /// with a [FilePickerWebOptions] instance to control in-memory data loading (`withData`),
-  /// byte streaming (`withReadStream`), or sequential file reading (`readSequential`).
   @override
   Future<List<PlatformFile>> pickFiles({
     String? dialogTitle,
