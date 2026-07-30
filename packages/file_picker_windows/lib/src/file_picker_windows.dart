@@ -363,10 +363,11 @@ class FilePickerWindows extends FilePickerPlatform {
   }) {
     final List<String> filePaths = [];
     final buffer = StringBuffer();
+    final fileUnits = openFileNameW.lpstrFile.cast<Uint16>();
     int i = 0;
     bool lastCharWasNull = false;
     while (true) {
-      final char = openFileNameW.lpstrFile.cast<Uint16>()[i];
+      final char = fileUnits[i];
       final currentCharIsNull = char == 0;
       if (currentCharIsNull && lastCharWasNull) {
         break;
