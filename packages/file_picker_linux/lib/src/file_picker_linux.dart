@@ -19,7 +19,7 @@ class FilePickerLinux extends FilePickerPlatform {
     FilePickerPlatform.instance = FilePickerLinux();
   }
 
-  final destination = "org.freedesktop.portal.Desktop";
+  static const String destination = 'org.freedesktop.portal.Desktop';
   DBusClient? _client;
   OrgFreedesktopPortalFileChooser? _xdpChooser;
 
@@ -125,9 +125,9 @@ class FilePickerLinux extends FilePickerPlatform {
       break;
     }
 
-    final filePaths = uriPaths.map((uri) => uri.toFilePath()).toList();
-
-    return filePaths.map((path) => LinuxPlatformFile.fromPath(path)).toList();
+    return [
+      for (final uri in uriPaths) LinuxPlatformFile.fromPath(uri.toFilePath()),
+    ];
   }
 
   @override
@@ -199,8 +199,7 @@ class FilePickerLinux extends FilePickerPlatform {
       break;
     }
 
-    final filePaths = uriPaths.map((uri) => uri.toFilePath()).toList();
-    return filePaths.firstOrNull;
+    return uriPaths.firstOrNull?.toFilePath();
   }
 
   @override
@@ -258,7 +257,7 @@ class FilePickerLinux extends FilePickerPlatform {
       break;
     }
 
-    final savedFilePath = saveUris.map((uri) => uri.toFilePath()).firstOrNull;
+    final savedFilePath = saveUris.firstOrNull?.toFilePath();
 
     if (savedFilePath != null) {
       final file = File(savedFilePath);
