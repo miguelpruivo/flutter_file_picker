@@ -390,9 +390,7 @@ class FilePickerWindows extends FilePickerPlatform {
 
     if (filePaths.length > 1) {
       final String directoryPath = filePaths.removeAt(0);
-      return filePaths
-          .map<String>((filePath) => join(directoryPath, filePath))
-          .toList();
+      return [for (final filePath in filePaths) join(directoryPath, filePath)];
     }
 
     return filePaths;
