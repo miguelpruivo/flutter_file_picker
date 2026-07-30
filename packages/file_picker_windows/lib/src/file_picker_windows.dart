@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
+
 import 'package:ffi/ffi.dart';
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 import 'package:flutter/foundation.dart';
@@ -124,6 +125,7 @@ class FilePickerWindows extends FilePickerPlatform {
     });
   }
 
+  /// Runs [IFileOpenDialog] inside a separate isolate to prompt for a directory path.
   static String? _getDirectoryPathIsolate(Map<String, Object?> args) {
     String? dialogTitle = args['dialogTitle'] as String?;
     String? initialDirectory = args['initialDirectory'] as String?;
@@ -241,6 +243,7 @@ class FilePickerWindows extends FilePickerPlatform {
   /// Private getter for opening the `user32.dll` dynamic library.
   DynamicLibrary get _user32 => DynamicLibrary.open('user32.dll');
 
+  /// Opens the Win32 file picker dialog using [GetOpenFileNameW].
   List<String>? _pickFiles(_OpenSaveFileArgs args) {
     final getOpenFileNameW = _comdlg32
         .lookupFunction<GetOpenFileNameW, GetOpenFileNameWDart>(
@@ -260,6 +263,7 @@ class FilePickerWindows extends FilePickerPlatform {
     return files;
   }
 
+  /// Opens the Win32 save file dialog using [GetSaveFileNameW].
   String? _saveFile(_OpenSaveFileArgs args) {
     final getSaveFileNameW = _comdlg32
         .lookupFunction<GetSaveFileNameW, GetSaveFileNameWDart>(
@@ -301,6 +305,8 @@ class FilePickerWindows extends FilePickerPlatform {
   static const _videoFilter =
       'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)\x00*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv\x00\x00';
 
+  /// Converts a [FileType] enum and allowed extension list into a null-terminated
+  /// Win32 file filter string for `OPENFILENAMEW`.
   String fileTypeToFileFilter(FileType type, List<String>? allowedExtensions) {
     if (type == FileType.custom &&
         (allowedExtensions == null || allowedExtensions.isEmpty)) {
@@ -324,6 +330,7 @@ class FilePickerWindows extends FilePickerPlatform {
     }
   }
 
+  /// Validates that a file name does not contain reserved Win32 characters.
   void validateFileName(String fileName) {
     if (fileName.contains(RegExp(r'[<>:/\\|?*"]'))) {
       throw ArgumentError(
@@ -332,6 +339,24 @@ class FilePickerWindows extends FilePickerPlatform {
     }
   }
 
+  /// Extracts the list of selected files from the Win32 API struct [OPENFILENAMEW].
+  ///
+  /// After the user has closed the file picker dialog, Win32 API sets the property
+  /// `lpstrFile` of [OPENFILENAMEW] to the user's selection. This property contains
+  /// a string terminated by two `null` characters. If the user has selected only one
+  /// file, then the returned string contains the absolute file path, e. g.
+  /// `C:\Users\John\file1.jpg\x00\x00`. If the user has selected more than one file,
+  /// then the returned string contains the directory of the selected files, followed
+  /// by a `null` character, followed by the file names each separated by a `null`
+  /// character, e.g. `C:\Users\John\x00file1.jpg\x00file2.jpg\x00file3.jpg\x00\x00`.
+  ///
+  /// `isResultFromSaveFileDialog` allows to handle the result of the save-file
+  /// dialog differently because somehow, if the save-file dialog is invoked with a
+  /// long default file name (e.g. `abcdefghijklmnopqrstuvxyz0123456789.png`) and the
+  /// user changed the file name to a short one (e.g. `test.txt`), then the field
+  /// `lpstrFile` not only contains the selected file `test.txt` but also, separated
+  /// by only one `null` character, some remaining part of the originally given default
+  /// file name.
   List<String> extractSelectedFilesFromOpenFileNameW(
     OPENFILENAMEW openFileNameW, {
     bool isResultFromSaveFileDialog = false,
@@ -370,6 +395,7 @@ class FilePickerWindows extends FilePickerPlatform {
     return filePaths;
   }
 
+  /// Allocates and populates an [OPENFILENAMEW] struct with native memory for Win32 API calls.
   Pointer<OPENFILENAMEW> _instantiateOpenFileNameW(_OpenSaveFileArgs args) {
     final lpstrFileBufferSize = 8192 * maximumPathLength;
     final Pointer<OPENFILENAMEW> openFileNameW = calloc<OPENFILENAMEW>();
@@ -420,6 +446,7 @@ class FilePickerWindows extends FilePickerPlatform {
     return openFileNameW;
   }
 
+  /// Retrieves the HWND handle of the Flutter runner window using `user32.dll`.
   Pointer _getWindowHandle() {
     final findWindowA = _user32
         .lookupFunction<
@@ -435,6 +462,7 @@ class FilePickerWindows extends FilePickerPlatform {
     return Pointer.fromAddress(hWnd);
   }
 
+  /// Frees allocated native memory for an [OPENFILENAMEW] pointer.
   void _freeMemory(Pointer<OPENFILENAMEW> openFileNameW) {
     calloc.free(openFileNameW.ref.lpstrTitle);
     calloc.free(openFileNameW.ref.lpstrFile);
@@ -443,28 +471,49 @@ class FilePickerWindows extends FilePickerPlatform {
     calloc.free(openFileNameW);
   }
 
+  /// Top-level isolate callback to invoke [_pickFiles].
   static void _callPickFiles(_OpenSaveFileArgs args) {
     final impl = FilePickerWindows();
     args.port.send(impl._pickFiles(args));
   }
 
+  /// Top-level isolate callback to invoke [_saveFile].
   static void _callSaveFile(_OpenSaveFileArgs args) {
     final impl = FilePickerWindows();
     args.port.send(impl._saveFile(args));
   }
 }
 
+/// Arguments passed to background isolates for open and save file dialogs.
 class _OpenSaveFileArgs {
+  /// SendPort used to reply to the main isolate.
   final SendPort port;
+
+  /// Default file name suggested in the save dialog.
   final String? defaultFileName;
+
+  /// Optional title for the dialog box.
   final String? dialogTitle;
+
+  /// Optional initial directory to open.
   final String? initialDirectory;
+
+  /// File type filter rule.
   final FileType type;
+
+  /// List of custom allowed extensions when [type] is [FileType.custom].
   final List<String>? allowedExtensions;
 
+  /// Whether multi-selection is enabled.
   final bool allowMultiple;
+
+  /// Whether to lock the parent window modally.
   final bool lockParentWindow;
+
+  /// Whether to prompt before overwriting an existing file in save dialogs.
   final bool confirmOverwrite;
+
+  /// The HWND handle of the parent window.
   final int? parentWindowHandle;
 
   _OpenSaveFileArgs({
