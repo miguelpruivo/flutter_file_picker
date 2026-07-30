@@ -44,6 +44,12 @@ class FilePickerWindows extends FilePickerPlatform {
   static const _videoFilter =
       'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)\x00*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv\x00\x00';
 
+  /// Private getter for opening the `comdlg32.dll` dynamic library.
+  DynamicLibrary get _comdlg32 => DynamicLibrary.open('comdlg32.dll');
+
+  /// Private getter for opening the `user32.dll` dynamic library.
+  DynamicLibrary get _user32 => DynamicLibrary.open('user32.dll');
+
   @override
   Future<PlatformFile?> pickFile({
     String? dialogTitle,
@@ -259,12 +265,6 @@ class FilePickerWindows extends FilePickerPlatform {
 
     return null;
   }
-
-  /// Private getter for opening the `comdlg32.dll` dynamic library.
-  DynamicLibrary get _comdlg32 => DynamicLibrary.open('comdlg32.dll');
-
-  /// Private getter for opening the `user32.dll` dynamic library.
-  DynamicLibrary get _user32 => DynamicLibrary.open('user32.dll');
 
   /// Opens the Win32 file picker dialog using [GetOpenFileNameW].
   List<String>? _pickFiles(OpenSaveFileArgs args) {
