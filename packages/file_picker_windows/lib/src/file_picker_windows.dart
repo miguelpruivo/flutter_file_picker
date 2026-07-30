@@ -235,10 +235,14 @@ class FilePickerWindows extends FilePickerPlatform {
     return null;
   }
 
-  List<String>? _pickFiles(_OpenSaveFileArgs args) {
-    final comdlg32 = DynamicLibrary.open('comdlg32.dll');
+  /// Private getter for opening the `comdlg32.dll` dynamic library.
+  DynamicLibrary get _comdlg32 => DynamicLibrary.open('comdlg32.dll');
 
-    final getOpenFileNameW = comdlg32
+  /// Private getter for opening the `user32.dll` dynamic library.
+  DynamicLibrary get _user32 => DynamicLibrary.open('user32.dll');
+
+  List<String>? _pickFiles(_OpenSaveFileArgs args) {
+    final getOpenFileNameW = _comdlg32
         .lookupFunction<GetOpenFileNameW, GetOpenFileNameWDart>(
           'GetOpenFileNameW',
         );
@@ -257,9 +261,7 @@ class FilePickerWindows extends FilePickerPlatform {
   }
 
   String? _saveFile(_OpenSaveFileArgs args) {
-    final comdlg32 = DynamicLibrary.open('comdlg32.dll');
-
-    final getSaveFileNameW = comdlg32
+    final getSaveFileNameW = _comdlg32
         .lookupFunction<GetSaveFileNameW, GetSaveFileNameWDart>(
           'GetSaveFileNameW',
         );
@@ -400,9 +402,7 @@ class FilePickerWindows extends FilePickerPlatform {
   }
 
   Pointer _getWindowHandle() {
-    final user32 = DynamicLibrary.open('user32.dll');
-
-    final findWindowA = user32
+    final findWindowA = _user32
         .lookupFunction<
           Int32 Function(Pointer<Utf8> lpClassName, Pointer<Utf8> lpWindowName),
           int Function(Pointer<Utf8> lpClassName, Pointer<Utf8> lpWindowName)
