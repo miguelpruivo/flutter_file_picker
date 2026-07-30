@@ -86,8 +86,9 @@ final class BROWSEINFOA extends Struct {
   /// box. This string can be used to specify instructions to the user.
   external Pointer lpszTitle;
 
-  /// Flags that specify the options for the dialog box. This member can be 0 or a combination of the
-  /// following values.
+  /// Flags that specify the options for the dialog box. Refer to the
+  /// [BROWSEINFOA documentation](https://learn.microsoft.com/windows/win32/api/shlobj_core/ns-shlobj_core-browseinfoa)
+  /// for valid `BIF_*` flag values.
   @Uint32()
   external int ulFlags;
 
