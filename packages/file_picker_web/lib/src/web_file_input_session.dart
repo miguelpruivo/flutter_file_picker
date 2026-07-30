@@ -47,9 +47,7 @@ class WebFileInputSession {
       ..accept = accept
       ..style.display = 'none';
 
-    if (onFileLoading != null) {
-      onFileLoading!(FilePickerStatus.picking);
-    }
+    onFileLoading?.call(FilePickerStatus.picking);
 
     uploadInput.onChange.listen(_onFileSelection);
     uploadInput.addEventListener('change', _onFileSelection.toJS);
@@ -80,9 +78,7 @@ class WebFileInputSession {
 
     final pickedFiles = await processFiles(files, webOptions);
 
-    if (onFileLoading != null) {
-      onFileLoading!(FilePickerStatus.done);
-    }
+    onFileLoading?.call(FilePickerStatus.done);
     _completer.complete(pickedFiles);
   }
 
