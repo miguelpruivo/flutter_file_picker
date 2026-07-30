@@ -371,7 +371,9 @@ class FilePickerWindows extends FilePickerPlatform {
       final currentCharIsNull = char == 0;
       if (currentCharIsNull && lastCharWasNull) {
         break;
-      } else if (currentCharIsNull) {
+      }
+
+      if (currentCharIsNull) {
         filePaths.add(buffer.toString());
         buffer.clear();
         lastCharWasNull = true;
