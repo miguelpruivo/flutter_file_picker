@@ -68,12 +68,11 @@ base class LinuxPlatformFile extends PlatformFile {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    if (other is! LinuxPlatformFile) return false;
-    return super == other && other.name == name && other.uri == uri;
+    return other is LinuxPlatformFile && other.name == name && other.uri == uri;
   }
 
   @override
-  int get hashCode => Object.hash(super.hashCode, name, uri);
+  int get hashCode => Object.hash(name, uri);
 
   @override
   String toString() {
