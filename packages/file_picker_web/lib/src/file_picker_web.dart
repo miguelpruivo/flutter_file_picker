@@ -126,8 +126,8 @@ class FilePickerWeb extends FilePickerPlatform {
 
     final FilePickerWebOptions effectiveWebOptions =
         webOptions is FilePickerWebOptions
-            ? webOptions
-            : const FilePickerWebOptions();
+        ? webOptions
+        : const FilePickerWebOptions();
 
     final session = WebFileInputSession(
       target: _target,
