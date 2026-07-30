@@ -76,20 +76,21 @@ class Filter {
   }
 
   DBusArray toDBusArray() {
-    List<DBusValue> dataList = [];
-    info.forEach((var key, var values) {
-      List<DBusStruct> tmpList = [];
-      for (var (posO, val) in values) {
-        final pos = DBusUint32(posO);
-        final value = DBusString(val);
-        tmpList.add(DBusStruct([pos, value]));
-      }
-      DBusValue dataArray = DBusArray(
+    final dataList = <DBusValue>[];
+
+    for (final entry in info.entries) {
+      final tmpList = <DBusStruct>[
+        for (final (posO, val) in entry.value)
+          DBusStruct([DBusUint32(posO), DBusString(val)]),
+      ];
+
+      final dataArray = DBusArray(
         DBusSignature.struct([DBusSignature.uint32, DBusSignature.string]),
         tmpList,
       );
-      dataList.add(DBusStruct([DBusString(key), dataArray]));
-    });
+
+      dataList.add(DBusStruct([DBusString(entry.key), dataArray]));
+    }
 
     return DBusArray(
       DBusSignature.struct([
