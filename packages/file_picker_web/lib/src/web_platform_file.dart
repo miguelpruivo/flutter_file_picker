@@ -6,8 +6,16 @@ import 'package:file_picker_platform_interface/file_picker_platform_interface.da
 
 import 'platform_file_web_fetch.dart';
 
-/// A [PlatformFile] implementation for Web.
+/// A Web-specific implementation of [PlatformFile].
+///
+/// Wraps files selected or processed in a web environment, providing
+/// access to file metadata, underlying bytes, stream readers, and `blob:` or
+/// `data:` URIs.
 base class WebPlatformFile extends PlatformFile {
+  /// Creates a new [WebPlatformFile] instance.
+  ///
+  /// Requires a file [name] and [uri]. Optional parameters include preloaded
+  /// [bytes], a custom [readStream], file size in [bytesLength], or an underlying [xFile].
   WebPlatformFile({
     required this.name,
     required this.uri,
@@ -15,14 +23,16 @@ base class WebPlatformFile extends PlatformFile {
     int? bytesLength,
     Uint8List? bytes,
     Stream<List<int>>? readStream,
-  }) : _xFile = xFile,
-       _bytesLength = bytesLength,
-       _bytes = bytes,
-       _readStream = readStream;
+  })  : _xFile = xFile,
+        _bytesLength = bytesLength,
+        _bytes = bytes,
+        _readStream = readStream;
 
+  /// The name of the file including extension.
   @override
   final String name;
 
+  /// The web URI representing this file (typically a `blob:` or `data:` URL).
   @override
   final Uri uri;
 
@@ -31,6 +41,7 @@ base class WebPlatformFile extends PlatformFile {
   final Uint8List? _bytes;
   final Stream<List<int>>? _readStream;
 
+  /// Returns an [XFile] instance representing this web file.
   @override
   XFile get xFile {
     final file = _xFile;
@@ -38,6 +49,7 @@ base class WebPlatformFile extends PlatformFile {
     return XFile(uri.toString(), name: name, bytes: _bytes);
   }
 
+  /// Asynchronously calculates and returns the size of the file in bytes.
   @override
   Future<int> length() async {
     final len = _bytesLength;
@@ -51,6 +63,10 @@ base class WebPlatformFile extends PlatformFile {
     }
   }
 
+  /// Asynchronously reads the file content as a byte array (`Uint8List`).
+  ///
+  /// If bytes are cached or readable from a `blob:`/`data:` URL, they will be
+  /// retrieved directly; otherwise falls back to [xFile].
   @override
   Future<Uint8List> readAsBytes() async {
     final bytes = _bytes;
@@ -63,6 +79,7 @@ base class WebPlatformFile extends PlatformFile {
     return xFile.readAsBytes();
   }
 
+  /// Asynchronously opens a stream to read the file content in chunks.
   @override
   Stream<Uint8List> readAsByteStream() async* {
     final readStream = _readStream;

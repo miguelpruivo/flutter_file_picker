@@ -10,6 +10,10 @@ import 'package:web/web.dart';
 import 'web_platform_file.dart';
 
 /// An implementation of [FilePickerPlatform] for the Web platform.
+///
+/// Uses standard HTML5 `<input type="file">` element interop via `package:web`
+/// to provide single and multiple file picking, as well as file saving capabilities
+/// in browser environments.
 class FilePickerWeb extends FilePickerPlatform {
   late Element _target;
   final String _kFilePickerInputsDomId = '__file_picker_web-file-input';
@@ -39,6 +43,9 @@ class FilePickerWeb extends FilePickerPlatform {
     return target;
   }
 
+  /// Directory picking is not supported on web platforms.
+  ///
+  /// Always throws an [UnimplementedError].
   @override
   Future<String?> getDirectoryPath({
     String? dialogTitle,
@@ -51,6 +58,9 @@ class FilePickerWeb extends FilePickerPlatform {
     throw UnimplementedError('getDirectoryPath() has not been implemented.');
   }
 
+  /// Opens an HTML file input dialog to pick a single file.
+  ///
+  /// Delegates to [pickFiles] with `allowMultiple` set to `false`.
   @override
   Future<PlatformFile?> pickFile({
     String? dialogTitle,
@@ -79,6 +89,11 @@ class FilePickerWeb extends FilePickerPlatform {
     return files.firstOrNull;
   }
 
+  /// Opens an HTML file input dialog to pick one or more files.
+  ///
+  /// Supports filtering by [type] and [allowedExtensions]. Configure [webOptions]
+  /// to control in-memory data loading (`withData`), byte streaming (`withReadStream`),
+  /// or sequential file reading (`readSequential`).
   @override
   Future<List<PlatformFile>> pickFiles({
     String? dialogTitle,
@@ -236,6 +251,10 @@ class FilePickerWeb extends FilePickerPlatform {
     return files ?? <PlatformFile>[];
   }
 
+  /// Triggers a browser download to save a file with the given [fileName],
+  /// [bytes], and [mimeType].
+  ///
+  /// Returns a `blob:` [Uri] pointing to the generated download object.
   @override
   Future<Uri?> saveFile({
     required String fileName,
@@ -287,9 +306,9 @@ class FilePickerWeb extends FilePickerPlatform {
       FileType.video => 'video/*',
       FileType.media => 'video/*|image/*',
       FileType.custom => allowedExtensions!.fold(
-        '',
-        (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next',
-      ),
+          '',
+          (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next',
+        ),
     };
   }
 
