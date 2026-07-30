@@ -78,8 +78,8 @@ class FilePickerWindows extends FilePickerPlatform {
       ),
     );
 
-    final fileNames = (await port.first) as List<String>?;
-    if (fileNames == null || fileNames.isEmpty) {
+    final fileNames = (await port.first) as List<String>? ?? [];
+    if (fileNames.isEmpty) {
       return [];
     }
 
