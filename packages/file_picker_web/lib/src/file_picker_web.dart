@@ -176,10 +176,24 @@ class FilePickerWeb extends FilePickerPlatform {
     final completer = Completer<Uint8List?>();
     final reader = FileReader();
 
-    reader.onLoadEnd.listen((_) {
-      final byteBuffer = (reader.result as JSArrayBuffer?)?.toDart;
-      completer.complete(byteBuffer?.asUint8List());
-    });
+    reader.addEventListener(
+      'loadend',
+      ((Event _) {
+        if (!completer.isCompleted) {
+          final byteBuffer = (reader.result as JSArrayBuffer?)?.toDart;
+          completer.complete(byteBuffer?.asUint8List());
+        }
+      }).toJS,
+    );
+
+    reader.addEventListener(
+      'error',
+      ((Event _) {
+        if (!completer.isCompleted) {
+          completer.complete(null);
+        }
+      }).toJS,
+    );
 
     reader.readAsArrayBuffer(file);
     return completer.future;
