@@ -10,6 +10,7 @@ workspace:
   - packages/file_picker_android
   - packages/file_picker_darwin
   - packages/file_picker_linux
+  - packages/file_picker_windows
 
 melos:
   packages:
