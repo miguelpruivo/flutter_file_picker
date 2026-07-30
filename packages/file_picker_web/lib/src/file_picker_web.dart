@@ -204,7 +204,7 @@ class FilePickerWeb extends FilePickerPlatform {
     required File file,
     Uint8List? bytes,
     String? path,
-    Stream<List<int>>? readStream,
+    Stream<Uint8List>? readStream,
   }) {
     String? blobUrl = path;
 
@@ -294,7 +294,7 @@ class FilePickerWeb extends FilePickerPlatform {
   }
 
   /// Opens a chunked byte stream reader for a web [File].
-  Stream<List<int>> _openFileReadStream(File file) async* {
+  Stream<Uint8List> _openFileReadStream(File file) async* {
     final reader = FileReader();
 
     int start = 0;
@@ -317,7 +317,7 @@ class FilePickerWeb extends FilePickerPlatform {
       }
 
       if (readerResult.isA<JSArray>()) {
-        yield (readerResult as JSArray).toDart.cast<int>();
+        yield Uint8List.fromList((readerResult as JSArray).toDart.cast<int>());
         start += _readStreamChunkSize;
       }
     }

@@ -22,7 +22,7 @@ base class WebPlatformFile extends PlatformFile {
     XFile? xFile,
     int? bytesLength,
     Uint8List? bytes,
-    Stream<List<int>>? readStream,
+    Stream<Uint8List>? readStream,
   }) : _xFile = xFile,
        _bytesLength = bytesLength,
        _bytes = bytes,
@@ -39,7 +39,7 @@ base class WebPlatformFile extends PlatformFile {
   final XFile? _xFile;
   final int? _bytesLength;
   final Uint8List? _bytes;
-  final Stream<List<int>>? _readStream;
+  final Stream<Uint8List>? _readStream;
 
   /// Returns an [XFile] instance representing this web file.
   @override
@@ -84,9 +84,7 @@ base class WebPlatformFile extends PlatformFile {
   Stream<Uint8List> readAsByteStream() async* {
     final readStream = _readStream;
     if (readStream != null) {
-      await for (final chunk in readStream) {
-        yield Uint8List.fromList(chunk);
-      }
+      yield* readStream;
       return;
     }
 
