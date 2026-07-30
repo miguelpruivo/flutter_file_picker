@@ -7,6 +7,7 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:path/path.dart' as p;
 import 'package:web/web.dart';
 
+import 'web_file_input_session.dart';
 import 'web_platform_file.dart';
 
 /// An implementation of [FilePickerPlatform] for the Web platform.
@@ -114,7 +115,7 @@ class FilePickerWeb extends FilePickerPlatform {
       );
     }
 
-    final session = _WebFileInputSession(
+    final session = WebFileInputSession(
       target: _target,
       accept: _fileType(type, allowedExtensions),
       webOptions: webOptions,
@@ -190,7 +191,10 @@ class FilePickerWeb extends FilePickerPlatform {
         blobUrl = null;
       }
     } else if (bytes != null && bytes.isNotEmpty) {
-      final blob = Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
+      final blob = Blob(
+        [bytes.toJS].toJS,
+        BlobPropertyBag(type: file.type),
+      );
       blobUrl = URL.createObjectURL(blob);
     }
 
@@ -262,9 +266,9 @@ class FilePickerWeb extends FilePickerPlatform {
       FileType.video => 'video/*',
       FileType.media => 'video/*|image/*',
       FileType.custom => allowedExtensions!.fold(
-        '',
-        (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next',
-      ),
+          '',
+          (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next',
+        ),
     };
   }
 
@@ -295,93 +299,6 @@ class FilePickerWeb extends FilePickerPlatform {
         yield (readerResult as JSArray).toDart.cast<int>();
         start += _readStreamChunkSize;
       }
-    }
-  }
-}
-
-/// Helper class managing the life cycle of an HTML file input session.
-class _WebFileInputSession {
-  _WebFileInputSession({
-    required this.target,
-    required this.accept,
-    required this.webOptions,
-    required this.onFileLoading,
-    required this.processFiles,
-  });
-
-  final Element target;
-  final String accept;
-  final WebOptions webOptions;
-  final Function(FilePickerStatus)? onFileLoading;
-  final Future<List<PlatformFile>> Function(FileList, WebOptions) processFiles;
-
-  final Completer<List<PlatformFile>?> _completer = Completer();
-  bool _eventTriggered = false;
-
-  /// Starts the file picker input interaction and returns a list of picked files or `null`.
-  Future<List<PlatformFile>?> start() async {
-    final uploadInput = HTMLInputElement()
-      ..type = 'file'
-      ..draggable = true
-      ..multiple = webOptions.allowMultiple
-      ..accept = accept
-      ..style.display = 'none';
-
-    if (onFileLoading != null) {
-      onFileLoading!(FilePickerStatus.picking);
-    }
-
-    uploadInput.onChange.listen(_onFileSelection);
-    uploadInput.addEventListener('change', _onFileSelection.toJS);
-    uploadInput.addEventListener('cancel', _onCancel.toJS);
-
-    if (webOptions.cancelUploadOnWindowBlur) {
-      window.addEventListener('focus', _onCancel.toJS);
-    }
-
-    _clearTargetChildren();
-    target.children.add(uploadInput);
-    uploadInput.click();
-    _clearTargetChildren();
-
-    return _completer.future;
-  }
-
-  void _onFileSelection(Event e) async {
-    if (_eventTriggered) return;
-    _eventTriggered = true;
-
-    final targetInput = e.target as HTMLInputElement?;
-    final files = targetInput?.files;
-    if (files == null) {
-      _completer.complete(null);
-      return;
-    }
-
-    final pickedFiles = await processFiles(files, webOptions);
-
-    if (onFileLoading != null) {
-      onFileLoading!(FilePickerStatus.done);
-    }
-    _completer.complete(pickedFiles);
-  }
-
-  void _onCancel(Event _) {
-    window.removeEventListener('focus', _onCancel.toJS);
-
-    Future.delayed(const Duration(seconds: 1)).then((_) {
-      if (!_eventTriggered) {
-        _eventTriggered = true;
-        _completer.complete(null);
-      }
-    });
-  }
-
-  void _clearTargetChildren() {
-    Node? firstChild = target.firstChild;
-    while (firstChild != null) {
-      target.removeChild(firstChild);
-      firstChild = target.firstChild;
     }
   }
 }
