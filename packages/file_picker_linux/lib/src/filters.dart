@@ -75,7 +75,6 @@ class Filter {
     }
   }
 
-
   DBusArray toDBusArray() {
     List<DBusValue> dataList = [];
     info.forEach((var key, var values) {
