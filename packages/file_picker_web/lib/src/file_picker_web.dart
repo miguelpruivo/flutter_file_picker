@@ -43,6 +43,15 @@ class FilePickerWeb extends FilePickerPlatform {
     return target;
   }
 
+  /// Clears all child elements from the target DOM container.
+  void _clearTargetChildren() {
+    Node? firstChild = _target.firstChild;
+    while (firstChild != null) {
+      _target.removeChild(firstChild);
+      firstChild = _target.firstChild;
+    }
+  }
+
   /// Directory picking is not supported on web platforms.
   ///
   /// Always throws an [UnimplementedError].
@@ -117,13 +126,12 @@ class FilePickerWeb extends FilePickerPlatform {
     final Completer<List<PlatformFile>?> filesCompleter =
         Completer<List<PlatformFile>?>();
 
-    final String accept = _fileType(type, allowedExtensions);
-    final HTMLInputElement uploadInput = HTMLInputElement();
-    uploadInput.type = 'file';
-    uploadInput.draggable = true;
-    uploadInput.multiple = webOptions.allowMultiple;
-    uploadInput.accept = accept;
-    uploadInput.style.display = 'none';
+    final uploadInput = HTMLInputElement()
+      ..type = 'file'
+      ..draggable = true
+      ..multiple = webOptions.allowMultiple
+      ..accept = _fileType(type, allowedExtensions)
+      ..style.display = 'none';
 
     bool changeEventTriggered = false;
 
@@ -131,92 +139,23 @@ class FilePickerWeb extends FilePickerPlatform {
       onFileLoading(FilePickerStatus.picking);
     }
 
-    void changeEventListener(Event e) async {
-      if (changeEventTriggered) {
-        return;
-      }
+    void handleFileSelection(Event _) async {
+      if (changeEventTriggered) return;
       changeEventTriggered = true;
 
-      final FileList files = uploadInput.files!;
-      final List<PlatformFile> pickedFiles = [];
+      final files = uploadInput.files!;
+      final pickedFiles = await _processSelectedFiles(files, webOptions);
 
-      void addPickedFile(
-        File file,
-        Uint8List? bytes,
-        String? path,
-        Stream<List<int>>? readStream,
-      ) {
-        String? blobUrl = path;
-
-        if ((blobUrl == null || blobUrl.isEmpty) && (bytes == null)) {
-          try {
-            blobUrl = URL.createObjectURL(file);
-          } catch (_) {
-            blobUrl = null;
-          }
-        } else if (bytes != null && bytes.isNotEmpty) {
-          final blob = Blob(
-            [bytes.toJS].toJS,
-            BlobPropertyBag(type: file.type),
-          );
-
-          blobUrl = URL.createObjectURL(blob);
-        }
-
-        final uri = Uri.parse(blobUrl ?? '');
-
-        pickedFiles.add(
-          WebPlatformFile(
-            name: file.name,
-            uri: uri,
-            bytesLength: bytes != null ? bytes.length : file.size,
-            bytes: bytes,
-            readStream: readStream,
-          ),
-        );
-
-        if (pickedFiles.length >= files.length) {
-          if (onFileLoading != null) {
-            onFileLoading(FilePickerStatus.done);
-          }
-          filesCompleter.complete(pickedFiles);
-        }
+      if (onFileLoading != null) {
+        onFileLoading(FilePickerStatus.done);
       }
-
-      for (int i = 0; i < files.length; i++) {
-        final File? file = files.item(i);
-        if (file == null) {
-          continue;
-        }
-
-        if (webOptions.withReadStream) {
-          addPickedFile(file, null, null, _openFileReadStream(file));
-          continue;
-        }
-
-        if (!webOptions.withData) {
-          addPickedFile(file, null, null, null);
-          continue;
-        }
-
-        final syncCompleter = Completer<void>();
-        final FileReader reader = FileReader();
-        reader.onLoadEnd.listen((e) {
-          ByteBuffer? byteBuffer = (reader.result as JSArrayBuffer?)?.toDart;
-          addPickedFile(file, byteBuffer?.asUint8List(), null, null);
-          syncCompleter.complete();
-        });
-        reader.readAsArrayBuffer(file);
-        if (webOptions.readSequential) {
-          await syncCompleter.future;
-        }
-      }
+      filesCompleter.complete(pickedFiles);
     }
 
-    void cancelledEventListener(Event _) {
-      window.removeEventListener('focus', cancelledEventListener.toJS);
+    void handleCancel(Event _) {
+      window.removeEventListener('focus', handleCancel.toJS);
 
-      Future.delayed(const Duration(seconds: 1)).then((value) {
+      Future.delayed(const Duration(seconds: 1)).then((_) {
         if (!changeEventTriggered) {
           changeEventTriggered = true;
           filesCompleter.complete(null);
@@ -224,31 +163,100 @@ class FilePickerWeb extends FilePickerPlatform {
       });
     }
 
-    uploadInput.onChange.listen(changeEventListener);
-    uploadInput.addEventListener('change', changeEventListener.toJS);
-    uploadInput.addEventListener('cancel', cancelledEventListener.toJS);
+    uploadInput.onChange.listen(handleFileSelection);
+    uploadInput.addEventListener('change', handleFileSelection.toJS);
+    uploadInput.addEventListener('cancel', handleCancel.toJS);
 
     if (webOptions.cancelUploadOnWindowBlur) {
-      window.addEventListener('focus', cancelledEventListener.toJS);
+      window.addEventListener('focus', handleCancel.toJS);
     }
 
-    Node? firstChild = _target.firstChild;
-    while (firstChild != null) {
-      _target.removeChild(firstChild);
-      firstChild = _target.firstChild;
-    }
+    _clearTargetChildren();
     _target.children.add(uploadInput);
     uploadInput.click();
-
-    firstChild = _target.firstChild;
-    while (firstChild != null) {
-      _target.removeChild(firstChild);
-      firstChild = _target.firstChild;
-    }
+    _clearTargetChildren();
 
     final List<PlatformFile>? files = await filesCompleter.future;
-
     return files ?? <PlatformFile>[];
+  }
+
+  /// Processes the selected [FileList] according to [webOptions] and returns
+  /// a list of [PlatformFile] instances.
+  Future<List<PlatformFile>> _processSelectedFiles(
+    FileList files,
+    WebOptions webOptions,
+  ) async {
+    final List<PlatformFile> pickedFiles = [];
+
+    for (int i = 0; i < files.length; i++) {
+      final file = files.item(i);
+      if (file == null) continue;
+
+      if (webOptions.withReadStream) {
+        pickedFiles.add(
+          _createWebPlatformFile(
+            file: file,
+            readStream: _openFileReadStream(file),
+          ),
+        );
+        continue;
+      }
+
+      if (!webOptions.withData) {
+        pickedFiles.add(_createWebPlatformFile(file: file));
+        continue;
+      }
+
+      final bytes = await _readSingleFileBytes(file);
+      pickedFiles.add(_createWebPlatformFile(file: file, bytes: bytes));
+    }
+
+    return pickedFiles;
+  }
+
+  /// Reads an HTML [File] content into a [Uint8List] using [FileReader].
+  Future<Uint8List?> _readSingleFileBytes(File file) async {
+    final completer = Completer<Uint8List?>();
+    final reader = FileReader();
+
+    reader.onLoadEnd.listen((_) {
+      final byteBuffer = (reader.result as JSArrayBuffer?)?.toDart;
+      completer.complete(byteBuffer?.asUint8List());
+    });
+
+    reader.readAsArrayBuffer(file);
+    return completer.future;
+  }
+
+  /// Creates a [WebPlatformFile] from an HTML [File], resolving its `blob:` URI.
+  WebPlatformFile _createWebPlatformFile({
+    required File file,
+    Uint8List? bytes,
+    String? path,
+    Stream<List<int>>? readStream,
+  }) {
+    String? blobUrl = path;
+
+    if ((blobUrl == null || blobUrl.isEmpty) && bytes == null) {
+      try {
+        blobUrl = URL.createObjectURL(file);
+      } catch (_) {
+        blobUrl = null;
+      }
+    } else if (bytes != null && bytes.isNotEmpty) {
+      final blob = Blob([bytes.toJS].toJS, BlobPropertyBag(type: file.type));
+      blobUrl = URL.createObjectURL(blob);
+    }
+
+    final uri = Uri.parse(blobUrl ?? '');
+
+    return WebPlatformFile(
+      name: file.name,
+      uri: uri,
+      bytesLength: bytes != null ? bytes.length : file.size,
+      bytes: bytes,
+      readStream: readStream,
+    );
   }
 
   /// Triggers a browser download to save a file with the given [fileName],
@@ -308,9 +316,9 @@ class FilePickerWeb extends FilePickerPlatform {
       FileType.video => 'video/*',
       FileType.media => 'video/*|image/*',
       FileType.custom => allowedExtensions!.fold(
-          '',
-          (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next',
-        ),
+        '',
+        (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next',
+      ),
     };
   }
 

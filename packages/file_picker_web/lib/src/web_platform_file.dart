@@ -23,10 +23,10 @@ base class WebPlatformFile extends PlatformFile {
     int? bytesLength,
     Uint8List? bytes,
     Stream<List<int>>? readStream,
-  })  : _xFile = xFile,
-        _bytesLength = bytesLength,
-        _bytes = bytes,
-        _readStream = readStream;
+  }) : _xFile = xFile,
+       _bytesLength = bytesLength,
+       _bytes = bytes,
+       _readStream = readStream;
 
   /// The name of the file including extension.
   @override
