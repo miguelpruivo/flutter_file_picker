@@ -80,14 +80,18 @@ class WebFileInputSession {
 
     final files = targetInput?.files;
     if (files == null) {
-      _completer.complete(null);
+      if (!_completer.isCompleted) {
+        _completer.complete(null);
+      }
       return;
     }
 
     final pickedFiles = await processFiles(files, webOptions);
 
     onFileLoading?.call(FilePickerStatus.done);
-    _completer.complete(pickedFiles);
+    if (!_completer.isCompleted) {
+      _completer.complete(pickedFiles);
+    }
   }
 
   void _onCancel(Event _) {
@@ -96,7 +100,9 @@ class WebFileInputSession {
     Future.delayed(const Duration(milliseconds: 500)).then((_) {
       if (!_eventTriggered) {
         _eventTriggered = true;
-        _completer.complete(null);
+        if (!_completer.isCompleted) {
+          _completer.complete(null);
+        }
       }
     });
   }
