@@ -163,8 +163,8 @@ final class OPENFILENAMEW extends Struct {
   @Uint32()
   external int nMaxFileTitle;
 
-  /// The initial directory. The algorithm for selecting the initial directory varies on different
-  /// platforms.
+  /// The initial directory. The algorithm for selecting the initial directory varies across different
+  /// Windows OS versions.
   external Pointer<Utf16> lpstrInitialDir;
 
   /// A string to be placed in the title bar of the dialog box. If this member is `null`, the system
