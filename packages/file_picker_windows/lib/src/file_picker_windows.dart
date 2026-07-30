@@ -248,15 +248,10 @@ class FilePickerWindows extends FilePickerPlatform {
     );
 
     final result = getOpenFileNameW(openFileNameW);
-    late final List<String>? files;
-    if (result == 1) {
-      final filePaths = extractSelectedFilesFromOpenFileNameW(
-        openFileNameW.ref,
-      );
-      files = filePaths;
-    } else {
-      files = null;
-    }
+    final files = switch (result) {
+      1 => extractSelectedFilesFromOpenFileNameW(openFileNameW.ref),
+      _ => null,
+    };
     _freeMemory(openFileNameW);
     return files;
   }
@@ -274,15 +269,13 @@ class FilePickerWindows extends FilePickerPlatform {
     );
 
     final result = getSaveFileNameW(openFileNameW);
-    String? returnValue;
-    if (result == 1) {
-      final filePaths = extractSelectedFilesFromOpenFileNameW(
+    final returnValue = switch (result) {
+      1 => extractSelectedFilesFromOpenFileNameW(
         openFileNameW.ref,
         isResultFromSaveFileDialog: true,
-      );
-      returnValue = filePaths.firstOrNull;
-    }
-
+      ).firstOrNull,
+      _ => null,
+    };
     _freeMemory(openFileNameW);
     return returnValue;
   }
