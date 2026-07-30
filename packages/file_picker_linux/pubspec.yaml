@@ -1,0 +1,31 @@
+name: file_picker_linux
+description: Linux implementation of the file_picker plugin.
+version: 1.0.0
+homepage: https://github.com/miguelpruivo/flutter_file_picker/tree/master/packages/file_picker_linux
+repository: https://github.com/miguelpruivo/flutter_file_picker/tree/master/packages/file_picker_linux
+
+resolution: workspace
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.0"
+
+flutter:
+  plugin:
+    implements: file_picker
+    dartPluginClass: FilePickerLinux
+    platforms:
+      linux:
+        dartPluginClass: FilePickerLinux
+
+dependencies:
+  flutter:
+    sdk: flutter
+  file_picker_platform_interface: ^1.0.0
+  cross_file: ^0.3.5+2
+  dbus: ^0.7.13
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
