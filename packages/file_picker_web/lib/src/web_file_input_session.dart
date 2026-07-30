@@ -69,6 +69,8 @@ class WebFileInputSession {
     _eventTriggered = true;
 
     final targetInput = e.target as HTMLInputElement?;
+    _cleanupListeners(targetInput);
+
     final files = targetInput?.files;
     if (files == null) {
       _completer.complete(null);
@@ -82,7 +84,7 @@ class WebFileInputSession {
   }
 
   void _onCancel(Event _) {
-    window.removeEventListener('focus', _onCancel.toJS);
+    _cleanupListeners(null);
 
     Future.delayed(const Duration(milliseconds: 500)).then((_) {
       if (!_eventTriggered) {
@@ -90,6 +92,14 @@ class WebFileInputSession {
         _completer.complete(null);
       }
     });
+  }
+
+  void _cleanupListeners(HTMLInputElement? input) {
+    window.removeEventListener('focus', _onCancel.toJS);
+    if (input != null) {
+      input.removeEventListener('change', _onFileSelection.toJS);
+      input.removeEventListener('cancel', _onCancel.toJS);
+    }
   }
 
   void _clearTargetChildren() {
