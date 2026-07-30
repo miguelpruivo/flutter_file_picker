@@ -396,20 +396,22 @@ class FilePickerWindows extends FilePickerPlatform {
     return filePaths;
   }
 
+  /// The buffer size in characters allocated for `lpstrFile` in [OPENFILENAMEW].
+  static const _lpstrFileBufferSize = 8192 * maximumPathLength;
+
   /// Allocates and populates an [OPENFILENAMEW] struct with native memory for Win32 API calls.
   Pointer<OPENFILENAMEW> _instantiateOpenFileNameW(_OpenSaveFileArgs args) {
-    final lpstrFileBufferSize = 8192 * maximumPathLength;
     final Pointer<OPENFILENAMEW> openFileNameW = calloc<OPENFILENAMEW>();
 
     openFileNameW.ref.lStructSize = sizeOf<OPENFILENAMEW>();
     openFileNameW.ref.lpstrTitle = (args.dialogTitle ?? 'Select File')
         .toNativeUtf16();
-    openFileNameW.ref.lpstrFile = calloc.allocate<Utf16>(lpstrFileBufferSize);
+    openFileNameW.ref.lpstrFile = calloc.allocate<Utf16>(_lpstrFileBufferSize);
     openFileNameW.ref.lpstrFilter = fileTypeToFileFilter(
       args.type,
       args.allowedExtensions,
     ).toNativeUtf16();
-    openFileNameW.ref.nMaxFile = lpstrFileBufferSize;
+    openFileNameW.ref.nMaxFile = _lpstrFileBufferSize;
     openFileNameW.ref.lpstrInitialDir = (args.initialDirectory ?? '')
         .toNativeUtf16();
     openFileNameW.ref.flags =
