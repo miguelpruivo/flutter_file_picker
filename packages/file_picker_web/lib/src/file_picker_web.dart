@@ -17,10 +17,10 @@ import 'web_platform_file.dart';
 /// to provide single and multiple file picking, as well as file saving capabilities
 /// in browser environments.
 class FilePickerWeb extends FilePickerPlatform {
-  late Element _target;
-  final String _kFilePickerInputsDomId = '__file_picker_web-file-input';
+  static const String _kFilePickerInputsDomId = '__file_picker_web-file-input';
+  static const int _readStreamChunkSize = 1000 * 1000; // 1 MB
 
-  final int _readStreamChunkSize = 1000 * 1000; // 1 MB
+  late Element _target;
 
   FilePickerWeb._() {
     _target = _ensureInitialized(_kFilePickerInputsDomId);
