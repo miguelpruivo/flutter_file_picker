@@ -6,6 +6,19 @@ import 'package:meta/meta.dart';
 /// Arguments passed to background isolates for open and save file dialogs.
 @internal
 class OpenSaveFileArgs {
+  OpenSaveFileArgs({
+    required this.port,
+    this.defaultFileName,
+    this.dialogTitle,
+    this.initialDirectory,
+    this.type = FileType.any,
+    this.allowedExtensions,
+    this.allowMultiple = false,
+    this.lockParentWindow = false,
+    this.confirmOverwrite = false,
+    this.parentWindowHandle,
+  });
+
   /// SendPort used to reply to the main isolate.
   final SendPort port;
 
@@ -35,17 +48,4 @@ class OpenSaveFileArgs {
 
   /// The HWND handle of the parent window.
   final int? parentWindowHandle;
-
-  OpenSaveFileArgs({
-    required this.port,
-    this.defaultFileName,
-    this.dialogTitle,
-    this.initialDirectory,
-    this.type = FileType.any,
-    this.allowedExtensions,
-    this.allowMultiple = false,
-    this.lockParentWindow = false,
-    this.confirmOverwrite = false,
-    this.parentWindowHandle,
-  });
 }
