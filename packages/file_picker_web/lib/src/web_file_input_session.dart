@@ -17,6 +17,7 @@ class WebFileInputSession {
   WebFileInputSession({
     required this.target,
     required this.accept,
+    required this.allowMultiple,
     required this.webOptions,
     required this.onFileLoading,
     required this.processFiles,
@@ -27,6 +28,9 @@ class WebFileInputSession {
 
   /// The HTML `accept` attribute string filtering allowed file extensions/MIME types.
   final String accept;
+
+  /// Whether multiple files can be selected.
+  final bool allowMultiple;
 
   /// Web-specific configuration options.
   final FilePickerWebOptions webOptions;
@@ -46,7 +50,7 @@ class WebFileInputSession {
     final uploadInput = HTMLInputElement()
       ..type = 'file'
       ..draggable = true
-      ..multiple = webOptions.allowMultiple
+      ..multiple = allowMultiple
       ..accept = accept
       ..style.display = 'none';
 

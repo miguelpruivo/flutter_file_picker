@@ -3,19 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('FilePickerWebOptions initializes with default properties', () {
-    const options = FilePickerWebOptions(allowMultiple: true, withData: true);
-    expect(options.allowMultiple, isTrue);
-    expect(options.withData, isTrue);
-    expect(options.withReadStream, isFalse);
+    const options = FilePickerWebOptions(
+      withData: false,
+      withReadStream: true,
+    );
+    expect(options.withData, isFalse);
+    expect(options.withReadStream, isTrue);
     expect(options.readSequential, isFalse);
     expect(options.cancelUploadOnWindowBlur, isTrue);
-  });
-
-  test('FilePickerWebOptions copyWith works correctly', () {
-    const options = FilePickerWebOptions();
-    final updated = options.copyWith(allowMultiple: true, withReadStream: true);
-    expect(updated.allowMultiple, isTrue);
-    expect(updated.withReadStream, isTrue);
-    expect(updated.withData, isTrue);
   });
 }

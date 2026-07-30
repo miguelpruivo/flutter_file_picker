@@ -73,21 +73,12 @@ class FilePickerWeb extends FilePickerPlatform {
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) async {
-    final effectiveWebOptions = webOptions is FilePickerWebOptions
-        ? webOptions.copyWith(allowMultiple: false)
-        : const FilePickerWebOptions(allowMultiple: false);
-
-    final files = await pickFiles(
-      dialogTitle: dialogTitle,
-      initialDirectory: initialDirectory,
+    final files = await _pickFiles(
       type: type,
       allowedExtensions: allowedExtensions,
       onFileLoading: onFileLoading,
-      compressionQuality: compressionQuality,
-      androidOptions: androidOptions,
-      windowsOptions: windowsOptions,
-      linuxOptions: linuxOptions,
-      webOptions: effectiveWebOptions,
+      webOptions: webOptions,
+      allowMultiple: false,
     );
     return files.firstOrNull;
   }
@@ -109,6 +100,22 @@ class FilePickerWeb extends FilePickerPlatform {
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
+  }) {
+    return _pickFiles(
+      type: type,
+      allowedExtensions: allowedExtensions,
+      onFileLoading: onFileLoading,
+      webOptions: webOptions,
+      allowMultiple: true,
+    );
+  }
+
+  Future<List<PlatformFile>> _pickFiles({
+    required FileType type,
+    required List<String>? allowedExtensions,
+    required Function(FilePickerStatus)? onFileLoading,
+    required WebOptions webOptions,
+    required bool allowMultiple,
   }) async {
     if (type == FileType.custom &&
         (allowedExtensions == null || allowedExtensions.isEmpty)) {
@@ -119,12 +126,13 @@ class FilePickerWeb extends FilePickerPlatform {
 
     final FilePickerWebOptions effectiveWebOptions =
         webOptions is FilePickerWebOptions
-        ? webOptions
-        : const FilePickerWebOptions();
+            ? webOptions
+            : const FilePickerWebOptions();
 
     final session = WebFileInputSession(
       target: _target,
       accept: _fileType(type, allowedExtensions),
+      allowMultiple: allowMultiple,
       webOptions: effectiveWebOptions,
       onFileLoading: onFileLoading,
       processFiles: _processSelectedFiles,

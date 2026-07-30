@@ -1,17 +1,14 @@
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 
-/// Web-specific options for the file picker.
-class FilePickerWebOptions extends WebOptions {
-  /// Whether to allow picking multiple files.
-  final bool allowMultiple;
-
-  /// Whether to load the file bytes into memory.
+/// Configuration options specific to the Web platform.
+final class FilePickerWebOptions extends WebOptions {
+  /// Whether to return bytes (`PlatformFile.bytes`) in memory upon file picking.
   final bool withData;
 
-  /// Whether to create a read stream for picked files.
+  /// Whether to create a read stream (`PlatformFile.readStream`) for each picked file.
   final bool withReadStream;
 
-  /// Whether to read files sequentially.
+  /// Whether to read multiple files sequentially instead of in parallel.
   final bool readSequential;
 
   /// Whether to cancel upload when window loses focus.
@@ -19,48 +16,9 @@ class FilePickerWebOptions extends WebOptions {
 
   /// Creates an instance of [FilePickerWebOptions].
   const FilePickerWebOptions({
-    this.allowMultiple = false,
     this.withData = true,
     this.withReadStream = false,
     this.readSequential = false,
     this.cancelUploadOnWindowBlur = true,
   });
-
-  /// Creates a copy of this [FilePickerWebOptions] with the given fields replaced.
-  FilePickerWebOptions copyWith({
-    bool? allowMultiple,
-    bool? withData,
-    bool? withReadStream,
-    bool? readSequential,
-    bool? cancelUploadOnWindowBlur,
-  }) {
-    return FilePickerWebOptions(
-      allowMultiple: allowMultiple ?? this.allowMultiple,
-      withData: withData ?? this.withData,
-      withReadStream: withReadStream ?? this.withReadStream,
-      readSequential: readSequential ?? this.readSequential,
-      cancelUploadOnWindowBlur:
-          cancelUploadOnWindowBlur ?? this.cancelUploadOnWindowBlur,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is FilePickerWebOptions &&
-        other.allowMultiple == allowMultiple &&
-        other.withData == withData &&
-        other.withReadStream == withReadStream &&
-        other.readSequential == readSequential &&
-        other.cancelUploadOnWindowBlur == cancelUploadOnWindowBlur;
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    allowMultiple,
-    withData,
-    withReadStream,
-    readSequential,
-    cancelUploadOnWindowBlur,
-  );
 }
