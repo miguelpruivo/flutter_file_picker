@@ -282,6 +282,25 @@ class FilePickerWindows extends FilePickerPlatform {
     return returnValue;
   }
 
+  /// Filter string for any file type.
+  static const _anyFilter = 'All Files (*.*)\x00*.*\x00\x00';
+
+  /// Filter string for audio file types.
+  static const _audioFilter =
+      'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav,*.m4a)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav;*.m4a\x00\x00';
+
+  /// Filter string for image file types.
+  static const _imageFilter =
+      'Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png,*.webp)\x00*.bmp;*.gif;*.jpeg;*.jpg;*.png;*.webp\x00\x00';
+
+  /// Filter string for media (video and image) file types.
+  static const _mediaFilter =
+      'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)\x00*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv\x00Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png)\x00*.bmp;*.gif;*.jpeg;*.jpg;*.png\x00\x00';
+
+  /// Filter string for video file types.
+  static const _videoFilter =
+      'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)\x00*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv\x00\x00';
+
   String fileTypeToFileFilter(FileType type, List<String>? allowedExtensions) {
     if (type == FileType.custom &&
         (allowedExtensions == null || allowedExtensions.isEmpty)) {
@@ -291,17 +310,17 @@ class FilePickerWindows extends FilePickerPlatform {
     }
     switch (type) {
       case FileType.any:
-        return 'All Files (*.*)\x00*.*\x00\x00';
+        return _anyFilter;
       case FileType.audio:
-        return 'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav,*.m4a)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav;*.m4a\x00\x00';
+        return _audioFilter;
       case FileType.custom:
         return 'Files (*.${allowedExtensions!.join(',*.')})\x00*.${allowedExtensions.join(';*.')}\x00\x00';
       case FileType.image:
-        return 'Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png,*.webp)\x00*.bmp;*.gif;*.jpeg;*.jpg;*.png;*.webp\x00\x00';
+        return _imageFilter;
       case FileType.media:
-        return 'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)\x00*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv\x00Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png)\x00*.bmp;*.gif;*.jpeg;*.jpg;*.png\x00\x00';
+        return _mediaFilter;
       case FileType.video:
-        return 'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)\x00*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv\x00\x00';
+        return _videoFilter;
     }
   }
 
