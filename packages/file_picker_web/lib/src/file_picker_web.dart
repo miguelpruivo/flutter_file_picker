@@ -43,15 +43,6 @@ class FilePickerWeb extends FilePickerPlatform {
     return target;
   }
 
-  /// Clears all child elements from the target DOM container.
-  void _clearTargetChildren() {
-    Node? firstChild = _target.firstChild;
-    while (firstChild != null) {
-      _target.removeChild(firstChild);
-      firstChild = _target.firstChild;
-    }
-  }
-
   /// Directory picking is not supported on web platforms.
   ///
   /// Always throws an [UnimplementedError].
@@ -123,60 +114,15 @@ class FilePickerWeb extends FilePickerPlatform {
       );
     }
 
-    final Completer<List<PlatformFile>?> filesCompleter =
-        Completer<List<PlatformFile>?>();
+    final session = _WebFileInputSession(
+      target: _target,
+      accept: _fileType(type, allowedExtensions),
+      webOptions: webOptions,
+      onFileLoading: onFileLoading,
+      processFiles: _processSelectedFiles,
+    );
 
-    final uploadInput = HTMLInputElement()
-      ..type = 'file'
-      ..draggable = true
-      ..multiple = webOptions.allowMultiple
-      ..accept = _fileType(type, allowedExtensions)
-      ..style.display = 'none';
-
-    bool changeEventTriggered = false;
-
-    if (onFileLoading != null) {
-      onFileLoading(FilePickerStatus.picking);
-    }
-
-    void handleFileSelection(Event _) async {
-      if (changeEventTriggered) return;
-      changeEventTriggered = true;
-
-      final files = uploadInput.files!;
-      final pickedFiles = await _processSelectedFiles(files, webOptions);
-
-      if (onFileLoading != null) {
-        onFileLoading(FilePickerStatus.done);
-      }
-      filesCompleter.complete(pickedFiles);
-    }
-
-    void handleCancel(Event _) {
-      window.removeEventListener('focus', handleCancel.toJS);
-
-      Future.delayed(const Duration(seconds: 1)).then((_) {
-        if (!changeEventTriggered) {
-          changeEventTriggered = true;
-          filesCompleter.complete(null);
-        }
-      });
-    }
-
-    uploadInput.onChange.listen(handleFileSelection);
-    uploadInput.addEventListener('change', handleFileSelection.toJS);
-    uploadInput.addEventListener('cancel', handleCancel.toJS);
-
-    if (webOptions.cancelUploadOnWindowBlur) {
-      window.addEventListener('focus', handleCancel.toJS);
-    }
-
-    _clearTargetChildren();
-    _target.children.add(uploadInput);
-    uploadInput.click();
-    _clearTargetChildren();
-
-    final List<PlatformFile>? files = await filesCompleter.future;
+    final List<PlatformFile>? files = await session.start();
     return files ?? <PlatformFile>[];
   }
 
@@ -349,6 +295,93 @@ class FilePickerWeb extends FilePickerPlatform {
         yield (readerResult as JSArray).toDart.cast<int>();
         start += _readStreamChunkSize;
       }
+    }
+  }
+}
+
+/// Helper class managing the life cycle of an HTML file input session.
+class _WebFileInputSession {
+  _WebFileInputSession({
+    required this.target,
+    required this.accept,
+    required this.webOptions,
+    required this.onFileLoading,
+    required this.processFiles,
+  });
+
+  final Element target;
+  final String accept;
+  final WebOptions webOptions;
+  final Function(FilePickerStatus)? onFileLoading;
+  final Future<List<PlatformFile>> Function(FileList, WebOptions) processFiles;
+
+  final Completer<List<PlatformFile>?> _completer = Completer();
+  bool _eventTriggered = false;
+
+  /// Starts the file picker input interaction and returns a list of picked files or `null`.
+  Future<List<PlatformFile>?> start() async {
+    final uploadInput = HTMLInputElement()
+      ..type = 'file'
+      ..draggable = true
+      ..multiple = webOptions.allowMultiple
+      ..accept = accept
+      ..style.display = 'none';
+
+    if (onFileLoading != null) {
+      onFileLoading!(FilePickerStatus.picking);
+    }
+
+    uploadInput.onChange.listen(_onFileSelection);
+    uploadInput.addEventListener('change', _onFileSelection.toJS);
+    uploadInput.addEventListener('cancel', _onCancel.toJS);
+
+    if (webOptions.cancelUploadOnWindowBlur) {
+      window.addEventListener('focus', _onCancel.toJS);
+    }
+
+    _clearTargetChildren();
+    target.children.add(uploadInput);
+    uploadInput.click();
+    _clearTargetChildren();
+
+    return _completer.future;
+  }
+
+  void _onFileSelection(Event e) async {
+    if (_eventTriggered) return;
+    _eventTriggered = true;
+
+    final targetInput = e.target as HTMLInputElement?;
+    final files = targetInput?.files;
+    if (files == null) {
+      _completer.complete(null);
+      return;
+    }
+
+    final pickedFiles = await processFiles(files, webOptions);
+
+    if (onFileLoading != null) {
+      onFileLoading!(FilePickerStatus.done);
+    }
+    _completer.complete(pickedFiles);
+  }
+
+  void _onCancel(Event _) {
+    window.removeEventListener('focus', _onCancel.toJS);
+
+    Future.delayed(const Duration(seconds: 1)).then((_) {
+      if (!_eventTriggered) {
+        _eventTriggered = true;
+        _completer.complete(null);
+      }
+    });
+  }
+
+  void _clearTargetChildren() {
+    Node? firstChild = target.firstChild;
+    while (firstChild != null) {
+      target.removeChild(firstChild);
+      firstChild = target.firstChild;
     }
   }
 }
