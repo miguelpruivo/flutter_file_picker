@@ -18,20 +18,20 @@
 </p>
 
 # File Picker
-A package that allows you to use the native file explorer to pick single or multiple files, with extensions filtering support.
+A federated plugin that allows you to use the native file explorer to pick single or multiple files, with extensions filtering support.
 
 ## Currently supported features
 * Uses OS default native pickers
-* Supports multiple platforms (Mobile, Web, Desktop)
+* Supports multiple platforms (Mobile, Web, Desktop) via federated architecture
 * Supports **WebAssembly (Wasm)** compilation
-* Pick files using  **custom format** filtering — you can provide a list of file extensions (pdf, svg, zip, etc.)
+* Pick files using **custom format** filtering — you can provide a list of file extensions (pdf, svg, zip, etc.)
 * Pick files from **cloud files** (GDrive, Dropbox, iCloud)
 * Single or multiple file picks
-* Supports retrieving as XFile (cross_file) for easy manipulation with other libraries
+* Supports retrieving as `XFile` (`cross_file`) for easy manipulation with other libraries
 * Different default type filtering (media, image, video, audio or any)
 * Picking directories
 * Picking both files and directories simultaneously
-* Load file data immediately into memory (`Uint8List`) if needed; 
+* Read file content easily via `file.readAsBytes()` or stream via `file.readAsByteStream()`
 * Open a save-file / save-as dialog (a dialog that lets the user specify the drive, directory, and name of a file to save)
 
 If you have any feature that you want to see in this package, please feel free to issue a suggestion. 🎉
@@ -51,46 +51,38 @@ See the [API section of the File Picker Wiki](https://github.com/miguelpruivo/fl
 
 ### Darwin implementation notes
 
-The iOS and macOS native implementations now live under the shared Darwin source tree. The iOS implementation requires iOS 14.0 or newer because it uses `PHPickerViewController` and `PHPickerResult`.
+The iOS and macOS native implementations live under the shared Darwin source tree (`file_picker_darwin`). The iOS implementation requires iOS 14.0 or newer because it uses `PHPickerViewController` and `PHPickerResult`.
 
-The old iOS compile-time flags (`PICKER_MEDIA`, `PICKER_AUDIO`, `PICKER_DOCUMENT`) were part of the legacy Objective-C implementation and are no longer used in the Darwin source path.
+## Migrating to v12
 
+Version 12.0 transitions `file_picker` to a **federated plugin architecture**.
+
+### Key Breaking Changes & Migration Steps
+
+1. **`FilePicker.pickFiles()` Returns `List<PlatformFile>?`**:
+   - `FilePickerResult` has been removed in favor of direct lists of `PlatformFile`.
+   - **v11**: `FilePickerResult? result = await FilePicker.pickFiles();`
+   - **v12**: `List<PlatformFile>? files = await FilePicker.pickFiles();`
+
+2. **Single File Picking**:
+   - Use `FilePicker.pickFile()` to pick a single file returning `PlatformFile?`.
+
+3. **Reading Bytes and Streaming**:
+   - Instead of using `withData: true` or `withReadStream: true` flags, use `PlatformFile` methods directly:
+     - `Uint8List bytes = await file.readAsBytes();`
+     - `Stream<Uint8List> stream = file.readAsByteStream();`
+
+4. **Platform Options**:
+   - Platform-specific parameters are grouped into options objects:
+     - `AndroidOptions` / `FilePickerAndroidOptions`
+     - `WindowsOptions` / `FilePickerWindowsOptions`
+     - `LinuxOptions` / `FilePickerLinuxOptions`
+     - `WebOptions` / `FilePickerWebOptions`
 
 ## Documentation
-See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** for every detail on about how to install, setup and use it.
-
-### File Picker Wiki
-
-1. [Installation](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Installation)
-2. [Setup](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup)
-   * [Android](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup#android)
-   * [iOS](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/Setup#ios)
-   * [Web](https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#--web)
-   * [Desktop](https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#--desktop)
-3. [API](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/api)
-   * [Filters](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/API#filters)
-   * [Parameters](https://github.com/miguelpruivo/flutter_file_picker/wiki/API#parameters)
-   * [Methods](https://github.com/miguelpruivo/plugins_flutter_file_picker/wiki/API#methods)
-4. [FAQ](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
-5. [Troubleshooting](https://github.com/miguelpruivo/flutter_file_picker/wiki/Troubleshooting)
+See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** for details on installation, setup, and usage.
 
 ## Usage
-Quick simple usage example:
-
-### Memory usage recommendation
-When picking multiple or large files on mobile/desktop, avoid loading all bytes in memory (`withData: true`) as it can cause out of memory errors.
-
-Prefer `withReadStream: true` and keep `withData: false`:
-
-```dart
-FilePickerResult? result = await FilePicker.pickFiles(
-  allowMultiple: true,
-  withData: false,
-  withReadStream: true,
-);
-```
-
-You can still use `withData: true` for small files or single selections when immediate byte access is required.
 
 #### Single file
 ```dart
@@ -98,29 +90,33 @@ PlatformFile? file = await FilePicker.pickFile();
 
 if (file != null) {
   print(file.name);
-  print(file.size);
+  print(await file.length());
 } else {
   // User canceled the picker
 }
 ```
+
 #### Multiple files
 ```dart
-FilePickerResult? result = await FilePicker.pickFiles(allowMultiple: true);
+List<PlatformFile>? files = await FilePicker.pickFiles();
 
-if (result != null) {
-  List<File> files = result.paths.map((path) => File(path!)).toList();
+if (files != null) {
+  for (final file in files) {
+    print(file.name);
+  }
 } else {
   // User canceled the picker
 }
 ```
+
 #### Multiple files with extension filter
 ```dart
-FilePickerResult? result = await FilePicker.pickFiles(
-  allowMultiple: true,
+List<PlatformFile>? files = await FilePicker.pickFiles(
   type: FileType.custom,
   allowedExtensions: ['jpg', 'pdf', 'doc'],
 );
 ```
+
 #### Pick a directory
 ```dart
 String? selectedDirectory = await FilePicker.getDirectoryPath();
@@ -129,109 +125,16 @@ if (selectedDirectory == null) {
   // User canceled the picker
 }
 ```
+
 #### Save-file / save-as dialog
 ```dart
 String? outputFile = await FilePicker.saveFile(
   dialogTitle: 'Please select an output file:',
   fileName: 'output-file.pdf',
+  bytes: pdfBytes,
 );
 
 if (outputFile == null) {
   // User canceled the picker
 }
 ```
-
-### Platform Specific Options
-
-You can configure platform-specific behavior using dedicated configuration classes:
-
-#### Desktop Modal & Parent Window Locking (`LinuxOptions` & `WindowsOptions`)
-```dart
-FilePickerResult? result = await FilePicker.pickFiles(
-  linuxOptions: LinuxOptions(
-    lockParentWindow: true,
-    parentWindow: 'x11:0x3a00001', // Accepts 'x11:0x...', hex '0x...', raw decimal X11 window IDs ('60817409', converted to X11), or 'wayland:handle_123'
-  ),
-  windowsOptions: WindowsOptions(
-    lockParentWindow: true,
-    parentWindowHandle: 123456, // Win32 HWND as int
-  ),
-);
-```
-
-#### Web Options (`WebOptions`)
-```dart
-FilePickerResult? result = await FilePicker.pickFiles(
-  webOptions: WebOptions(
-    cancelUploadOnWindowBlur: false,
-  ),
-);
-```
-
-### Load result and file details
-```dart
-FilePickerResult? result = await FilePicker.pickFiles();
-
-if (result != null) {
-  PlatformFile file = result.files.first;
-
-  print(file.name);
-  print(file.bytes);
-  print(file.size);
-  print(file.extension);
-  print(file.path);
-} else {
-  // User canceled the picker
-}
-```
-### Retrieve all files as XFiles or individually
-```dart
-FilePickerResult? result = await FilePicker.pickFiles();
-
-if (result != null) {
-  // All files
-  List<XFile> xFiles = result.xFiles;
-
-  // Individually
-  XFile xFile = result.files.first.xFile;
-} else {
-  // User canceled the picker
-}
-```
-#### Pick and upload a file to Firebase Storage with Flutter Web
-```dart
-FilePickerResult? result = await FilePicker.pickFiles();
-
-if (result != null) {
-  Uint8List fileBytes = result.files.first.bytes;
-  String fileName = result.files.first.name;
-  
-  // Upload file
-  await FirebaseStorage.instance.ref('uploads/$fileName').putData(fileBytes);
-}
-```
-
-For full usage details refer to the **[Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** above.
-
-## Example App
-#### Android
-![DemoAndroid](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_android.gif?raw=true)
-
-#### iOS
-![DemoMultiFilters](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_ios.gif?raw=true)
-
-#### macOS
-![DemoMacOS](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_macos.gif?raw=true)
-
-#### Linux
-![DemoLinux](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_linux.gif?raw=true)
-
-#### Windows
-![DemoWindows](https://github.com/miguelpruivo/flutter_file_picker/blob/master/example/screenshots/example_windows.gif?raw=true)
-
-## Getting Started
-
-For help getting started with Flutter, view our online
-[documentation](https://flutter.dev).
-
-For help on editing plugin code, view the [documentation](https://flutter.dev/platform-plugins/#edit-code).
