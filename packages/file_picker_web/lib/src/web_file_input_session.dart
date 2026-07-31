@@ -7,6 +7,13 @@ import 'package:web/web.dart';
 
 import 'file_picker_web_options.dart';
 
+/// Callback delegate used to process and convert native [FileList] to [PlatformFile]s.
+typedef ProcessFilesCallback =
+    Future<List<PlatformFile>> Function(
+      FileList files,
+      FilePickerWebOptions options,
+    );
+
 /// Internal helper class managing the life cycle of an HTML file input session on the web.
 ///
 /// Encapsulates DOM element creation, event listening (`change`, `cancel`, `focus`),
@@ -39,8 +46,7 @@ class WebFileInputSession {
   final Function(FilePickerStatus)? onFileLoading;
 
   /// Callback delegate used to process and convert the native [FileList] to [PlatformFile]s.
-  final Future<List<PlatformFile>> Function(FileList, FilePickerWebOptions)
-  processFiles;
+  final ProcessFilesCallback processFiles;
 
   final Completer<List<PlatformFile>?> _completer = Completer();
   bool _eventTriggered = false;
