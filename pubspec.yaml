@@ -12,6 +12,7 @@ workspace:
   - packages/file_picker_linux
   - packages/file_picker_windows
   - packages/file_picker_web
+  - example
 
 melos:
   packages:
@@ -29,23 +30,21 @@ melos:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_web_plugins:
-    sdk: flutter
 
-  flutter_plugin_android_lifecycle: ^2.0.34
-  plugin_platform_interface: ^2.1.8
-  ffi: ^2.2.0
-  path: ^1.9.1
-  win32: ^6.3.0
-  cross_file: ^0.3.5+2
-  web: ^1.1.1
-  dbus: ^0.7.12
+  file_picker_platform_interface: ^1.0.0
+  file_picker_android: ^1.0.0
+  file_picker_darwin: ^1.0.0
+  file_picker_linux: ^1.0.0
+  file_picker_windows: ^1.0.0
+  file_picker_web: ^1.0.0
+  cross_file: ^0.3.5+4
 
 dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
   melos: ^8.2.2
+  plugin_platform_interface: ^2.1.8
 
 environment:
   sdk: ">=3.10.0 <4.0.0"
@@ -58,19 +57,14 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.mr.flutter.plugin.filepicker
-        pluginClass: FilePickerPlugin
+        default_package: file_picker_android
       ios:
-        pluginClass: FilePickerPlugin
-        sharedDarwinSource: true
-      web:
-        pluginClass: FilePickerWeb
-        fileName: src/platform/web/file_picker_web.dart
+        default_package: file_picker_darwin
       macos:
-        pluginClass: FilePickerPlugin
-        sharedDarwinSource: true
-        dartPluginClass: FilePickerMacOS
+        default_package: file_picker_darwin
       windows:
-        dartPluginClass: FilePickerWindows
+        default_package: file_picker_windows
       linux:
-        dartPluginClass: FilePickerLinux
+        default_package: file_picker_linux
+      web:
+        default_package: file_picker_web

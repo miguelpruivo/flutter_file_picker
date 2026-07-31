@@ -36,6 +36,10 @@ base class WebPlatformFile extends PlatformFile {
   @override
   final Uri uri;
 
+  /// The local file path is always `null` in web environments.
+  @override
+  String? get path => null;
+
   final XFile? _xFile;
   final int? _bytesLength;
   final Uint8List? _bytes;

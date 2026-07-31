@@ -1,6 +1,8 @@
 name: file_picker_example
 description: An example of how to use the file_picker plugin.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
+
+resolution: workspace
 
 environment:
   sdk: ">=3.10.0 <4.0.0"
@@ -18,7 +20,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true

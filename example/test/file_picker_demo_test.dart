@@ -16,6 +16,7 @@ void main() {
   ) async {
     await tester.pumpWidget(const FilePickerDemo());
 
+    await tester.ensureVisible(findMultiPickSwitchTile());
     await tester.tap(findMultiPickSwitchTile());
     await tester.pumpAndSettle();
 
@@ -38,9 +39,11 @@ void main() {
   testWidgets('disabling multi-pick enables save file again', (tester) async {
     await tester.pumpWidget(const FilePickerDemo());
 
+    await tester.ensureVisible(findMultiPickSwitchTile());
     await tester.tap(findMultiPickSwitchTile());
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(findMultiPickSwitchTile());
     await tester.tap(findMultiPickSwitchTile());
     await tester.pumpAndSettle();
 

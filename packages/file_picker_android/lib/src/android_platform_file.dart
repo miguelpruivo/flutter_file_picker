@@ -44,6 +44,9 @@ base class AndroidPlatformFile extends PlatformFile {
   @override
   final Uri uri;
 
+  @override
+  String? get path => uri.scheme == 'file' ? uri.toFilePath() : null;
+
   /// The handle to the Storage Access Framework URI, if applicable.
   final AndroidSAFHandle? safHandle;
 

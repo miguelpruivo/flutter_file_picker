@@ -113,11 +113,11 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           allowedExtensions: _allowedExtensionsFromInput(),
           dialogTitle: _dialogTitleController.text,
           initialDirectory: _initialDirectoryController.text,
-          windowsOptions: WindowsOptions(
+          windowsOptions: FilePickerWindowsOptions(
             lockParentWindow: _lockParentWindow,
             parentWindowHandle: _customWindowsHwnd,
           ),
-          linuxOptions: LinuxOptions(
+          linuxOptions: FilePickerLinuxOptions(
             lockParentWindow: _lockParentWindow,
             parentWindow: _customParentWindow,
           ),
@@ -133,11 +133,11 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           allowedExtensions: _allowedExtensionsFromInput(),
           dialogTitle: _dialogTitleController.text,
           initialDirectory: _initialDirectoryController.text,
-          windowsOptions: WindowsOptions(
+          windowsOptions: FilePickerWindowsOptions(
             lockParentWindow: _lockParentWindow,
             parentWindowHandle: _customWindowsHwnd,
           ),
-          linuxOptions: LinuxOptions(
+          linuxOptions: FilePickerLinuxOptions(
             lockParentWindow: _lockParentWindow,
             parentWindow: _customParentWindow,
           ),
@@ -163,7 +163,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           pickedFiles: pickedFiles,
           onRemoveAndroidFile:
               (int index, AndroidPlatformFile androidPlatformFile) {
-                androidPlatformFile.safHandle.releaseGrant();
+                androidPlatformFile.safHandle?.releaseGrant();
                 _scaffoldMessengerKey.currentState?.showSnackBar(
                   const SnackBar(content: Text("SAF Permission Released!")),
                 );
@@ -261,11 +261,11 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       pickedDirectoryPath = await FilePicker.getDirectoryPath(
         dialogTitle: _dialogTitleController.text,
         initialDirectory: _initialDirectoryController.text,
-        windowsOptions: WindowsOptions(
+        windowsOptions: FilePickerWindowsOptions(
           lockParentWindow: _lockParentWindow,
           parentWindowHandle: _customWindowsHwnd,
         ),
-        linuxOptions: LinuxOptions(
+        linuxOptions: FilePickerLinuxOptions(
           lockParentWindow: _lockParentWindow,
           parentWindow: _customParentWindow,
         ),
@@ -343,11 +343,11 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         dialogTitle: _dialogTitleController.text,
         fileName: targetFileName,
         initialDirectory: _initialDirectoryController.text,
-        windowsOptions: WindowsOptions(
+        windowsOptions: FilePickerWindowsOptions(
           lockParentWindow: _lockParentWindow,
           parentWindowHandle: _customWindowsHwnd,
         ),
-        linuxOptions: LinuxOptions(
+        linuxOptions: FilePickerLinuxOptions(
           lockParentWindow: _lockParentWindow,
           parentWindow: _customParentWindow,
         ),

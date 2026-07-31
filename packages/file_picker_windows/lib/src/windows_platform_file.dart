@@ -32,6 +32,9 @@ base class WindowsPlatformFile extends PlatformFile {
   @override
   final Uri uri;
 
+  @override
+  String? get path => uri.scheme == 'file' ? uri.toFilePath() : null;
+
   final XFile? _xFile;
   final int? _bytesLength;
 

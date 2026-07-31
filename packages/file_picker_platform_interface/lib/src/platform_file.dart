@@ -1,6 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:cross_file/cross_file.dart';
+import 'package:flutter/foundation.dart';
 
 /// The abstract representation of a picked file on the current platform.
 ///
@@ -14,6 +13,9 @@ abstract base class PlatformFile {
   ///
   /// Depending on the platform, this may point to a local file, a blob, a data URI, or a network resource.
   Uri get uri;
+
+  /// The local file path of the underlying file, or `null` if the file is not on the local file system (e.g., on Web or content URIs).
+  String? get path;
 
   /// Get this file as an [XFile].
   XFile get xFile;
