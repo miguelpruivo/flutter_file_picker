@@ -48,7 +48,7 @@ object FileUtils {
     private const val CSV_MIME_TYPE = "text/csv"
     // Fallback MIME type used when neither the file name extension nor
     // content sniffing can determine a type, matching the value used by
-    // most content-detection libraries (and previously Apache Tika) for
+    // most content-detection libraries for
     // unrecognized binary content.
     private const val DEFAULT_MIME_TYPE = "application/octet-stream"
     // Maximum dimension (width or height) allowed when decoding an image for
@@ -332,7 +332,7 @@ object FileUtils {
 
     // Sniffs [bytes] for a MIME type using URLConnection's built-in magic-number
     // detection. This is a best-effort fallback for when the file name has no
-    // usable extension, without pulling in a full content-detection dependency.
+    // usable extension.
     private fun guessMimeTypeFromBytes(bytes: ByteArray?): String? {
         if (bytes == null || bytes.isEmpty()) {
             return null
