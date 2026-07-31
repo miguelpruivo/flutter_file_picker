@@ -17,10 +17,8 @@ let package = Package(
         .target(
             name: "file_picker_darwin",
             dependencies: [],
-            path: ".",
-            sources: ["Classes"],
             resources: [
-                .process("Resources/PrivacyInfo.xcprivacy")
+                .process("Resources")
             ]
         )
     ]
