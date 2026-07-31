@@ -2,6 +2,7 @@
 
 import 'package:file/local.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:file_picker_android/file_picker_android.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -494,7 +495,18 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   AndroidOptions? _androidSafOptionsFromFlags() {
-    return (_safPersist || _safReadWrite) ? const AndroidOptions() : null;
+    return (_safPersist || _safReadWrite)
+        ? FilePickerAndroidOptions(
+            safOptions: AndroidSAFOptions(
+              grant: _safPersist
+                  ? AndroidSAFGrant.lifetime
+                  : AndroidSAFGrant.transient,
+              accessMode: _safReadWrite
+                  ? AndroidSAFAccessMode.readWrite
+                  : AndroidSAFAccessMode.readOnly,
+            ),
+          )
+        : null;
   }
 
   @override
