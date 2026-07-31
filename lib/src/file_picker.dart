@@ -22,7 +22,16 @@ abstract final class FilePicker {
     return androidOptions;
   }
 
-  /// Retrieves the file(s) from the underlying platform
+  /// Retrieves the file(s) from the underlying platform.
+  ///
+  /// Opens a native file explorer and lets the user select one or multiple files.
+  ///
+  /// The [type] parameter defines the type of files that can be selected (e.g. [FileType.image], [FileType.video], etc.).
+  /// The [allowedExtensions] parameter can be used to filter by specific file extensions when [type] is set to [FileType.custom].
+  /// The [onFileLoading] callback can be used to track picker status changes.
+  /// The [compressionQuality] parameter allows compressing picked images/videos on supported platforms (0-100).
+  ///
+  /// Returns a list of [PlatformFile] objects if files were selected, or `null` if the user canceled the operation.
   static Future<List<PlatformFile>?> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
@@ -78,6 +87,13 @@ abstract final class FilePicker {
   }
 
   /// Opens a native file explorer and lets the user select a single file.
+  ///
+  /// The [type] parameter defines the type of file that can be selected.
+  /// The [allowedExtensions] parameter can be used to filter by specific file extensions when [type] is set to [FileType.custom].
+  /// The [onFileLoading] callback can be used to track picker status changes.
+  /// The [compressionQuality] parameter allows compressing picked images/videos on supported platforms (0-100).
+  ///
+  /// Returns a [PlatformFile] object if a file was selected, or `null` if the user canceled the operation.
   static Future<PlatformFile?> pickFile({
     String? dialogTitle,
     String? initialDirectory,
@@ -134,12 +150,16 @@ abstract final class FilePicker {
   }
 
   /// Asks the underlying platform to remove any temporary files created by this plugin.
+  ///
+  /// Returns `true` if the operation was initiated on a supported platform.
   static Future<bool?> clearTemporaryFiles() async {
     await FilePickerPlatform.instance.clearTemporaryFiles();
     return true;
   }
 
   /// Selects a directory and returns its absolute path.
+  ///
+  /// Returns a [String] containing the selected directory path, or `null` if canceled.
   static Future<String?> getDirectoryPath({
     String? dialogTitle,
     @Deprecated(
@@ -165,6 +185,12 @@ abstract final class FilePicker {
 
   /// Opens a save file dialog to let the user select a location and a file name to
   /// save [bytes] to.
+  ///
+  /// The [fileName] parameter specifies the default file name for saving.
+  /// The [bytes] parameter contains the raw byte data to write.
+  /// The [mimeType] specifies the MIME type of the file.
+  ///
+  /// Returns the saved file path or URI string, or `null` if the user canceled the operation.
   static Future<String?> saveFile({
     String? dialogTitle,
     required String fileName,
