@@ -98,6 +98,10 @@
 ### Web
 - Fixed `pickFiles()` default `withData` behavior in the public API to correctly default to `true` on web when not explicitly provided. [#1987](https://github.com/miguelpruivo/flutter_file_picker/issues/1987)
 
+## 11.0.3
+### Android
+- Removed the Apache Tika dependency (~300 KB) used for MIME type detection in `saveFile()`. MIME types are now resolved from the file name extension via `MimeTypeMap`, with `URLConnection.guessContentTypeFromStream` as a content-sniffing fallback when no extension is available. [#2101](https://github.com/miguelpruivo/flutter_file_picker/issues/2101)
+
 ## 11.0.2
 ### Android
 - Fixed a Path Traversal vulnerability (CWE-22) when resolving file paths from external content providers. [#1967](https://github.com/miguelpruivo/flutter_file_picker/issues/1967)
