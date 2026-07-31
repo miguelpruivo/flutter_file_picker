@@ -118,7 +118,7 @@ abstract final class FilePicker {
   ///
   /// **Platform Support:** As of right now, this functionality is only
   /// supported on macOS.
-  static Future<List<String>?> pickFileAndDirectoryPaths({
+  static Future<List<String>> pickFileAndDirectoryPaths({
     String? dialogTitle,
     String? initialDirectory,
     FileType type = FileType.any,
