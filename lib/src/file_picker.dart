@@ -9,7 +9,7 @@ abstract final class FilePicker {
   /// Internal helper function to ease the transition and resolve backward compatibility
   /// between deprecated `androidSafOptions` and `androidOptions`.
   static AndroidOptions _resolveAndroidOptions(
-    dynamic androidSafOptions,
+   Object? androidSafOptions,
     AndroidOptions androidOptions,
   ) {
     if (androidSafOptions != null) {
