@@ -15,7 +15,6 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
-import io.flutter.embedding.engine.plugins.lifecycle.FlutterLifecycleAdapter
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.EventChannel.EventSink
@@ -221,7 +220,7 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
 
             // V2 embedding setup for activity listeners.
             activityBinding.addActivityResultListener(it)
-            this.lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding)
+            this.lifecycle = (activityBinding.activity as? LifecycleOwner)?.lifecycle
             observer?.let { it -> lifecycle?.addObserver(it) }
         }
     }
