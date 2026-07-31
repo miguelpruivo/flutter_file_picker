@@ -210,17 +210,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _resetState();
     _clearPickedFileBytes();
     try {
-      bool? result = await FilePicker.clearTemporaryFiles();
+      await FilePicker.clearTemporaryFiles();
       _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
       _scaffoldMessengerKey.currentState?.showSnackBar(
-        SnackBar(
-          content: Text(
-            (result!
-                ? 'Temporary files removed with success.'
-                : 'Failed to clean temporary files'),
-            style: const TextStyle(color: Colors.white),
-          ),
-        ),
+        const SnackBar(content: Text('Temporary files removed with success.')),
       );
     } on PlatformException catch (e) {
       _logException('Unsupported operation: $e');
