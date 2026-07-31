@@ -21,7 +21,7 @@ abstract final class FilePicker {
   }
 
   /// Retrieves the file(s) from the underlying platform
-  static Future<FilePickerResult?> pickFiles({
+  static Future<List<PlatformFile>?> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
     FileType type = FileType.any,
@@ -72,7 +72,7 @@ abstract final class FilePicker {
     );
 
     if (files.isEmpty) return null;
-    return FilePickerResult(files);
+    return files;
   }
 
   /// Opens a native file explorer and lets the user select a single file.
