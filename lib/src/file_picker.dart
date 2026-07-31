@@ -9,7 +9,7 @@ abstract final class FilePicker {
   /// Internal helper function to ease the transition and resolve backward compatibility
   /// between deprecated `androidSafOptions` and `androidOptions`.
   static AndroidOptions _resolveAndroidOptions(
-    dynamic androidSafOptions,
+    Object? androidSafOptions,
     AndroidOptions androidOptions,
   ) {
     if (androidSafOptions != null) {
@@ -152,9 +152,8 @@ abstract final class FilePicker {
   /// Asks the underlying platform to remove any temporary files created by this plugin.
   ///
   /// Returns `true` if the operation was initiated on a supported platform.
-  static Future<bool?> clearTemporaryFiles() async {
+  static Future<void> clearTemporaryFiles() async {
     await FilePickerPlatform.instance.clearTemporaryFiles();
-    return true;
   }
 
   /// Selects a directory and returns its absolute path.
