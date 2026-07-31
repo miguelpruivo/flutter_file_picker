@@ -165,7 +165,7 @@ abstract final class FilePicker {
 
   /// Opens a save file dialog to let the user select a location and a file name to
   /// save [bytes] to.
-  static Future<String?> saveFile({
+  static Future<Uri?> saveFile({
     String? dialogTitle,
     required String fileName,
     String? initialDirectory,
