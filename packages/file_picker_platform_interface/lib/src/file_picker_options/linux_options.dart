@@ -1,8 +1,7 @@
-/// The options for the Linux file picker.
-class LinuxOptions {
-  /// Creates an instance of [LinuxOptions].
-  const LinuxOptions({this.lockParentWindow = false});
+import 'desktop_window_options.dart';
 
-  /// Whether to lock the parent window when showing the file picker dialog.
-  final bool lockParentWindow;
+/// The options for the Linux file picker.
+class LinuxOptions extends DesktopWindowOptions {
+  /// Creates an instance of [LinuxOptions].
+  const LinuxOptions({super.lockParentWindow});
 }

@@ -1,8 +1,7 @@
-/// The options for the Windows file picker.
-class WindowsOptions {
-  /// Creates an instance of [WindowsOptions].
-  const WindowsOptions({this.lockParentWindow = false});
+import 'desktop_window_options.dart';
 
-  /// Whether to lock the parent window when showing the file picker dialog.
-  final bool lockParentWindow;
+/// The options for the Windows file picker.
+class WindowsOptions extends DesktopWindowOptions {
+  /// Creates an instance of [WindowsOptions].
+  const WindowsOptions({super.lockParentWindow});
 }
