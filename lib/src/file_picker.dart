@@ -134,7 +134,7 @@ abstract final class FilePicker {
   }
 
   /// Asks the underlying platform to remove any temporary files created by this plugin.
-  static Future<bool?> clearTemporaryFiles() async {
+  static Future<void> clearTemporaryFiles() async {
     await FilePickerPlatform.instance.clearTemporaryFiles();
     return true;
   }
