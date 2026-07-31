@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../tool/fetch_versions.dart';
+import '../fetch_versions.dart';
 
 void main() {
   test(
