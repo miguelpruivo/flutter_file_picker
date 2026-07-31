@@ -274,7 +274,7 @@ class FilePickerWeb extends FilePickerPlatform {
       ..click();
 
     URL.revokeObjectURL(url);
-    return Uri.parse(url);
+    return null;
   }
 
   /// Converts a [FileType] enum and [allowedExtensions] list into an HTML
