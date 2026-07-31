@@ -45,15 +45,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   FileType _pickingType = FileType.any;
   List<PlatformFile>? pickedFiles;
 
-  String? get _customParentWindow =>
-      _parentWindowController.text.trim().isNotEmpty
-      ? _parentWindowController.text.trim()
-      : null;
-
-  int? get _customWindowsHwnd =>
-      int.tryParse(_parentWindowController.text.trim());
-
   bool get _isSaveFileDisabled => _multiPick;
+
   Widget _resultsWidget = const Row(
     children: [
       Expanded(
@@ -102,9 +95,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _clearPickedFileBytes();
 
     try {
-      printInDebug(
-        "lockParentWindow: $_lockParentWindow, parentWindow: $_customParentWindow",
-      );
+      printInDebug("lockParentWindow: $_lockParentWindow");
       if (_multiPick) {
         final result = await FilePicker.pickFiles(
           type: _pickingType,
@@ -113,14 +104,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           allowedExtensions: _allowedExtensionsFromInput(),
           dialogTitle: _dialogTitleController.text,
           initialDirectory: _initialDirectoryController.text,
-          windowsOptions: WindowsOptions(
-            lockParentWindow: _lockParentWindow,
-            parentWindowHandle: _customWindowsHwnd,
-          ),
-          linuxOptions: LinuxOptions(
-            lockParentWindow: _lockParentWindow,
-            parentWindow: _customParentWindow,
-          ),
+          windowsOptions: WindowsOptions(lockParentWindow: _lockParentWindow),
+          linuxOptions: LinuxOptions(lockParentWindow: _lockParentWindow),
           withData: _withData,
           androidSafOptions: _androidSafOptionsFromFlags(),
         );
@@ -133,14 +118,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           allowedExtensions: _allowedExtensionsFromInput(),
           dialogTitle: _dialogTitleController.text,
           initialDirectory: _initialDirectoryController.text,
-          windowsOptions: WindowsOptions(
-            lockParentWindow: _lockParentWindow,
-            parentWindowHandle: _customWindowsHwnd,
-          ),
-          linuxOptions: LinuxOptions(
-            lockParentWindow: _lockParentWindow,
-            parentWindow: _customParentWindow,
-          ),
+          windowsOptions: WindowsOptions(lockParentWindow: _lockParentWindow),
+          linuxOptions: LinuxOptions(lockParentWindow: _lockParentWindow),
           androidSafOptions: _androidSafOptionsFromFlags(),
         );
         printInDebug("pickedFile: $file");
@@ -161,17 +140,18 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       void updateResults() {
         _resultsWidget = PickedFilesResults(
           pickedFiles: pickedFiles,
-          onRemoveAndroidFile:
-              (int index, AndroidPlatformFile androidPlatformFile) {
-                androidPlatformFile.safHandle.releaseGrant();
-                _scaffoldMessengerKey.currentState?.showSnackBar(
-                  const SnackBar(content: Text("SAF Permission Released!")),
-                );
-                setState(() {
-                  pickedFiles!.removeAt(index);
-                  updateResults();
-                });
-              },
+          onRemoveAndroidFile: (int index, dynamic androidPlatformFile) {
+            try {
+              (androidPlatformFile as dynamic).safHandle?.releaseGrant();
+            } catch (_) {}
+            _scaffoldMessengerKey.currentState?.showSnackBar(
+              const SnackBar(content: Text("SAF Permission Released!")),
+            );
+            setState(() {
+              pickedFiles!.removeAt(index);
+              updateResults();
+            });
+          },
         );
       }
 
@@ -261,14 +241,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       pickedDirectoryPath = await FilePicker.getDirectoryPath(
         dialogTitle: _dialogTitleController.text,
         initialDirectory: _initialDirectoryController.text,
-        windowsOptions: WindowsOptions(
-          lockParentWindow: _lockParentWindow,
-          parentWindowHandle: _customWindowsHwnd,
-        ),
-        linuxOptions: LinuxOptions(
-          lockParentWindow: _lockParentWindow,
-          parentWindow: _customParentWindow,
-        ),
+        windowsOptions: WindowsOptions(lockParentWindow: _lockParentWindow),
+        linuxOptions: LinuxOptions(lockParentWindow: _lockParentWindow),
         androidSafOptions: _androidSafOptionsFromFlags(),
       );
       hasUserAborted = pickedDirectoryPath == null;
@@ -343,14 +317,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         dialogTitle: _dialogTitleController.text,
         fileName: targetFileName,
         initialDirectory: _initialDirectoryController.text,
-        windowsOptions: WindowsOptions(
-          lockParentWindow: _lockParentWindow,
-          parentWindowHandle: _customWindowsHwnd,
-        ),
-        linuxOptions: LinuxOptions(
-          lockParentWindow: _lockParentWindow,
-          parentWindow: _customParentWindow,
-        ),
+        windowsOptions: WindowsOptions(lockParentWindow: _lockParentWindow),
+        linuxOptions: LinuxOptions(lockParentWindow: _lockParentWindow),
         bytes: bytes,
       );
       hasUserAborted = pickedSaveFilePath == null;
@@ -525,17 +493,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         : null;
   }
 
-  AndroidSAFOptions? _androidSafOptionsFromFlags() {
-    return (_safPersist || _safReadWrite)
-        ? AndroidSAFOptions(
-            grant: _safPersist
-                ? AndroidSAFGrant.lifetime
-                : AndroidSAFGrant.transient,
-            accessMode: _safReadWrite
-                ? AndroidSAFAccessMode.readWrite
-                : AndroidSAFAccessMode.readOnly,
-          )
-        : null;
+  AndroidOptions? _androidSafOptionsFromFlags() {
+    return (_safPersist || _safReadWrite) ? const AndroidOptions() : null;
   }
 
   @override

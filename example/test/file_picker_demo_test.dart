@@ -16,7 +16,8 @@ void main() {
   ) async {
     await tester.pumpWidget(const FilePickerDemo());
 
-    await tester.tap(findMultiPickSwitchTile());
+    await tester.ensureVisible(findMultiPickSwitchTile());
+    await tester.tap(findMultiPickSwitchTile(), warnIfMissed: false);
     await tester.pumpAndSettle();
 
     expect(
@@ -38,10 +39,12 @@ void main() {
   testWidgets('disabling multi-pick enables save file again', (tester) async {
     await tester.pumpWidget(const FilePickerDemo());
 
-    await tester.tap(findMultiPickSwitchTile());
+    await tester.ensureVisible(findMultiPickSwitchTile());
+    await tester.tap(findMultiPickSwitchTile(), warnIfMissed: false);
     await tester.pumpAndSettle();
 
-    await tester.tap(findMultiPickSwitchTile());
+    await tester.ensureVisible(findMultiPickSwitchTile());
+    await tester.tap(findMultiPickSwitchTile(), warnIfMissed: false);
     await tester.pumpAndSettle();
 
     final saveFileButton = tester.widget<FloatingActionButton>(

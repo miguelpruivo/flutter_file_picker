@@ -1,4 +1,5 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:file_picker_android/file_picker_android.dart';
 import 'package:flutter/material.dart';
 
 import 'file_picker_results.dart';
@@ -24,6 +25,7 @@ class PickedFilesResults extends StatelessWidget {
         final pickedFile = pickedFiles![index];
         final AndroidPlatformFile? androidPlatformFile =
             pickedFile is AndroidPlatformFile ? pickedFile : null;
+
         final Widget? trailingWidget = androidPlatformFile == null
             ? null
             : IconButton(

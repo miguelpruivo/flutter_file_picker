@@ -13,7 +13,6 @@ environment:
 flutter:
   plugin:
     implements: file_picker
-    dartPluginClass: FilePickerWindows
     platforms:
       windows:
         dartPluginClass: FilePickerWindows
