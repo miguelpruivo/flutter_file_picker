@@ -5,7 +5,7 @@ final class FilePickerWebOptions extends WebOptions {
   /// Whether to return bytes (`PlatformFile.bytes`) in memory upon file picking.
   final bool withData;
 
-  /// Whether to create a read stream (`PlatformFile.readStream`) for each picked file.
+  /// Whether to create a read stream for each picked file.
   final bool withReadStream;
 
   /// Whether to read multiple files sequentially instead of in parallel.
