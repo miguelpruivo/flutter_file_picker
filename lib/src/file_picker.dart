@@ -63,7 +63,7 @@ abstract final class FilePicker {
       'Use WebOptions.cancelUploadOnWindowBlur instead; this parameter will be removed in a future release.',
     )
     bool cancelUploadOnWindowBlur = true,
-    @Deprecated('Use androidOptions instead.') dynamic androidSafOptions,
+    @Deprecated('Use androidOptions instead.') Object? androidSafOptions,
     AndroidOptions androidOptions = const AndroidOptions(),
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
