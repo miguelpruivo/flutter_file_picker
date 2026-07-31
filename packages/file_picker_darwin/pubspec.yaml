@@ -13,13 +13,14 @@ environment:
 flutter:
   plugin:
     implements: file_picker
-    dartPluginClass: FilePickerDarwin
     platforms:
       ios:
         pluginClass: FilePickerPlugin
+        dartPluginClass: FilePickerDarwin
         sharedDarwinSource: true
       macos:
         pluginClass: FilePickerPlugin
+        dartPluginClass: FilePickerDarwin
         sharedDarwinSource: true
 
 dependencies:

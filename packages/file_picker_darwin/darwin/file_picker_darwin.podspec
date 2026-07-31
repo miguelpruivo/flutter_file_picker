@@ -13,9 +13,9 @@ iOS and macOS implementation of file_picker plugin
   s.license          = { :type => 'MIT', :file => '../LICENSE' }
   s.author           = 'Miguel Ruivo, Dominik Roszkowski'
   s.source           = { :path => '.' }
-  s.source_files     = 'Classes/**/*'
+  s.source_files     = 'file_picker_darwin/Sources/file_picker_darwin/**/*'
   s.resource_bundles = {
-    'file_picker_darwin_privacy' => ['Resources/PrivacyInfo.xcprivacy']
+    'file_picker_darwin_privacy' => ['file_picker_darwin/Resources/PrivacyInfo.xcprivacy']
   }
 
   s.ios.dependency 'Flutter'
