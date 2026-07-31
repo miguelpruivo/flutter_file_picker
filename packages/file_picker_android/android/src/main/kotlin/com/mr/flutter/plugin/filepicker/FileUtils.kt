@@ -22,18 +22,16 @@ import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.apache.tika.Tika
-import org.apache.tika.io.TikaInputStream
-import org.apache.tika.metadata.Metadata
-import org.apache.tika.metadata.TikaCoreProperties
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.net.URLConnection
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -48,6 +46,11 @@ object FileUtils {
     // (see https://android.googlesource.com/platform/frameworks/base/+/61ae88e/core/java/android/webkit/MimeTypeMap.java#439)
     private const val CSV_EXTENSION = "csv"
     private const val CSV_MIME_TYPE = "text/csv"
+    // Fallback MIME type used when neither the file name extension nor
+    // content sniffing can determine a type, matching the value used by
+    // most content-detection libraries for
+    // unrecognized binary content.
+    private const val DEFAULT_MIME_TYPE = "application/octet-stream"
     // Maximum dimension (width or height) allowed when decoding an image for
     // compression. Images larger than this are subsampled via
     // BitmapFactory.Options.inSampleSize to avoid excessive memory usage
@@ -303,28 +306,41 @@ object FileUtils {
     }
 
     fun getFileExtension(bytes: ByteArray?): String {
-        val tika = Tika()
-        val mimeType = tika.detect(bytes)
-        return mimeType.substringAfter("/")
+        val mimeType = guessMimeTypeFromBytes(bytes) ?: DEFAULT_MIME_TYPE
+        return MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+            ?: mimeType.substringAfter("/")
     }
 
     private fun getMimeTypeForBytes(fileName: String?, bytes: ByteArray?): String {
-        val tika = Tika()
-
-        val detectedType = if (fileName.isNullOrEmpty()) {
-            tika.detect(bytes)
-        } else {
-            val detector = tika.detector
-
-            val stream = TikaInputStream.get(bytes)
-            val metadata = Metadata()
-            metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileName)
-            detector.detect(stream, metadata).toString()
+        val extension = fileName?.substringAfterLast('.', "")
+        if (!extension.isNullOrEmpty()) {
+            if (extension.equals(CSV_EXTENSION, ignoreCase = true)) {
+                return CSV_MIME_TYPE
+            }
+            MimeTypeMap.getSingleton()
+                .getMimeTypeFromExtension(extension.lowercase(Locale.getDefault()))
+                ?.let { return it }
         }
-        return if (detectedType == "text/plain") {
+
+        val detectedType = guessMimeTypeFromBytes(bytes)
+        return if (detectedType == null || detectedType == "text/plain") {
             "*/*"
         } else {
             detectedType
+        }
+    }
+
+    // Sniffs [bytes] for a MIME type using URLConnection's built-in magic-number
+    // detection. This is a best-effort fallback for when the file name has no
+    // usable extension.
+    private fun guessMimeTypeFromBytes(bytes: ByteArray?): String? {
+        if (bytes == null || bytes.isEmpty()) {
+            return null
+        }
+        return try {
+            ByteArrayInputStream(bytes).use { URLConnection.guessContentTypeFromStream(it) }
+        } catch (e: IOException) {
+            null
         }
     }
 
