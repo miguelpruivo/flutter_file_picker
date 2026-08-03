@@ -59,10 +59,11 @@ Version 12.0 transitions `file_picker` to a **federated plugin architecture**.
 
 ### Key Breaking Changes & Migration Steps
 
-1. **`FilePicker.pickFiles()` Returns `List<PlatformFile>?`**:
+1. **`FilePicker.pickFiles()` Returns `List<PlatformFile>`**:
    - `FilePickerResult` has been removed in favor of direct lists of `PlatformFile`.
+   - Returns an empty list (`[]`) if the user canceled the operation.
    - **v11**: `FilePickerResult? result = await FilePicker.pickFiles();`
-   - **v12**: `List<PlatformFile>? files = await FilePicker.pickFiles();`
+   - **v12**: `List<PlatformFile> files = await FilePicker.pickFiles();`
 
 2. **Single File Picking**:
    - Use `FilePicker.pickFile()` to pick a single file returning `PlatformFile?`.
@@ -98,9 +99,9 @@ if (file != null) {
 
 #### Multiple files
 ```dart
-List<PlatformFile>? files = await FilePicker.pickFiles();
+List<PlatformFile> files = await FilePicker.pickFiles();
 
-if (files != null) {
+if (files.isNotEmpty) {
   for (final file in files) {
     print(file.name);
   }
@@ -111,7 +112,7 @@ if (files != null) {
 
 #### Multiple files with extension filter
 ```dart
-List<PlatformFile>? files = await FilePicker.pickFiles(
+List<PlatformFile> files = await FilePicker.pickFiles(
   type: FileType.custom,
   allowedExtensions: ['jpg', 'pdf', 'doc'],
 );

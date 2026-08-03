@@ -111,7 +111,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           androidSafOptions: _androidSafOptionsFromFlags(),
         );
         printInDebug("pickedFiles: $result");
-        pickedFiles = result;
+        pickedFiles = result.isEmpty ? null : result;
       } else {
         final file = await FilePicker.pickFile(
           type: _pickingType,

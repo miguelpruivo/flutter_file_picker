@@ -31,8 +31,8 @@ abstract final class FilePicker {
   /// The [onFileLoading] callback can be used to track picker status changes.
   /// The [compressionQuality] parameter allows compressing picked images/videos on supported platforms (0-100).
   ///
-  /// Returns a list of [PlatformFile] objects if files were selected, or `null` if the user canceled the operation.
-  static Future<List<PlatformFile>?> pickFiles({
+  /// Returns a list of [PlatformFile] objects containing the selected files, or an empty list if the user canceled the operation.
+  static Future<List<PlatformFile>> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
     FileType type = FileType.any,
@@ -68,8 +68,8 @@ abstract final class FilePicker {
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
-  }) async {
-    final files = await FilePickerPlatform.instance.pickFiles(
+  }) {
+    return FilePickerPlatform.instance.pickFiles(
       dialogTitle: dialogTitle,
       initialDirectory: initialDirectory,
       type: type,
@@ -81,9 +81,6 @@ abstract final class FilePicker {
       linuxOptions: linuxOptions,
       webOptions: webOptions,
     );
-
-    if (files.isEmpty) return null;
-    return files;
   }
 
   /// Opens a native file explorer and lets the user select a single file.
