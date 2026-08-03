@@ -93,7 +93,7 @@ jobs:
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze project source
-        run: melos run analyze
+        run: melos exec --concurrency=1 -- flutter analyze .
 
       - name: Run tests
         run: melos run test
