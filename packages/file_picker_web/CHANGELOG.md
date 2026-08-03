@@ -1,3 +1,3 @@
-## 1.0.0
+## 3.0.0
 
-* Initial release of federated `file_picker_web` package.
+* Unified Web platform release for federated `file_picker` architecture using `package:web` and `dart:js_interop`.

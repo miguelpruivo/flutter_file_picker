@@ -1,3 +1,3 @@
-## 1.0.0
+## 3.0.0
 
-* Initial release of `file_picker_platform_interface`.
+* Unified platform interface release for federated `file_picker` architecture.
