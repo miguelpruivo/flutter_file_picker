@@ -43,20 +43,17 @@ jobs:
 
       - run: flutter --version
 
-      - name: Install dependencies & Bootstrap
-        run: |
-          flutter pub get
-          dart run melos bootstrap
+      - uses: bluefireteam/melos-action@v3
 
       - name: Verify formatting
         if: matrix.flutter == 'stable'
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze project source
-        run: dart run melos run analyze
+        run: melos run analyze
 
       - name: Run tests
-        run: dart run melos run test
+        run: melos run test
 
   test_os_matrix:
     needs: test_flutter_versions
@@ -74,19 +71,16 @@ jobs:
 
       - run: flutter --version
 
-      - name: Install dependencies & Bootstrap
-        run: |
-          flutter pub get
-          dart run melos bootstrap
+      - uses: bluefireteam/melos-action@v3
 
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze project source
-        run: dart run melos run analyze
+        run: melos run analyze
 
       - name: Run tests
-        run: dart run melos run test
+        run: melos run test
 
       # Linux build (example app)
       - name: Install Linux desktop dependencies
