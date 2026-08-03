@@ -22,7 +22,7 @@ A federated plugin that allows you to use the native file explorer to pick singl
 
 ## Currently supported features
 * Uses OS default native pickers
-* Supports multiple platforms (Mobile, Web, Desktop) via federated architecture
+* Supports multiple platforms (Mobile, Web, Desktop)
 * Supports **WebAssembly (Wasm)** compilation
 * Pick files using **custom format** filtering — you can provide a list of file extensions (pdf, svg, zip, etc.)
 * Pick files from **cloud files** (GDrive, Dropbox, iCloud)
