@@ -7,6 +7,48 @@ on:
     branches: [ master ]
 
 jobs:
+  check_changes:
+    runs-on: ubuntu-latest
+    outputs:
+      darwin: ${{ steps.filter.outputs.darwin }}
+      linux: ${{ steps.filter.outputs.linux }}
+      windows: ${{ steps.filter.outputs.windows }}
+      web: ${{ steps.filter.outputs.web }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            darwin:
+              - 'packages/file_picker_darwin/**'
+              - 'packages/file_picker_platform_interface/**'
+              - 'lib/**'
+              - 'pubspec.yaml'
+              - 'example/**'
+              - '.github/workflows/**'
+            linux:
+              - 'packages/file_picker_linux/**'
+              - 'packages/file_picker_platform_interface/**'
+              - 'lib/**'
+              - 'pubspec.yaml'
+              - 'example/**'
+              - '.github/workflows/**'
+            windows:
+              - 'packages/file_picker_windows/**'
+              - 'packages/file_picker_platform_interface/**'
+              - 'lib/**'
+              - 'pubspec.yaml'
+              - 'example/**'
+              - '.github/workflows/**'
+            web:
+              - 'packages/file_picker_web/**'
+              - 'packages/file_picker_platform_interface/**'
+              - 'lib/**'
+              - 'pubspec.yaml'
+              - 'example/**'
+              - '.github/workflows/**'
+
   setup_flutter_versions:
     runs-on: ubuntu-latest
     outputs:
@@ -42,96 +84,87 @@ jobs:
           cache: true
 
       - run: flutter --version
+      - run: flutter precache
 
-      - name: Install dependencies & Bootstrap
-        run: |
-          flutter pub get
-          dart run melos bootstrap
+      - uses: bluefireteam/melos-action@v3
 
       - name: Verify formatting
         if: matrix.flutter == 'stable'
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze project source
-        run: dart run melos run analyze
+        run: melos exec --concurrency=1 -- flutter analyze .
 
       - name: Run tests
-        run: dart run melos run test
+        run: melos run test
 
-  test_os_matrix:
-    needs: test_flutter_versions
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
-    name: Tests & Builds on ${{ matrix.os }} (channel stable)
+  build_linux:
+    needs: [check_changes, test_flutter_versions]
+    if: ${{ needs.check_changes.outputs.linux == 'true' }}
+    runs-on: ubuntu-latest
+    name: Build Linux (example app)
     steps:
       - uses: actions/checkout@v6
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
-
       - run: flutter --version
-
-      - name: Install dependencies & Bootstrap
-        run: |
-          flutter pub get
-          dart run melos bootstrap
-
-      - name: Verify formatting
-        run: dart format --output=none --set-exit-if-changed .
-
-      - name: Analyze project source
-        run: dart run melos run analyze
-
-      - name: Run tests
-        run: dart run melos run test
-
-      # Linux build (example app)
       - name: Install Linux desktop dependencies
-        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libc++-dev libc++abi-dev
-
       - name: Enable Linux desktop
-        if: matrix.os == 'ubuntu-latest'
         run: flutter config --enable-linux-desktop
-
       - name: Build Linux example
-        if: matrix.os == 'ubuntu-latest'
         working-directory: example
         run: |
           flutter pub get
           flutter build linux
 
-      # Windows build (example app)
+  build_windows:
+    needs: [check_changes, test_flutter_versions]
+    if: ${{ needs.check_changes.outputs.windows == 'true' }}
+    runs-on: windows-latest
+    name: Build Windows (example app)
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter --version
       - name: Enable Windows desktop
-        if: matrix.os == 'windows-latest'
         run: flutter config --enable-windows-desktop
-
       - name: Build Windows example
-        if: matrix.os == 'windows-latest'
         working-directory: example
         run: |
           flutter pub get
           flutter build windows
 
-      # macOS build (example app)
+  build_macos:
+    needs: [check_changes, test_flutter_versions]
+    if: ${{ needs.check_changes.outputs.darwin == 'true' }}
+    runs-on: macos-latest
+    name: Build macOS (example app)
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter --version
       - name: Enable macOS desktop
-        if: matrix.os == 'macos-latest'
         run: flutter config --enable-macos-desktop
-
       - name: Build macOS example
-        if: matrix.os == 'macos-latest'
         working-directory: example
         run: |
           flutter pub get
           flutter build macos
 
   build_web:
-    needs: test_flutter_versions
+    needs: [check_changes, test_flutter_versions]
+    if: ${{ needs.check_changes.outputs.web == 'true' }}
     runs-on: ubuntu-latest
     name: Build Web (example app)
     steps:

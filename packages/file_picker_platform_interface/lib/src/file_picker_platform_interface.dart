@@ -29,20 +29,18 @@ abstract class FilePickerPlatform extends PlatformInterface {
 
   /// Pick a single file using the native file picker.
   ///
-  /// The [dialogTitle], if provided, will be used as title for the picker dialog.
-  /// The [initialDirectory], if provided, will be used as the path for the initial directory of the file picker.
+  /// The [dialogTitle], if provided, will be used as the title for the picker dialog.
+  /// The [initialDirectory], if provided, will be used as the initial directory path for the picker.
   /// The [type] parameter specifies the type of file to be picked and defaults to [FileType.any].
-  /// The [allowedExtensions] parameter, if provided,
-  /// will restrict the file picker to allow only files with the specified extensions,
-  /// and defaults to allowing all files.
-  /// The [onFileLoading] callback, if provided, will be called when the file picker is loading the selected file.
-  /// The [compressionQuality] parameter specifies the compression quality, in percent, to compress the picked file.
+  /// The [allowedExtensions] parameter, if provided, restricts selection to specified file extensions
+  /// when [type] is set to [FileType.custom].
+  /// The [onFileLoading] callback, if provided, is triggered when the picker changes status.
+  /// The [compressionQuality] parameter specifies image/video compression quality (0-100) on supported platforms.
   ///
-  /// The [androidOptions], [windowsOptions], [linuxOptions],
-  /// and [webOptions] parameters allow for platform-specific configurations when configuring the file picker.
-  /// See their respective classes for more details on the available options.
+  /// The [androidOptions], [windowsOptions], [linuxOptions], and [webOptions] parameters
+  /// allow platform-specific configurations for the file picker.
   ///
-  /// Returns the [PlatformFile] containing the selected file, or `null` if the user cancels the operation.
+  /// Returns a [PlatformFile] object containing the selected file, or `null` if the user canceled the operation.
   Future<PlatformFile?> pickFile({
     String? dialogTitle,
     String? initialDirectory,
@@ -60,21 +58,18 @@ abstract class FilePickerPlatform extends PlatformInterface {
 
   /// Pick multiple files using the native file picker.
   ///
-  /// The [dialogTitle], if provided, will be used as title for the picker dialog.
-  /// The [initialDirectory], if provided, will be used as the path for the initial directory of the file picker.
+  /// The [dialogTitle], if provided, will be used as the title for the picker dialog.
+  /// The [initialDirectory], if provided, will be used as the initial directory path for the picker.
   /// The [type] parameter specifies the type of files to be picked and defaults to [FileType.any].
-  /// The [allowedExtensions] parameter, if provided,
-  /// will restrict the file picker to allow only files with the specified extensions,
-  /// and defaults to allowing all files.
-  /// The [onFileLoading] callback, if provided, will be called when the file picker is loading the selected files.
-  /// The [compressionQuality] parameter specifies the compression quality, in percent, to compress the picked files.
+  /// The [allowedExtensions] parameter, if provided, restricts selection to specified file extensions
+  /// when [type] is set to [FileType.custom].
+  /// The [onFileLoading] callback, if provided, is triggered when the picker changes status.
+  /// The [compressionQuality] parameter specifies image/video compression quality (0-100) on supported platforms.
   ///
-  /// The [androidOptions], [windowsOptions], [linuxOptions],
-  /// and [webOptions] parameters allow for platform-specific configurations when configuring the file picker.
-  /// See their respective classes for more details on the available options.
+  /// The [androidOptions], [windowsOptions], [linuxOptions], and [webOptions] parameters
+  /// allow platform-specific configurations for the file picker.
   ///
-  /// Returns a list of [PlatformFile] containing the selected files, if any.
-  /// The list may be empty if the user cancels the operation.
+  /// Returns a list of [PlatformFile] objects containing the selected files, or an empty list if the user canceled the operation.
   Future<List<PlatformFile>> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
@@ -92,15 +87,13 @@ abstract class FilePickerPlatform extends PlatformInterface {
 
   /// Pick files and directories using the native file picker.
   ///
-  /// The [dialogTitle], if provided, will be used as title for the picker dialog.
-  /// The [initialDirectory], if provided, will be used as the path for the initial directory of the file picker.
+  /// The [dialogTitle], if provided, will be used as the title for the picker dialog.
+  /// The [initialDirectory], if provided, will be used as the initial directory path for the picker.
   /// The [type] parameter specifies the type of files to be picked and defaults to [FileType.any].
-  /// The [allowedExtensions] parameter, if provided,
-  /// will restrict the file picker to allow only files with the specified extensions,
-  /// and defaults to allowing all files.
+  /// The [allowedExtensions] parameter, if provided, restricts selection to specified file extensions
+  /// when [type] is set to [FileType.custom].
   ///
-  /// Returns a list of absolute paths for the selected files and directories, if any.
-  /// The resulting list will be empty if the user cancels the operation.
+  /// Returns a list of absolute paths for the selected files and directories, or an empty list if canceled.
   Future<List<String>> pickFileAndDirectoryPaths({
     String? dialogTitle,
     String? initialDirectory,
@@ -114,14 +107,13 @@ abstract class FilePickerPlatform extends PlatformInterface {
 
   /// Pick a single directory using the native file picker.
   ///
-  /// The [dialogTitle], if provided, will be used as title for the picker dialog.
-  /// The [initialDirectory], if provided, will be used as the path for the initial directory of the directory picker.
+  /// The [dialogTitle], if provided, will be used as the title for the directory picker dialog.
+  /// The [initialDirectory], if provided, will be used as the initial directory path for the directory picker.
   ///
-  /// The [androidOptions], [windowsOptions], [linuxOptions],
-  /// and [webOptions] parameters allow for platform-specific configurations when configuring the directory picker.
-  /// See their respective classes for more details on the available options.
+  /// The [androidOptions], [windowsOptions], [linuxOptions], and [webOptions] parameters
+  /// allow platform-specific configurations for the directory picker.
   ///
-  /// Returns the absolute path of the selected directory, or `null` if the user cancels the operation.
+  /// Returns the absolute path of the selected directory, or `null` if the user canceled the operation.
   Future<String?> getDirectoryPath({
     String? dialogTitle,
     String? initialDirectory,
@@ -140,17 +132,17 @@ abstract class FilePickerPlatform extends PlatformInterface {
 
   /// Save the given [bytes] to a file with the given [fileName], using the native save file dialog.
   ///
-  /// The [fileName] should include the file extension, e.g. `myFile.txt`.
-  /// The [mimeType] should be a valid MIME type for the file, e.g. `text/plain`.
-  /// The [dialogTitle], if provided, will be used as title for the save file dialog.
-  /// The [initialDirectory], if provided, will be used as the path for the initial directory of the save file dialog.
-  /// The [onFileSaving] callback, if provided, will be called when the save file dialog is saving the file.
+  /// The [fileName] parameter specifies the default file name for saving (e.g. `myFile.txt`).
+  /// The [bytes] parameter contains the raw byte data to write.
+  /// The [mimeType] parameter specifies the MIME type of the file (e.g. `application/pdf`).
+  /// The [dialogTitle], if provided, will be used as the title for the save file dialog.
+  /// The [initialDirectory], if provided, will be used as the initial directory path for the save file dialog.
+  /// The [onFileSaving] callback, if provided, is triggered when the save dialog changes status.
   ///
   /// The [windowsOptions], [linuxOptions], and [webOptions] parameters
-  /// allow for platform-specific configurations when configuring the save file dialog.
-  /// See their respective classes for more details on the available options.
+  /// allow platform-specific configurations for the save file dialog.
   ///
-  /// Returns the [Uri] of the saved file, or null if the user cancels the operation.
+  /// Returns the [Uri] of the saved file, or `null` if the user canceled the operation.
   /// Depending on the platform, the [Uri.scheme] may be `file`, `content`, `http(s)`, `data` or `blob`.
   Future<Uri?> saveFile({
     required String fileName,

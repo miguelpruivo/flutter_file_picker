@@ -129,7 +129,7 @@ if (selectedDirectory == null) {
 
 #### Save-file / save-as dialog
 ```dart
-String? outputFile = await FilePicker.saveFile(
+Uri? outputFile = await FilePicker.saveFile(
   dialogTitle: 'Please select an output file:',
   fileName: 'output-file.pdf',
   bytes: pdfBytes,
