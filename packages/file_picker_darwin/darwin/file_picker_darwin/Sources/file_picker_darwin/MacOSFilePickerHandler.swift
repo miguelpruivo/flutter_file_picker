@@ -37,6 +37,9 @@ final class MacOSFilePickerHandler {
         case "saveFile":
             handleSaveFile(call, result: result)
 
+        case "clear":
+            result(nil)
+
         case "skipEntitlementsChecks":
             skipEntitlementsChecks = true
             result(nil)

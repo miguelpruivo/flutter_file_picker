@@ -43,7 +43,8 @@ class FilePickerDarwin extends FilePickerPlatform {
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) async {
-    final files = await pickFiles(
+    final files = await _pickFilesInternal(
+      allowMultiple: false,
       dialogTitle: dialogTitle,
       initialDirectory: initialDirectory,
       type: type,
@@ -67,6 +68,26 @@ class FilePickerDarwin extends FilePickerPlatform {
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) async {
+    return _pickFilesInternal(
+      allowMultiple: true,
+      dialogTitle: dialogTitle,
+      initialDirectory: initialDirectory,
+      type: type,
+      allowedExtensions: allowedExtensions,
+      onFileLoading: onFileLoading,
+      compressionQuality: compressionQuality,
+    );
+  }
+
+  Future<List<PlatformFile>> _pickFilesInternal({
+    required bool allowMultiple,
+    String? dialogTitle,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Function(FilePickerStatus)? onFileLoading,
+    int compressionQuality = 0,
+  }) async {
     final String typeName = type.name;
 
     try {
@@ -83,9 +104,8 @@ class FilePickerDarwin extends FilePickerPlatform {
 
       final List<Map<Object?, Object?>>? result = await methodChannel
           .invokeListMethod<Map<Object?, Object?>>(typeName, {
-            'allowMultipleSelection': true,
+            'allowMultipleSelection': allowMultiple,
             'allowedExtensions': allowedExtensions,
-            'withData': false,
             'compressionQuality': compressionQuality,
           });
 
@@ -142,7 +162,7 @@ class FilePickerDarwin extends FilePickerPlatform {
 
   @override
   Future<void> clearTemporaryFiles() async {
-    await methodChannel.invokeMethod<bool>('clear');
+    await methodChannel.invokeMethod<void>('clear');
   }
 
   @override

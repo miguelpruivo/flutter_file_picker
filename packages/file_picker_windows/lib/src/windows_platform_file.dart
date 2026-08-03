@@ -16,6 +16,11 @@ base class WindowsPlatformFile extends PlatformFile {
        _bytesLength = bytesLength;
 
   factory WindowsPlatformFile.fromPath(String path, {Uint8List? bytes}) {
+    if (path.isEmpty) {
+      throw ArgumentError(
+        'path cannot be empty when creating WindowsPlatformFile',
+      );
+    }
     final uri = Uri.file(path, windows: true);
     final name = p.windows.basename(path);
     return WindowsPlatformFile(

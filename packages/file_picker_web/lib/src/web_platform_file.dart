@@ -26,7 +26,11 @@ base class WebPlatformFile extends PlatformFile {
   }) : _xFile = xFile,
        _bytesLength = bytesLength,
        _bytes = bytes,
-       _readStream = readStream;
+       _readStream = readStream {
+    if (name.isEmpty) {
+      throw ArgumentError('name cannot be empty');
+    }
+  }
 
   /// The name of the file including extension.
   @override
