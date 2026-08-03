@@ -18,7 +18,7 @@
 </p>
 
 # File Picker
-A federated plugin that allows you to use the native file explorer to pick single or multiple files, with extensions filtering support.
+A plugin that allows you to use the native file explorer to pick single or multiple files, with extensions filtering support.
 
 ## Currently supported features
 * Uses OS default native pickers
