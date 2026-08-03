@@ -74,7 +74,7 @@ Version 12.0 transitions `file_picker` to a **federated plugin architecture**.
      - `Stream<Uint8List> stream = file.readAsByteStream();`
 
 4. **Platform Options**:
-   - Platform-specific parameters are grouped into options objects:
+   - Platform-specific parameters are grouped into configuration options, with implementations per platform:
      - `AndroidOptions` / `FilePickerAndroidOptions`
      - `WindowsOptions` / `FilePickerWindowsOptions`
      - `LinuxOptions` / `FilePickerLinuxOptions`
