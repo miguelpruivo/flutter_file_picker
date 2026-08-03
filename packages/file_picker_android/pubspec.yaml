@@ -13,9 +13,11 @@ environment:
 flutter:
   plugin:
     implements: file_picker
-    pluginClass: FilePickerPlugin
-    package: com.mr.flutter.plugin.filepicker
-    dartPluginClass: FilePickerAndroid
+    platforms:
+      android:
+        package: com.mr.flutter.plugin.filepicker
+        pluginClass: FilePickerPlugin
+        dartPluginClass: FilePickerAndroid
 
 dependencies:
   flutter:

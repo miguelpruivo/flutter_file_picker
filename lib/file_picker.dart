@@ -1,19 +1,2 @@
-export 'src/api/file_picker_result.dart';
-export 'src/api/file_picker_types.dart';
-export 'src/api/platform_file.dart';
-export 'src/api/android_saf_options.dart';
-export 'src/api/android_saf_handle.dart';
-export 'src/api/exceptions.dart';
-export 'src/api/windows_options.dart';
-export 'src/api/linux_options.dart';
-export 'src/api/web_options.dart';
+export 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 export 'src/file_picker.dart';
-export 'src/platform/file_picker_platform_interface.dart';
-// Platform-specific implementations are exported only for plugin registration.
-// These exports are hidden on Web to avoid dart:ffi and dart:io compatibility issues.
-export 'src/platform/linux/file_picker_linux.dart'
-    if (dart.library.js_interop) 'src/platform/web/file_picker_web.dart';
-export 'src/platform/macos/file_picker_macos.dart'
-    if (dart.library.js_interop) 'src/platform/web/file_picker_web.dart';
-export 'src/platform/windows/file_picker_windows.dart'
-    if (dart.library.js_interop) 'src/platform/web/file_picker_web.dart';

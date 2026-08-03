@@ -1,76 +1,38 @@
 import 'dart:async';
 
+import 'package:file_picker_android/file_picker_android.dart';
+import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 import 'package:flutter/foundation.dart';
-import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
-import 'package:file_picker/src/api/file_picker_result.dart';
-import 'package:file_picker/src/api/platform_file.dart';
-import 'package:file_picker/src/api/file_picker_types.dart';
-import 'package:file_picker/src/api/android_saf_options.dart';
-import 'package:file_picker/src/api/windows_options.dart';
-import 'package:file_picker/src/api/linux_options.dart';
-import 'package:file_picker/src/api/web_options.dart';
 
+/// The primary entry point for picking files and directories across platforms.
 abstract final class FilePicker {
-  /// Retrieves the file(s) from the underlying platform
+  /// Internal helper function to ease the transition and resolve backward compatibility
+  /// between deprecated `androidSafOptions` and `androidOptions`.
+  static AndroidOptions _resolveAndroidOptions(
+    Object? androidSafOptions,
+    AndroidOptions androidOptions,
+  ) {
+    if (androidSafOptions != null) {
+      if (androidSafOptions is AndroidSAFOptions) {
+        return FilePickerAndroidOptions(safOptions: androidSafOptions);
+      } else if (androidSafOptions is AndroidOptions) {
+        return androidSafOptions;
+      }
+    }
+    return androidOptions;
+  }
+
+  /// Retrieves the file(s) from the underlying platform.
   ///
-  /// Default [type] set to [FileType.any] with [allowMultiple] set to `false`.
-  /// Optionally, [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`.).
+  /// Opens a native file explorer and lets the user select one or multiple files.
   ///
-  /// If [withData] is set, picked files will have its byte data immediately available on memory as `Uint8List`
-  /// which can be useful if you are picking it for server upload or similar. However, have in mind that
-  /// enabling this on IO (iOS & Android) may result in out of memory issues if you allow multiple picks or
-  /// pick huge files. Use [withReadStream] instead. Defaults to `true` on web, `false` otherwise.
-  /// Not supported on macOS.
+  /// The [type] parameter defines the type of files that can be selected (e.g. [FileType.image], [FileType.video], etc.).
+  /// The [allowedExtensions] parameter can be used to filter by specific file extensions when [type] is set to [FileType.custom].
+  /// The [onFileLoading] callback can be used to track picker status changes.
+  /// The [compressionQuality] parameter allows compressing picked images/videos on supported platforms (0-100).
   ///
-  /// If [withReadStream] is set, picked files will have its byte data available as a [Stream<List<int>>]
-  /// which can be useful for uploading and processing large files. Defaults to `false`.
-  /// Not supported on macOS.
-  ///
-  /// If you want to track picking status, for example, because some files may take some time to be
-  /// cached (particularly those picked from cloud providers), you may want to set [onFileLoading] handler
-  /// that will give you the current status of picking.
-  /// Not supported on macOS.
-  ///
-  /// If [lockParentWindow] is set, the child window (file picker window) will
-  /// stay in front of the Flutter window until it is closed (like a modal
-  /// window). This parameter is deprecated; use [WindowsOptions.lockParentWindow] or
-  /// [LinuxOptions.lockParentWindow] instead.
-  ///
-  /// [dialogTitle] can be optionally set on desktop platforms to set the modal window title.
-  /// Not supported on macOS. It will be ignored on other platforms.
-  ///
-  /// [initialDirectory] can be optionally set to an absolute path to specify
-  /// where the dialog should open. Only supported on Linux, macOS, and Windows.
-  /// On macOS the home directory shortcut (~/) is not necessary and passing it will be ignored.
-  /// On macOS if the [initialDirectory] is invalid, the user directory or previously valid directory
-  /// will be used.
-  ///
-  /// [readSequential] can be optionally set on web to keep the import file order during import.
-  /// Not supported on macOS.
-  ///
-  /// [cancelUploadOnWindowBlur] prevents upload cancellation when window focus is lost.
-  /// This parameter is deprecated; use [WebOptions.cancelUploadOnWindowBlur] instead.
-  ///
-  /// [windowsOptions] can be optionally set to configure Windows-specific options.
-  ///
-  /// [linuxOptions] can be optionally set to configure Linux-specific options.
-  ///
-  /// [webOptions] can be optionally set to configure Web-specific options.
-  ///
-  /// The result is wrapped in a [FilePickerResult] which contains helper getters
-  /// with useful information regarding the picked [List<PlatformFile>].
-  ///
-  /// For more information, check the [API documentation](https://github.com/miguelpruivo/flutter_file_picker/wiki/api).
-  ///
-  /// Note: This requires the User Selected File Read entitlement on macOS.
-  ///
-  /// Returns `null` if aborted.
-  /// selection; `pickFiles` now implies multiple selection by default.
-  /// NOTE: `withData`, `withReadStream` and `readSequential` are deprecated.
-  /// Call `PlatformFile.readAsBytes()` or `PlatformFile.readAsByteStream()` on
-  /// the returned `PlatformFile` to load data on demand. These parameters
-  /// will be removed in a future release.
-  static Future<FilePickerResult?> pickFiles({
+  /// Returns a list of [PlatformFile] objects containing the selected files, or an empty list if the user canceled the operation.
+  static Future<List<PlatformFile>> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
     FileType type = FileType.any,
@@ -101,7 +63,8 @@ abstract final class FilePicker {
       'Use WebOptions.cancelUploadOnWindowBlur instead; this parameter will be removed in a future release.',
     )
     bool cancelUploadOnWindowBlur = true,
-    AndroidSAFOptions? androidSafOptions,
+    @Deprecated('Use androidOptions instead.') Object? androidSafOptions,
+    AndroidOptions androidOptions = const AndroidOptions(),
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
@@ -113,13 +76,7 @@ abstract final class FilePicker {
       allowedExtensions: allowedExtensions,
       onFileLoading: onFileLoading,
       compressionQuality: compressionQuality,
-      allowMultiple: allowMultiple,
-      withData: withData,
-      withReadStream: withReadStream,
-      lockParentWindow: lockParentWindow,
-      readSequential: readSequential,
-      cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
-      androidSafOptions: androidSafOptions,
+      androidOptions: _resolveAndroidOptions(androidSafOptions, androidOptions),
       windowsOptions: windowsOptions,
       linuxOptions: linuxOptions,
       webOptions: webOptions,
@@ -128,11 +85,12 @@ abstract final class FilePicker {
 
   /// Opens a native file explorer and lets the user select a single file.
   ///
-  /// This is a convenience wrapper around [pickFiles] for when you only need to
-  /// pick one file. It returns a [PlatformFile] directly, or `null` if the
-  /// user canceled the operation.
+  /// The [type] parameter defines the type of file that can be selected.
+  /// The [allowedExtensions] parameter can be used to filter by specific file extensions when [type] is set to [FileType.custom].
+  /// The [onFileLoading] callback can be used to track picker status changes.
+  /// The [compressionQuality] parameter allows compressing picked images/videos on supported platforms (0-100).
   ///
-  /// For documentation on the parameters, see [pickFiles].
+  /// Returns a [PlatformFile] object if a file was selected, or `null` if the user canceled the operation.
   static Future<PlatformFile?> pickFile({
     String? dialogTitle,
     String? initialDirectory,
@@ -148,31 +106,24 @@ abstract final class FilePicker {
       'Use WebOptions.cancelUploadOnWindowBlur instead; this parameter will be removed in a future release.',
     )
     bool cancelUploadOnWindowBlur = true,
-    AndroidSAFOptions? androidSafOptions,
+    @Deprecated('Use androidOptions instead.') dynamic androidSafOptions,
+    AndroidOptions androidOptions = const AndroidOptions(),
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
-  }) async {
-    final result = await FilePickerPlatform.instance.pickFiles(
+  }) {
+    return FilePickerPlatform.instance.pickFile(
       dialogTitle: dialogTitle,
       initialDirectory: initialDirectory,
       type: type,
       allowedExtensions: allowedExtensions,
       onFileLoading: onFileLoading,
       compressionQuality: compressionQuality,
-      allowMultiple: false,
-      withData: false,
-      withReadStream: false,
-      lockParentWindow: lockParentWindow,
-      readSequential: false,
-      cancelUploadOnWindowBlur: cancelUploadOnWindowBlur,
-      androidSafOptions: androidSafOptions,
+      androidOptions: _resolveAndroidOptions(androidSafOptions, androidOptions),
       windowsOptions: windowsOptions,
       linuxOptions: linuxOptions,
       webOptions: webOptions,
     );
-
-    return result?.files.firstOrNull;
   }
 
   /// Displays a dialog that allows the user to select both files and
@@ -180,81 +131,30 @@ abstract final class FilePicker {
   ///
   /// **Platform Support:** As of right now, this functionality is only
   /// supported on macOS.
-  ///
-  /// [initialDirectory] can be optionally set to an absolute path to specify
-  /// where the dialog should open. On macOS the home directory shortcut (~/) is
-  /// not necessary and passing it will be ignored. On macOS if the
-  /// [initialDirectory] is invalid the user directory or previously valid
-  /// directory will be used.
-  ///
-  /// The file type filter [type] defaults to [FileType.any]. Optionally,
-  /// [allowedExtensions] might be provided (e.g. `["pdf", "svg", "jpg"]`).
-  ///
-  /// Returns a [Future<List<String>?>] that resolves to a list of absolute
-  /// paths for the selected files and directories. If the user cancels the
-  /// dialog or if the paths cannot be resolved, the method returns `null`.
   static Future<List<String>?> pickFileAndDirectoryPaths({
     String? dialogTitle,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-  }) {
-    return FilePickerPlatform.instance.pickFileAndDirectoryPaths(
+  }) async {
+    final paths = await FilePickerPlatform.instance.pickFileAndDirectoryPaths(
       dialogTitle: dialogTitle,
       initialDirectory: initialDirectory,
       type: type,
       allowedExtensions: allowedExtensions,
     );
+    return paths.isEmpty ? null : paths;
   }
 
   /// Asks the underlying platform to remove any temporary files created by this plugin.
   ///
-  /// This typically relates to cached files that are stored in the cache directory of
-  /// each platform and it isn't required to invoke this as the system should take care
-  /// of it whenever needed. However, this will force the cleanup if you want to manage those on your own.
-  ///
-  /// This method is only available on mobile platforms (Android & iOS).
-  ///
-  /// Returns `true` if the files were removed with success, `false` otherwise.
-  static Future<bool?> clearTemporaryFiles() {
-    return FilePickerPlatform.instance.clearTemporaryFiles();
+  static Future<void> clearTemporaryFiles() async {
+    await FilePickerPlatform.instance.clearTemporaryFiles();
   }
 
   /// Selects a directory and returns its absolute path.
   ///
-  /// On Android, this requires to be running on SDK 21 or above, else won't work.
-  /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
-  ///
-  /// [dialogTitle] can be set to display a custom title on desktop platforms.
-  /// Not supported on macOS. It will be ignored on other platforms.
-  ///
-  /// If [lockParentWindow] is set, the child window (file picker window) will
-  /// stay in front of the Flutter window until it is closed (like a modal
-  /// window). This parameter is deprecated; use [WindowsOptions.lockParentWindow] or
-  /// [LinuxOptions.lockParentWindow] instead.
-  ///
-  /// [initialDirectory] can be optionally set to an absolute path to specify
-  /// where the dialog should open. Only supported on Linux, macOS, and Windows.
-  /// On macOS the home directory shortcut (~/) is not necessary and passing it will be ignored.
-  /// On macOS if the [initialDirectory] is invalid, the user directory or previously valid directory
-  /// will be used.
-  ///
-  /// [windowsOptions] can be optionally set to configure Windows-specific options.
-  ///
-  /// [linuxOptions] can be optionally set to configure Linux-specific options.
-  ///
-  /// [webOptions] can be optionally set to configure Web-specific options.
-  ///
-  /// Returns a [Future<String?>] which resolves to the absolute path of the selected directory,
-  /// if the user selected a directory. Returns `null` if the user aborted the dialog or if the
-  /// folder path couldn't be resolved.
-  ///
-  /// Note: on Windows, throws a `WindowsException` with a detailed error message, if the dialog
-  /// could not be instantiated or the dialog result could not be interpreted.
-  /// Note: Some Android paths are protected, hence can't be accessed and will return `/` instead.
-  /// Note: The User Selected File Read entitlement is required on macOS.
-  /// Note: On Android, if [androidSafOptions] is provided, the returned string will be a
-  /// `content://` document tree URI instead of an absolute path.
+  /// Returns a [String] containing the selected directory path, or `null` if canceled.
   static Future<String?> getDirectoryPath({
     String? dialogTitle,
     @Deprecated(
@@ -262,16 +162,16 @@ abstract final class FilePicker {
     )
     bool lockParentWindow = false,
     String? initialDirectory,
-    AndroidSAFOptions? androidSafOptions,
+    @Deprecated('Use androidOptions instead.') dynamic androidSafOptions,
+    AndroidOptions androidOptions = const AndroidOptions(),
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) {
     return FilePickerPlatform.instance.getDirectoryPath(
       dialogTitle: dialogTitle,
-      lockParentWindow: lockParentWindow,
       initialDirectory: initialDirectory,
-      androidSafOptions: androidSafOptions,
+      androidOptions: _resolveAndroidOptions(androidSafOptions, androidOptions),
       windowsOptions: windowsOptions,
       linuxOptions: linuxOptions,
       webOptions: webOptions,
@@ -281,51 +181,20 @@ abstract final class FilePicker {
   /// Opens a save file dialog to let the user select a location and a file name to
   /// save [bytes] to.
   ///
-  /// Returns a [Future<String?>] which resolves to the absolute path of the
-  /// saved file, or `null` if the user canceled the operation.
+  /// The [fileName] parameter specifies the default file name for saving.
+  /// The [bytes] parameter contains the raw byte data to write.
+  /// The [mimeType] specifies the MIME type of the file.
   ///
-  /// On the web, this starts a download and always returns `null`.
-  ///
-  /// The User Selected File Read/Write entitlement is required on macOS.
-  ///
-  /// [dialogTitle] can be set to display a custom title on desktop platforms.
-  /// Not supported on macOS.
-  ///
-  /// [fileName] should be set to provide a default file name.
-  /// Throws an `IllegalCharacterInFileNameException` under Windows if the
-  /// given [fileName] contains forbidden characters.
-  ///
-  /// [initialDirectory] can be optionally set to an absolute path to specify
-  /// where the dialog should open. Only supported on Linux, macOS, and Windows.
-  /// On macOS the home directory shortcut (~/) is not necessary and passing it will be ignored.
-  /// On macOS if the [initialDirectory] is invalid, the user directory or previously valid directory
-  /// will be used.
-  ///
-  /// The file type filter [type] defaults to [FileType.any]. Optionally,
-  /// [allowedExtensions] might be provided (e.g. `[pdf, svg, jpg]`). Both
-  /// parameters are just a proposal to the user as the save file dialog does
-  /// not enforce these restrictions.
-  ///
-  /// If [lockParentWindow] is set, the child window (file picker window) will
-  /// stay in front of the Flutter window until it is closed (like a modal
-  /// window). This parameter is deprecated; use [WindowsOptions.lockParentWindow] or
-  /// [LinuxOptions.lockParentWindow] instead.
-  ///
-  /// [windowsOptions] can be optionally set to configure Windows-specific options.
-  ///
-  /// [linuxOptions] can be optionally set to configure Linux-specific options.
-  ///
-  /// [webOptions] can be optionally set to configure Web-specific options.
-  ///
-  /// Returns `null` if aborted.
-  static Future<String?> saveFile({
+  /// Returns the [Uri] of the saved file, or `null` if the user canceled the operation.
+  static Future<Uri?> saveFile({
     String? dialogTitle,
     required String fileName,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     required Uint8List bytes,
-    Function(FilePickerStatus)? onFileLoading,
+    String mimeType = 'application/octet-stream',
+    Function(FilePickerStatus)? onFileSaving,
     @Deprecated(
       'Use WindowsOptions.lockParentWindow or LinuxOptions.lockParentWindow instead; this parameter will be removed in a future release.',
     )
@@ -335,27 +204,21 @@ abstract final class FilePicker {
     WebOptions webOptions = const WebOptions(),
   }) {
     return FilePickerPlatform.instance.saveFile(
-      dialogTitle: dialogTitle,
       fileName: fileName,
-      initialDirectory: initialDirectory,
-      type: type,
-      allowedExtensions: allowedExtensions,
       bytes: bytes,
-      onFileLoading: onFileLoading,
-      lockParentWindow: lockParentWindow,
+      mimeType: mimeType,
+      dialogTitle: dialogTitle,
+      initialDirectory: initialDirectory,
+      onFileSaving: onFileSaving,
       windowsOptions: windowsOptions,
       linuxOptions: linuxOptions,
       webOptions: webOptions,
     );
   }
 
-  /// Skips the entitlements checks on macOS, allowing the plugin to be used without Sandbox enabled.
-  ///
-  /// This is only relevant for macOS. On other platforms, this method does nothing.
-  /// Call this method before any other file picking method to ensure that the entitlements checks are skipped.
-  ///
-  /// Note: Skipping entitlements checks may lead to unexpected behavior or security issues. Use with caution.
-  static Future<void> skipEntitlementsChecks() {
-    return FilePickerPlatform.instance.skipEntitlementsChecks();
-  }
+  /// Deprecated entitlement check helper for legacy compatibility.
+  @Deprecated(
+    'Entitlements checks are handled automatically by file_picker_darwin.',
+  )
+  static Future<void> skipEntitlementsChecks() async {}
 }

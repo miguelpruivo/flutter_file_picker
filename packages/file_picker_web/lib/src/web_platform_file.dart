@@ -36,6 +36,9 @@ base class WebPlatformFile extends PlatformFile {
   @override
   final Uri uri;
 
+  @override
+  String? get path => null;
+
   final XFile? _xFile;
   final int? _bytesLength;
   final Uint8List? _bytes;

@@ -13,7 +13,6 @@ environment:
 flutter:
   plugin:
     implements: file_picker
-    dartPluginClass: FilePickerLinux
     platforms:
       linux:
         dartPluginClass: FilePickerLinux

@@ -4,12 +4,9 @@ import 'package:file_picker_platform_interface/file_picker_platform_interface.da
 final class FilePickerWindowsOptions extends WindowsOptions {
   const FilePickerWindowsOptions({
     this.parentWindowHandle,
-    this.lockParentWindow = false,
+    super.lockParentWindow,
   });
 
-  /// The HWND handle of the parent window.
+  /// The handle to the parent window (`HWND`).
   final int? parentWindowHandle;
-
-  /// Whether to lock the parent window modally.
-  final bool lockParentWindow;
 }

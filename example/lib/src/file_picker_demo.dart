@@ -2,6 +2,7 @@
 
 import 'package:file/local.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:file_picker_android/file_picker_android.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,17 +44,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   Uint8List? _pickedFileBytes;
   String? _pickedFileBytesSource;
   FileType _pickingType = FileType.any;
-  List<PlatformFile>? pickedFiles;
-
-  String? get _customParentWindow =>
-      _parentWindowController.text.trim().isNotEmpty
-      ? _parentWindowController.text.trim()
-      : null;
-
-  int? get _customWindowsHwnd =>
-      int.tryParse(_parentWindowController.text.trim());
+  List<PlatformFile> pickedFiles = [];
 
   bool get _isSaveFileDisabled => _multiPick;
+
   Widget _resultsWidget = const Row(
     children: [
       Expanded(
@@ -102,30 +96,21 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _clearPickedFileBytes();
 
     try {
-      printInDebug(
-        "lockParentWindow: $_lockParentWindow, parentWindow: $_customParentWindow",
-      );
+      printInDebug("lockParentWindow: $_lockParentWindow");
       if (_multiPick) {
-        final result = await FilePicker.pickFiles(
+        pickedFiles = await FilePicker.pickFiles(
           type: _pickingType,
           allowMultiple: true,
           onFileLoading: _onFileLoading,
           allowedExtensions: _allowedExtensionsFromInput(),
           dialogTitle: _dialogTitleController.text,
           initialDirectory: _initialDirectoryController.text,
-          windowsOptions: WindowsOptions(
-            lockParentWindow: _lockParentWindow,
-            parentWindowHandle: _customWindowsHwnd,
-          ),
-          linuxOptions: LinuxOptions(
-            lockParentWindow: _lockParentWindow,
-            parentWindow: _customParentWindow,
-          ),
+          windowsOptions: WindowsOptions(lockParentWindow: _lockParentWindow),
+          linuxOptions: LinuxOptions(lockParentWindow: _lockParentWindow),
           withData: _withData,
           androidSafOptions: _androidSafOptionsFromFlags(),
         );
-        printInDebug("pickedFiles: $result");
-        pickedFiles = result?.files;
+        printInDebug("pickedFiles: $pickedFiles");
       } else {
         final file = await FilePicker.pickFile(
           type: _pickingType,
@@ -133,20 +118,14 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           allowedExtensions: _allowedExtensionsFromInput(),
           dialogTitle: _dialogTitleController.text,
           initialDirectory: _initialDirectoryController.text,
-          windowsOptions: WindowsOptions(
-            lockParentWindow: _lockParentWindow,
-            parentWindowHandle: _customWindowsHwnd,
-          ),
-          linuxOptions: LinuxOptions(
-            lockParentWindow: _lockParentWindow,
-            parentWindow: _customParentWindow,
-          ),
+          windowsOptions: WindowsOptions(lockParentWindow: _lockParentWindow),
+          linuxOptions: LinuxOptions(lockParentWindow: _lockParentWindow),
           androidSafOptions: _androidSafOptionsFromFlags(),
         );
         printInDebug("pickedFile: $file");
-        pickedFiles = file != null ? [file] : null;
+        pickedFiles = file != null ? [file] : [];
       }
-      hasUserAborted = pickedFiles == null;
+      hasUserAborted = pickedFiles.isEmpty;
     } on PlatformException catch (e) {
       _logException('Unsupported operation: $e');
     } catch (e) {
@@ -163,12 +142,12 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           pickedFiles: pickedFiles,
           onRemoveAndroidFile:
               (int index, AndroidPlatformFile androidPlatformFile) {
-                androidPlatformFile.safHandle.releaseGrant();
+                androidPlatformFile.safHandle?.releaseGrant();
                 _scaffoldMessengerKey.currentState?.showSnackBar(
                   const SnackBar(content: Text("SAF Permission Released!")),
                 );
                 setState(() {
-                  pickedFiles!.removeAt(index);
+                  pickedFiles.removeAt(index);
                   updateResults();
                 });
               },
@@ -230,17 +209,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _resetState();
     _clearPickedFileBytes();
     try {
-      bool? result = await FilePicker.clearTemporaryFiles();
+      await FilePicker.clearTemporaryFiles();
       _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
       _scaffoldMessengerKey.currentState?.showSnackBar(
-        SnackBar(
-          content: Text(
-            (result!
-                ? 'Temporary files removed with success.'
-                : 'Failed to clean temporary files'),
-            style: const TextStyle(color: Colors.white),
-          ),
-        ),
+        const SnackBar(content: Text('Temporary files removed with success.')),
       );
     } on PlatformException catch (e) {
       _logException('Unsupported operation: $e');
@@ -261,14 +233,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       pickedDirectoryPath = await FilePicker.getDirectoryPath(
         dialogTitle: _dialogTitleController.text,
         initialDirectory: _initialDirectoryController.text,
-        windowsOptions: WindowsOptions(
-          lockParentWindow: _lockParentWindow,
-          parentWindowHandle: _customWindowsHwnd,
-        ),
-        linuxOptions: LinuxOptions(
-          lockParentWindow: _lockParentWindow,
-          parentWindow: _customParentWindow,
-        ),
+        windowsOptions: WindowsOptions(lockParentWindow: _lockParentWindow),
+        linuxOptions: LinuxOptions(lockParentWindow: _lockParentWindow),
         androidSafOptions: _androidSafOptionsFromFlags(),
       );
       hasUserAborted = pickedDirectoryPath == null;
@@ -303,7 +269,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   Future<void> _saveFile() async {
-    String? pickedSaveFilePath;
+    Uri? pickedSaveFileUri;
     bool hasUserAborted = true;
 
     if (_isSaveFileDisabled) {
@@ -311,7 +277,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       return;
     }
 
-    final file = pickedFiles?.firstOrNull;
+    final file = pickedFiles.firstOrNull;
     if (file == null) {
       _logException('Please pick a file first before saving.');
       return;
@@ -337,23 +303,17 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _resetState();
 
     try {
-      pickedSaveFilePath = await FilePicker.saveFile(
+      pickedSaveFileUri = await FilePicker.saveFile(
         allowedExtensions: _allowedExtensionsFromInput(),
         type: _pickingType,
         dialogTitle: _dialogTitleController.text,
         fileName: targetFileName,
         initialDirectory: _initialDirectoryController.text,
-        windowsOptions: WindowsOptions(
-          lockParentWindow: _lockParentWindow,
-          parentWindowHandle: _customWindowsHwnd,
-        ),
-        linuxOptions: LinuxOptions(
-          lockParentWindow: _lockParentWindow,
-          parentWindow: _customParentWindow,
-        ),
+        windowsOptions: WindowsOptions(lockParentWindow: _lockParentWindow),
+        linuxOptions: LinuxOptions(lockParentWindow: _lockParentWindow),
         bytes: bytes,
       );
-      hasUserAborted = pickedSaveFilePath == null;
+      hasUserAborted = pickedSaveFileUri == null;
     } on PlatformException catch (e) {
       _logException('Unsupported operation: $e');
     } catch (e) {
@@ -365,13 +325,13 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _isLoading = false;
       _userAborted = hasUserAborted;
       _resultsWidget = FilePickerResultsList(
-        itemCount: pickedSaveFilePath != null ? 1 : 0,
+        itemCount: pickedSaveFileUri != null ? 1 : 0,
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
-            title: const Text('Save file path:'),
+            title: const Text('Save file URI:'),
             subtitle: Text(
-              pickedSaveFilePath != null
-                  ? '$pickedSaveFilePath (bytes loaded via ${_pickedFileBytesSource ?? 'unknown'})'
+              pickedSaveFileUri != null
+                  ? '$pickedSaveFileUri (bytes loaded via ${_pickedFileBytesSource ?? 'unknown'})'
                   : '',
             ),
           );
@@ -381,7 +341,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   Future<void> _streamPickedFile() async {
-    final file = pickedFiles?.firstOrNull;
+    final file = pickedFiles.firstOrNull;
     if (file == null) {
       _logException('No file picked. Pick a file first to stream it.');
       return;
@@ -439,7 +399,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   Future<void> _readPickedFileAsBytes() async {
-    final file = pickedFiles?.firstOrNull;
+    final file = pickedFiles.firstOrNull;
     if (file == null) {
       _logException('No file picked. Pick a file first to read its bytes.');
       return;
@@ -525,15 +485,17 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         : null;
   }
 
-  AndroidSAFOptions? _androidSafOptionsFromFlags() {
+  AndroidOptions? _androidSafOptionsFromFlags() {
     return (_safPersist || _safReadWrite)
-        ? AndroidSAFOptions(
-            grant: _safPersist
-                ? AndroidSAFGrant.lifetime
-                : AndroidSAFGrant.transient,
-            accessMode: _safReadWrite
-                ? AndroidSAFAccessMode.readWrite
-                : AndroidSAFAccessMode.readOnly,
+        ? FilePickerAndroidOptions(
+            safOptions: AndroidSAFOptions(
+              grant: _safPersist
+                  ? AndroidSAFGrant.lifetime
+                  : AndroidSAFGrant.transient,
+              accessMode: _safReadWrite
+                  ? AndroidSAFAccessMode.readWrite
+                  : AndroidSAFAccessMode.readOnly,
+            ),
           )
         : null;
   }

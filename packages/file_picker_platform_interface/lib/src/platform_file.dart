@@ -15,6 +15,9 @@ abstract base class PlatformFile {
   /// Depending on the platform, this may point to a local file, a blob, a data URI, or a network resource.
   Uri get uri;
 
+  /// The local file path of the underlying file, or `null` if not on local disk.
+  String? get path => uri.scheme == 'file' ? uri.toFilePath() : null;
+
   /// Get this file as an [XFile].
   XFile get xFile;
 
