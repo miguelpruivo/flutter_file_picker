@@ -215,13 +215,13 @@ abstract final class FilePicker {
   /// Returns the [Uri] of the saved file, or `null` if the user canceled the operation.
   /// Depending on the platform, the [Uri.scheme] may be `file`, `content`, `http(s)`, `data` or `blob`.
   static Future<Uri?> saveFile({
-    String? dialogTitle,
     required String fileName,
+    required Uint8List bytes,
+    String mimeType = 'application/octet-stream',
+    String? dialogTitle,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    required Uint8List bytes,
-    String mimeType = 'application/octet-stream',
     Function(FilePickerStatus)? onFileSaving,
     @Deprecated(
       'Use WindowsOptions.lockParentWindow or LinuxOptions.lockParentWindow instead; this parameter will be removed in a future release.',
