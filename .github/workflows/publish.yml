@@ -4,9 +4,39 @@ on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (verify publishing without pushing to pub.dev)'
+        type: boolean
+        required: true
+        default: true
 
 jobs:
   publish:
+    runs-on: ubuntu-latest
     permissions:
-      id-token: write # Required for authentication using OIDC
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter --version
+      - run: flutter precache
+
+      - uses: bluefireteam/melos-action@v3
+
+      # Executes dry-run if explicitly triggered as a dry-run via workflow_dispatch
+      - name: Verify package publishing (Dry Run)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+        run: melos publish --dry-run --yes
+
+      # Executes actual publish when a release tag is pushed OR when workflow_dispatch is run with dry_run=false
+      - name: Publish changed packages to pub.dev
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run) }}
+        run: melos publish --no-dry-run --yes
