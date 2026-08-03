@@ -143,6 +143,8 @@ abstract final class FilePicker {
   /// The [initialDirectory], if provided, will be used as the initial directory path for the picker.
   /// The [type] parameter specifies the type of files to be picked and defaults to [FileType.any].
   /// The [allowedExtensions] parameter can be used to filter by specific file extensions when [type] is set to [FileType.custom].
+///  
+/// Returns the list of absolute paths to the selected files and directories, or an empty list if the operation was canceled.   
   ///
   /// **Platform Support:** As of right now, this functionality is only
   /// supported on macOS.
