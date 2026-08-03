@@ -32,8 +32,8 @@ final class IOSFilePickerHandler: NSObject,
         self.result = result
 
         if call.method == "clear" {
-            self.result?(clearTemporaryFiles())
-            self.result = nil
+            _ = clearTemporaryFiles()
+            result(nil)
             return
         }
 

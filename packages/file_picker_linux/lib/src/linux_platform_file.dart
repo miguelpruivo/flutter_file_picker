@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:cross_file/cross_file.dart';
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
+import 'package:path/path.dart' as p;
 
 /// A [PlatformFile] implementation for Linux.
 base class LinuxPlatformFile extends PlatformFile {
@@ -15,8 +16,13 @@ base class LinuxPlatformFile extends PlatformFile {
        _bytesLength = bytesLength;
 
   factory LinuxPlatformFile.fromPath(String path, {Uint8List? bytes}) {
+    if (path.isEmpty) {
+      throw ArgumentError(
+        'path cannot be empty when creating LinuxPlatformFile',
+      );
+    }
     final uri = Uri.file(path);
-    final name = uri.pathSegments.lastOrNull ?? path;
+    final name = p.posix.basename(path);
     return LinuxPlatformFile(
       name: name,
       uri: uri,

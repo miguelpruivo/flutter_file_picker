@@ -23,7 +23,8 @@ base class WebPlatformFile extends PlatformFile {
     int? bytesLength,
     Uint8List? bytes,
     Stream<Uint8List>? readStream,
-  }) : _xFile = xFile,
+  }) : assert(name.isNotEmpty, 'name cannot be empty'),
+       _xFile = xFile,
        _bytesLength = bytesLength,
        _bytes = bytes,
        _readStream = readStream;

@@ -133,10 +133,10 @@ abstract class FilePickerPlatform extends PlatformInterface {
     throw UnimplementedError('getDirectoryPath() has not been implemented.');
   }
 
-  /// Clear the temporary files created by the underlying file picker.
-  Future<void> clearTemporaryFiles() async {
-    throw UnimplementedError('clearTemporaryFiles() has not been implemented.');
-  }
+  /// Asks the underlying platform to remove any temporary files created by this plugin.
+  ///
+  /// Default implementation is a no-op for platforms that do not create temporary files.
+  Future<void> clearTemporaryFiles() async {}
 
   /// Save the given [bytes] to a file with the given [fileName], using the native save file dialog.
   ///

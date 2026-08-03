@@ -204,55 +204,43 @@ object FileUtils {
         if (type == "dir") {
             intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         } else {
-            if (type == "image/*") {
-                intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                    type = this@startFileExplorer.type
-                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this@startFileExplorer.isMultipleSelection)
-                    putExtra("multi-pick", this@startFileExplorer.isMultipleSelection)
+            intent = when (type) {
+                "image/*" -> Intent(Intent.ACTION_GET_CONTENT).apply {
+                    this.type = this@startFileExplorer.type
                     if (!allowedExtensions.isNullOrEmpty()) {
                         putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions!!.toTypedArray())
                     }
                 }
-            }
-            else if (type == "audio/*" ){
-                intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                "audio/*" -> Intent(Intent.ACTION_GET_CONTENT).apply {
                     this.type = this@startFileExplorer.type
                     addCategory(Intent.CATEGORY_OPENABLE)
-                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this@startFileExplorer.isMultipleSelection)
-                    putExtra("multi-pick", this@startFileExplorer.isMultipleSelection)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         val authority = "com.android.providers.media.documents"
                         val audioRootUri = DocumentsContract.buildRootUri(authority, "audio_root")
                         putExtra(DocumentsContract.EXTRA_INITIAL_URI, audioRootUri)
                     }
                 }
-            } else if(type == "video/*"){
-                intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                "video/*" -> Intent(Intent.ACTION_GET_CONTENT).apply {
                     this.type = this@startFileExplorer.type
                     addCategory(Intent.CATEGORY_OPENABLE)
-                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this@startFileExplorer.isMultipleSelection)
-                    putExtra("multi-pick", this@startFileExplorer.isMultipleSelection)
                 }
-            }
-            else if (type == "media") {
-                intent = Intent(Intent.ACTION_GET_CONTENT)
-                intent.type = "*/*"
-                val mimeTypes = arrayOf("image/*", "video/*", "audio/*")
-                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
-                intent.addCategory(Intent.CATEGORY_OPENABLE)
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, this.isMultipleSelection)
-            } else {
-                intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                "media" -> Intent(Intent.ACTION_GET_CONTENT).apply {
+                    this.type = "*/*"
+                    putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*", "audio/*"))
                     addCategory(Intent.CATEGORY_OPENABLE)
-                    type = this@startFileExplorer.type
+                }
+                else -> Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    this.type = this@startFileExplorer.type
                     if (!allowedExtensions.isNullOrEmpty()) {
                         putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions!!.toTypedArray())
                     } else {
                         putExtra(Intent.EXTRA_MIME_TYPES, arrayOf(type))
                     }
-                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
-                    putExtra("multi-pick", isMultipleSelection)
                 }
+            }.apply {
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, isMultipleSelection)
+                putExtra("multi-pick", isMultipleSelection)
             }
         }
         if (intent.resolveActivity(activity.packageManager) != null) {

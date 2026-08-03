@@ -35,5 +35,28 @@ void main() {
       );
       expect(handle.accessMode, equals(AndroidSAFAccessMode.readWrite));
     });
+
+    test('AndroidPlatformFile derives name from path if name is empty', () {
+      final file = AndroidPlatformFile.fromMap({'path': '/tmp/test_file.txt'});
+      expect(file.name, equals('test_file.txt'));
+      expect(file.path, equals('/tmp/test_file.txt'));
+    });
+
+    test('AndroidPlatformFile throws ArgumentError on empty path and uri', () {
+      expect(() => AndroidPlatformFile.fromMap({}), throwsArgumentError);
+    });
+
+    test('AndroidPlatformFile equality and hashCode work correctly', () {
+      final file1 = AndroidPlatformFile(
+        name: 'test.txt',
+        uri: Uri.file('/tmp/test.txt'),
+      );
+      final file2 = AndroidPlatformFile(
+        name: 'test.txt',
+        uri: Uri.file('/tmp/test.txt'),
+      );
+      expect(file1, equals(file2));
+      expect(file1.hashCode, equals(file2.hashCode));
+    });
   });
 }

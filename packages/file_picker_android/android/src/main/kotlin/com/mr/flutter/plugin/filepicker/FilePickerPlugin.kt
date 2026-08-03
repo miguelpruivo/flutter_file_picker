@@ -123,7 +123,8 @@ class FilePickerPlugin : MethodCallHandler, FlutterPlugin,
 
         when (method) {
             "clear" -> {
-                result.success(activity?.applicationContext?.let { clearCache(it) })
+                activity?.applicationContext?.let { clearCache(it) }
+                result.success(null)
             }
 
             "releaseSafGrant" -> {

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:cross_file/cross_file.dart';
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
+import 'package:path/path.dart' as p;
 
 import 'android_saf_handle.dart';
 
@@ -18,9 +19,26 @@ base class AndroidPlatformFile extends PlatformFile {
        _bytesLength = bytesLength;
 
   factory AndroidPlatformFile.fromMap(Map<Object?, Object?> data) {
-    final String name = data['name'] as String? ?? '';
     final String path = data['path'] as String? ?? '';
-    final Uri uri = Uri.tryParse(path) ?? Uri.file(path);
+    final String rawName = data['name'] as String? ?? '';
+    final String name = rawName.isNotEmpty
+        ? rawName
+        : (path.isNotEmpty ? p.basename(path) : '');
+
+    if (path.isEmpty && data['uri'] == null) {
+      throw ArgumentError(
+        'path or uri cannot be empty when creating AndroidPlatformFile',
+      );
+    }
+    if (name.isEmpty) {
+      throw ArgumentError(
+        'name cannot be empty when creating AndroidPlatformFile',
+      );
+    }
+
+    final Uri uri = path.contains('://')
+        ? (Uri.tryParse(path) ?? Uri.file(path))
+        : Uri.file(path);
 
     AndroidSAFHandle? safHandle;
     if (data case {'safHandle': final Map<Object?, Object?> safMap}) {
@@ -84,15 +102,14 @@ base class AndroidPlatformFile extends PlatformFile {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    if (other is! AndroidPlatformFile) return false;
-    return super == other &&
+    return other is AndroidPlatformFile &&
         other.name == name &&
         other.uri == uri &&
         other.safHandle == safHandle;
   }
 
   @override
-  int get hashCode => Object.hash(super.hashCode, name, uri, safHandle);
+  int get hashCode => Object.hash(name, uri, safHandle);
 
   @override
   String toString() {

@@ -63,7 +63,8 @@ class FilePickerWindows extends FilePickerPlatform {
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) async {
-    final files = await pickFiles(
+    final files = await _pickFilesInternal(
+      allowMultiple: false,
       dialogTitle: dialogTitle,
       initialDirectory: initialDirectory,
       type: type,
@@ -88,6 +89,28 @@ class FilePickerWindows extends FilePickerPlatform {
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) async {
+    return _pickFilesInternal(
+      allowMultiple: true,
+      dialogTitle: dialogTitle,
+      initialDirectory: initialDirectory,
+      type: type,
+      allowedExtensions: allowedExtensions,
+      onFileLoading: onFileLoading,
+      compressionQuality: compressionQuality,
+      windowsOptions: windowsOptions,
+    );
+  }
+
+  Future<List<PlatformFile>> _pickFilesInternal({
+    required bool allowMultiple,
+    String? dialogTitle,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Function(FilePickerStatus)? onFileLoading,
+    int compressionQuality = 0,
+    WindowsOptions windowsOptions = const FilePickerWindowsOptions(),
+  }) async {
     final FilePickerWindowsOptions options = switch (windowsOptions) {
       FilePickerWindowsOptions opts => opts,
       _ => const FilePickerWindowsOptions(),
@@ -102,7 +125,7 @@ class FilePickerWindows extends FilePickerPlatform {
         initialDirectory: initialDirectory,
         type: type,
         allowedExtensions: allowedExtensions,
-        allowMultiple: true,
+        allowMultiple: allowMultiple,
         lockParentWindow: options.lockParentWindow,
         parentWindowHandle: options.parentWindowHandle,
       ),
