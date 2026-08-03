@@ -44,7 +44,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   Uint8List? _pickedFileBytes;
   String? _pickedFileBytesSource;
   FileType _pickingType = FileType.any;
-  List<PlatformFile>? pickedFiles;
+  List<PlatformFile> pickedFiles = [];
 
   bool get _isSaveFileDisabled => _multiPick;
 
@@ -98,7 +98,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     try {
       printInDebug("lockParentWindow: $_lockParentWindow");
       if (_multiPick) {
-        final result = await FilePicker.pickFiles(
+        pickedFiles = await FilePicker.pickFiles(
           type: _pickingType,
           allowMultiple: true,
           onFileLoading: _onFileLoading,
@@ -110,8 +110,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           withData: _withData,
           androidSafOptions: _androidSafOptionsFromFlags(),
         );
-        printInDebug("pickedFiles: $result");
-        pickedFiles = result.isEmpty ? null : result;
+        printInDebug("pickedFiles: $pickedFiles");
       } else {
         final file = await FilePicker.pickFile(
           type: _pickingType,
@@ -124,9 +123,9 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           androidSafOptions: _androidSafOptionsFromFlags(),
         );
         printInDebug("pickedFile: $file");
-        pickedFiles = file != null ? [file] : null;
+        pickedFiles = file != null ? [file] : [];
       }
-      hasUserAborted = pickedFiles == null;
+      hasUserAborted = pickedFiles.isEmpty;
     } on PlatformException catch (e) {
       _logException('Unsupported operation: $e');
     } catch (e) {
@@ -148,7 +147,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                   const SnackBar(content: Text("SAF Permission Released!")),
                 );
                 setState(() {
-                  pickedFiles!.removeAt(index);
+                  pickedFiles.removeAt(index);
                   updateResults();
                 });
               },
@@ -278,7 +277,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       return;
     }
 
-    final file = pickedFiles?.firstOrNull;
+    final file = pickedFiles.firstOrNull;
     if (file == null) {
       _logException('Please pick a file first before saving.');
       return;
@@ -342,7 +341,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   Future<void> _streamPickedFile() async {
-    final file = pickedFiles?.firstOrNull;
+    final file = pickedFiles.firstOrNull;
     if (file == null) {
       _logException('No file picked. Pick a file first to stream it.');
       return;
@@ -400,7 +399,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   Future<void> _readPickedFileAsBytes() async {
-    final file = pickedFiles?.firstOrNull;
+    final file = pickedFiles.firstOrNull;
     if (file == null) {
       _logException('No file picked. Pick a file first to read its bytes.');
       return;

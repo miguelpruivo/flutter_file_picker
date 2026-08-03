@@ -14,15 +14,15 @@ class PickedFilesResults extends StatelessWidget {
     required this.onRemoveAndroidFile,
   });
 
-  final List<PlatformFile>? pickedFiles;
+  final List<PlatformFile> pickedFiles;
   final OnRemoveAndroidFile onRemoveAndroidFile;
 
   @override
   Widget build(BuildContext context) {
     return FilePickerResultsList(
-      itemCount: pickedFiles?.length ?? 0,
+      itemCount: pickedFiles.length,
       itemBuilder: (BuildContext context, int index) {
-        final pickedFile = pickedFiles![index];
+        final pickedFile = pickedFiles[index];
         final AndroidPlatformFile? androidPlatformFile =
             pickedFile is AndroidPlatformFile ? pickedFile : null;
 
