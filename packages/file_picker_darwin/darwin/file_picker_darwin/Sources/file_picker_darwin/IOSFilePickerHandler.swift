@@ -20,6 +20,12 @@ final class IOSFilePickerHandler: NSObject,
     private var isSaveFile = false
 
     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        if call.method == "clear" {
+            _ = clearTemporaryFiles()
+            result(nil)
+            return
+        }
+
         if self.result != nil {
             result(
                 FlutterError(
@@ -30,12 +36,6 @@ final class IOSFilePickerHandler: NSObject,
         }
 
         self.result = result
-
-        if call.method == "clear" {
-            _ = clearTemporaryFiles()
-            result(nil)
-            return
-        }
 
         if call.method == "dir" {
             isDirectoryPicker = true
