@@ -269,7 +269,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   Future<void> _saveFile() async {
-    String? pickedSaveFilePath;
+    Uri? pickedSaveFileUri;
     bool hasUserAborted = true;
 
     if (_isSaveFileDisabled) {
@@ -303,7 +303,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _resetState();
 
     try {
-      pickedSaveFilePath = await FilePicker.saveFile(
+      pickedSaveFileUri = await FilePicker.saveFile(
         allowedExtensions: _allowedExtensionsFromInput(),
         type: _pickingType,
         dialogTitle: _dialogTitleController.text,
@@ -313,7 +313,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         linuxOptions: LinuxOptions(lockParentWindow: _lockParentWindow),
         bytes: bytes,
       );
-      hasUserAborted = pickedSaveFilePath == null;
+      hasUserAborted = pickedSaveFileUri == null;
     } on PlatformException catch (e) {
       _logException('Unsupported operation: $e');
     } catch (e) {
@@ -325,13 +325,13 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _isLoading = false;
       _userAborted = hasUserAborted;
       _resultsWidget = FilePickerResultsList(
-        itemCount: pickedSaveFilePath != null ? 1 : 0,
+        itemCount: pickedSaveFileUri != null ? 1 : 0,
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
-            title: const Text('Save file path:'),
+            title: const Text('Save file URI:'),
             subtitle: Text(
-              pickedSaveFilePath != null
-                  ? '$pickedSaveFilePath (bytes loaded via ${_pickedFileBytesSource ?? 'unknown'})'
+              pickedSaveFileUri != null
+                  ? '$pickedSaveFileUri (bytes loaded via ${_pickedFileBytesSource ?? 'unknown'})'
                   : '',
             ),
           );

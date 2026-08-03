@@ -185,8 +185,8 @@ abstract final class FilePicker {
   /// The [bytes] parameter contains the raw byte data to write.
   /// The [mimeType] specifies the MIME type of the file.
   ///
-  /// Returns the saved file path or URI string, or `null` if the user canceled the operation.
-  static Future<String?> saveFile({
+  /// Returns the [Uri] of the saved file, or `null` if the user canceled the operation.
+  static Future<Uri?> saveFile({
     String? dialogTitle,
     required String fileName,
     String? initialDirectory,
@@ -202,8 +202,8 @@ abstract final class FilePicker {
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
-  }) async {
-    final uri = await FilePickerPlatform.instance.saveFile(
+  }) {
+    return FilePickerPlatform.instance.saveFile(
       fileName: fileName,
       bytes: bytes,
       mimeType: mimeType,
@@ -214,9 +214,6 @@ abstract final class FilePicker {
       linuxOptions: linuxOptions,
       webOptions: webOptions,
     );
-
-    if (uri == null) return null;
-    return uri.scheme == 'file' ? uri.toFilePath() : uri.toString();
   }
 
   /// Deprecated entitlement check helper for legacy compatibility.
