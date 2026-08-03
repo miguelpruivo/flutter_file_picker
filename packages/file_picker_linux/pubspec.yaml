@@ -3,6 +3,9 @@ description: Linux implementation of the file_picker plugin.
 version: 1.0.0
 homepage: https://github.com/miguelpruivo/flutter_file_picker/tree/master/packages/file_picker_linux
 repository: https://github.com/miguelpruivo/flutter_file_picker/tree/master/packages/file_picker_linux
+topics:
+  - file-picker
+  - linux
 
 resolution: workspace
 

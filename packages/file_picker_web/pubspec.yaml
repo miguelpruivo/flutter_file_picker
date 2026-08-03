@@ -3,6 +3,9 @@ description: Web implementation of the file_picker plugin.
 version: 1.0.0
 homepage: https://github.com/miguelpruivo/flutter_file_picker/tree/master/packages/file_picker_web
 repository: https://github.com/miguelpruivo/flutter_file_picker/tree/master/packages/file_picker_web
+topics:
+  - file-picker
+  - web
 
 resolution: workspace
 
