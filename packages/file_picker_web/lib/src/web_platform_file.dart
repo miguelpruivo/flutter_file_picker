@@ -23,11 +23,14 @@ base class WebPlatformFile extends PlatformFile {
     int? bytesLength,
     Uint8List? bytes,
     Stream<Uint8List>? readStream,
-  }) : assert(name.isNotEmpty, 'name cannot be empty'),
-       _xFile = xFile,
+  }) : _xFile = xFile,
        _bytesLength = bytesLength,
        _bytes = bytes,
-       _readStream = readStream;
+       _readStream = readStream {
+    if (name.isEmpty) {
+      throw ArgumentError('name cannot be empty');
+    }
+  }
 
   /// The name of the file including extension.
   @override
