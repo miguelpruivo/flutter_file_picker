@@ -206,13 +206,13 @@ object FileUtils {
         } else {
             intent = when (type) {
                 "image/*" -> Intent(Intent.ACTION_GET_CONTENT).apply {
-                    this.type = this@startFileExplorer.type
+                    type = this@startFileExplorer.type
                     if (!allowedExtensions.isNullOrEmpty()) {
                         putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions!!.toTypedArray())
                     }
                 }
                 "audio/*" -> Intent(Intent.ACTION_GET_CONTENT).apply {
-                    this.type = this@startFileExplorer.type
+                    type = this@startFileExplorer.type
                     addCategory(Intent.CATEGORY_OPENABLE)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         val authority = "com.android.providers.media.documents"
@@ -221,17 +221,17 @@ object FileUtils {
                     }
                 }
                 "video/*" -> Intent(Intent.ACTION_GET_CONTENT).apply {
-                    this.type = this@startFileExplorer.type
+                    type = this@startFileExplorer.type
                     addCategory(Intent.CATEGORY_OPENABLE)
                 }
                 "media" -> Intent(Intent.ACTION_GET_CONTENT).apply {
-                    this.type = "*/*"
+                    type = "*/*"
                     putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*", "audio/*"))
                     addCategory(Intent.CATEGORY_OPENABLE)
                 }
                 else -> Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
-                    this.type = this@startFileExplorer.type
+                    type = this@startFileExplorer.type
                     if (!allowedExtensions.isNullOrEmpty()) {
                         putExtra(Intent.EXTRA_MIME_TYPES, allowedExtensions!!.toTypedArray())
                     } else {
