@@ -159,7 +159,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   }
 
   void _pickFileAndDirectoryPaths() async {
-    List<String>? pickedFilesAndDirectories;
+    List<String> pickedFilesAndDirectories = [];
     bool hasUserAborted = true;
     _resetState();
 
@@ -170,7 +170,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         allowedExtensions: _allowedExtensionsFromInput(),
         initialDirectory: _initialDirectoryController.text,
       );
-      hasUserAborted = pickedFilesAndDirectories == null;
+      hasUserAborted = pickedFilesAndDirectories.isEmpty;
     } on PlatformException catch (e) {
       _logException('Unsupported operation: $e');
     } catch (e) {
@@ -182,22 +182,22 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _isLoading = false;
       _userAborted = hasUserAborted;
       _resultsWidget = FilePickerResultsList(
-        itemCount: pickedFilesAndDirectories?.length ?? 0,
+        itemCount: pickedFilesAndDirectories.length,
         itemBuilder: (BuildContext context, int index) {
           String name = 'File path:';
           if (!kIsWeb) {
             final fs = LocalFileSystem();
-            name = fs.isFileSync(pickedFilesAndDirectories![index])
+            name = fs.isFileSync(pickedFilesAndDirectories[index])
                 ? 'File path:'
                 : 'Directory path:';
           }
           return ListTile(
             leading: Text(
               index.toString(),
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
             title: Text(name),
-            subtitle: Text(pickedFilesAndDirectories![index]),
+            subtitle: Text(pickedFilesAndDirectories[index]),
           );
         },
       );
