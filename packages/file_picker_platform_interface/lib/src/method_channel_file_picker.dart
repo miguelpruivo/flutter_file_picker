@@ -22,6 +22,4 @@ class MethodChannelFilePicker extends FilePickerPlatform {
   static void registerWith() {
     FilePickerPlatform.instance = MethodChannelFilePicker();
   }
-
-  // TODO: implement the method channel using the new interface
 }

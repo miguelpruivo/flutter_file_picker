@@ -17,7 +17,7 @@ dependencies:
   file_picker_android: ^1.0.0
   file_picker_darwin: ^1.0.0
   file_picker_linux: ^1.0.0
-  file_picker_web: ^1.0.0
+  file_picker_web: ^3.0.0
   file_picker_windows: ^1.0.0
   file: ^7.0.1
 

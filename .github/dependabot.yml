@@ -1,0 +1,94 @@
+version: 2
+updates:
+  # GitHub Actions workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "*"
+
+  # Pub dependencies for root & workspace packages
+  - package-ecosystem: "pub"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      pub-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pub"
+    directory: "/packages/file_picker_platform_interface"
+    schedule:
+      interval: "weekly"
+    groups:
+      pub-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pub"
+    directory: "/packages/file_picker_android"
+    schedule:
+      interval: "weekly"
+    groups:
+      pub-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pub"
+    directory: "/packages/file_picker_darwin"
+    schedule:
+      interval: "weekly"
+    groups:
+      pub-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pub"
+    directory: "/packages/file_picker_linux"
+    schedule:
+      interval: "weekly"
+    groups:
+      pub-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pub"
+    directory: "/packages/file_picker_windows"
+    schedule:
+      interval: "weekly"
+    groups:
+      pub-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pub"
+    directory: "/packages/file_picker_web"
+    schedule:
+      interval: "weekly"
+    groups:
+      pub-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pub"
+    directory: "/example"
+    schedule:
+      interval: "weekly"
+    groups:
+      pub-dependencies:
+        patterns:
+          - "*"
+
+  # Gradle dependencies for Android native plugin
+  - package-ecosystem: "gradle"
+    directory: "/packages/file_picker_android/android"
+    schedule:
+      interval: "weekly"
+    groups:
+      gradle-dependencies:
+        patterns:
+          - "*"
