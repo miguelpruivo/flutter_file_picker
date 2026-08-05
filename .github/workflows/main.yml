@@ -15,7 +15,7 @@ jobs:
       windows: ${{ steps.filter.outputs.windows }}
       web: ${{ steps.filter.outputs.web }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -54,7 +54,7 @@ jobs:
     outputs:
       flutter-versions: ${{ steps.id_flutter_versions.outputs.versions }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dart-lang/setup-dart@v1
       - name: Fetch Flutter versions
         id: id_flutter_versions
@@ -69,7 +69,7 @@ jobs:
         flutter: ${{ fromJson(needs.setup_flutter_versions.outputs.flutter-versions) }}
     name: Tests on Flutter ${{ matrix.flutter }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: subosito/flutter-action@v2
         if: matrix.flutter == 'stable' || matrix.flutter == 'beta'
@@ -104,7 +104,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build Linux (example app)
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -128,7 +128,7 @@ jobs:
     runs-on: windows-latest
     name: Build Windows (example app)
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -148,7 +148,7 @@ jobs:
     runs-on: macos-latest
     name: Build macOS (example app)
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -168,7 +168,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build Web (example app)
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
