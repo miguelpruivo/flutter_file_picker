@@ -113,6 +113,9 @@ class FilePickerLinux extends FilePickerPlatform {
       'modal': DBusBoolean(options.lockParentWindow),
       'filters': filter.toDBusArray(),
     };
+    if (options.directory != null) {
+      xdpOption["directory"] = DBusBoolean(options.directory!);
+    }
     if (initialDirectory != null) {
       final Uint8List tmp = _encodeDirectory(initialDirectory);
       DBusArray directory = DBusArray.byte(tmp);
@@ -165,6 +168,7 @@ class FilePickerLinux extends FilePickerPlatform {
       initialDirectory: initialDirectory,
       type: type,
       allowedExtensions: allowedExtensions,
+      linuxOptions: FilePickerLinuxOptions(directory: true),
     );
     return files.map((e) => e.uri.path).toList();
   }
