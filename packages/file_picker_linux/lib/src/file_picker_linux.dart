@@ -101,6 +101,7 @@ class FilePickerLinux extends FilePickerPlatform {
     int compressionQuality = 0,
     LinuxOptions linuxOptions = const FilePickerLinuxOptions(),
   }) async {
+    String? acceptLabel = linuxOptions.acceptLabel;
     final FilePickerLinuxOptions options = switch (linuxOptions) {
       FilePickerLinuxOptions opts => opts,
       _ => const FilePickerLinuxOptions(),
@@ -113,6 +114,11 @@ class FilePickerLinux extends FilePickerPlatform {
       'modal': DBusBoolean(options.lockParentWindow),
       'filters': filter.toDBusArray(),
     };
+
+    if (acceptLabel != null) {
+      xdpOption["accept_label"] = DBusString(acceptLabel);
+    }
+
     if (initialDirectory != null) {
       final Uint8List tmp = _encodeDirectory(initialDirectory);
       DBusArray directory = DBusArray.byte(tmp);

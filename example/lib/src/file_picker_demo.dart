@@ -106,7 +106,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           dialogTitle: _dialogTitleController.text,
           initialDirectory: _initialDirectoryController.text,
           windowsOptions: WindowsOptions(lockParentWindow: _lockParentWindow),
-          linuxOptions: LinuxOptions(lockParentWindow: _lockParentWindow),
+          linuxOptions: LinuxOptions(
+            lockParentWindow: _lockParentWindow,
+            acceptLabel: "pickFiles",
+          ),
           withData: _withData,
           androidSafOptions: _androidSafOptionsFromFlags(),
         );
@@ -119,7 +122,10 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           dialogTitle: _dialogTitleController.text,
           initialDirectory: _initialDirectoryController.text,
           windowsOptions: WindowsOptions(lockParentWindow: _lockParentWindow),
-          linuxOptions: LinuxOptions(lockParentWindow: _lockParentWindow),
+          linuxOptions: LinuxOptions(
+            lockParentWindow: _lockParentWindow,
+            acceptLabel: "pickFile",
+          ),
           androidSafOptions: _androidSafOptionsFromFlags(),
         );
         printInDebug("pickedFile: $file");
