@@ -13,7 +13,7 @@ version: 12.0.0-beta.8
 
 workspace:
   - packages/file_picker_platform_interface
-  - packages/file_picker_android
+  - packages/android_file_picker
   - packages/file_picker_darwin
   - packages/file_picker_linux
   - packages/file_picker_windows
@@ -38,7 +38,7 @@ dependencies:
     sdk: flutter
 
   file_picker_platform_interface: ^3.0.0
-  file_picker_android: ^1.0.0
+  android_file_picker: ^1.0.0
   file_picker_darwin: ^1.0.0
   file_picker_linux: ^1.0.0
   file_picker_windows: ^1.0.0
@@ -63,7 +63,7 @@ flutter:
   plugin:
     platforms:
       android:
-        default_package: file_picker_android
+        default_package: android_file_picker
       ios:
         default_package: file_picker_darwin
       linux:

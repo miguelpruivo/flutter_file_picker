@@ -30,7 +30,7 @@ updates:
           - "*"
 
   - package-ecosystem: "pub"
-    directory: "/packages/file_picker_android"
+    directory: "/packages/android_file_picker"
     schedule:
       interval: "weekly"
     groups:
@@ -85,7 +85,7 @@ updates:
 
   # Gradle dependencies for Android native plugin
   - package-ecosystem: "gradle"
-    directory: "/packages/file_picker_android/android"
+    directory: "/packages/android_file_picker/android"
     schedule:
       interval: "weekly"
     groups:
