@@ -13,7 +13,7 @@ version: 12.0.0-beta.8
 
 workspace:
   - packages/file_picker_platform_interface
-  - packages/android_file_picker
+  - packages/file_picker_android
   - packages/file_picker_darwin
   - packages/file_picker_linux
   - packages/file_picker_windows

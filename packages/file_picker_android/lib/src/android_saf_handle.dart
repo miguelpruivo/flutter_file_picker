@@ -1,7 +1,7 @@
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 
-import 'android_file_picker.dart';
-import 'android_file_picker_options.dart';
+import 'file_picker_android.dart';
+import 'file_picker_android_options.dart';
 
 /// An opaque handle to an Android Storage Access Framework [uri].
 final class AndroidSAFHandle {

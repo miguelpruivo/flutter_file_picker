@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'android_platform_file.dart';
-import 'android_file_picker_options.dart';
+import 'file_picker_android_options.dart';
 
 /// An implementation of [FilePickerPlatform] for Android.
 class FilePickerAndroid extends FilePickerPlatform {
