@@ -113,6 +113,11 @@ class FilePickerLinux extends FilePickerPlatform {
       'modal': DBusBoolean(options.lockParentWindow),
       'filters': filter.toDBusArray(),
     };
+
+    if (linuxOptions.acceptLabel != null) {
+      xdpOption["accept_label"] = DBusString(linuxOptions.acceptLabel!);
+    }
+
     if (initialDirectory != null) {
       final Uint8List tmp = _encodeDirectory(initialDirectory);
       DBusArray directory = DBusArray.byte(tmp);
