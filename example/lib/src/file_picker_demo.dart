@@ -29,6 +29,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
   final _dialogTitleController = TextEditingController();
   final _initialDirectoryController = TextEditingController();
   final _parentWindowController = TextEditingController();
+  final _acceptLabelController = TextEditingController();
   final _fileExtensionController = TextEditingController();
   String? _extension;
   bool _isLoading = false;
@@ -86,6 +87,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
     _dialogTitleController.dispose();
     _initialDirectoryController.dispose();
     _parentWindowController.dispose();
+    _acceptLabelController.dispose();
     _fileExtensionController.dispose();
     super.dispose();
   }
@@ -108,7 +110,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           windowsOptions: WindowsOptions(lockParentWindow: _lockParentWindow),
           linuxOptions: LinuxOptions(
             lockParentWindow: _lockParentWindow,
-            acceptLabel: "pickFiles",
+            acceptLabel: _acceptLabelFromInput(),
           ),
           withData: _withData,
           androidSafOptions: _androidSafOptionsFromFlags(),
@@ -124,7 +126,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
           windowsOptions: WindowsOptions(lockParentWindow: _lockParentWindow),
           linuxOptions: LinuxOptions(
             lockParentWindow: _lockParentWindow,
-            acceptLabel: "pickFile",
+            acceptLabel: _acceptLabelFromInput(),
           ),
           androidSafOptions: _androidSafOptionsFromFlags(),
         );
@@ -491,6 +493,11 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         : null;
   }
 
+  String? _acceptLabelFromInput() {
+    final acceptLabel = _acceptLabelController.text.trim();
+    return acceptLabel.isNotEmpty ? acceptLabel : null;
+  }
+
   AndroidOptions? _androidSafOptionsFromFlags() {
     return (_safPersist || _safReadWrite)
         ? FilePickerAndroidOptions(
@@ -555,6 +562,16 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
             labelText: 'Default File Name',
           ),
           controller: _defaultFileNameController,
+        ),
+      ),
+      SizedBox(
+        width: 400,
+        child: TextField(
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Accept Label (Linux)',
+          ),
+          controller: _acceptLabelController,
         ),
       ),
       SizedBox(
