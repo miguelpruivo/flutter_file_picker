@@ -1,4 +1,4 @@
-import 'package:android_file_picker/file_picker_android.dart';
+import 'package:android_file_picker/android_file_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'file_picker_results.dart';
