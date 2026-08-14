@@ -31,6 +31,7 @@ melos:
 
     test:
       exec: flutter test
+      concurrency: 1
       description: Run flutter test in all packages.
 
 dependencies:
