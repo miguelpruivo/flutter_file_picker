@@ -1,5 +1,5 @@
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
-import 'package:file_picker_windows/file_picker_windows.dart';
+import 'package:windows_file_picker/windows_file_picker.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -41,7 +41,7 @@ dependencies:
   android_file_picker: ^1.0.0
   file_picker_darwin: ^1.0.0
   file_picker_linux: ^1.0.0
-  file_picker_windows: ^1.0.0
+  windows_file_picker: ^1.0.0
   file_picker_web: ^3.0.0
   cross_file: ^0.3.5+4
 
@@ -73,4 +73,4 @@ flutter:
       web:
         default_package: file_picker_web
       windows:
-        default_package: file_picker_windows
+        default_package: windows_file_picker
