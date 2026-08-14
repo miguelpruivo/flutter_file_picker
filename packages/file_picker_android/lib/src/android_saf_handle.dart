@@ -5,8 +5,10 @@ import 'file_picker_android_options.dart';
 
 /// An opaque handle to an Android Storage Access Framework [uri].
 final class AndroidSAFHandle {
+  /// Creates a new [AndroidSAFHandle] with the given [accessMode] and [uri].
   const AndroidSAFHandle({required this.accessMode, required this.uri});
 
+  /// Creates an [AndroidSAFHandle] from a platform channel map payload.
   factory AndroidSAFHandle.fromMap(Map<Object?, Object?> map) {
     return AndroidSAFHandle(
       uri: Uri.parse(map['uri'] as String),

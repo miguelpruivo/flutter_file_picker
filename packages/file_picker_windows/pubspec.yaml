@@ -1,5 +1,5 @@
 name: windows_file_picker
-description: Windows implementation of the file_picker plugin.
+description: Windows implementation of the file_picker plugin using Win32 COM APIs for native file and directory picking.
 version: 1.0.0
 homepage: https://github.com/miguelpruivo/flutter_file_picker/tree/master/packages/file_picker_windows
 repository: https://github.com/miguelpruivo/flutter_file_picker/tree/master/packages/file_picker_windows

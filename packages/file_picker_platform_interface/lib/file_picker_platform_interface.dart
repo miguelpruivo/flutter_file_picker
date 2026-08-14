@@ -1,3 +1,6 @@
+/// Common platform interface for the `file_picker` plugin.
+library;
+
 export 'src/enums/file_picker_status.dart';
 export 'src/enums/file_type.dart';
 export 'src/exceptions.dart';
@@ -11,3 +14,4 @@ export 'src/method_channel_file_picker.dart';
 export 'src/platform_file.dart';
 export 'src/utils/file_picker_save_utils_io.dart'
     if (dart.library.js_interop) 'src/utils/file_picker_save_utils_web.dart';
+
