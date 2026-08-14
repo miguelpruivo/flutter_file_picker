@@ -86,7 +86,7 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
         dialog.canChooseDirectories = false
         dialog.canChooseFiles = true
         let extensions = args["allowedExtensions"] as? [String] ?? []
-        applyExtensions(dialog, extensions)
+        applyExtensions(dialog, extensions, method: call.method)
 
         guard let appWindow = getFlutterWindow() else {
             result(nil)
@@ -143,7 +143,7 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
         dialog.canChooseDirectories = true
         dialog.canChooseFiles = true
         let extensions = args["allowedExtensions"] as? [String] ?? []
-        applyExtensions(dialog, extensions)
+        applyExtensions(dialog, extensions, method: call.method)
 
         guard let appWindow: NSWindow = getFlutterWindow() else {
             result(nil)
@@ -239,7 +239,7 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
         }
 
         let extensions = args["allowedExtensions"] as? [String] ?? []
-        applyExtensions(dialog, extensions)
+        applyExtensions(dialog, extensions, method: call.method)
 
         guard let appWindow = getFlutterWindow() else {
             result(nil)
@@ -305,15 +305,46 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
         return nil
     }
 
-    private func applyExtensions(_ dialog: NSSavePanel, _ extensions: [String]) {
-        if !extensions.isEmpty {
-            if #available(macOS 11.0, *) {
-                let contentTypes = extensions.compactMap { ext in
-                    UTType(filenameExtension: ext)
+    private func applyExtensions(_ dialog: NSSavePanel, _ extensions: [String], method: String = "") {
+        if #available(macOS 11.0, *) {
+            var contentTypes: [UTType] = []
+            switch method {
+            case "image":
+                contentTypes = [.image]
+            case "video":
+                contentTypes = [.movie, .video]
+            case "audio":
+                contentTypes = [.audio]
+            case "media":
+                contentTypes = [.image, .movie, .video, .audio]
+            case "custom":
+                contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
+            default:
+                if !extensions.isEmpty {
+                    contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
                 }
+            }
+            if !contentTypes.isEmpty {
                 dialog.allowedContentTypes = contentTypes
-            } else {
-                dialog.allowedFileTypes = extensions
+            }
+        } else {
+            var fileTypes = extensions
+            if fileTypes.isEmpty {
+                switch method {
+                case "image":
+                    fileTypes = ["bmp", "gif", "jpeg", "jpg", "png", "webp", "heic"]
+                case "video":
+                    fileTypes = ["avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv"]
+                case "audio":
+                    fileTypes = ["aac", "midi", "mp3", "ogg", "wav", "m4a", "flac"]
+                case "media":
+                    fileTypes = ["bmp", "gif", "jpeg", "jpg", "png", "webp", "avi", "flv", "mkv", "mov", "mp4", "mpeg", "webm", "wmv"]
+                default:
+                    break
+                }
+            }
+            if !fileTypes.isEmpty {
+                dialog.allowedFileTypes = fileTypes
             }
         }
     }
