@@ -1,4 +1,4 @@
-# file_picker_windows
+# windows_file_picker
 
 The Windows implementation of `file_picker`.
 

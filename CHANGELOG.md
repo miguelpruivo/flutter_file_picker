@@ -10,7 +10,7 @@
   - Deprecated top-level `lockParentWindow` and `cancelUploadOnWindowBlur` parameters in favor of platform-specific option classes (`WindowsOptions`, `LinuxOptions`, `WebOptions`).
 
 ### Architecture
-- **Federated Plugin:** Refactored `file_picker` into a federated architecture with dedicated platform implementation packages (`file_picker_platform_interface`, `android_file_picker`, `file_picker_darwin`, `file_picker_linux`, `file_picker_windows`, and `file_picker_web`).
+- **Federated Plugin:** Refactored `file_picker` into a federated architecture with dedicated platform implementation packages (`file_picker_platform_interface`, `android_file_picker`, `file_picker_darwin`, `file_picker_linux`, `windows_file_picker`, and `file_picker_web`).
 
 ### Features & Enhancements
 - **New API:** Added `pickFile()` static method as a convenience wrapper for single file selection.
