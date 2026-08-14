@@ -251,12 +251,25 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
                 return
             }
 
-            if let url = dialog.url {
-                result(url.path)
+            guard let url = dialog.url else {
+                result(nil)
                 return
             }
 
-            result(nil)
+            if let bytes = args["bytes"] as? FlutterStandardTypedData {
+                do {
+                    try bytes.data.write(to: url, options: .atomic)
+                } catch {
+                    result(
+                        FlutterError(
+                            code: "save_file_error",
+                            message: error.localizedDescription,
+                            details: nil))
+                    return
+                }
+            }
+
+            result(url.path)
         }
     }
 
