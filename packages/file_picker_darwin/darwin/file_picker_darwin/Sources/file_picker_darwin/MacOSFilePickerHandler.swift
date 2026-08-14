@@ -70,7 +70,7 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
             return
         }
         let dialog = NSOpenPanel()
-        let args = call.arguments as! [String: Any]
+        let args = (call.arguments as? [String: Any]) ?? [:]
 
         if let initialDirectory = args["initialDirectory"] as? String,
            !initialDirectory.isEmpty {
@@ -128,7 +128,7 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
         }
 
         let dialog: NSOpenPanel = NSOpenPanel()
-        let args = call.arguments as! [String: Any]
+        let args = (call.arguments as? [String: Any]) ?? [:]
 
         if let initialDirectory = args["initialDirectory"] as? String,
            !initialDirectory.isEmpty {
@@ -177,7 +177,7 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
         }
 
         let dialog = NSOpenPanel()
-        let args = call.arguments as! [String: Any]
+        let args = (call.arguments as? [String: Any]) ?? [:]
 
         if let initialDirectory = args["initialDirectory"] as? String,
            !initialDirectory.isEmpty {
@@ -225,7 +225,7 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
         }
 
         let dialog = NSSavePanel()
-        let args = call.arguments as! [String: Any]
+        let args = (call.arguments as? [String: Any]) ?? [:]
 
         dialog.title = args["dialogTitle"] as? String ?? ""
         dialog.showsTagField = false
