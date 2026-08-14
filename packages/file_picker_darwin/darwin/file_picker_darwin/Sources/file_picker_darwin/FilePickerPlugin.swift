@@ -25,8 +25,13 @@ public class FilePickerPlugin: NSObject, FlutterPlugin {
             name: "miguelruivo.flutter.plugins.filepicker",
             binaryMessenger: registrar.messenger)
 
+        let eventChannel = FlutterEventChannel(
+            name: "miguelruivo.flutter.plugins.filepickerevent",
+            binaryMessenger: registrar.messenger)
+
         let instance = FilePickerPlugin(registrar: registrar)
         registrar.addMethodCallDelegate(instance, channel: channel)
+        eventChannel.setStreamHandler(instance.handler)
 #endif
     }
 
