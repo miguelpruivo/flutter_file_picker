@@ -1,0 +1,52 @@
+name: file_picker
+description: A package that allows you to use a native file explorer to pick single or multiple absolute file paths, with extension filtering support.
+homepage: https://github.com/miguelpruivo/flutter_file_picker
+repository: https://github.com/miguelpruivo/flutter_file_picker/tree/master/packages/file_picker
+issue_tracker: https://github.com/miguelpruivo/flutter_file_picker/issues
+topics:
+  - file-picker
+  - files
+  - storage
+  - desktop
+  - web
+version: 12.0.0
+
+resolution: workspace
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  file_picker_platform_interface: ^3.0.1
+  android_file_picker: ^1.0.1
+  file_picker_darwin: ^1.0.1
+  file_picker_linux: ^1.0.1
+  windows_file_picker: ^1.0.1
+  file_picker_web: ^3.0.1
+  cross_file: ^0.3.5+4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  plugin_platform_interface: ^2.1.8
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        default_package: android_file_picker
+      ios:
+        default_package: file_picker_darwin
+      linux:
+        default_package: file_picker_linux
+      macos:
+        default_package: file_picker_darwin
+      web:
+        default_package: file_picker_web
+      windows:
+        default_package: windows_file_picker
