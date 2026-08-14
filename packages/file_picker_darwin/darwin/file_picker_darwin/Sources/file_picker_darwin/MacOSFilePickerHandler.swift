@@ -37,16 +37,16 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
 
     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
-        case "pickFiles":
+        case "any", "image", "video", "audio", "custom", "media", "pickFiles":
             handleFileSelection(call, result: result)
 
-        case "getDirectoryPath":
+        case "dir", "getDirectoryPath":
             handleDirectorySelection(call, result: result)
 
         case "pickFileAndDirectoryPaths":
             handleFileAndDirectorySelection(call, result: result)
 
-        case "saveFile":
+        case "save", "saveFile":
             handleSaveFile(call, result: result)
 
         case "clear":
@@ -81,7 +81,7 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
             dialog.message = title
         }
         dialog.showsHiddenFiles = false
-        let allowMultiple = args["allowMultiple"] as? Bool ?? false
+        let allowMultiple = (args["allowMultipleSelection"] as? Bool) ?? (args["allowMultiple"] as? Bool) ?? false
         dialog.allowsMultipleSelection = allowMultiple
         dialog.canChooseDirectories = false
         dialog.canChooseFiles = true
@@ -99,24 +99,22 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
                 return
             }
 
-            if allowMultiple {
-                let pathResult = dialog.urls
-
-                if pathResult.isEmpty {
-                    result(nil)
-                } else {
-                    let paths = pathResult.map { $0.path }
-                    result(paths)
-                }
-                return
+            let fileMaps = dialog.urls.compactMap { url -> [String: Any]? in
+                let path = url.path
+                let name = url.lastPathComponent
+                let size = (try? FileManager.default.attributesOfItem(atPath: path)[.size] as? Int64) ?? 0
+                return [
+                    "path": path,
+                    "name": name,
+                    "size": size
+                ]
             }
 
-            if let pathResult = dialog.url {
-                result([pathResult.path])
-                return
+            if fileMaps.isEmpty {
+                result(nil)
+            } else {
+                result(fileMaps)
             }
-
-            result(nil)
         }
     }
 
