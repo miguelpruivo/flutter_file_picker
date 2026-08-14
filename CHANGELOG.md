@@ -1,3 +1,24 @@
+## 12.0.0
+
+### Breaking Changes
+- **Minimum Requirements:** Raised minimum supported versions to Flutter `3.38` / Dart `3.10`.
+- **iOS Target:** Raised minimum supported iOS deployment target to `14.0`. Removed `DKImagePickerController` / `DKPhotoGallery` dependency chain.
+- **API Modifications:**
+  - `saveFile()`: `fileName` and `bytes` are now required parameters across all platforms.
+  - `pickFiles()`: `allowMultiple` now defaults to `true`. Use `pickFile()` for single file selection (`allowMultiple` is deprecated).
+  - Deprecated `withData`, `withReadStream`, and `readSequential` on `pickFiles()`/`pickFile()` in favor of `PlatformFile.readAsBytes()` and `PlatformFile.readAsByteStream()`.
+  - Deprecated top-level `lockParentWindow` and `cancelUploadOnWindowBlur` parameters in favor of platform-specific option classes (`WindowsOptions`, `LinuxOptions`, `WebOptions`).
+
+### Architecture
+- **Federated Plugin:** Refactored `file_picker` into a federated architecture with dedicated platform implementation packages (`file_picker_platform_interface`, `android_file_picker`, `file_picker_darwin`, `file_picker_linux`, `file_picker_windows`, and `file_picker_web`).
+
+### Features & Enhancements
+- **New API:** Added `pickFile()` static method as a convenience wrapper for single file selection.
+- **Platform Options:** Introduced `WindowsOptions`, `LinuxOptions` (with `acceptLabel` and `parentWindow`), and `WebOptions`.
+- **Android:** Added support for Storage Access Framework (SAF) Persistable URI Grants (`AndroidSAFOptions`, `AndroidSAFHandle`, `AndroidPlatformFile`). Optimized image compression to prevent `OutOfMemoryError`.
+- **iOS & macOS:** Unified native implementations into shared Darwin sources. Selection order is now preserved when picking multiple files on iOS.
+- **Exception Handling:** Exported `IllegalCharacterInFileNameException` in `file_picker.dart`.
+
 ## 12.0.0-beta.8
 ### General
 - Exported `IllegalCharacterInFileNameException` in `file_picker.dart` so exception handling can be performed by callers. [#2077](https://github.com/miguelpruivo/flutter_file_picker/pull/2077)
