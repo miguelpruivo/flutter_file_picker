@@ -1,3 +1,7 @@
+## 12.0.1
+
+- Updated federated subpackage dependencies (`android_file_picker`, `file_picker_darwin`, `file_picker_linux`, `windows_file_picker`, `file_picker_web`, `file_picker_platform_interface`) to include examples, expanded package descriptions, and complete API documentation.
+
 ## 12.0.0
 
 ### Breaking Changes
