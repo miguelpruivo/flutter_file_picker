@@ -15,12 +15,24 @@ private extension CFString {
         "com.apple.security.files.user-selected.read-write" as CFString
 }
 
-final class MacOSFilePickerHandler {
+final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
     private let registrar: FlutterPluginRegistrar
     private var skipEntitlementsChecks: Bool = false
+    private var eventSink: FlutterEventSink?
 
     init(registrar: FlutterPluginRegistrar) {
         self.registrar = registrar
+        super.init()
+    }
+
+    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        self.eventSink = events
+        return nil
+    }
+
+    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        self.eventSink = nil
+        return nil
     }
 
     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
