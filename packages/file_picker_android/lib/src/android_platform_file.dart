@@ -9,7 +9,7 @@ import 'android_saf_handle.dart';
 
 /// A [PlatformFile] implementation for Android.
 base class AndroidPlatformFile extends PlatformFile {
-  /// Creates a new [AndroidPlatformFile] instance.
+  /// Creates a new [AndroidPlatformFile] instance from the given [name], [uri] and [safHandle].
   AndroidPlatformFile({
     required this.name,
     required this.uri,
