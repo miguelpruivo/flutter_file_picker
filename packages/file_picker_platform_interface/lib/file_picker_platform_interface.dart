@@ -14,4 +14,3 @@ export 'src/method_channel_file_picker.dart';
 export 'src/platform_file.dart';
 export 'src/utils/file_picker_save_utils_io.dart'
     if (dart.library.js_interop) 'src/utils/file_picker_save_utils_web.dart';
-
