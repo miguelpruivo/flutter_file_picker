@@ -6,10 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 base class TestPlatformFile extends PlatformFile {
-  TestPlatformFile({
-    required this.name,
-    required String path,
-  }) : uri = Uri.file(path);
+  TestPlatformFile({required this.name, required String path})
+    : uri = Uri.file(path);
 
   @override
   final String name;
@@ -46,22 +44,22 @@ class MockFilePickerPlatform extends FilePickerPlatform
     WebOptions webOptions = const WebOptions(),
   }) async {
     return [
-      TestPlatformFile(
-        name: 'test_file.txt',
-        path: '/path/to/test_file.txt',
-      ),
+      TestPlatformFile(name: 'test_file.txt', path: '/path/to/test_file.txt'),
     ];
   }
 }
 
 void main() {
-  test('FilePicker.pickFiles delegates to FilePickerPlatform.instance.pickFiles', () async {
-    final mockPlatform = MockFilePickerPlatform();
-    FilePickerPlatform.instance = mockPlatform;
+  test(
+    'FilePicker.pickFiles delegates to FilePickerPlatform.instance.pickFiles',
+    () async {
+      final mockPlatform = MockFilePickerPlatform();
+      FilePickerPlatform.instance = mockPlatform;
 
-    final files = await FilePicker.pickFiles();
-    expect(files, isNotEmpty);
-    expect(files.first.name, 'test_file.txt');
-    expect(files.first.path, '/path/to/test_file.txt');
-  });
+      final files = await FilePicker.pickFiles();
+      expect(files, isNotEmpty);
+      expect(files.first.name, 'test_file.txt');
+      expect(files.first.path, '/path/to/test_file.txt');
+    },
+  );
 }
