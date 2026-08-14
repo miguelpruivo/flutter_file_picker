@@ -1,4 +1,4 @@
-name: file_picker_android
+name: android_file_picker
 description: Android implementation of the file_picker plugin.
 version: 1.0.0
 homepage: https://github.com/miguelpruivo/flutter_file_picker/tree/master/packages/file_picker_android

@@ -1,4 +1,4 @@
-# file_picker_android
+# android_file_picker
 
 The Android implementation of `file_picker`.
 
