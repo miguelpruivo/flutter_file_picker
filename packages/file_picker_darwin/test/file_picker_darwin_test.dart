@@ -22,32 +22,27 @@ void main() {
       expect(file.uri.path, equals('/tmp/test.png'));
     });
 
-    test(
-      'pickFileAndDirectoryPaths calls the native combined picker and '
-      'returns its paths',
-      () async {
-        final picker = FilePickerDarwin();
+    test('pickFileAndDirectoryPaths calls the native combined picker and '
+        'returns its paths', () async {
+      final picker = FilePickerDarwin();
 
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(picker.methodChannel, (call) async {
+            expect(call.method, 'pickFileAndDirectoryPaths');
+            expect((call.arguments as Map)['allowedExtensions'], ['pdf']);
+            return ['/tmp/some_file.pdf', '/tmp/some_directory'];
+          });
+      addTearDown(() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(picker.methodChannel, (call) async {
-              expect(call.method, 'pickFileAndDirectoryPaths');
-              expect((call.arguments as Map)['allowedExtensions'], [
-                'pdf',
-              ]);
-              return ['/tmp/some_file.pdf', '/tmp/some_directory'];
-            });
-        addTearDown(() {
-          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-              .setMockMethodCallHandler(picker.methodChannel, null);
-        });
+            .setMockMethodCallHandler(picker.methodChannel, null);
+      });
 
-        final result = await picker.pickFileAndDirectoryPaths(
-          allowedExtensions: ['pdf'],
-        );
+      final result = await picker.pickFileAndDirectoryPaths(
+        allowedExtensions: ['pdf'],
+      );
 
-        expect(result, ['/tmp/some_file.pdf', '/tmp/some_directory']);
-      },
-    );
+      expect(result, ['/tmp/some_file.pdf', '/tmp/some_directory']);
+    });
 
     test(
       'pickFileAndDirectoryPaths returns an empty list on PlatformException',

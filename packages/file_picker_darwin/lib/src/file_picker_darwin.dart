@@ -143,7 +143,9 @@ class FilePickerDarwin extends FilePickerPlatform {
           });
       return result ?? [];
     } on PlatformException catch (ex) {
-      print('[$_tag] Could not resolve file and directory paths: ${ex.message}');
+      print(
+        '[$_tag] Could not resolve file and directory paths: ${ex.message}',
+      );
     }
     return [];
   }
