@@ -42,7 +42,8 @@ void main() {
             expect(
               (call.arguments as Map).containsKey('bytes'),
               isFalse,
-              reason: 'macOS writes bytes itself; the native side only '
+              reason:
+                  'macOS writes bytes itself; the native side only '
                   'needs to return the destination path.',
             );
             return targetFile.path;
