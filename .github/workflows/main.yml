@@ -5,11 +5,21 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   check_changes:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
+      android: ${{ steps.filter.outputs.android }}
       darwin: ${{ steps.filter.outputs.darwin }}
       linux: ${{ steps.filter.outputs.linux }}
       windows: ${{ steps.filter.outputs.windows }}
@@ -20,37 +30,31 @@ jobs:
         id: filter
         with:
           filters: |
+            shared: &shared
+              - 'packages/file_picker/**'
+              - 'packages/file_picker_platform_interface/**'
+              - 'example/**'
+              - 'pubspec.yaml'
+              - '.github/workflows/**'
+            android:
+              - *shared
+              - 'packages/file_picker_android/**'
             darwin:
+              - *shared
               - 'packages/file_picker_darwin/**'
-              - 'packages/file_picker_platform_interface/**'
-              - 'lib/**'
-              - 'pubspec.yaml'
-              - 'example/**'
-              - '.github/workflows/**'
             linux:
+              - *shared
               - 'packages/file_picker_linux/**'
-              - 'packages/file_picker_platform_interface/**'
-              - 'lib/**'
-              - 'pubspec.yaml'
-              - 'example/**'
-              - '.github/workflows/**'
             windows:
+              - *shared
               - 'packages/file_picker_windows/**'
-              - 'packages/file_picker_platform_interface/**'
-              - 'lib/**'
-              - 'pubspec.yaml'
-              - 'example/**'
-              - '.github/workflows/**'
             web:
+              - *shared
               - 'packages/file_picker_web/**'
-              - 'packages/file_picker_platform_interface/**'
-              - 'lib/**'
-              - 'pubspec.yaml'
-              - 'example/**'
-              - '.github/workflows/**'
 
   setup_flutter_versions:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       flutter-versions: ${{ steps.id_flutter_versions.outputs.versions }}
     steps:
@@ -63,6 +67,7 @@ jobs:
   test_flutter_versions:
     needs: setup_flutter_versions
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -98,10 +103,94 @@ jobs:
       - name: Run tests
         run: melos run test
 
+      # tool/ is not a melos package, so `melos run test` never reaches it.
+      - name: Run CI tooling tests
+        if: matrix.flutter == 'stable'
+        run: flutter test tool/test
+
+  build_android:
+    needs: [check_changes, test_flutter_versions]
+    if: ${{ needs.check_changes.outputs.android == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Last release of the AGP 8.x line. Flutter enforces a minimum AGP
+          # version and raises it over time, so pinning near the top of the
+          # line keeps this lane alive until Flutter drops AGP 8 altogether.
+          - lane: agp-8.x
+            agp_version: 8.13.2
+            gradle_version: 8.14.3
+            kotlin_version: 2.2.20
+            built_in_kotlin: ""
+          - lane: agp-9.x
+            agp_version: 9.2.1
+            gradle_version: 9.5.0
+            kotlin_version: 2.3.21
+            built_in_kotlin: "false"
+    name: Build Android (example app, ${{ matrix.lane }})
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Show toolchain versions
+        run: |
+          flutter --version
+          java -version
+
+      # See tool/patch_android_example.dart to reproduce a failing lane locally.
+      - name: Patch example host app for ${{ matrix.lane }}
+        run: >
+          dart tool/patch_android_example.dart
+          --agp ${{ matrix.agp_version }}
+          --gradle ${{ matrix.gradle_version }}
+          --kotlin ${{ matrix.kotlin_version }}
+          --built-in-kotlin "${{ matrix.built_in_kotlin }}"
+
+      - name: Show Android diff under test
+        run: git --no-pager diff -- example/android | cat
+
+      # Restored after the patch step on purpose: the key has to reflect the
+      # toolchain the lane actually builds with, not the committed one.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ matrix.lane }}-${{ matrix.gradle_version }}-${{ hashFiles('packages/file_picker_android/android/**/*.gradle*', 'example/android/**/*.gradle*') }}
+          restore-keys: |
+            gradle-${{ matrix.lane }}-${{ matrix.gradle_version }}-
+
+      - name: Build Android example
+        working-directory: example
+        run: |
+          flutter pub get
+          flutter build apk --debug
+
+      # R8 only runs on release builds, so this is the only job that exercises
+      # packages/file_picker_android/android/proguard-rules.pro. The example
+      # signs release with the debug keys, so no secrets are involved.
+      - name: Build Android example (release, exercises R8)
+        if: matrix.lane == 'agp-9.x'
+        working-directory: example
+        run: flutter build apk --release
+
   build_linux:
     needs: [check_changes, test_flutter_versions]
     if: ${{ needs.check_changes.outputs.linux == 'true' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     name: Build Linux (example app)
     steps:
       - uses: actions/checkout@v7
@@ -126,6 +215,7 @@ jobs:
     needs: [check_changes, test_flutter_versions]
     if: ${{ needs.check_changes.outputs.windows == 'true' }}
     runs-on: windows-latest
+    timeout-minutes: 30
     name: Build Windows (example app)
     steps:
       - uses: actions/checkout@v7
@@ -142,11 +232,12 @@ jobs:
           flutter pub get
           flutter build windows
 
-  build_macos:
+  build_darwin:
     needs: [check_changes, test_flutter_versions]
     if: ${{ needs.check_changes.outputs.darwin == 'true' }}
     runs-on: macos-latest
-    name: Build macOS (example app)
+    timeout-minutes: 40
+    name: Build Darwin (macOS + iOS example app)
     steps:
       - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
@@ -162,10 +253,18 @@ jobs:
           flutter pub get
           flutter build macos
 
+      # file_picker_darwin declares ios and macos with sharedDarwinSource, so
+      # both targets ship from the same sources and both need compiling. Reuses
+      # this runner because macOS minutes bill at 10x.
+      - name: Build iOS example
+        working-directory: example
+        run: flutter build ios --no-codesign
+
   build_web:
     needs: [check_changes, test_flutter_versions]
     if: ${{ needs.check_changes.outputs.web == 'true' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     name: Build Web (example app)
     steps:
       - uses: actions/checkout@v7
@@ -174,12 +273,16 @@ jobs:
           channel: stable
           cache: true
       - run: flutter --version
-      - name: Install dependencies
-        run: flutter pub get
       - name: Enable Web
         run: flutter config --enable-web
-      - name: Build Web example
+      # Both backends: JS interop does not behave identically under dart2wasm
+      # and dart2js, and dart2js is still what most apps ship.
+      - name: Build Web example (dart2wasm)
         working-directory: example
         run: |
           flutter pub get
           flutter build web --wasm
+
+      - name: Build Web example (dart2js)
+        working-directory: example
+        run: flutter build web
