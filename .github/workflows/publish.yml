@@ -12,9 +12,17 @@ on:
         required: true
         default: true
 
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-pub-dev
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       id-token: write
       contents: read

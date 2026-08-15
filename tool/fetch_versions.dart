@@ -3,20 +3,50 @@ import 'dart:io';
 
 import 'flutter_release.dart';
 
+/// Versions used when the release feed cannot be reached.
+///
+/// Every build job in the CI pipeline hangs off this script through `needs`,
+/// so a transient network failure would otherwise skip the whole pipeline and
+/// report it as green. Degrading to the channels that `subosito/flutter-action`
+/// resolves on its own keeps the pipeline meaningful without pinning versions
+/// that would silently go stale.
+const List<String> fallbackVersions = ['stable', 'beta'];
+
 /// Main entry point for the version fetching script.
 ///
 /// Fetches the list of Flutter releases for Linux, parses them to find
 /// the recent stable minor versions, and outputs them as a JSON list
 /// to `stdout` in the format `versions=["..."]`.
 Future<void> main() async {
+  List<String> versions;
   try {
-    final json = await _fetchJson();
-    final versions = parseVersions(json);
-    stdout.write('versions=${jsonEncode(versions)}');
+    final json = await _fetchJsonWithRetries();
+    versions = parseVersions(json);
   } catch (e) {
-    stderr.writeln('Error: $e');
-    exit(1);
+    stderr.writeln(
+      'Warning: could not resolve Flutter versions ($e). '
+      'Falling back to $fallbackVersions.',
+    );
+    versions = fallbackVersions;
   }
+  stdout.write('versions=${jsonEncode(versions)}');
+}
+
+/// Fetches the release feed, retrying on transient failures.
+Future<Map<String, Object?>> _fetchJsonWithRetries({int attempts = 3}) async {
+  Object? lastError;
+  for (var attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      return await _fetchJson();
+    } catch (e) {
+      lastError = e;
+      stderr.writeln('Attempt $attempt of $attempts failed: $e');
+      if (attempt < attempts) {
+        await Future<void>.delayed(Duration(seconds: 2 * attempt));
+      }
+    }
+  }
+  throw HttpException('Giving up after $attempts attempts: $lastError');
 }
 
 /// Fetches the JSON data from the Flutter infrastructure releases URL.
@@ -24,14 +54,18 @@ Future<Map<String, Object?>> _fetchJson() async {
   final url = Uri.parse(
     'https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json',
   );
-  final httpClient = HttpClient();
+  final httpClient = HttpClient()
+    ..connectionTimeout = const Duration(seconds: 15);
   try {
     final request = await httpClient.getUrl(url);
     final response = await request.close();
     if (response.statusCode != 200) {
       throw HttpException('Failed to fetch releases: ${response.statusCode}');
     }
-    final responseBody = await response.transform(utf8.decoder).join();
+    final responseBody = await response
+        .transform(utf8.decoder)
+        .join()
+        .timeout(const Duration(seconds: 30));
     return jsonDecode(responseBody) as Map<String, Object?>;
   } finally {
     httpClient.close();

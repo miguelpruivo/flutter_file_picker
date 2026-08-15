@@ -17,6 +17,7 @@ final class IOSFilePickerHandler: NSObject,
     private var allowMultipleSelection = false
     private var loadDataToMemory = false
     private var isDirectoryPicker = false
+    private var isFileAndDirectoryPicker = false
     private var isSaveFile = false
 
     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -95,6 +96,18 @@ final class IOSFilePickerHandler: NSObject,
                 asDirectoryPicker: false)
         case "save":
             saveFile(arguments)
+        case "pickFileAndDirectoryPaths":
+            let allowed = arguments["allowedExtensions"] as? [String] ?? []
+            var contentTypes = allowed.isEmpty ? [.item] : resolveCustomContentTypes(allowed)
+            if contentTypes.isEmpty {
+                contentTypes = [.item]
+            }
+            contentTypes.append(.folder)
+            isFileAndDirectoryPicker = true
+            presentDocumentPicker(
+                contentTypes: contentTypes,
+                allowsMultipleSelection: true,
+                asDirectoryPicker: false)
         default:
             result(FlutterMethodNotImplemented)
             self.result = nil
@@ -199,6 +212,13 @@ final class IOSFilePickerHandler: NSObject,
             currentResult(urls.first?.path)
             result = nil
             isDirectoryPicker = false
+            return
+        }
+
+        if isFileAndDirectoryPicker {
+            currentResult(urls.map { $0.path })
+            result = nil
+            isFileAndDirectoryPicker = false
             return
         }
 
@@ -379,6 +399,8 @@ final class IOSFilePickerHandler: NSObject,
             isSaveFile = false
         }
 
+        isDirectoryPicker = false
+        isFileAndDirectoryPicker = false
         result = nil
         currentResult(value)
     }
