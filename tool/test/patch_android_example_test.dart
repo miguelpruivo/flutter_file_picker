@@ -128,10 +128,32 @@ void main() {
       expect(result, isNot(contains('all.zip')));
     });
 
+    test('ignores a distribution name quoted in a comment', () {
+      const source =
+          '# was gradle-7.0.0-all.zip before the upgrade\n'
+          'distributionUrl=https\\://services.gradle.org/distributions/'
+          'gradle-9.5.0-all.zip\n';
+
+      final result = patchGradleWrapper(source, gradleVersion: '8.14.3');
+
+      expect(result, contains('# was gradle-7.0.0-all.zip before the upgrade'));
+      expect(result, contains('distributions/gradle-8.14.3-all.zip'));
+    });
+
     test('throws when the distribution URL is missing', () {
       expect(
         () => patchGradleWrapper(
           'distributionBase=GRADLE_USER_HOME\n',
+          gradleVersion: '8.14.3',
+        ),
+        throwsA(isA<PatchException>()),
+      );
+    });
+
+    test('throws when only a comment mentions a distribution', () {
+      expect(
+        () => patchGradleWrapper(
+          '# gradle-9.5.0-all.zip\n',
           gradleVersion: '8.14.3',
         ),
         throwsA(isA<PatchException>()),
