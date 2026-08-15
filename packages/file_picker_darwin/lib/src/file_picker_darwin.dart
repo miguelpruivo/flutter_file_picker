@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 import 'package:flutter/foundation.dart';
@@ -184,6 +185,13 @@ class FilePickerDarwin extends FilePickerPlatform {
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) async {
+    // On macOS, NSSavePanel only returns the destination path; the plugin
+    // writes the bytes to that path itself, mirroring how the Windows and
+    // Linux implementations handle saveFile. On iOS, the native side needs
+    // the bytes upfront to write a temp file before exporting it through
+    // UIDocumentPickerViewController.
+    final bool isMacOS = defaultTargetPlatform == TargetPlatform.macOS;
+
     try {
       if (onFileSaving != null) {
         onFileSaving(FilePickerStatus.picking);
@@ -200,8 +208,12 @@ class FilePickerDarwin extends FilePickerPlatform {
             "fileName": fileName,
             "fileType": mimeType,
             "initialDirectory": initialDirectory,
-            "bytes": bytes,
+            if (!isMacOS) "bytes": bytes,
           });
+
+      if (savedPath != null && isMacOS) {
+        await File(savedPath).writeAsBytes(bytes);
+      }
 
       if (onFileSaving != null) {
         onFileSaving(FilePickerStatus.done);
