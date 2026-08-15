@@ -106,6 +106,28 @@ void main() {
       expect(result, isNot(contains('gradle-9.5.0-all.zip')));
     });
 
+    test('keeps an all distribution as all', () {
+      const source =
+          'distributionUrl=https\\://services.gradle.org/distributions/'
+          'gradle-9.5.0-all.zip\n';
+
+      expect(
+        patchGradleWrapper(source, gradleVersion: '8.14.3'),
+        contains('gradle-8.14.3-all.zip'),
+      );
+    });
+
+    test('keeps a bin distribution as bin', () {
+      const source =
+          'distributionUrl=https\\://services.gradle.org/distributions/'
+          'gradle-9.5.0-bin.zip\n';
+
+      final result = patchGradleWrapper(source, gradleVersion: '8.14.3');
+
+      expect(result, contains('gradle-8.14.3-bin.zip'));
+      expect(result, isNot(contains('all.zip')));
+    });
+
     test('throws when the distribution URL is missing', () {
       expect(
         () => patchGradleWrapper(

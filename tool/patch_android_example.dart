@@ -154,13 +154,22 @@ String patchSettingsGradle(
 
 /// Applies [gradleVersion] to a `gradle-wrapper.properties` source.
 ///
+/// Only the version changes. The distribution type is read back and written
+/// out untouched, so a wrapper regenerated as `bin` (Gradle's own default for
+/// the `wrapper` task) does not silently become `all`, and does not fail the
+/// lane either.
+///
 /// Throws a [PatchException] if the distribution URL is missing.
 String patchGradleWrapper(String source, {required String gradleVersion}) {
-  final pattern = RegExp(r'gradle-[^-]+-all\.zip');
-  if (pattern.firstMatch(source) == null) {
+  final pattern = RegExp(r'gradle-[^-]+-(all|bin)\.zip');
+  final match = pattern.firstMatch(source);
+  if (match == null) {
     throw PatchException('Unable to patch gradle-wrapper.properties');
   }
-  return source.replaceFirst(pattern, 'gradle-$gradleVersion-all.zip');
+  return source.replaceFirst(
+    pattern,
+    'gradle-$gradleVersion-${match.group(1)}.zip',
+  );
 }
 
 /// Rewrites `android.builtInKotlin` in a `gradle.properties` source.
