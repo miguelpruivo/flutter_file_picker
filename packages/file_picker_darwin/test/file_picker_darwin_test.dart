@@ -24,7 +24,7 @@ void main() {
       expect(file.uri.path, equals('/tmp/test.png'));
     });
 
-    test('saveFile writes bytes to disk for real on macOS', () async {
+    test('saveFile writes bytes to disk on macOS', () async {
       final picker = FilePickerDarwin();
       final tempDir = await Directory.systemTemp.createTemp(
         'file_picker_darwin_test',
