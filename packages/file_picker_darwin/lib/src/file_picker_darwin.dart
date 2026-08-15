@@ -134,13 +134,18 @@ class FilePickerDarwin extends FilePickerPlatform {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
   }) async {
-    final files = await pickFiles(
-      dialogTitle: dialogTitle,
-      initialDirectory: initialDirectory,
-      type: type,
-      allowedExtensions: allowedExtensions,
-    );
-    return files.map((e) => e.uri.path).toList();
+    try {
+      final List<String>? result = await methodChannel
+          .invokeListMethod<String>('pickFileAndDirectoryPaths', {
+            'dialogTitle': dialogTitle,
+            'initialDirectory': initialDirectory,
+            'allowedExtensions': allowedExtensions,
+          });
+      return result ?? [];
+    } on PlatformException catch (ex) {
+      print('[$_tag] Could not resolve file and directory paths: ${ex.message}');
+    }
+    return [];
   }
 
   @override
