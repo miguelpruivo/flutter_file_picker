@@ -1,3 +1,6 @@
+/// Common platform interface for the `file_picker` plugin.
+library;
+
 export 'src/enums/file_picker_status.dart';
 export 'src/enums/file_type.dart';
 export 'src/exceptions.dart';

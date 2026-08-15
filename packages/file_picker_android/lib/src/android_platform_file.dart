@@ -9,6 +9,7 @@ import 'android_saf_handle.dart';
 
 /// A [PlatformFile] implementation for Android.
 base class AndroidPlatformFile extends PlatformFile {
+  /// Creates a new [AndroidPlatformFile] instance from the given [name], [uri] and [safHandle].
   AndroidPlatformFile({
     required this.name,
     required this.uri,
@@ -18,6 +19,7 @@ base class AndroidPlatformFile extends PlatformFile {
   }) : _xFile = xFile,
        _bytesLength = bytesLength;
 
+  /// Creates an [AndroidPlatformFile] from a platform channel map payload.
   factory AndroidPlatformFile.fromMap(Map<Object?, Object?> data) {
     final String path = data['path'] as String? ?? '';
     final String rawName = data['name'] as String? ?? '';

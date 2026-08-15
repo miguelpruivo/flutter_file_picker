@@ -1,3 +1,7 @@
+## 3.0.1
+
+- Improved package description, added example, and added missing API documentation.
+
 ## 3.0.0
 
 * Unified platform interface release for federated `file_picker` architecture.
