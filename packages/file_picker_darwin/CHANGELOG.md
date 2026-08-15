@@ -1,5 +1,6 @@
 ## 1.0.1
 
+- Fixed `pickFileAndDirectoryPaths` never returning directories on iOS and macOS. It now calls the native combined file and directory picker instead of silently falling back to file only selection.
 - Fixed `MissingPluginException` on macOS by registering the event channel stream handler.
 - Fixed method channel handling on macOS to support all file types and actions (`any`, `image`, `video`, `audio`, `media`, `custom`, `dir`, `save`).
 - Fixed `saveFile` on macOS not writing the provided file `bytes` to the chosen location.
