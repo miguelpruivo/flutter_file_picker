@@ -11,7 +11,7 @@ import 'dart:io';
 ///
 /// ```
 /// dart tool/patch_android_example.dart \
-///   --agp 8.9.1 --gradle 8.14.3 --kotlin 2.2.20 --built-in-kotlin ""
+///   --agp 8.13.2 --gradle 8.14.3 --kotlin 2.2.20 --built-in-kotlin ""
 /// cd example && flutter build apk --debug
 /// ```
 ///
