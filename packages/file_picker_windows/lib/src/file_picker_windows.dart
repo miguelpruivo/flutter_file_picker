@@ -450,6 +450,12 @@ class FilePickerWindows extends FilePickerPlatform {
       openFileNameW.ref.flags |= ofnOverwritePrompt;
     }
 
+    // Without lpstrDefExt, Windows does not append an extension when the
+    // user types a file name without one, producing extension-less files.
+    if (resolveDefaultExtension(args) case final defaultExtension?) {
+      openFileNameW.ref.lpstrDefExt = defaultExtension.toNativeUtf16();
+    }
+
     if (args.defaultFileName case final defaultFileName?) {
       validateFileName(defaultFileName);
 
@@ -466,6 +472,24 @@ class FilePickerWindows extends FilePickerPlatform {
     }
 
     return openFileNameW;
+  }
+
+  /// Resolves the default extension (without a leading dot) that Windows
+  /// appends via `lpstrDefExt` when the user types a file name without one.
+  ///
+  /// Prefers the first entry of [OpenSaveFileArgs.allowedExtensions], falling
+  /// back to the extension of [OpenSaveFileArgs.defaultFileName].
+  @visibleForTesting
+  String? resolveDefaultExtension(OpenSaveFileArgs args) {
+    return switch (args.allowedExtensions) {
+      [final first, ...] => first,
+      _ => switch (args.defaultFileName) {
+        final name? when extension(name).length > 1 => extension(
+          name,
+        ).substring(1),
+        _ => null,
+      },
+    };
   }
 
   /// Retrieves the HWND handle of the Flutter runner window using `user32.dll`.
@@ -490,6 +514,9 @@ class FilePickerWindows extends FilePickerPlatform {
     calloc.free(openFileNameW.ref.lpstrFile);
     calloc.free(openFileNameW.ref.lpstrFilter);
     calloc.free(openFileNameW.ref.lpstrInitialDir);
+    if (openFileNameW.ref.lpstrDefExt != nullptr) {
+      calloc.free(openFileNameW.ref.lpstrDefExt);
+    }
     calloc.free(openFileNameW);
   }
 
