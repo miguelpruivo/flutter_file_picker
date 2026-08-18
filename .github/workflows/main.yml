@@ -163,7 +163,7 @@ jobs:
 
       # Restored after the patch step on purpose: the key has to reflect the
       # toolchain the lane actually builds with, not the committed one.
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             ~/.gradle/caches
