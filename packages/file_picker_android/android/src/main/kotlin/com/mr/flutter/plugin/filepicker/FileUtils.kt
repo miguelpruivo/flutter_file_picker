@@ -542,9 +542,9 @@ object FileUtils {
             if (mime == null) {
                 Log.w(
                     TAG,
-                    "Custom file type '" + allowedExtensions[i] + "' is unsupported and will not be filtered."
+                    "Custom file type '" + allowedExtensions[i] + "' has no known mime type and will not be filtered by the system picker."
                 )
-                return ArrayList(listOf("*/*"))
+                continue
             }
 
             mimes.add(mime)
@@ -553,6 +553,15 @@ object FileUtils {
                 mimes.add(CSV_MIME_TYPE)
             }
         }
+
+        if (mimes.isEmpty()) {
+            Log.w(
+                TAG,
+                "None of the custom file types $allowedExtensions have a known mime type, falling back to */*."
+            )
+            return ArrayList(listOf("*/*"))
+        }
+
         Log.d(
             TAG,
             "Custom file types are $allowedExtensions. The mime types were detected as $mimes."
