@@ -1,3 +1,7 @@
+## 3.0.2
+
+- Fixed the `window` `focus` listener used to detect a cancelled picker dialog never being removed after use. `removeEventListener` was passed a freshly created `.toJS` function object on every call, which never matches the one originally passed to `addEventListener`, so the listener leaked on `window` on every `pickFiles`/`pickFile` call. The JS function references are now cached and reused for both add and remove.
+
 ## 3.0.1
 
 - Improved package description, added example, and added missing API documentation.
