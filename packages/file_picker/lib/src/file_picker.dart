@@ -243,10 +243,4 @@ abstract final class FilePicker {
       webOptions: webOptions,
     );
   }
-
-  /// Deprecated entitlement check helper for legacy compatibility.
-  @Deprecated(
-    'Entitlements checks are handled automatically by file_picker_darwin.',
-  )
-  static Future<void> skipEntitlementsChecks() async {}
 }

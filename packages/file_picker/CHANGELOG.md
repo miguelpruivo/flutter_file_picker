@@ -1,3 +1,8 @@
+## 12.1.0
+
+### Breaking Changes
+- Removed the deprecated, no-op `FilePicker.skipEntitlementsChecks()`. macOS App Sandbox entitlement checks can now be skipped for non-sandboxed apps via `FilePickerDarwin.skipEntitlementsChecks()` from `package:file_picker_darwin`.
+
 ## 12.0.0
 
 ### Breaking Changes
