@@ -85,6 +85,9 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
         dialog.allowsMultipleSelection = allowMultiple
         dialog.canChooseDirectories = false
         dialog.canChooseFiles = true
+        // Bundle-like directories (e.g. .app, .fcpbundle) should be selectable
+        // as files, matching how Finder and other native apps present them.
+        dialog.treatsFilePackagesAsDirectories = false
         let extensions = args["allowedExtensions"] as? [String] ?? []
         applyExtensions(dialog, extensions, method: call.method)
 
@@ -142,6 +145,9 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
         dialog.allowsMultipleSelection = true
         dialog.canChooseDirectories = true
         dialog.canChooseFiles = true
+        // Bundle-like directories (e.g. .app, .fcpbundle) should be selectable
+        // as files, matching how Finder and other native apps present them.
+        dialog.treatsFilePackagesAsDirectories = false
         let extensions = args["allowedExtensions"] as? [String] ?? []
         applyExtensions(dialog, extensions, method: call.method)
 
