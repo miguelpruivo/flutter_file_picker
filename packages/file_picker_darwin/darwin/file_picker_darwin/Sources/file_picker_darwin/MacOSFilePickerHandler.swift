@@ -231,6 +231,7 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
         dialog.showsTagField = false
         dialog.showsHiddenFiles = false
         dialog.canCreateDirectories = true
+        dialog.isExtensionHidden = true
         dialog.nameFieldStringValue = args["fileName"] as? String ?? ""
 
         if let initialDirectory = args["initialDirectory"] as? String,
