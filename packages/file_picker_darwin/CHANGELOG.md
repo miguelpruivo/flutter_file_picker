@@ -1,3 +1,7 @@
+## 1.0.2
+
+- Fixed `getDirectoryPath`, `pickFiles`, `pickFileAndDirectoryPaths`, and `saveFile` on macOS defaulting to the sandbox container's `Data` folder instead of the user's real home directory when no `initialDirectory` is provided and the app has App Sandbox enabled.
+
 ## 1.0.1
 
 - Fixed `pickFileAndDirectoryPaths` never returning directories on iOS and macOS. It now calls the native combined file and directory picker instead of silently falling back to file only selection.

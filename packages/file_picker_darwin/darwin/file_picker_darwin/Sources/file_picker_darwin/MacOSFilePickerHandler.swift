@@ -13,6 +13,8 @@ private extension CFString {
         "com.apple.security.files.user-selected.read-only" as CFString
     static let securityFilesUserSelectedReadWrite =
         "com.apple.security.files.user-selected.read-write" as CFString
+    static let securityAppSandbox =
+        "com.apple.security.app-sandbox" as CFString
 }
 
 final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
@@ -75,6 +77,8 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
         if let initialDirectory = args["initialDirectory"] as? String,
            !initialDirectory.isEmpty {
             dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
+        } else if let fallbackDirectory = defaultDirectoryURL() {
+            dialog.directoryURL = fallbackDirectory
         }
         if let title = args["dialogTitle"] as? String {
             dialog.title = title
@@ -133,6 +137,8 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
         if let initialDirectory = args["initialDirectory"] as? String,
            !initialDirectory.isEmpty {
             dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
+        } else if let fallbackDirectory = defaultDirectoryURL() {
+            dialog.directoryURL = fallbackDirectory
         }
         if let title = args["dialogTitle"] as? String {
             dialog.title = title
@@ -182,6 +188,8 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
         if let initialDirectory = args["initialDirectory"] as? String,
            !initialDirectory.isEmpty {
             dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
+        } else if let fallbackDirectory = defaultDirectoryURL() {
+            dialog.directoryURL = fallbackDirectory
         }
         if let title = args["dialogTitle"] as? String {
             dialog.title = title
@@ -236,6 +244,8 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
         if let initialDirectory = args["initialDirectory"] as? String,
            !initialDirectory.isEmpty {
             dialog.directoryURL = URL(fileURLWithPath: initialDirectory)
+        } else if let fallbackDirectory = defaultDirectoryURL() {
+            dialog.directoryURL = fallbackDirectory
         }
 
         let extensions = args["allowedExtensions"] as? [String] ?? []
@@ -303,6 +313,17 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
             }
         }
         return nil
+    }
+
+    private func isSandboxed() -> Bool {
+        guard let task = SecTaskCreateFromSelf(nil) else {
+            return false
+        }
+        return (SecTaskCopyValueForEntitlement(task, .securityAppSandbox, nil) as? Bool) == true
+    }
+
+    private func defaultDirectoryURL() -> URL? {
+        isSandboxed() ? FileManager.default.homeDirectoryForCurrentUser : nil
     }
 
     private func applyExtensions(_ dialog: NSSavePanel, _ extensions: [String], method: String = "") {
