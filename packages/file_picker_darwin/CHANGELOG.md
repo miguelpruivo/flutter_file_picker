@@ -1,3 +1,7 @@
+## 1.0.2
+
+- Fixed bundle-like directories (e.g. `.app`, `.fcpbundle`) not being selectable as files on macOS file pickers, a regression since 8.2.0. `NSOpenPanel.treatsFilePackagesAsDirectories` is now explicitly set to `false` so these are presented as selectable files, matching Finder and other native apps.
+
 ## 1.0.1
 
 - Fixed `pickFileAndDirectoryPaths` never returning directories on iOS and macOS. It now calls the native combined file and directory picker instead of silently falling back to file only selection.
