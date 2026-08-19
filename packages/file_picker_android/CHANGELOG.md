@@ -1,3 +1,7 @@
+## 1.0.2
+
+- Fixed `allowedExtensions` filters being discarded entirely and falling back to showing all files when only some of the requested extensions had no mime type known to Android (e.g. `pfx`, `p12`). Now the extensions that do resolve to a mime type are still used to filter, and `*/*` is only used when none of them resolve.
+
 ## 1.0.1
 
 - Improved package description, added example, and added missing API documentation.
