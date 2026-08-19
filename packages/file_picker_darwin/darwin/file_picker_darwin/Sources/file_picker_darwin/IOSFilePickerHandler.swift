@@ -19,6 +19,7 @@ final class IOSFilePickerHandler: NSObject,
     private var isDirectoryPicker = false
     private var isFileAndDirectoryPicker = false
     private var isSaveFile = false
+    private var mediaLoadTypeIdentifier: String = UTType.jpeg.identifier
 
     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         if call.method == "clear" {
@@ -151,7 +152,7 @@ final class IOSFilePickerHandler: NSObject,
         for (index, item) in results.enumerated() {
             group.enter()
             item.itemProvider.loadFileRepresentation(
-                forTypeIdentifier: UTType.item.identifier
+                forTypeIdentifier: mediaLoadTypeIdentifier
             ) { [weak self] url, _ in
                 defer { group.leave() }
                 guard let self, let sourceURL = url,
@@ -247,10 +248,13 @@ final class IOSFilePickerHandler: NSObject,
         switch type {
         case "image":
             configuration.filter = .images
+            mediaLoadTypeIdentifier = UTType.jpeg.identifier
         case "video":
             configuration.filter = .videos
+            mediaLoadTypeIdentifier = UTType.item.identifier
         default:
             configuration.filter = .any(of: [.images, .videos])
+            mediaLoadTypeIdentifier = UTType.item.identifier
         }
 
         let picker = PHPickerViewController(configuration: configuration)
