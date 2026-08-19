@@ -1,6 +1,6 @@
 name: file_picker_darwin
 description: Darwin (iOS and macOS) implementation of the file_picker plugin, supporting native file picking, saving, and directory selection.
-version: 1.0.1
+version: 1.0.2
 homepage: https://github.com/miguelpruivo/flutter_file_picker/tree/master/packages/file_picker_darwin
 repository: https://github.com/miguelpruivo/flutter_file_picker/tree/master/packages/file_picker_darwin
 topics:

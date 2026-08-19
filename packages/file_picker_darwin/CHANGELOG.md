@@ -1,3 +1,7 @@
+## 1.0.2
+
+- Fixed a brief UI freeze on macOS right when calling `pickFiles`, `pickFileAndDirectoryPaths`, `getDirectoryPath`, or `saveFile`. The entitlement check now runs on a background queue before the dialog is created, instead of blocking the main thread synchronously.
+
 ## 1.0.1
 
 - Fixed `pickFileAndDirectoryPaths` never returning directories on iOS and macOS. It now calls the native combined file and directory picker instead of silently falling back to file only selection.
