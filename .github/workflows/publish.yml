@@ -1,9 +1,6 @@
 name: Publish to pub.dev
 
 on:
-  push:
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+*'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -39,12 +36,14 @@ jobs:
 
       - uses: bluefireteam/melos-action@v3
 
-      # Executes dry-run if explicitly triggered as a dry-run via workflow_dispatch
-      - name: Verify package publishing (Dry Run)
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+      # Always runs first, regardless of dry_run, so the job log always shows
+      # exactly which packages and versions are about to be published before
+      # anything is actually pushed to pub.dev. melos only lists packages
+      # whose local pubspec.yaml version is not yet published, every other
+      # package in the workspace is left untouched.
+      - name: Preview packages to be published
         run: melos publish --dry-run --yes
 
-      # Executes actual publish when a release tag is pushed OR when workflow_dispatch is run with dry_run=false
       - name: Publish changed packages to pub.dev
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run) }}
+        if: ${{ !inputs.dry_run }}
         run: melos publish --no-dry-run --yes
