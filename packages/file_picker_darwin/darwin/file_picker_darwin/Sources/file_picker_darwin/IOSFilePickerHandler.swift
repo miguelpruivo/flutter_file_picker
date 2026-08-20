@@ -19,6 +19,7 @@ final class IOSFilePickerHandler: NSObject,
     private var isDirectoryPicker = false
     private var isFileAndDirectoryPicker = false
     private var isSaveFile = false
+    private var mediaLoadTypeIdentifier: String = UTType.jpeg.identifier
 
     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         if call.method == "clear" {
@@ -150,8 +151,9 @@ final class IOSFilePickerHandler: NSObject,
 
         for (index, item) in results.enumerated() {
             group.enter()
+            let typeIdentifier = resolveLoadTypeIdentifier(for: item.itemProvider)
             item.itemProvider.loadFileRepresentation(
-                forTypeIdentifier: UTType.item.identifier
+                forTypeIdentifier: typeIdentifier
             ) { [weak self] url, _ in
                 defer { group.leave() }
                 guard let self, let sourceURL = url,
@@ -237,6 +239,42 @@ final class IOSFilePickerHandler: NSObject,
         result = nil
     }
 
+    /// Resolves the type identifier used to load a picked media item.
+    ///
+    /// Live Photos are converted to JPEG (loading them natively would yield a
+    /// `.pvt` bundle), while every other still image (JPEG, PNG, HEIC, ...) is
+    /// loaded in its original format. Non-image items fall back to the picker's
+    /// configured default identifier.
+    private func resolveLoadTypeIdentifier(for provider: NSItemProvider) -> String {
+        let registeredIdentifiers = provider.registeredTypeIdentifiers
+
+        let isLivePhoto: Bool
+        if #available(iOS 14.0, *) {
+            isLivePhoto = registeredIdentifiers.contains { identifier in
+                UTType(identifier)?.conforms(to: .livePhoto) ?? false
+            }
+        } else {
+            isLivePhoto = registeredIdentifiers.contains("com.apple.live-photo")
+        }
+
+        if isLivePhoto {
+            return UTType.jpeg.identifier
+        }
+
+        // Prefer a native still-image representation (JPEG, PNG, HEIC, ...)
+        // that is not the Live Photo bundle.
+        let nativeImageIdentifier = registeredIdentifiers.first { identifier in
+            guard let type = UTType(identifier) else { return false }
+            return type.conforms(to: .image) && !type.conforms(to: .livePhoto)
+        }
+
+        if let nativeImageIdentifier {
+            return nativeImageIdentifier
+        }
+
+        return mediaLoadTypeIdentifier
+    }
+
     private func presentMediaPicker(type: String, allowsMultipleSelection: Bool) {
         var configuration = PHPickerConfiguration(photoLibrary: .shared())
         configuration.selectionLimit = allowsMultipleSelection ? 0 : 1
@@ -247,10 +285,13 @@ final class IOSFilePickerHandler: NSObject,
         switch type {
         case "image":
             configuration.filter = .images
+            mediaLoadTypeIdentifier = UTType.image.identifier
         case "video":
             configuration.filter = .videos
+            mediaLoadTypeIdentifier = UTType.item.identifier
         default:
             configuration.filter = .any(of: [.images, .videos])
+            mediaLoadTypeIdentifier = UTType.item.identifier
         }
 
         let picker = PHPickerViewController(configuration: configuration)
