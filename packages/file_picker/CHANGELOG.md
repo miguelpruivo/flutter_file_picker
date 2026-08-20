@@ -1,3 +1,10 @@
+
+
+## 12.0.1
+
+### iOS
+- Fixed Live Photos being picked as `.pvt` bundles. Live Photos are now converted to JPEG, while all other image formats (JPEG, PNG, HEIC, ...) are loaded in their original format instead of being converted to JPEG. Thank you @test0terter0n!
+
 ## 12.0.0
 
 ### Breaking Changes
