@@ -360,10 +360,36 @@ final class IOSFilePickerHandler: NSObject,
                 try FileManager.default.removeItem(at: destinationURL)
             }
             try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
-            return destinationURL
+            return resolveActualFile(at: destinationURL)
         } catch {
             return nil
         }
+    }
+
+    /// Some `PHPickerResult` items (notably Live Photos, which iOS saves as
+    /// `.pvt` packages) resolve to a *directory* rather than a regular file
+    /// when loaded via `loadFileRepresentation(forTypeIdentifier: UTType.item...)`.
+    /// Reading such a path as a file later fails with "Is a directory" (errno 21).
+    /// When that happens, return the still image contained in the package
+    /// instead of the package itself.
+    private func resolveActualFile(at url: URL) -> URL? {
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory) else {
+            return nil
+        }
+        guard isDirectory.boolValue else {
+            return url
+        }
+
+        let imageExtensions = ["jpg", "jpeg", "heic", "heif", "png"]
+        guard let contents = try? FileManager.default.contentsOfDirectory(
+            at: url,
+            includingPropertiesForKeys: nil
+        ) else {
+            return nil
+        }
+
+        return contents.first { imageExtensions.contains($0.pathExtension.lowercased()) }
     }
 
     private func makeFileInfo(from fileURL: URL) -> [String: Any]? {

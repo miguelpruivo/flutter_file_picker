@@ -1,3 +1,7 @@
+## 1.0.2
+
+- Fixed a crash (`FileSystemException`/`OSError: Is a directory`) when picking a Live Photo from the iOS gallery. Live Photos are saved by iOS as `.pvt` packages (directories), which `loadFileRepresentation(forTypeIdentifier: UTType.item...)` returned as-is; the still image contained in the package is now extracted instead.
+
 ## 1.0.1
 
 - Fixed `pickFileAndDirectoryPaths` never returning directories on iOS and macOS. It now calls the native combined file and directory picker instead of silently falling back to file only selection.

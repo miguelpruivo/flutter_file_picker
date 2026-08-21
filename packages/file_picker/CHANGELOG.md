@@ -1,3 +1,7 @@
+## 12.0.1
+### iOS
+- Fixed a crash (`FileSystemException`/`OSError: Is a directory`) when picking a Live Photo from the gallery. Live Photos are saved by iOS as `.pvt` packages (directories); the still image contained in the package is now extracted instead of returning the package itself.
+
 ## 12.0.0
 
 ### Breaking Changes
