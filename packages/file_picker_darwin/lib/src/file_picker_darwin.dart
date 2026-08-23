@@ -220,7 +220,7 @@ class FilePickerDarwin extends FilePickerPlatform {
       }
 
       if (savedPath == null) return null;
-      return Uri.tryParse(savedPath) ?? Uri.file(savedPath);
+      return Uri.file(savedPath);
     } catch (e) {
       rethrow;
     } finally {

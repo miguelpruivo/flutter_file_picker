@@ -4,6 +4,8 @@
 - Fixed `getDirectoryPath`, `pickFiles`, `pickFileAndDirectoryPaths`, and `saveFile` on macOS defaulting to the sandbox container's `Data` folder instead of the user's real home directory when no `initialDirectory` is provided and the app has App Sandbox enabled.
 - Fixed the Save dialog on macOS auto-selecting the file extension along with the rest of the file name, making it easy to accidentally delete the extension when renaming. The extension is now hidden by default via `NSSavePanel.isExtensionHidden`.
 - Fixed bundle-like directories (e.g. `.app`, `.fcpbundle`) not being selectable as files on macOS file pickers, a regression since 8.2.0. `NSOpenPanel.treatsFilePackagesAsDirectories` is now explicitly set to `false` so these are presented as selectable files, matching Finder and other native apps.
+- Fixed `saveFile` on macOS never enforcing an extension on the destination file when the user cleared it from the suggested name. `allowedExtensions` is not forwarded to `saveFile` yet, so the dialog now falls back to the extension of the suggested file name.
+- Fixed `saveFile` returning a scheme-less, percent-encoded `Uri` on macOS instead of a proper `file://` Uri, unlike Windows and Linux.
 
 ## 1.0.1
 
