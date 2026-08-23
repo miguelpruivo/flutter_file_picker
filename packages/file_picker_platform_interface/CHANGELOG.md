@@ -1,3 +1,7 @@
+## 3.1.0
+
+- Added `PlatformFile.extension`, restoring the pre-12.0 convenience getter that was dropped during the federated rewrite. Returns the file extension of `name` without the leading dot, or `null` if there is none.
+
 ## 3.0.1
 
 - Improved package description, added example, and added missing API documentation.
