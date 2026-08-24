@@ -6,18 +6,6 @@ import org.gradle.kotlin.dsl.withGroovyBuilder
 group = "com.mr.flutter.plugin.filepicker"
 version = "1.0-SNAPSHOT"
 
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath("com.android.tools.build:gradle:8.5.2")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.22")
-    }
-}
-
 rootProject.allprojects {
     repositories {
         google()
