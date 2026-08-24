@@ -257,6 +257,9 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
 
         let extensions = args["allowedExtensions"] as? [String] ?? []
         applyExtensions(dialog, extensions, method: call.method)
+        if extensions.isEmpty {
+            applyDefaultExtension(dialog, fileName: args["fileName"] as? String ?? "")
+        }
 
         guard let appWindow = getFlutterWindow() else {
             result(nil)
@@ -374,6 +377,24 @@ final class MacOSFilePickerHandler: NSObject, FlutterStreamHandler {
             if !fileTypes.isEmpty {
                 dialog.allowedFileTypes = fileTypes
             }
+        }
+    }
+
+    /// `saveFile()` never forwards `allowedExtensions` down to the native save
+    /// dialog, so `applyExtensions` has nothing to enforce and `NSSavePanel`
+    /// won't append or require any extension. Fall back to the extension of
+    /// the suggested file name, so a name like "Report.txt" still enforces
+    /// ".txt" even though no explicit extension list reached this call.
+    private func applyDefaultExtension(_ dialog: NSSavePanel, fileName: String) {
+        let ext = (fileName as NSString).pathExtension
+        guard !ext.isEmpty else { return }
+
+        if #available(macOS 11.0, *) {
+            if let type = UTType(filenameExtension: ext) {
+                dialog.allowedContentTypes = [type]
+            }
+        } else {
+            dialog.allowedFileTypes = [ext]
         }
     }
 
