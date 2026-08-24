@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:android_file_picker/android_file_picker.dart';
+import 'package:file_picker_darwin/file_picker_darwin.dart';
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 
@@ -244,9 +245,20 @@ abstract final class FilePicker {
     );
   }
 
-  /// Deprecated entitlement check helper for legacy compatibility.
-  @Deprecated(
-    'Entitlements checks are handled automatically by file_picker_darwin.',
-  )
-  static Future<void> skipEntitlementsChecks() async {}
+  /// Skips the macOS App Sandbox entitlement checks performed before showing a dialog.
+  ///
+  /// Only relevant for non-sandboxed macOS apps, which do not declare the
+  /// `com.apple.security.files.user-selected.read-only`/`read-write` entitlements
+  /// and would otherwise be incorrectly blocked by those checks. Call this before
+  /// any other file picking method.
+  ///
+  /// This method does nothing on iOS, and on every platform other than macOS.
+  ///
+  /// Note: skipping entitlement checks may lead to unexpected behavior if the
+  /// app is actually sandboxed. Use with caution.
+  static Future<void> skipEntitlementsChecks() async {
+    if (FilePickerPlatform.instance case final FilePickerDarwin instance) {
+      await instance.skipEntitlementsChecks();
+    }
+  }
 }
