@@ -1,4 +1,8 @@
-## 12.0.1
+## 12.1.0
+
+### General
+- Added `PlatformFile.extension`, restoring the pre-12.0 convenience getter that was dropped during the federated rewrite. Returns the file extension of `name` without the leading dot, or `null` if there is none.
+
 ### iOS
 - Fixed a crash (`FileSystemException`/`OSError: Is a directory`) when picking a Live Photo from the gallery. Live Photos are saved by iOS as `.pvt` packages (directories); the still image contained in the package is now extracted instead of returning the package itself.
 

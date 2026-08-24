@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:cross_file/cross_file.dart';
+import 'package:path/path.dart' as p;
 
 /// The abstract representation of a picked file on the current platform.
 ///
@@ -9,6 +10,18 @@ import 'package:cross_file/cross_file.dart';
 abstract base class PlatformFile {
   /// The name of the underlying file, including the extension.
   String get name;
+
+  /// The file extension of [name], without the leading dot, or `null` if
+  /// [name] has none.
+  ///
+  /// Delegates to `package:path`'s `extension()` for the parsing (so a
+  /// dotfile like `.gitignore` does not count as an extension), stripping
+  /// the leading dot it includes to match [name]'s own convention and the
+  /// rest of this package's API (`allowedExtensions` is also dot-less).
+  String? get extension {
+    final ext = p.extension(name);
+    return ext.isEmpty ? null : ext.substring(1);
+  }
 
   /// An [Uri] to the underlying file.
   ///
