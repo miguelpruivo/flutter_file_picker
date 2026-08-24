@@ -173,6 +173,29 @@ class FilePickerDarwin extends FilePickerPlatform {
     await methodChannel.invokeMethod<void>('clear');
   }
 
+  /// Skips the macOS App Sandbox entitlement checks performed before showing a dialog.
+  ///
+  /// Only relevant for non-sandboxed macOS apps, which do not declare the
+  /// `com.apple.security.files.user-selected.read-only`/`read-write` entitlements
+  /// and would otherwise be incorrectly blocked by those checks. Call this before
+  /// any other file picking method.
+  ///
+  /// This method does nothing on iOS.
+  ///
+  /// Note: skipping entitlement checks may lead to unexpected behavior if the
+  /// app is actually sandboxed. Use with caution.
+  ///
+  /// ```dart
+  /// if (FilePickerPlatform.instance case final FilePickerDarwin instance) {
+  ///   await instance.skipEntitlementsChecks();
+  /// }
+  /// ```
+  Future<void> skipEntitlementsChecks() async {
+    // Only macOS performs App Sandbox entitlement checks, this is a no-op on iOS.
+    if (!Platform.isMacOS) return;
+    await methodChannel.invokeMethod<void>('skipEntitlementsChecks');
+  }
+
   @override
   Future<Uri?> saveFile({
     required String fileName,
