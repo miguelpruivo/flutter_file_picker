@@ -252,7 +252,7 @@ abstract final class FilePicker {
   /// and would otherwise be incorrectly blocked by those checks. Call this before
   /// any other file picking method.
   ///
-  /// This method does nothing on iOS, and on every platform other than macOS.
+  /// This method does nothing on platforms other than macOS.
   ///
   /// Note: skipping entitlement checks may lead to unexpected behavior if the
   /// app is actually sandboxed. Use with caution.
