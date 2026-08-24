@@ -51,6 +51,13 @@ class WebFileInputSession {
   final Completer<List<PlatformFile>?> _completer = Completer();
   bool _eventTriggered = false;
 
+  // Cached once and reused for both addEventListener and removeEventListener.
+  // Function.toJS creates a new JS function object on every call, so passing
+  // freshly-created ones to removeEventListener would never actually match
+  // the listener added earlier, silently leaving it attached forever.
+  late final JSFunction _onFileSelectionListener = _onFileSelection.toJS;
+  late final JSFunction _onCancelListener = _onCancel.toJS;
+
   /// Starts the file picker input interaction and returns a list of picked files or `null`.
   Future<List<PlatformFile>?> start() async {
     final uploadInput = HTMLInputElement()
@@ -62,11 +69,11 @@ class WebFileInputSession {
 
     onFileLoading?.call(FilePickerStatus.picking);
 
-    uploadInput.addEventListener('change', _onFileSelection.toJS);
-    uploadInput.addEventListener('cancel', _onCancel.toJS);
+    uploadInput.addEventListener('change', _onFileSelectionListener);
+    uploadInput.addEventListener('cancel', _onCancelListener);
 
     if (webOptions.cancelUploadOnWindowBlur) {
-      window.addEventListener('focus', _onCancel.toJS);
+      window.addEventListener('focus', _onCancelListener);
     }
 
     _clearTargetChildren();
@@ -114,10 +121,10 @@ class WebFileInputSession {
   }
 
   void _cleanupListeners(HTMLInputElement? input) {
-    window.removeEventListener('focus', _onCancel.toJS);
+    window.removeEventListener('focus', _onCancelListener);
     if (input != null) {
-      input.removeEventListener('change', _onFileSelection.toJS);
-      input.removeEventListener('cancel', _onCancel.toJS);
+      input.removeEventListener('change', _onFileSelectionListener);
+      input.removeEventListener('cancel', _onCancelListener);
     }
   }
 
