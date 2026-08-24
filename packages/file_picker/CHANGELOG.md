@@ -9,6 +9,7 @@
 - **iOS Target:** Raised minimum supported iOS deployment target to `14.0`. Removed `DKImagePickerController` / `DKPhotoGallery` dependency chain.
 - **API Modifications:**
   - `saveFile()`: `fileName` and `bytes` are now required parameters across all platforms.
+  - Removed `FilePickerResult`. `pickFiles()` now returns `Future<List<PlatformFile>>` directly (an empty list instead of `null`, no `.files`/`.count`/`.isSinglePick` wrapper), and `pickFile()` returns `Future<PlatformFile?>` for a single selection.
   - `pickFiles()`: `allowMultiple` now defaults to `true`. Use `pickFile()` for single file selection (`allowMultiple` is deprecated).
   - Deprecated `withData`, `withReadStream`, and `readSequential` on `pickFiles()`/`pickFile()` in favor of `PlatformFile.readAsBytes()` and `PlatformFile.readAsByteStream()`.
   - Deprecated top-level `lockParentWindow` and `cancelUploadOnWindowBlur` parameters in favor of platform-specific option classes (`WindowsOptions`, `LinuxOptions`, `WebOptions`).
