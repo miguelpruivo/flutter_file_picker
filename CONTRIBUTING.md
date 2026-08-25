@@ -18,8 +18,13 @@ The following is a first version of guidelines for contributing to _File Picker_
 
 ## Releasing
 
-Publishing to pub.dev is a manual step, triggered from the "Publish to pub.dev" GitHub Actions workflow (`.github/workflows/publish.yml`) via "Run workflow". It runs `melos publish`, which only publishes the packages whose local `pubspec.yaml` version is not yet published on pub.dev, every other package in the workspace is left untouched. There is no single version number for the whole repository, each package releases independently whenever its own version is bumped.
+There is no single version number for the whole repository, each package releases independently whenever its own version is bumped.
 
-Before publishing for real, run the workflow once with the `dry_run` input left at its default (`true`) and check the job log, it lists exactly which packages and versions are about to be published. Once you are confident, run it again with `dry_run` set to `false`.
+pub.dev's Automated Publishing only accepts a publish request from a GitHub Actions run that was triggered by pushing a git tag matching that package's configured tag pattern, it rejects a run triggered by manually clicking "Run workflow" (`workflow_dispatch`), with no way to opt out. So releasing is a two-step process, both handled by the "Publish to pub.dev" workflow (`.github/workflows/publish.yml`):
 
-Every real (non-dry-run) publish also pushes a git tag per published package, named `<package_name>-v<version>` (e.g. `file_picker_darwin-v1.0.2`), pointing at the exact commit that was published. To check whether a given change made it into a published version of a package, find the tag for that version and see whether your commit is an ancestor of it (`git merge-base --is-ancestor <commit> <package_name>-v<version>`).
+1. **Prepare**: run the workflow via "Run workflow" with `dry_run` left at its default (`true`) first, and check the job log, it lists exactly which packages and versions would be released. Once you're confident, run it again with `dry_run` set to `false`. This does not talk to pub.dev, it only creates and pushes a git tag for each package with an unpublished local version, named `<package_name>-v<version>` (e.g. `file_picker_darwin-v1.0.2`), one push at a time (GitHub does not deliver push events for tags when more than three are pushed together, so batching them would silently drop some releases).
+2. **Publish**: each pushed tag triggers its own separate run of the same workflow, this time via the `push` event, which is what pub.dev actually requires. That run publishes only the one package named in its tag.
+
+A release touching several packages at once produces several tags and several parallel, independent publish runs, one per package, not one run publishing everything.
+
+To check whether a given change made it into a published version of a package, find the tag for that version and see whether your commit is an ancestor of it (`git merge-base --is-ancestor <commit> <package_name>-v<version>`).
