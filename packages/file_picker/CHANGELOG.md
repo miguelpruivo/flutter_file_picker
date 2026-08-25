@@ -1,3 +1,8 @@
+## 12.1.1
+
+### macOS
+- Fixed `FilePicker.skipEntitlementsChecks()` being a permanent no-op. It now delegates to `FilePickerDarwin.skipEntitlementsChecks()` when running on macOS, so non-sandboxed apps can actually skip the App Sandbox entitlement checks again.
+
 ## 12.1.0
 
 ### General
@@ -5,9 +10,6 @@
 
 ### iOS
 - Fixed a crash (`FileSystemException`/`OSError: Is a directory`) when picking a Live Photo from the gallery. Live Photos are saved by iOS as `.pvt` packages (directories); the still image contained in the package is now extracted instead of returning the package itself.
-
-### macOS
-- Fixed `FilePicker.skipEntitlementsChecks()` being a permanent no-op. It now delegates to `FilePickerDarwin.skipEntitlementsChecks()` when running on macOS, so non-sandboxed apps can actually skip the App Sandbox entitlement checks again.
 
 ## 12.0.0
 
