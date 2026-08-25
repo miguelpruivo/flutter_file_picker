@@ -7,6 +7,7 @@
 - Fixed `saveFile` on macOS never enforcing an extension on the destination file when the user cleared it from the suggested name. `allowedExtensions` is not forwarded to `saveFile` yet, so the dialog now falls back to the extension of the suggested file name.
 - Fixed `saveFile` returning a scheme-less, percent-encoded `Uri` on macOS instead of a proper `file://` Uri, unlike Windows and Linux.
 - Added `FilePickerDarwin.skipEntitlementsChecks()`, letting non-sandboxed macOS apps opt out of the App Sandbox entitlement checks performed before showing a dialog. This was previously only reachable through a deprecated, no-op method on `FilePicker` in the root package.
+- Fixed a brief UI freeze on macOS right when calling `pickFiles`, `pickFileAndDirectoryPaths`, `getDirectoryPath`, or `saveFile`. The entitlement check now runs on a background queue before the dialog is created, instead of blocking the main thread synchronously.
 
 ## 1.0.1
 
