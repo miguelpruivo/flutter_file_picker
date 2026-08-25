@@ -43,6 +43,18 @@ jobs:
 
       - uses: bluefireteam/melos-action@v3
 
+      # bluefireteam/melos-action only runs its own dart-lang/setup-dart step
+      # (the one that wires up OIDC-based pub.dev publishing) when its own
+      # `publish: true` input is set, which is meant for its single-package,
+      # tag-triggered publish flow, not our multi-package workflow_dispatch
+      # flow below. Without this, dart pub publish falls back to interactive
+      # browser OAuth, which can never complete on a CI runner.
+      - name: Set up Dart SDK for OIDC-based pub.dev publishing
+        if: ${{ !inputs.dry_run }}
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
       # Always runs first, regardless of dry_run, so the job log always shows
       # exactly which packages and versions are about to be published before
       # anything is actually pushed to pub.dev. melos only lists packages
