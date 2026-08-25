@@ -1,33 +1,49 @@
 name: Publish to pub.dev
 
+# pub.dev's Automated Publishing (OIDC-based, no stored credentials) only
+# accepts publish requests from a GitHub Actions run that was triggered by a
+# `push` of a git tag matching that package's configured tag pattern. It
+# rejects any run triggered by `workflow_dispatch`, with no way to opt out of
+# that restriction: https://dart.dev/go/publishing-from-github
+#
+# So this workflow is split into two jobs:
+#   - `prepare` (workflow_dispatch): figures out which packages have an
+#     unpublished local version and, unless dry_run, tags and pushes each one
+#     individually. It never talks to pub.dev itself.
+#   - `publish` (push of a matching tag): the only event pub.dev will accept.
+#     Publishes the single package named in the tag via OIDC.
+#
+# Each pushed tag triggers its own separate `publish` run. GitHub does not
+# deliver push events for tags when more than three are pushed in the same
+# `git push`, so `prepare` pushes tags one at a time rather than batching
+# them, otherwise some packages would silently never trigger a publish.
+
 on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Dry run (verify publishing without pushing to pub.dev)'
+        description: 'Dry run (preview only, does not create or push any tags)'
         type: boolean
         required: true
         default: true
-
-permissions:
-  contents: write
+  push:
+    tags:
+      - '*-v[0-9]+.[0-9]+.[0-9]+*'
 
 concurrency:
   group: publish-pub-dev
   cancel-in-progress: false
 
 jobs:
-  publish:
+  prepare:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     permissions:
-      id-token: write
       contents: write
     steps:
       - uses: actions/checkout@v7
 
-      # melos publish creates an annotated git tag per published package
-      # (<package_name>-v<version>), which needs a committer identity.
       - name: Configure git identity for release tags
         run: |
           git config user.name "github-actions[bot]"
@@ -38,38 +54,62 @@ jobs:
           channel: stable
           cache: true
 
-      - run: flutter --version
       - run: flutter precache
-
       - uses: bluefireteam/melos-action@v3
 
-      # bluefireteam/melos-action only runs its own dart-lang/setup-dart step
-      # (the one that wires up OIDC-based pub.dev publishing) when its own
-      # `publish: true` input is set, which is meant for its single-package,
-      # tag-triggered publish flow, not our multi-package workflow_dispatch
-      # flow below. Without this, dart pub publish falls back to interactive
-      # browser OAuth, which can never complete on a CI runner.
-      - name: Set up Dart SDK for OIDC-based pub.dev publishing
-        if: ${{ !inputs.dry_run }}
-        uses: dart-lang/setup-dart@v1
-        with:
-          sdk: stable
-
-      # Always runs first, regardless of dry_run, so the job log always shows
-      # exactly which packages and versions are about to be published before
-      # anything is actually pushed to pub.dev. melos only lists packages
-      # whose local pubspec.yaml version is not yet published, every other
-      # package in the workspace is left untouched.
+      # Always runs, regardless of dry_run, so the job log always shows
+      # exactly which packages and versions are about to be released before
+      # any tag is created. melos only lists packages whose local
+      # pubspec.yaml version is not yet published, every other package in
+      # the workspace is left untouched.
       - name: Preview packages to be published
         run: melos publish --dry-run --yes
 
-      - name: Publish changed packages to pub.dev
+      # Compares each package's local version against the version currently
+      # on pub.dev directly (rather than relying on melos to both tag and
+      # publish together, which would hit the workflow_dispatch restriction
+      # above), and pushes one tag per unpublished package, one push at a
+      # time so every tag reliably triggers its own `publish` run below.
+      - name: Tag unpublished packages
         if: ${{ !inputs.dry_run }}
-        run: melos publish --no-dry-run --yes
+        run: |
+          set -euo pipefail
+          melos list --json | jq -c '.[]' | while read -r pkg; do
+            name=$(jq -r '.name' <<< "$pkg")
+            version=$(jq -r '.version' <<< "$pkg")
+            registry_version=$(curl -sf "https://pub.dev/api/packages/$name" | jq -r '.latest.version' 2>/dev/null || echo "")
+            if [ "$registry_version" = "$version" ]; then
+              continue
+            fi
+            tag="${name}-v${version}"
+            echo "Tagging and pushing $tag (pub.dev has ${registry_version:-nothing published yet})"
+            git tag "$tag"
+            git push origin "$tag"
+          done
 
-      # melos publish only creates these tags locally in the CI checkout, it
-      # never pushes them, so without this step every per-package release tag
-      # would be silently lost the moment the runner is torn down.
-      - name: Push release tags
-        if: ${{ !inputs.dry_run }}
-        run: git push origin --tags
+  publish:
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter precache
+
+      # melos-action's own `publish: true` mode is exactly this flow: it
+      # extracts the package name from the triggering tag
+      # (refs/tags/<package>-v<version>), sets up a standalone Dart SDK via
+      # dart-lang/setup-dart for OIDC-based auth (Flutter's bundled Dart does
+      # not support automated publishing), then runs
+      # `melos publish -y --no-dry-run --scope=<package>`.
+      - uses: bluefireteam/melos-action@v3
+        with:
+          publish: true
