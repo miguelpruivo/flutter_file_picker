@@ -1,6 +1,6 @@
 ## 1.0.3
 
-- Fixed `PrivacyInfo.xcprivacy` never being bundled by Swift Package Manager, so apps built with SwiftPM shipped no privacy manifest for `file_picker` - which Apple reports as `ITMS-91061: Missing privacy manifest`, as `file_picker` is on [Apple's list of SDKs required to provide one](https://developer.apple.com/support/third-party-SDK-requirements/). SwiftPM resolves resource paths relative to the target's own directory, so `.process("Resources/PrivacyInfo.xcprivacy")` could not find the manifest at the package root and dropped it with an `Invalid Resource` warning during `Resolve Package Graph`, while the build still succeeded. The manifest now lives in `Sources/file_picker_darwin/`, as it did up to 12.0.0-beta.7. The CocoaPods path was unaffected, which is why this only showed up on SwiftPM. [#2175](https://github.com/miguelpruivo/flutter_file_picker/issues/2175)
+- Fixed a regression where `PrivacyInfo.xcprivacy` was never being bundled by Swift Package Manager, because SwiftPM resolves resource paths relative to the target's own directory. [#2175](https://github.com/miguelpruivo/flutter_file_picker/issues/2175)
 
 ## 1.0.2
 
