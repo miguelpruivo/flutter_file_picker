@@ -73,4 +73,37 @@ void main() {
       expect(picker.resolveDefaultExtension(args()), isNull);
     });
   });
+
+  group('fileTypeFilterSpecs', () {
+    test('any type matches every file', () {
+      final specs = FilePickerWindows.fileTypeFilterSpecs(FileType.any, null);
+      expect(specs, [(name: 'All Files (*.*)', pattern: '*.*')]);
+    });
+
+    test('custom type builds a single spec from allowed extensions', () {
+      final specs = FilePickerWindows.fileTypeFilterSpecs(FileType.custom, [
+        'pdf',
+        'docx',
+      ]);
+      expect(specs, [(name: 'Files (*.pdf,*.docx)', pattern: '*.pdf;*.docx')]);
+    });
+
+    test('custom type without allowed extensions throws', () {
+      expect(
+        () => FilePickerWindows.fileTypeFilterSpecs(FileType.custom, null),
+        throwsArgumentError,
+      );
+      expect(
+        () => FilePickerWindows.fileTypeFilterSpecs(FileType.custom, []),
+        throwsArgumentError,
+      );
+    });
+
+    test('media type produces separate video and image specs', () {
+      final specs = FilePickerWindows.fileTypeFilterSpecs(FileType.media, null);
+      expect(specs, hasLength(2));
+      expect(specs[0].name, contains('Videos'));
+      expect(specs[1].name, contains('Images'));
+    });
+  });
 }

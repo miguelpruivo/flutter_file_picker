@@ -1,8 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
-import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
@@ -10,7 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:win32/win32.dart';
 
-import 'file_picker_windows_ffi_types.dart';
 import 'file_picker_windows_options.dart';
 import 'open_save_file_args.dart';
 import 'windows_platform_file.dart';
@@ -21,34 +18,6 @@ class FilePickerWindows extends FilePickerPlatform {
   static void registerWith() {
     FilePickerPlatform.instance = FilePickerWindows();
   }
-
-  /// The buffer size in characters allocated for `lpstrFile` in [OPENFILENAMEW].
-  static const _lpstrFileBufferSize = 8192 * maximumPathLength;
-
-  /// Filter string for any file type.
-  static const _anyFilter = 'All Files (*.*)\x00*.*\x00\x00';
-
-  /// Filter string for audio file types.
-  static const _audioFilter =
-      'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav,*.m4a)\x00*.aac;*.midi;*.mp3;*.ogg;*.wav;*.m4a\x00\x00';
-
-  /// Filter string for image file types.
-  static const _imageFilter =
-      'Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png,*.webp)\x00*.bmp;*.gif;*.jpeg;*.jpg;*.png;*.webp\x00\x00';
-
-  /// Filter string for media (video and image) file types.
-  static const _mediaFilter =
-      'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)\x00*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv\x00Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png)\x00*.bmp;*.gif;*.jpeg;*.jpg;*.png\x00\x00';
-
-  /// Filter string for video file types.
-  static const _videoFilter =
-      'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)\x00*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv\x00\x00';
-
-  /// Private getter for opening the `comdlg32.dll` dynamic library.
-  DynamicLibrary get _comdlg32 => DynamicLibrary.open('comdlg32.dll');
-
-  /// Private getter for opening the `user32.dll` dynamic library.
-  DynamicLibrary get _user32 => DynamicLibrary.open('user32.dll');
 
   @override
   Future<PlatformFile?> pickFile({
@@ -289,67 +258,143 @@ class FilePickerWindows extends FilePickerPlatform {
     return null;
   }
 
-  /// Opens the Win32 file picker dialog using [GetOpenFileNameW].
+  /// Opens the file-open dialog ([IFileOpenDialog]) to select one or more files.
   List<String>? _pickFiles(OpenSaveFileArgs args) {
-    final getOpenFileNameW = _comdlg32
-        .lookupFunction<GetOpenFileNameW, GetOpenFileNameWDart>(
-          'GetOpenFileNameW',
-        );
-
-    final Pointer<OPENFILENAMEW> openFileNameW = _instantiateOpenFileNameW(
-      args,
+    final hr = CoInitializeEx(
+      COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE,
     );
 
-    final result = getOpenFileNameW(openFileNameW);
-    final files = switch (result) {
-      1 => extractSelectedFilesFromOpenFileNameW(openFileNameW.ref),
-      _ => null,
-    };
-    _freeMemory(openFileNameW);
-    return files;
-  }
-
-  /// Opens the Win32 save file dialog using [GetSaveFileNameW].
-  String? _saveFile(OpenSaveFileArgs args) {
-    final getSaveFileNameW = _comdlg32
-        .lookupFunction<GetSaveFileNameW, GetSaveFileNameWDart>(
-          'GetSaveFileNameW',
-        );
-
-    final Pointer<OPENFILENAMEW> openFileNameW = _instantiateOpenFileNameW(
-      args,
-    );
-
-    final result = getSaveFileNameW(openFileNameW);
-    final returnValue = switch (result) {
-      1 => extractSelectedFilesFromOpenFileNameW(
-        openFileNameW.ref,
-        isResultFromSaveFileDialog: true,
-      ).firstOrNull,
-      _ => null,
-    };
-    _freeMemory(openFileNameW);
-    return returnValue;
-  }
-
-  /// Converts a [FileType] enum and allowed extension list into a null-terminated
-  /// Win32 file filter string for `OPENFILENAMEW`.
-  String fileTypeToFileFilter(FileType type, List<String>? allowedExtensions) {
-    if (type == FileType.custom &&
-        (allowedExtensions == null || allowedExtensions.isEmpty)) {
-      throw ArgumentError(
-        'If type is set to FileType.custom, allowedExtensions cannot be null or empty.',
-      );
+    if (hr.isError) {
+      throw WindowsException(hr);
     }
-    return switch (type) {
-      FileType.any => _anyFilter,
-      FileType.audio => _audioFilter,
-      FileType.custom =>
-        'Files (*.${allowedExtensions!.join(',*.')})\x00*.${allowedExtensions.join(';*.')}\x00\x00',
-      FileType.image => _imageFilter,
-      FileType.media => _mediaFilter,
-      FileType.video => _videoFilter,
-    };
+
+    try {
+      return using((arena) {
+        final fileDialog = arena.com<IFileOpenDialog>(FileOpenDialog);
+
+        var options =
+            fileDialog.getOptions() |
+            FOS_FORCEFILESYSTEM |
+            FOS_FILEMUSTEXIST |
+            FOS_NOCHANGEDIR;
+        if (args.allowMultiple) {
+          options |= FOS_ALLOWMULTISELECT;
+        }
+        fileDialog.setOptions(FILEOPENDIALOGOPTIONS(options));
+
+        fileDialog.setTitle(arena.pcwstr(args.dialogTitle ?? 'Select File'));
+        _setFileTypeFilters(
+          arena,
+          fileDialog,
+          args.type,
+          args.allowedExtensions,
+        );
+
+        if (args.initialDirectory != null) {
+          final item = arena.adopt(
+            SHCreateItemFromParsingName<IShellItem>(
+              arena.pcwstr(args.initialDirectory!),
+              null,
+            ),
+          );
+          fileDialog.setFolder(item);
+        }
+
+        try {
+          fileDialog.show(_resolveParentHwnd(args));
+        } on WindowsException catch (e) {
+          if (e.hr == HRESULT_FROM_WIN32(ERROR_CANCELLED)) {
+            return null;
+          }
+          rethrow;
+        }
+
+        final results = fileDialog.getResults();
+        if (results == null) {
+          return null;
+        }
+
+        final itemArray = arena.adopt(results);
+        return [
+          for (var i = 0; i < itemArray.getCount(); i++)
+            if (itemArray.getItemAt(i) case final item?)
+              _shellItemPath(arena.adopt(item)),
+        ];
+      });
+    } finally {
+      CoUninitialize();
+    }
+  }
+
+  /// Opens the save-file dialog ([IFileSaveDialog]).
+  String? _saveFile(OpenSaveFileArgs args) {
+    final hr = CoInitializeEx(
+      COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE,
+    );
+
+    if (hr.isError) {
+      throw WindowsException(hr);
+    }
+
+    try {
+      return using((arena) {
+        final fileDialog = arena.com<IFileSaveDialog>(FileSaveDialog);
+
+        var options =
+            fileDialog.getOptions() | FOS_FORCEFILESYSTEM | FOS_NOCHANGEDIR;
+        if (args.confirmOverwrite) {
+          options |= FOS_OVERWRITEPROMPT;
+        }
+        fileDialog.setOptions(FILEOPENDIALOGOPTIONS(options));
+
+        fileDialog.setTitle(arena.pcwstr(args.dialogTitle ?? 'Save File'));
+        _setFileTypeFilters(
+          arena,
+          fileDialog,
+          args.type,
+          args.allowedExtensions,
+        );
+
+        if (args.initialDirectory != null) {
+          final item = arena.adopt(
+            SHCreateItemFromParsingName<IShellItem>(
+              arena.pcwstr(args.initialDirectory!),
+              null,
+            ),
+          );
+          fileDialog.setFolder(item);
+        }
+
+        if (args.defaultFileName case final defaultFileName?) {
+          validateFileName(defaultFileName);
+          fileDialog.setFileName(arena.pcwstr(defaultFileName));
+        }
+
+        // Without a default extension, Windows does not append one when the
+        // user types a file name without one, producing extension-less files.
+        if (resolveDefaultExtension(args) case final defaultExtension?) {
+          fileDialog.setDefaultExtension(arena.pcwstr(defaultExtension));
+        }
+
+        try {
+          fileDialog.show(_resolveParentHwnd(args));
+        } on WindowsException catch (e) {
+          if (e.hr == HRESULT_FROM_WIN32(ERROR_CANCELLED)) {
+            return null;
+          }
+          rethrow;
+        }
+
+        final selectedItem = fileDialog.getResult();
+        if (selectedItem == null) {
+          return null;
+        }
+
+        return _shellItemPath(arena.adopt(selectedItem));
+      });
+    } finally {
+      CoUninitialize();
+    }
   }
 
   /// Validates that a file name does not contain reserved Win32 characters.
@@ -361,121 +406,9 @@ class FilePickerWindows extends FilePickerPlatform {
     }
   }
 
-  /// Extracts the list of selected files from the Win32 API struct [OPENFILENAMEW].
-  ///
-  /// After the user has closed the file picker dialog, Win32 API sets the property
-  /// `lpstrFile` of [OPENFILENAMEW] to the user's selection. This property contains
-  /// a string terminated by two `null` characters. If the user has selected only one
-  /// file, then the returned string contains the absolute file path, e. g.
-  /// `C:\Users\John\file1.jpg\x00\x00`. If the user has selected more than one file,
-  /// then the returned string contains the directory of the selected files, followed
-  /// by a `null` character, followed by the file names each separated by a `null`
-  /// character, e.g. `C:\Users\John\x00file1.jpg\x00file2.jpg\x00file3.jpg\x00\x00`.
-  ///
-  /// `isResultFromSaveFileDialog` allows to handle the result of the save-file
-  /// dialog differently because somehow, if the save-file dialog is invoked with a
-  /// long default file name (e.g. `abcdefghijklmnopqrstuvxyz0123456789.png`) and the
-  /// user changed the file name to a short one (e.g. `test.txt`), then the field
-  /// `lpstrFile` not only contains the selected file `test.txt` but also, separated
-  /// by only one `null` character, some remaining part of the originally given default
-  /// file name.
-  List<String> extractSelectedFilesFromOpenFileNameW(
-    OPENFILENAMEW openFileNameW, {
-    bool isResultFromSaveFileDialog = false,
-  }) {
-    final List<String> filePaths = [];
-    final buffer = StringBuffer();
-    final fileUnits = openFileNameW.lpstrFile.cast<Uint16>();
-    int i = 0;
-    bool lastCharWasNull = false;
-    while (true) {
-      final char = fileUnits[i];
-      final currentCharIsNull = char == 0;
-      if (currentCharIsNull && lastCharWasNull) {
-        break;
-      }
-
-      if (currentCharIsNull) {
-        filePaths.add(buffer.toString());
-        buffer.clear();
-        lastCharWasNull = true;
-
-        if (isResultFromSaveFileDialog) {
-          break;
-        }
-      } else {
-        lastCharWasNull = false;
-        buffer.writeCharCode(char);
-      }
-      i++;
-    }
-
-    if (filePaths.length > 1) {
-      final String directoryPath = filePaths.removeAt(0);
-      return [for (final filePath in filePaths) join(directoryPath, filePath)];
-    }
-
-    return filePaths;
-  }
-
-  /// Allocates and populates an [OPENFILENAMEW] struct with native memory for Win32 API calls.
-  Pointer<OPENFILENAMEW> _instantiateOpenFileNameW(OpenSaveFileArgs args) {
-    final Pointer<OPENFILENAMEW> openFileNameW = calloc<OPENFILENAMEW>();
-
-    openFileNameW.ref.lStructSize = sizeOf<OPENFILENAMEW>();
-    openFileNameW.ref.lpstrTitle = (args.dialogTitle ?? 'Select File')
-        .toNativeUtf16();
-    openFileNameW.ref.lpstrFile = calloc.allocate<Utf16>(_lpstrFileBufferSize);
-    openFileNameW.ref.lpstrFilter = fileTypeToFileFilter(
-      args.type,
-      args.allowedExtensions,
-    ).toNativeUtf16();
-    openFileNameW.ref.nMaxFile = _lpstrFileBufferSize;
-    openFileNameW.ref.lpstrInitialDir = (args.initialDirectory ?? '')
-        .toNativeUtf16();
-    openFileNameW.ref.flags =
-        ofnExplorer | ofnFileMustExist | ofnHideReadOnly | ofnNoChangeDir;
-
-    if (args.lockParentWindow) {
-      openFileNameW.ref.hwndOwner = args.parentWindowHandle != null
-          ? Pointer.fromAddress(args.parentWindowHandle!)
-          : _getWindowHandle();
-    }
-
-    if (args.allowMultiple) {
-      openFileNameW.ref.flags |= ofnAllowMultiSelect;
-    }
-
-    if (args.confirmOverwrite) {
-      openFileNameW.ref.flags |= ofnOverwritePrompt;
-    }
-
-    // Without lpstrDefExt, Windows does not append an extension when the
-    // user types a file name without one, producing extension-less files.
-    if (resolveDefaultExtension(args) case final defaultExtension?) {
-      openFileNameW.ref.lpstrDefExt = defaultExtension.toNativeUtf16();
-    }
-
-    if (args.defaultFileName case final defaultFileName?) {
-      validateFileName(defaultFileName);
-
-      final Uint16List nativeString = openFileNameW.ref.lpstrFile
-          .cast<Uint16>()
-          .asTypedList(maximumPathLength);
-      final safeName = defaultFileName.substring(
-        0,
-        min(maximumPathLength - 1, defaultFileName.length),
-      );
-      final units = safeName.codeUnits;
-      nativeString.setRange(0, units.length, units);
-      nativeString[units.length] = 0;
-    }
-
-    return openFileNameW;
-  }
-
-  /// Resolves the default extension (without a leading dot) that Windows
-  /// appends via `lpstrDefExt` when the user types a file name without one.
+  /// Resolves the default extension (without a leading dot) that
+  /// `IFileDialog.SetDefaultExtension` appends when the user types a file
+  /// name without one.
   ///
   /// Prefers the first entry of [OpenSaveFileArgs.allowedExtensions], falling
   /// back to the extension of [OpenSaveFileArgs.defaultFileName].
@@ -492,32 +425,95 @@ class FilePickerWindows extends FilePickerPlatform {
     };
   }
 
-  /// Retrieves the HWND handle of the Flutter runner window using `user32.dll`.
-  Pointer _getWindowHandle() {
-    final findWindowA = _user32
-        .lookupFunction<
-          Int32 Function(Pointer<Utf8> lpClassName, Pointer<Utf8> lpWindowName),
-          int Function(Pointer<Utf8> lpClassName, Pointer<Utf8> lpWindowName)
-        >('FindWindowA');
-
-    int hWnd = findWindowA(
-      'FLUTTER_RUNNER_WIN32_WINDOW'.toNativeUtf8(),
-      nullptr,
-    );
-
-    return Pointer.fromAddress(hWnd);
+  /// Resolves the owner [HWND] for a dialog based on
+  /// [OpenSaveFileArgs.lockParentWindow] and [OpenSaveFileArgs.parentWindowHandle].
+  static HWND? _resolveParentHwnd(OpenSaveFileArgs args) {
+    if (!args.lockParentWindow) {
+      return null;
+    }
+    return args.parentWindowHandle != null
+        ? Pointer.fromAddress(args.parentWindowHandle!) as HWND
+        : GetForegroundWindow();
   }
 
-  /// Frees allocated native memory for an [OPENFILENAMEW] pointer.
-  void _freeMemory(Pointer<OPENFILENAMEW> openFileNameW) {
-    calloc.free(openFileNameW.ref.lpstrTitle);
-    calloc.free(openFileNameW.ref.lpstrFile);
-    calloc.free(openFileNameW.ref.lpstrFilter);
-    calloc.free(openFileNameW.ref.lpstrInitialDir);
-    if (openFileNameW.ref.lpstrDefExt != nullptr) {
-      calloc.free(openFileNameW.ref.lpstrDefExt);
+  /// Reads the absolute file system path of a resolved [IShellItem].
+  static String _shellItemPath(IShellItem item) {
+    final pathPtr = item.getDisplayName(SIGDN_FILESYSPATH);
+    try {
+      return pathPtr.toDartString();
+    } finally {
+      CoTaskMemFree(pathPtr);
     }
-    calloc.free(openFileNameW);
+  }
+
+  /// Builds and applies the `IFileDialog` file-type filter for [type] and
+  /// [allowedExtensions].
+  static void _setFileTypeFilters(
+    Arena arena,
+    IFileDialog fileDialog,
+    FileType type,
+    List<String>? allowedExtensions,
+  ) {
+    final filters = fileTypeFilterSpecs(type, allowedExtensions);
+    final specs = arena<COMDLG_FILTERSPEC>(filters.length);
+    for (var i = 0; i < filters.length; i++) {
+      specs[i]
+        ..pszName = arena.pwstr(filters[i].name)
+        ..pszSpec = arena.pwstr(filters[i].pattern);
+    }
+    fileDialog.setFileTypes(filters.length, specs);
+  }
+
+  /// Converts a [FileType] enum and allowed extension list into `IFileDialog`
+  /// filter specs (a display name paired with a `;`-separated glob pattern).
+  @visibleForTesting
+  static List<({String name, String pattern})> fileTypeFilterSpecs(
+    FileType type,
+    List<String>? allowedExtensions,
+  ) {
+    if (type == FileType.custom &&
+        (allowedExtensions == null || allowedExtensions.isEmpty)) {
+      throw ArgumentError(
+        'If type is set to FileType.custom, allowedExtensions cannot be null or empty.',
+      );
+    }
+    return switch (type) {
+      FileType.any => const [(name: 'All Files (*.*)', pattern: '*.*')],
+      FileType.audio => const [
+        (
+          name: 'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav,*.m4a)',
+          pattern: '*.aac;*.midi;*.mp3;*.ogg;*.wav;*.m4a',
+        ),
+      ],
+      FileType.custom => [
+        (
+          name: 'Files (*.${allowedExtensions!.join(',*.')})',
+          pattern: '*.${allowedExtensions.join(';*.')}',
+        ),
+      ],
+      FileType.image => const [
+        (
+          name: 'Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png,*.webp)',
+          pattern: '*.bmp;*.gif;*.jpeg;*.jpg;*.png;*.webp',
+        ),
+      ],
+      FileType.media => const [
+        (
+          name: 'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)',
+          pattern: '*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv',
+        ),
+        (
+          name: 'Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png)',
+          pattern: '*.bmp;*.gif;*.jpeg;*.jpg;*.png',
+        ),
+      ],
+      FileType.video => const [
+        (
+          name: 'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)',
+          pattern: '*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv',
+        ),
+      ],
+    };
   }
 
   /// Top-level isolate callback to invoke [_pickFiles].
