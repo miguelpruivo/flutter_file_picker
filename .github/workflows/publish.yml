@@ -42,12 +42,16 @@ jobs:
     permissions:
       contents: write
     steps:
+      # GitHub does not run other workflows off a push made with the default
+      # GITHUB_TOKEN (it is a deliberate anti-recursion guard), so a tag this
+      # job pushes would silently never trigger the `publish` job below
+      # unless checkout authenticates with a real token instead. RELEASE_PAT
+      # must be a personal access token (classic, `repo` scope, or
+      # fine-grained with "Contents: Read and write" on this repository)
+      # added as a repository secret.
       - uses: actions/checkout@v7
-
-      - name: Configure git identity for release tags
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+        with:
+          token: ${{ secrets.RELEASE_PAT }}
 
       - uses: subosito/flutter-action@v2
         with:
@@ -65,24 +69,22 @@ jobs:
       - name: Preview packages to be published
         run: melos publish --dry-run --yes
 
-      # Compares each package's local version against the version currently
-      # on pub.dev directly (rather than relying on melos to both tag and
-      # publish together, which would hit the workflow_dispatch restriction
-      # above), and pushes one tag per unpublished package, one push at a
-      # time so every tag reliably triggers its own `publish` run below.
+      # --no-private excludes packages that aren't meant to be published at
+      # all (publish_to: none, e.g. the example app), and --no-published
+      # keeps only the ones whose local version isn't on pub.dev yet, using
+      # melos's own version comparison instead of querying the pub.dev API
+      # ourselves. Tags are pushed one at a time, not batched in a single
+      # `git push --tags`, since GitHub does not deliver push events for
+      # tags when more than three are pushed together.
       - name: Tag unpublished packages
         if: ${{ !inputs.dry_run }}
         run: |
           set -euo pipefail
-          melos list --json | jq -c '.[]' | while read -r pkg; do
+          melos list --no-private --no-published --json | jq -c '.[]' | while read -r pkg; do
             name=$(jq -r '.name' <<< "$pkg")
             version=$(jq -r '.version' <<< "$pkg")
-            registry_version=$(curl -sf "https://pub.dev/api/packages/$name" | jq -r '.latest.version' 2>/dev/null || echo "")
-            if [ "$registry_version" = "$version" ]; then
-              continue
-            fi
             tag="${name}-v${version}"
-            echo "Tagging and pushing $tag (pub.dev has ${registry_version:-nothing published yet})"
+            echo "Tagging and pushing $tag"
             git tag "$tag"
             git push origin "$tag"
           done
