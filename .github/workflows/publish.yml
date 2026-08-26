@@ -34,6 +34,17 @@ concurrency:
   group: publish-pub-dev
   cancel-in-progress: false
 
+# This is a workflow level concurrency group, so it queues every run of this
+# workflow behind whatever is already in the group, regardless of which job
+# or trigger event it came from. If a run ever gets stuck in "queued" with no
+# jobs (a rare GitHub Actions scheduling issue, not something this workflow
+# controls), it can silently hold up every run behind it, including a real
+# tag push that should have triggered `publish`, with no visible error. If a
+# publish seems to be missing, check for a stuck queued run first
+# (https://github.com/miguelpruivo/flutter_file_picker/actions/workflows/publish.yml).
+# Dispatching any other run of this workflow has been observed to unstick the
+# queue.
+
 jobs:
   prepare:
     if: ${{ github.event_name == 'workflow_dispatch' }}
