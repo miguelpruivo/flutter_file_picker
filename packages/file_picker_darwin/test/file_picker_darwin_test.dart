@@ -25,6 +25,50 @@ void main() {
       expect(file.uri.path, equals('/tmp/test.png'));
     });
 
+    test('pickFile and pickFiles send every asset representation mode', () async {
+      final picker = FilePickerDarwin();
+      final receivedModes = <String?>[];
+
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(picker.methodChannel, (call) async {
+            receivedModes.add(
+              (call.arguments as Map)['assetRepresentationMode'] as String?,
+            );
+            return <Map<Object?, Object?>>[];
+          });
+      addTearDown(() {
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(picker.methodChannel, null);
+      });
+
+      for (final mode in DarwinAssetRepresentationMode.values) {
+        final options = DarwinOptions(assetRepresentationMode: mode);
+        await picker.pickFile(darwinOptions: options);
+        await picker.pickFiles(darwinOptions: options);
+      }
+
+      expect(receivedModes, [
+        'automatic',
+        'automatic',
+        'current',
+        'current',
+        'compatible',
+        'compatible',
+      ]);
+    });
+
+    test('rejects non-automatic representation with compression', () {
+      expect(
+        () => FilePickerDarwin().pickFiles(
+          compressionQuality: 50,
+          darwinOptions: const DarwinOptions(
+            assetRepresentationMode: DarwinAssetRepresentationMode.current,
+          ),
+        ),
+        throwsArgumentError,
+      );
+    });
+
     test('saveFile writes bytes to disk on macOS', () async {
       final picker = FilePickerDarwin();
       final tempDir = await Directory.systemTemp.createTemp(

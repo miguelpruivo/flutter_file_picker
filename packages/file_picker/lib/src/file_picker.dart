@@ -23,6 +23,21 @@ abstract final class FilePicker {
     return androidOptions;
   }
 
+  static void _validateDarwinOptions(
+    int compressionQuality,
+    DarwinOptions darwinOptions,
+  ) {
+    if (compressionQuality != 0 &&
+        darwinOptions.assetRepresentationMode !=
+            DarwinAssetRepresentationMode.automatic) {
+      throw ArgumentError.value(
+        darwinOptions.assetRepresentationMode,
+        'darwinOptions.assetRepresentationMode',
+        'A non-automatic Darwin asset representation mode requires compressionQuality to be 0.',
+      );
+    }
+  }
+
   /// Retrieves the file(s) from the underlying platform.
   ///
   /// Opens a native file explorer and lets the user select one or multiple files.
@@ -33,8 +48,9 @@ abstract final class FilePicker {
   /// The [allowedExtensions] parameter can be used to filter by specific file extensions when [type] is set to [FileType.custom].
   /// The [onFileLoading] callback can be used to track picker status changes.
   /// The [compressionQuality] parameter allows compressing picked images/videos on supported platforms (0-100).
+  /// The [darwinOptions] parameter configures iOS photo-library asset representation.
   ///
-  /// The [androidOptions], [windowsOptions], [linuxOptions], and [webOptions] parameters
+  /// The [androidOptions], [darwinOptions], [windowsOptions], [linuxOptions], and [webOptions] parameters
   /// allow for platform-specific configurations when configuring the file picker.
   ///
   /// Returns a list of [PlatformFile] objects containing the selected files, or an empty list if the user canceled the operation.
@@ -71,10 +87,12 @@ abstract final class FilePicker {
     bool cancelUploadOnWindowBlur = true,
     @Deprecated('Use androidOptions instead.') Object? androidSafOptions,
     AndroidOptions androidOptions = const AndroidOptions(),
+    DarwinOptions darwinOptions = const DarwinOptions(),
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) {
+    _validateDarwinOptions(compressionQuality, darwinOptions);
     return FilePickerPlatform.instance.pickFiles(
       dialogTitle: dialogTitle,
       initialDirectory: initialDirectory,
@@ -83,6 +101,7 @@ abstract final class FilePicker {
       onFileLoading: onFileLoading,
       compressionQuality: compressionQuality,
       androidOptions: _resolveAndroidOptions(androidSafOptions, androidOptions),
+      darwinOptions: darwinOptions,
       windowsOptions: windowsOptions,
       linuxOptions: linuxOptions,
       webOptions: webOptions,
@@ -97,8 +116,9 @@ abstract final class FilePicker {
   /// The [allowedExtensions] parameter can be used to filter by specific file extensions when [type] is set to [FileType.custom].
   /// The [onFileLoading] callback can be used to track picker status changes.
   /// The [compressionQuality] parameter allows compressing picked images/videos on supported platforms (0-100).
+  /// The [darwinOptions] parameter configures iOS photo-library asset representation.
   ///
-  /// The [androidOptions], [windowsOptions], [linuxOptions], and [webOptions] parameters
+  /// The [androidOptions], [darwinOptions], [windowsOptions], [linuxOptions], and [webOptions] parameters
   /// allow for platform-specific configurations when configuring the file picker.
   ///
   /// Returns a [PlatformFile] object if a file was selected, or `null` if the user canceled the operation.
@@ -119,10 +139,12 @@ abstract final class FilePicker {
     bool cancelUploadOnWindowBlur = true,
     @Deprecated('Use androidOptions instead.') Object? androidSafOptions,
     AndroidOptions androidOptions = const AndroidOptions(),
+    DarwinOptions darwinOptions = const DarwinOptions(),
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) {
+    _validateDarwinOptions(compressionQuality, darwinOptions);
     return FilePickerPlatform.instance.pickFile(
       dialogTitle: dialogTitle,
       initialDirectory: initialDirectory,
@@ -131,6 +153,7 @@ abstract final class FilePicker {
       onFileLoading: onFileLoading,
       compressionQuality: compressionQuality,
       androidOptions: _resolveAndroidOptions(androidSafOptions, androidOptions),
+      darwinOptions: darwinOptions,
       windowsOptions: windowsOptions,
       linuxOptions: linuxOptions,
       webOptions: webOptions,

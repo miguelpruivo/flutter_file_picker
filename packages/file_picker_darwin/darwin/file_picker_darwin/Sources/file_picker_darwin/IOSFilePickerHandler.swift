@@ -16,6 +16,7 @@ final class IOSFilePickerHandler: NSObject,
     private var eventSink: FlutterEventSink?
     private var allowMultipleSelection = false
     private var loadDataToMemory = false
+    private var assetRepresentationMode = PHPickerConfiguration.AssetRepresentationMode.automatic
     private var isDirectoryPicker = false
     private var isFileAndDirectoryPicker = false
     private var isSaveFile = false
@@ -61,6 +62,8 @@ final class IOSFilePickerHandler: NSObject,
         allowMultipleSelection =
             (arguments["allowMultipleSelection"] as? Bool) ?? false
         loadDataToMemory = (arguments["withData"] as? Bool) ?? false
+        assetRepresentationMode = resolveAssetRepresentationMode(
+            arguments["assetRepresentationMode"] as? String)
 
         switch call.method {
         case "any":
@@ -239,6 +242,7 @@ final class IOSFilePickerHandler: NSObject,
 
     private func presentMediaPicker(type: String, allowsMultipleSelection: Bool) {
         var configuration = PHPickerConfiguration(photoLibrary: .shared())
+        configuration.preferredAssetRepresentationMode = assetRepresentationMode
         configuration.selectionLimit = allowsMultipleSelection ? 0 : 1
         if #available(iOS 15.0, *) {
             configuration.selection = .ordered
@@ -322,6 +326,19 @@ final class IOSFilePickerHandler: NSObject,
         allowedExtensions.compactMap { ext in
             let sanitized = ext.hasPrefix(".") ? String(ext.dropFirst()) : ext
             return UTType(filenameExtension: sanitized)
+        }
+    }
+
+    private func resolveAssetRepresentationMode(
+        _ value: String?
+    ) -> PHPickerConfiguration.AssetRepresentationMode {
+        switch value {
+        case "current":
+            return .current
+        case "compatible":
+            return .compatible
+        default:
+            return .automatic
         }
     }
 

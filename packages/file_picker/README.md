@@ -76,6 +76,7 @@ Version 12.0 transitions `file_picker` to a **federated plugin architecture**.
 4. **Platform Options**:
    - Platform-specific parameters are grouped into configuration options, with implementations per platform:
      - `AndroidOptions` / `FilePickerAndroidOptions`
+     - `DarwinOptions`
      - `WindowsOptions` / `FilePickerWindowsOptions`
      - `LinuxOptions` / `FilePickerLinuxOptions`
      - `WebOptions` / `FilePickerWebOptions`
@@ -117,6 +118,23 @@ List<PlatformFile> files = await FilePicker.pickFiles(
   allowedExtensions: ['jpg', 'pdf', 'doc'],
 );
 ```
+
+#### iOS photo-library asset representation
+```dart
+List<PlatformFile> files = await FilePicker.pickFiles(
+  type: FileType.video,
+  compressionQuality: 0,
+  darwinOptions: const DarwinOptions(
+    assetRepresentationMode: DarwinAssetRepresentationMode.current,
+  ),
+);
+```
+
+`DarwinAssetRepresentationMode.automatic` is the default. Use `current` to
+avoid transcoding when possible, or `compatible` to request a broadly
+compatible representation. Non-automatic modes require
+`compressionQuality: 0` and only affect media selected from the iOS photo
+library.
 
 #### Pick a directory
 ```dart
