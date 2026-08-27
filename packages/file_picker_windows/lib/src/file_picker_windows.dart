@@ -80,10 +80,9 @@ class FilePickerWindows extends FilePickerPlatform {
     int compressionQuality = 0,
     WindowsOptions windowsOptions = const FilePickerWindowsOptions(),
   }) async {
-    final FilePickerWindowsOptions options = switch (windowsOptions) {
-      FilePickerWindowsOptions opts => opts,
-      _ => const FilePickerWindowsOptions(),
-    };
+    final (lockParentWindow, parentWindowHandle) = _resolveWindowsOptions(
+      windowsOptions,
+    );
 
     final port = ReceivePort();
     await Isolate.spawn(
@@ -95,8 +94,8 @@ class FilePickerWindows extends FilePickerPlatform {
         type: type,
         allowedExtensions: allowedExtensions,
         allowMultiple: allowMultiple,
-        lockParentWindow: options.lockParentWindow,
-        parentWindowHandle: options.parentWindowHandle,
+        lockParentWindow: lockParentWindow,
+        parentWindowHandle: parentWindowHandle,
       ),
     );
 
@@ -133,16 +132,15 @@ class FilePickerWindows extends FilePickerPlatform {
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) async {
-    final FilePickerWindowsOptions options = switch (windowsOptions) {
-      FilePickerWindowsOptions opts => opts,
-      _ => const FilePickerWindowsOptions(),
-    };
+    final (lockParentWindow, parentWindowHandle) = _resolveWindowsOptions(
+      windowsOptions,
+    );
 
     return compute(_getDirectoryPathIsolate, {
       'dialogTitle': dialogTitle,
       'initialDirectory': initialDirectory,
-      'lockParentWindow': options.lockParentWindow,
-      'parentWindowHandle': options.parentWindowHandle,
+      'lockParentWindow': lockParentWindow,
+      'parentWindowHandle': parentWindowHandle,
     });
   }
 
@@ -174,7 +172,7 @@ class FilePickerWindows extends FilePickerPlatform {
 
         fileDialog.setTitle(arena.pcwstr(dialogTitle ?? 'Select Folder'));
 
-        if (initialDirectory != null) {
+        if (initialDirectory != null && initialDirectory.isNotEmpty) {
           final item = arena.adopt(
             SHCreateItemFromParsingName<IShellItem>(
               arena.pcwstr(initialDirectory),
@@ -229,10 +227,9 @@ class FilePickerWindows extends FilePickerPlatform {
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) async {
-    final FilePickerWindowsOptions options = switch (windowsOptions) {
-      FilePickerWindowsOptions opts => opts,
-      _ => const FilePickerWindowsOptions(),
-    };
+    final (lockParentWindow, parentWindowHandle) = _resolveWindowsOptions(
+      windowsOptions,
+    );
 
     final port = ReceivePort();
     await Isolate.spawn(
@@ -242,9 +239,9 @@ class FilePickerWindows extends FilePickerPlatform {
         defaultFileName: fileName,
         dialogTitle: dialogTitle,
         initialDirectory: initialDirectory,
-        lockParentWindow: options.lockParentWindow,
+        lockParentWindow: lockParentWindow,
         confirmOverwrite: true,
-        parentWindowHandle: options.parentWindowHandle,
+        parentWindowHandle: parentWindowHandle,
       ),
     );
 
@@ -290,10 +287,11 @@ class FilePickerWindows extends FilePickerPlatform {
           args.allowedExtensions,
         );
 
-        if (args.initialDirectory != null) {
+        if (args.initialDirectory case final initialDirectory?
+            when initialDirectory.isNotEmpty) {
           final item = arena.adopt(
             SHCreateItemFromParsingName<IShellItem>(
-              arena.pcwstr(args.initialDirectory!),
+              arena.pcwstr(initialDirectory),
               null,
             ),
           );
@@ -355,10 +353,11 @@ class FilePickerWindows extends FilePickerPlatform {
           args.allowedExtensions,
         );
 
-        if (args.initialDirectory != null) {
+        if (args.initialDirectory case final initialDirectory?
+            when initialDirectory.isNotEmpty) {
           final item = arena.adopt(
             SHCreateItemFromParsingName<IShellItem>(
-              arena.pcwstr(args.initialDirectory!),
+              arena.pcwstr(initialDirectory),
               null,
             ),
           );
@@ -423,6 +422,23 @@ class FilePickerWindows extends FilePickerPlatform {
         _ => null,
       },
     };
+  }
+
+  /// Reads `lockParentWindow` from [windowsOptions] regardless of its
+  /// runtime type, since callers construct the base [WindowsOptions] (the
+  /// only publicly exported type) rather than the internal
+  /// [FilePickerWindowsOptions]. `parentWindowHandle` is Windows-specific and
+  /// is only available when [windowsOptions] happens to be a
+  /// [FilePickerWindowsOptions].
+  static (bool lockParentWindow, int? parentWindowHandle)
+  _resolveWindowsOptions(WindowsOptions windowsOptions) {
+    return (
+      windowsOptions.lockParentWindow,
+      switch (windowsOptions) {
+        FilePickerWindowsOptions opts => opts.parentWindowHandle,
+        _ => null,
+      },
+    );
   }
 
   /// Resolves the owner [HWND] for a dialog based on
