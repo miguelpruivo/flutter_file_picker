@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:android_file_picker/android_file_picker.dart';
-import 'package:file_picker_darwin/file_picker_darwin.dart';
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 
@@ -257,8 +256,6 @@ abstract final class FilePicker {
   /// Note: skipping entitlement checks may lead to unexpected behavior if the
   /// app is actually sandboxed. Use with caution.
   static Future<void> skipEntitlementsChecks() async {
-    if (FilePickerPlatform.instance case final FilePickerDarwin instance) {
-      await instance.skipEntitlementsChecks();
-    }
+    await FilePickerPlatform.instance.skipEntitlementsChecks();
   }
 }
