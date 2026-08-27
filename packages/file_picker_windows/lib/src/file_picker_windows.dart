@@ -255,7 +255,7 @@ class FilePickerWindows extends FilePickerPlatform {
     return null;
   }
 
-  /// Opens the file-open dialog ([IFileOpenDialog]) to select one or more files.
+  /// Opens the [IFileOpenDialog] to select one or more files.
   List<String>? _pickFiles(OpenSaveFileArgs args) {
     final hr = CoInitializeEx(
       COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE,
