@@ -25,37 +25,40 @@ void main() {
       expect(file.uri.path, equals('/tmp/test.png'));
     });
 
-    test('pickFile and pickFiles send every asset representation mode', () async {
-      final picker = FilePickerDarwin();
-      final receivedModes = <String?>[];
+    test(
+      'pickFile and pickFiles send every asset representation mode',
+      () async {
+        final picker = FilePickerDarwin();
+        final receivedModes = <String?>[];
 
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(picker.methodChannel, (call) async {
-            receivedModes.add(
-              (call.arguments as Map)['assetRepresentationMode'] as String?,
-            );
-            return <Map<Object?, Object?>>[];
-          });
-      addTearDown(() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(picker.methodChannel, null);
-      });
+            .setMockMethodCallHandler(picker.methodChannel, (call) async {
+              receivedModes.add(
+                (call.arguments as Map)['assetRepresentationMode'] as String?,
+              );
+              return <Map<Object?, Object?>>[];
+            });
+        addTearDown(() {
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+              .setMockMethodCallHandler(picker.methodChannel, null);
+        });
 
-      for (final mode in DarwinAssetRepresentationMode.values) {
-        final options = DarwinOptions(assetRepresentationMode: mode);
-        await picker.pickFile(darwinOptions: options);
-        await picker.pickFiles(darwinOptions: options);
-      }
+        for (final mode in DarwinAssetRepresentationMode.values) {
+          final options = DarwinOptions(assetRepresentationMode: mode);
+          await picker.pickFile(darwinOptions: options);
+          await picker.pickFiles(darwinOptions: options);
+        }
 
-      expect(receivedModes, [
-        'automatic',
-        'automatic',
-        'current',
-        'current',
-        'compatible',
-        'compatible',
-      ]);
-    });
+        expect(receivedModes, [
+          'automatic',
+          'automatic',
+          'current',
+          'current',
+          'compatible',
+          'compatible',
+        ]);
+      },
+    );
 
     test('rejects non-automatic representation with compression', () {
       expect(
