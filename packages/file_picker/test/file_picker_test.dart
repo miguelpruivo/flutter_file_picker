@@ -31,6 +31,12 @@ base class TestPlatformFile extends PlatformFile {
 class MockFilePickerPlatform extends FilePickerPlatform
     with MockPlatformInterfaceMixin {
   DarwinOptions? lastDarwinOptions;
+  bool skipEntitlementsChecksCalled = false;
+
+  @override
+  Future<void> skipEntitlementsChecks() async {
+    skipEntitlementsChecksCalled = true;
+  }
 
   @override
   Future<PlatformFile?> pickFile({
@@ -75,6 +81,29 @@ class MockFilePickerPlatform extends FilePickerPlatform
 }
 
 void main() {
+  test(
+    'FilePicker.pickFiles delegates to FilePickerPlatform.instance.pickFiles',
+    () async {
+      final mockPlatform = MockFilePickerPlatform();
+      FilePickerPlatform.instance = mockPlatform;
+
+      final files = await FilePicker.pickFiles();
+      expect(files, isNotEmpty);
+      expect(files.first.name, 'test_file.txt');
+      expect(files.first.path, '/path/to/test_file.txt');
+    },
+  );
+
+  test('FilePicker.skipEntitlementsChecks delegates to '
+      'FilePickerPlatform.instance.skipEntitlementsChecks', () async {
+    final mockPlatform = MockFilePickerPlatform();
+    FilePickerPlatform.instance = mockPlatform;
+
+    await FilePicker.skipEntitlementsChecks();
+
+    expect(mockPlatform.skipEntitlementsChecksCalled, isTrue);
+  });
+
   group('FilePicker Darwin options', () {
     late MockFilePickerPlatform mockPlatform;
 

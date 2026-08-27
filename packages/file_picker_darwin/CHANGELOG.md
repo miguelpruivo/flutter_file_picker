@@ -1,3 +1,7 @@
+## 1.0.4
+
+- `skipEntitlementsChecks()` now overrides the new `FilePickerPlatform.skipEntitlementsChecks()` hook instead of being called through a type test on `FilePickerPlatform.instance`. No behavior change on iOS or macOS.
+
 ## 1.0.3
 
 - Fixed a regression where `PrivacyInfo.xcprivacy` was never being bundled by Swift Package Manager, because SwiftPM resolves resource paths relative to the target's own directory. [#2175](https://github.com/miguelpruivo/flutter_file_picker/issues/2175)

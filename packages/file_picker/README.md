@@ -47,7 +47,7 @@ If you have any feature that you want to see in this package, please feel free t
 | `pickFiles()`                 | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | `saveFile()`                  | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 
-See the [API section of the File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki/api) or the [official API reference on pub.dev](https://pub.dev/documentation/file_picker/latest/file_picker/FilePicker-class.html) for further details.
+See the [official API reference on pub.dev](https://pub.dev/documentation/file_picker/latest/file_picker/FilePicker-class.html) for further details.
 
 ### Darwin implementation notes
 
@@ -82,7 +82,7 @@ Version 12.0 transitions `file_picker` to a **federated plugin architecture**.
      - `WebOptions` / `FilePickerWebOptions`
 
 ## Documentation
-See the **[File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki)** for details on installation, setup, and usage.
+For platform-specific setup, see the README of the platform package you're targeting (e.g. [`file_picker_darwin`](https://pub.dev/packages/file_picker_darwin) for macOS entitlements, [`android_file_picker`](https://pub.dev/packages/android_file_picker) for Android notes). For the full API, see the [official API reference on pub.dev](https://pub.dev/documentation/file_picker/latest/file_picker/FilePicker-class.html).
 
 ## Usage
 
