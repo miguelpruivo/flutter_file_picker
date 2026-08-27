@@ -99,11 +99,38 @@ void main() {
       );
     });
 
+    test('image type builds the full image filter spec', () {
+      final specs = FilePickerWindows.fileTypeFilterSpecs(FileType.image, null);
+      expect(specs, [
+        (
+          name: 'Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png,*.webp)',
+          pattern: '*.bmp;*.gif;*.jpeg;*.jpg;*.png;*.webp',
+        ),
+      ]);
+    });
+
+    test('audio type builds the full audio filter spec', () {
+      final specs = FilePickerWindows.fileTypeFilterSpecs(FileType.audio, null);
+      expect(specs, [
+        (
+          name: 'Audio (*.aac,*.midi,*.mp3,*.ogg,*.wav,*.m4a)',
+          pattern: '*.aac;*.midi;*.mp3;*.ogg;*.wav;*.m4a',
+        ),
+      ]);
+    });
+
     test('media type produces separate video and image specs', () {
       final specs = FilePickerWindows.fileTypeFilterSpecs(FileType.media, null);
-      expect(specs, hasLength(2));
-      expect(specs[0].name, contains('Videos'));
-      expect(specs[1].name, contains('Images'));
+      expect(specs, [
+        (
+          name: 'Videos (*.avi,*.flv,*.mkv,*.mov,*.mp4,*.mpeg,*.webm,*.wmv)',
+          pattern: '*.avi;*.flv;*.mkv;*.mov;*.mp4;*.mpeg;*.webm;*.wmv',
+        ),
+        (
+          name: 'Images (*.bmp,*.gif,*.jpeg,*.jpg,*.png)',
+          pattern: '*.bmp;*.gif;*.jpeg;*.jpg;*.png',
+        ),
+      ]);
     });
   });
 }

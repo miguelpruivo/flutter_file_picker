@@ -497,7 +497,7 @@ class FilePickerWindows extends FilePickerPlatform {
       FileType.any => const [(name: 'All Files (*.*)', pattern: '*.*')],
       FileType.audio => const [
         (
-          name: 'Audios (*.aac,*.midi,*.mp3,*.ogg,*.wav,*.m4a)',
+          name: 'Audio (*.aac,*.midi,*.mp3,*.ogg,*.wav,*.m4a)',
           pattern: '*.aac;*.midi;*.mp3;*.ogg;*.wav;*.m4a',
         ),
       ],
