@@ -30,6 +30,13 @@ base class TestPlatformFile extends PlatformFile {
 
 class MockFilePickerPlatform extends FilePickerPlatform
     with MockPlatformInterfaceMixin {
+  bool skipEntitlementsChecksCalled = false;
+
+  @override
+  Future<void> skipEntitlementsChecks() async {
+    skipEntitlementsChecksCalled = true;
+  }
+
   @override
   Future<List<PlatformFile>> pickFiles({
     String? dialogTitle,
@@ -62,4 +69,14 @@ void main() {
       expect(files.first.path, '/path/to/test_file.txt');
     },
   );
+
+  test('FilePicker.skipEntitlementsChecks delegates to '
+      'FilePickerPlatform.instance.skipEntitlementsChecks', () async {
+    final mockPlatform = MockFilePickerPlatform();
+    FilePickerPlatform.instance = mockPlatform;
+
+    await FilePicker.skipEntitlementsChecks();
+
+    expect(mockPlatform.skipEntitlementsChecksCalled, isTrue);
+  });
 }

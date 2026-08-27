@@ -190,6 +190,7 @@ class FilePickerDarwin extends FilePickerPlatform {
   ///   await instance.skipEntitlementsChecks();
   /// }
   /// ```
+  @override
   Future<void> skipEntitlementsChecks() async {
     // Only macOS performs App Sandbox entitlement checks, this is a no-op on iOS.
     if (!Platform.isMacOS) return;
