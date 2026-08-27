@@ -23,4 +23,24 @@ class DarwinOptions {
   /// This option only applies when `compressionQuality` is `0`. It has no
   /// effect on macOS or when selecting files with the iOS document picker.
   final DarwinAssetRepresentationMode assetRepresentationMode;
+
+  /// Throws an [ArgumentError] if this configuration conflicts with
+  /// [compressionQuality].
+  ///
+  /// A non-automatic [assetRepresentationMode] requests a specific,
+  /// uncompressed representation of the asset, which [compressionQuality]
+  /// would then recompress, defeating the point of requesting it. Callers
+  /// (the `file_picker` facade and each platform implementation) call this
+  /// before picking so the conflict is always reported the same way,
+  /// regardless of platform or entry point.
+  void validate(int compressionQuality) {
+    if (compressionQuality != 0 &&
+        assetRepresentationMode != DarwinAssetRepresentationMode.automatic) {
+      throw ArgumentError.value(
+        assetRepresentationMode,
+        'assetRepresentationMode',
+        'A non-automatic Darwin asset representation mode requires compressionQuality to be 0.',
+      );
+    }
+  }
 }

@@ -23,21 +23,6 @@ abstract final class FilePicker {
     return androidOptions;
   }
 
-  static void _validateDarwinOptions(
-    int compressionQuality,
-    DarwinOptions darwinOptions,
-  ) {
-    if (compressionQuality != 0 &&
-        darwinOptions.assetRepresentationMode !=
-            DarwinAssetRepresentationMode.automatic) {
-      throw ArgumentError.value(
-        darwinOptions.assetRepresentationMode,
-        'darwinOptions.assetRepresentationMode',
-        'A non-automatic Darwin asset representation mode requires compressionQuality to be 0.',
-      );
-    }
-  }
-
   /// Retrieves the file(s) from the underlying platform.
   ///
   /// Opens a native file explorer and lets the user select one or multiple files.
@@ -92,7 +77,7 @@ abstract final class FilePicker {
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) {
-    _validateDarwinOptions(compressionQuality, darwinOptions);
+    darwinOptions.validate(compressionQuality);
     return FilePickerPlatform.instance.pickFiles(
       dialogTitle: dialogTitle,
       initialDirectory: initialDirectory,
@@ -144,7 +129,7 @@ abstract final class FilePicker {
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) {
-    _validateDarwinOptions(compressionQuality, darwinOptions);
+    darwinOptions.validate(compressionQuality);
     return FilePickerPlatform.instance.pickFile(
       dialogTitle: dialogTitle,
       initialDirectory: initialDirectory,

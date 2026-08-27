@@ -94,15 +94,7 @@ class FilePickerDarwin extends FilePickerPlatform {
     int compressionQuality = 0,
     DarwinOptions darwinOptions = const DarwinOptions(),
   }) async {
-    if (compressionQuality != 0 &&
-        darwinOptions.assetRepresentationMode !=
-            DarwinAssetRepresentationMode.automatic) {
-      throw ArgumentError.value(
-        darwinOptions.assetRepresentationMode,
-        'darwinOptions.assetRepresentationMode',
-        'A non-automatic Darwin asset representation mode requires compressionQuality to be 0.',
-      );
-    }
+    darwinOptions.validate(compressionQuality);
 
     final String typeName = type.name;
 
