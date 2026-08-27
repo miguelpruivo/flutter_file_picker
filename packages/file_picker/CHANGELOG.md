@@ -3,6 +3,9 @@
 ### General
 - Stopped importing `file_picker_darwin` directly from the facade package. `skipEntitlementsChecks()` now dispatches through the new `FilePickerPlatform.skipEntitlementsChecks()` hook instead of a type test on `FilePickerPlatform.instance`. That import pulled `dart:io` into `file_picker`'s import graph, making the package incompatible with wasm and breaking analysis when resolved against the lowest allowed dependency versions. No behavior change on any platform.
 
+### iOS
+- Added `darwinOptions` (`DarwinOptions`) to `pickFile()`/`pickFiles()`, letting callers set `DarwinAssetRepresentationMode` to request the photo library return media in its `current` or a `compatible` representation instead of always transcoding to the system default (`automatic`). Restores a way to avoid expensive transcoding for large HEVC, HDR, or slow-motion videos, which existed before the Darwin implementation was rewritten. Non-automatic modes require `compressionQuality: 0`, mixing the two throws an `ArgumentError`.
+
 ## 12.1.1
 
 ### macOS

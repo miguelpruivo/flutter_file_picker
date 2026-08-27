@@ -1,6 +1,7 @@
 ## 1.0.4
 
 - `skipEntitlementsChecks()` now overrides the new `FilePickerPlatform.skipEntitlementsChecks()` hook instead of being called through a type test on `FilePickerPlatform.instance`. No behavior change on iOS or macOS.
+- Added `DarwinOptions.assetRepresentationMode` support on iOS, mapped to `PHPickerConfiguration.preferredAssetRepresentationMode`. Requesting `current` or `compatible` lets large HEVC, HDR, or slow-motion videos skip the transcoding `automatic` (the default) would otherwise require. Non-automatic modes require `compressionQuality` to be `0`.
 
 ## 1.0.3
 
