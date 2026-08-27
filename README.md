@@ -60,7 +60,7 @@ See [`packages/file_picker/README.md`](packages/file_picker/README.md) for the f
 
 ## Documentation
 
-- [File Picker Wiki](https://github.com/miguelpruivo/flutter_file_picker/wiki) — installation, setup, and usage guides.
+- [`packages/file_picker/README.md`](packages/file_picker/README.md) for usage and the platform compatibility chart, and each platform package's own README for platform-specific setup (e.g. [`file_picker_darwin`](packages/file_picker_darwin/README.md) for macOS entitlements).
 - [API reference on pub.dev](https://pub.dev/documentation/file_picker/latest/file_picker/FilePicker-class.html).
 - [`packages/file_picker/CHANGELOG.md`](packages/file_picker/CHANGELOG.md) and each platform package's own `CHANGELOG.md` for release notes.
 
