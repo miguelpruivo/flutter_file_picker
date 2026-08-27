@@ -61,21 +61,22 @@ void main() {
     );
 
     test('rejects non-automatic representation with compression', () {
+      final picker = FilePickerDarwin();
+      const darwinOptions = DarwinOptions(
+        assetRepresentationMode: DarwinAssetRepresentationMode.current,
+      );
+
       expect(
-        () => FilePickerDarwin().pickFile(
+        () => picker.pickFile(
           compressionQuality: 50,
-          darwinOptions: const DarwinOptions(
-            assetRepresentationMode: DarwinAssetRepresentationMode.current,
-          ),
+          darwinOptions: darwinOptions,
         ),
         throwsArgumentError,
       );
       expect(
-        () => FilePickerDarwin().pickFiles(
+        () => picker.pickFiles(
           compressionQuality: 50,
-          darwinOptions: const DarwinOptions(
-            assetRepresentationMode: DarwinAssetRepresentationMode.current,
-          ),
+          darwinOptions: darwinOptions,
         ),
         throwsArgumentError,
       );
