@@ -1,3 +1,7 @@
+## 1.0.3
+
+- Fixed a regression where `PrivacyInfo.xcprivacy` was never being bundled by Swift Package Manager, because SwiftPM resolves resource paths relative to the target's own directory. [#2175](https://github.com/miguelpruivo/flutter_file_picker/issues/2175)
+
 ## 1.0.2
 
 - Fixed a crash (`FileSystemException`/`OSError: Is a directory`) when picking a Live Photo from the iOS gallery. Live Photos are saved by iOS as `.pvt` packages (directories), which `loadFileRepresentation(forTypeIdentifier: UTType.item...)` returned as-is; the still image contained in the package is now extracted instead.
