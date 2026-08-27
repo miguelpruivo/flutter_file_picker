@@ -25,3 +25,18 @@ Read and write access (required for `saveFile()`):
 ```
 
 You can also add these from Xcode, under your target's *Signing & Capabilities* tab, in the *App Sandbox* section.
+
+#### Pick iOS media using its current representation
+```dart
+List<PlatformFile> files = await FilePicker.pickFiles(
+  type: FileType.video,
+  compressionQuality: 0,
+  darwinOptions: const DarwinOptions(
+    assetRepresentationMode: DarwinAssetRepresentationMode.current,
+  ),
+);
+```
+
+The available modes are `automatic` (the default), `current`, and
+`compatible`. This option applies only to the iOS photo-library picker.
+Non-automatic modes require `compressionQuality` to be `0`.

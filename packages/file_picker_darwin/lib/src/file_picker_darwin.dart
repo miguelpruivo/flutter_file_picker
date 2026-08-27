@@ -40,6 +40,7 @@ class FilePickerDarwin extends FilePickerPlatform {
     Function(FilePickerStatus)? onFileLoading,
     int compressionQuality = 0,
     AndroidOptions androidOptions = const AndroidOptions(),
+    DarwinOptions darwinOptions = const DarwinOptions(),
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
@@ -52,6 +53,7 @@ class FilePickerDarwin extends FilePickerPlatform {
       allowedExtensions: allowedExtensions,
       onFileLoading: onFileLoading,
       compressionQuality: compressionQuality,
+      darwinOptions: darwinOptions,
     );
     return files.firstOrNull;
   }
@@ -65,6 +67,7 @@ class FilePickerDarwin extends FilePickerPlatform {
     Function(FilePickerStatus)? onFileLoading,
     int compressionQuality = 0,
     AndroidOptions androidOptions = const AndroidOptions(),
+    DarwinOptions darwinOptions = const DarwinOptions(),
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
@@ -77,6 +80,7 @@ class FilePickerDarwin extends FilePickerPlatform {
       allowedExtensions: allowedExtensions,
       onFileLoading: onFileLoading,
       compressionQuality: compressionQuality,
+      darwinOptions: darwinOptions,
     );
   }
 
@@ -88,7 +92,10 @@ class FilePickerDarwin extends FilePickerPlatform {
     List<String>? allowedExtensions,
     Function(FilePickerStatus)? onFileLoading,
     int compressionQuality = 0,
+    DarwinOptions darwinOptions = const DarwinOptions(),
   }) async {
+    darwinOptions.validate(compressionQuality);
+
     final String typeName = type.name;
 
     try {
@@ -108,6 +115,8 @@ class FilePickerDarwin extends FilePickerPlatform {
             'allowMultipleSelection': allowMultiple,
             'allowedExtensions': allowedExtensions,
             'compressionQuality': compressionQuality,
+            'assetRepresentationMode':
+                darwinOptions.assetRepresentationMode.name,
           });
 
       if (result == null) {

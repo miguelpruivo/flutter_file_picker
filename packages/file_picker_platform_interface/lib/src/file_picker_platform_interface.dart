@@ -6,6 +6,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'enums/file_picker_status.dart';
 import 'enums/file_type.dart';
 import 'file_picker_options/android_options.dart';
+import 'file_picker_options/darwin_options.dart';
 import 'file_picker_options/linux_options.dart';
 import 'file_picker_options/web_options.dart';
 import 'file_picker_options/windows_options.dart';
@@ -36,8 +37,9 @@ abstract class FilePickerPlatform extends PlatformInterface {
   /// when [type] is set to [FileType.custom].
   /// The [onFileLoading] callback, if provided, is triggered when the picker changes status.
   /// The [compressionQuality] parameter specifies image/video compression quality (0-100) on supported platforms.
+  /// The [darwinOptions] parameter configures iOS photo-library asset representation.
   ///
-  /// The [androidOptions], [windowsOptions], [linuxOptions], and [webOptions] parameters
+  /// The [androidOptions], [darwinOptions], [windowsOptions], [linuxOptions], and [webOptions] parameters
   /// allow platform-specific configurations for the file picker.
   ///
   /// Returns a [PlatformFile] object containing the selected file, or `null` if the user canceled the operation.
@@ -49,6 +51,7 @@ abstract class FilePickerPlatform extends PlatformInterface {
     Function(FilePickerStatus)? onFileLoading,
     int compressionQuality = 0,
     AndroidOptions androidOptions = const AndroidOptions(),
+    DarwinOptions darwinOptions = const DarwinOptions(),
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
@@ -65,8 +68,9 @@ abstract class FilePickerPlatform extends PlatformInterface {
   /// when [type] is set to [FileType.custom].
   /// The [onFileLoading] callback, if provided, is triggered when the picker changes status.
   /// The [compressionQuality] parameter specifies image/video compression quality (0-100) on supported platforms.
+  /// The [darwinOptions] parameter configures iOS photo-library asset representation.
   ///
-  /// The [androidOptions], [windowsOptions], [linuxOptions], and [webOptions] parameters
+  /// The [androidOptions], [darwinOptions], [windowsOptions], [linuxOptions], and [webOptions] parameters
   /// allow platform-specific configurations for the file picker.
   ///
   /// Returns a list of [PlatformFile] objects containing the selected files, or an empty list if the user canceled the operation.
@@ -78,6 +82,7 @@ abstract class FilePickerPlatform extends PlatformInterface {
     Function(FilePickerStatus)? onFileLoading,
     int compressionQuality = 0,
     AndroidOptions androidOptions = const AndroidOptions(),
+    DarwinOptions darwinOptions = const DarwinOptions(),
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
