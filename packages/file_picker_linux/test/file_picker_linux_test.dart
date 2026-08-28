@@ -22,4 +22,61 @@ void main() {
       expect(filter.info.containsKey('Custom'), isTrue);
     });
   });
+
+  group('FilePickerLinux.resolveOptions', () {
+    // Exercises the narrowing the portal calls actually use. It used to fall
+    // back to a default instance when the incoming value was a plain
+    // LinuxOptions, silently dropping whatever the caller had set, which is
+    // exactly what the deprecation on FilePicker.pickFiles points people at.
+
+    test('keeps lockParentWindow from a plain LinuxOptions', () {
+      expect(
+        FilePickerLinux.resolveOptions(
+          const LinuxOptions(lockParentWindow: true),
+        ).lockParentWindow,
+        isTrue,
+      );
+    });
+
+    test('keeps acceptLabel from a plain LinuxOptions', () {
+      expect(
+        FilePickerLinux.resolveOptions(
+          const LinuxOptions(acceptLabel: 'Choose'),
+        ).acceptLabel,
+        equals('Choose'),
+      );
+    });
+
+    test('defaults are preserved for a plain LinuxOptions', () {
+      final resolved = FilePickerLinux.resolveOptions(const LinuxOptions());
+
+      expect(resolved.lockParentWindow, isFalse);
+      expect(resolved.acceptLabel, isNull);
+      expect(resolved.parentWindow, isNull);
+    });
+
+    test('returns a FilePickerLinuxOptions untouched', () {
+      const options = FilePickerLinuxOptions(
+        parentWindow: 'x11:0x1234',
+        acceptLabel: 'Choose',
+        lockParentWindow: true,
+      );
+
+      expect(
+        identical(FilePickerLinux.resolveOptions(options), options),
+        isTrue,
+      );
+    });
+
+    test('FilePickerLinuxOptions can carry acceptLabel and parentWindow', () {
+      const options = FilePickerLinuxOptions(
+        parentWindow: 'wayland:handle',
+        acceptLabel: 'Save here',
+      );
+
+      expect(options.acceptLabel, equals('Save here'));
+      expect(options.parentWindow, equals('wayland:handle'));
+      expect(options.lockParentWindow, isFalse);
+    });
+  });
 }
