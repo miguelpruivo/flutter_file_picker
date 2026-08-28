@@ -4,6 +4,7 @@
 - `FilePickerLinuxOptions` now accepts `acceptLabel`, so it no longer has to be traded away in order to set `parentWindow`.
 - Documented the Linux specific options in the README, including that `lockParentWindow` needs `parentWindow` to have any visible effect.
 - Expanded the package example to show resolving `parentWindow` at runtime, which is what makes `lockParentWindow` lock anything.
+- Tightened the `file_picker_platform_interface` lower bound to `^3.2.0`. This package's `pickFile()`/`pickFiles()` signatures reference `DarwinOptions`, added in that version, so resolving against an older one would fail to compile.
 
 ## 1.0.1
 

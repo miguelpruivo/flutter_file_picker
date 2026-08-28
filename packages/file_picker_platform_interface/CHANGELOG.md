@@ -1,6 +1,7 @@
 ## 3.2.0
 
 - Added `FilePickerPlatform.skipEntitlementsChecks()`, a no-op default hook that platform implementations can override. Lets `file_picker` dispatch through the platform interface instead of importing `file_picker_darwin` directly, which kept the facade package from being wasm compatible.
+- Added `DarwinOptions` and `DarwinAssetRepresentationMode`, letting callers request a specific asset representation (`current` or `compatible`) for media selected from the iOS photo library, instead of always using the system default (`automatic`). Restores functionality that was available before the Darwin implementation was rewritten (previously exposed as a way to disable compression), useful to avoid expensive transcoding for large HEVC, HDR, or slow-motion videos.
 
 ## 3.1.0
 

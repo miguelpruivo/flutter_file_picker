@@ -1,3 +1,7 @@
+## 1.0.3
+
+- Tightened the `file_picker_platform_interface` lower bound to `^3.2.0`. This package's `pickFile()`/`pickFiles()` signatures reference `DarwinOptions`, added in that version, so resolving against an older one would fail to compile.
+
 ## 1.0.2
 
 - Removed the stale `buildscript` classpath from the Android module, which pinned AGP 8.5.2 and Kotlin Gradle Plugin 1.8.22 in a module that supports AGP 9 and Kotlin 2.3. [#2154](https://github.com/miguelpruivo/flutter_file_picker/pull/2154)
