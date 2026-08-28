@@ -1,0 +1,21 @@
+name: file_picker_linux_example
+description: A runnable example of the Linux implementation of file_picker.
+publish_to: 'none'
+
+resolution: workspace
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  file_picker_linux: ^1.0.0
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
