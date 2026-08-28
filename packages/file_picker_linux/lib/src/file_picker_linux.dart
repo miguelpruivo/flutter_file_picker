@@ -103,13 +103,7 @@ class FilePickerLinux extends FilePickerPlatform {
     int compressionQuality = 0,
     LinuxOptions linuxOptions = const FilePickerLinuxOptions(),
   }) async {
-    final FilePickerLinuxOptions options = switch (linuxOptions) {
-      FilePickerLinuxOptions opts => opts,
-      _ => FilePickerLinuxOptions(
-        acceptLabel: linuxOptions.acceptLabel,
-        lockParentWindow: linuxOptions.lockParentWindow,
-      ),
-    };
+    final options = resolveOptions(linuxOptions);
 
     final filter = Filter(type, allowedExtensions);
     Map<String, DBusValue> xdpOption = {
@@ -188,13 +182,7 @@ class FilePickerLinux extends FilePickerPlatform {
     LinuxOptions linuxOptions = const FilePickerLinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) async {
-    final FilePickerLinuxOptions options = switch (linuxOptions) {
-      FilePickerLinuxOptions opts => opts,
-      _ => FilePickerLinuxOptions(
-        acceptLabel: linuxOptions.acceptLabel,
-        lockParentWindow: linuxOptions.lockParentWindow,
-      ),
-    };
+    final options = resolveOptions(linuxOptions);
 
     Map<String, DBusValue> xdpOption = {
       'handle_token': DBusString('flutter_picker'),
@@ -250,13 +238,7 @@ class FilePickerLinux extends FilePickerPlatform {
     LinuxOptions linuxOptions = const FilePickerLinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) async {
-    final FilePickerLinuxOptions options = switch (linuxOptions) {
-      FilePickerLinuxOptions opts => opts,
-      _ => FilePickerLinuxOptions(
-        acceptLabel: linuxOptions.acceptLabel,
-        lockParentWindow: linuxOptions.lockParentWindow,
-      ),
-    };
+    final options = resolveOptions(linuxOptions);
 
     Map<String, DBusValue> xdpOption = {
       'handle_token': DBusString('flutter_picker'),
@@ -310,6 +292,22 @@ class FilePickerLinux extends FilePickerPlatform {
   Uint8List _encodeDirectory(String initialDirectory) {
     return Uint8List.fromList([...utf8.encode(initialDirectory), 0]);
   }
+
+  /// Narrows [linuxOptions] to the Linux specific type the portal calls need.
+  ///
+  /// Callers may pass either a plain [LinuxOptions] or a
+  /// [FilePickerLinuxOptions]. Only the latter carries `parentWindow`, but
+  /// everything the supertype defines has to survive the narrowing, otherwise
+  /// options set by the caller are silently dropped on the way to the portal.
+  @visibleForTesting
+  static FilePickerLinuxOptions resolveOptions(LinuxOptions linuxOptions) =>
+      switch (linuxOptions) {
+        FilePickerLinuxOptions opts => opts,
+        _ => FilePickerLinuxOptions(
+          acceptLabel: linuxOptions.acceptLabel,
+          lockParentWindow: linuxOptions.lockParentWindow,
+        ),
+      };
 
   static String _formatParentWindow(String? parentWindow) {
     if (parentWindow == null || parentWindow.trim().isEmpty) {
