@@ -46,15 +46,32 @@ so the second row is the common case rather than the exception. The option is
 still sent to the portal correctly, there is simply no window for the portal to
 attach the dialog to.
 
-If you need real modality today, running the app on XWayland gives you an XID
-to pass:
+If you need real modality today, the X11 path works. On a Wayland session the
+app has to be running on XWayland, which `GDK_BACKEND=x11` forces:
 
 ```bash
 GDK_BACKEND=x11 flutter run -d linux
-xdotool search --name "<your window title>"   # decimal XID
 ```
 
-`parentWindow` accepts that decimal value directly, see the table below.
+The XID changes on every run, so it has to be read at runtime rather than
+hardcoded. There is no Flutter API for it, so it takes an external tool such as
+`xdotool`:
+
+```dart
+final result = await Process.run('xdotool', ['getactivewindow']);
+final xid = (result.stdout as String).trim(); // e.g. 25165834
+
+final file = await FilePicker.pickFile(
+  linuxOptions: FilePickerLinuxOptions(
+    lockParentWindow: true,
+    parentWindow: xid,
+  ),
+);
+```
+
+`parentWindow` takes the decimal value directly and converts it, see the table
+below. Depending on `xdotool` at runtime is obviously not great for a shipped
+app, it is shown here because it is the only way to get the handle today.
 
 ### `parentWindow`
 
