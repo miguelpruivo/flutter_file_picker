@@ -30,21 +30,6 @@ on:
     tags:
       - '*-v[0-9]+.[0-9]+.[0-9]+*'
 
-concurrency:
-  group: publish-pub-dev
-  cancel-in-progress: false
-
-# This is a workflow level concurrency group, so it queues every run of this
-# workflow behind whatever is already in the group, regardless of which job
-# or trigger event it came from. If a run ever gets stuck in "queued" with no
-# jobs (a rare GitHub Actions scheduling issue, not something this workflow
-# controls), it can silently hold up every run behind it, including a real
-# tag push that should have triggered `publish`, with no visible error. If a
-# publish seems to be missing, check for a stuck queued run first
-# (https://github.com/miguelpruivo/flutter_file_picker/actions/workflows/publish.yml).
-# Dispatching any other run of this workflow has been observed to unstick the
-# queue.
-
 jobs:
   prepare:
     if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -52,6 +37,16 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write
+    # Only serializes against other `prepare` runs (which read and write git
+    # tags and unpublished-package state, so two running at once could race).
+    # Deliberately job scoped rather than workflow scoped: `publish` runs
+    # have their own concurrency group below, so a `prepare` run stuck
+    # queued (a rare GitHub Actions scheduling issue, not something this
+    # workflow controls) can no longer silently hold up every tag's publish
+    # behind it, which is what happened before this was split.
+    concurrency:
+      group: publish-pub-dev-prepare
+      cancel-in-progress: false
     steps:
       # GitHub does not run other workflows off a push made with the default
       # GITHUB_TOKEN (it is a deliberate anti-recursion guard), so a tag this
@@ -107,6 +102,15 @@ jobs:
     permissions:
       id-token: write
       contents: read
+    # Scoped to the triggering tag itself, so each package's publish is
+    # independent of every other package's. This only serializes reruns of
+    # the exact same tag against each other; it never queues one package's
+    # publish behind another's the way a single workflow wide group did.
+    # That is what let a `prepare` run stuck queued cancel six of seven
+    # publish runs when this workflow released every package at once.
+    concurrency:
+      group: publish-pub-dev-${{ github.ref_name }}
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v7
 
