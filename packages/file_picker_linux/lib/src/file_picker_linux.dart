@@ -300,14 +300,15 @@ class FilePickerLinux extends FilePickerPlatform {
   /// everything the supertype defines has to survive the narrowing, otherwise
   /// options set by the caller are silently dropped on the way to the portal.
   @visibleForTesting
-  static FilePickerLinuxOptions resolveOptions(LinuxOptions linuxOptions) =>
-      switch (linuxOptions) {
-        FilePickerLinuxOptions opts => opts,
-        _ => FilePickerLinuxOptions(
-          acceptLabel: linuxOptions.acceptLabel,
-          lockParentWindow: linuxOptions.lockParentWindow,
-        ),
-      };
+  static FilePickerLinuxOptions resolveOptions(LinuxOptions linuxOptions) {
+    return switch (linuxOptions) {
+      FilePickerLinuxOptions opts => opts,
+      _ => FilePickerLinuxOptions(
+        acceptLabel: linuxOptions.acceptLabel,
+        lockParentWindow: linuxOptions.lockParentWindow,
+      ),
+    };
+  }
 
   static String _formatParentWindow(String? parentWindow) {
     if (parentWindow == null || parentWindow.trim().isEmpty) {
