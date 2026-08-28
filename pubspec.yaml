@@ -10,13 +10,11 @@ workspace:
   - packages/file_picker_linux
   - packages/file_picker_windows
   - packages/file_picker_web
-  - packages/file_picker_linux/example
   - example
 
 melos:
   packages:
     - packages/*
-    - packages/*/example
     - example
   scripts:
     analyze:
