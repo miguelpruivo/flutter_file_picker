@@ -58,16 +58,28 @@ hardcoded. There is no Flutter API for it, so it takes an external tool such as
 `xdotool`:
 
 ```dart
-final result = await Process.run('xdotool', ['getactivewindow']);
-final xid = (result.stdout as String).trim(); // e.g. 25165834
+// Search for an X window belonging to this process. Do not use
+// `xdotool getactivewindow`: with XWayland running it returns the focused X
+// window, which on a Wayland session belongs to a different application.
+final result = await Process.run(
+  'xdotool',
+  ['search', '--pid', '$pid', '--onlyvisible'],
+);
+final ids = (result.stdout as String)
+    .split('\n')
+    .map((line) => line.trim())
+    .where((line) => line.isNotEmpty);
 
 final file = await FilePicker.pickFile(
   linuxOptions: FilePickerLinuxOptions(
     lockParentWindow: true,
-    parentWindow: xid,
+    parentWindow: ids.isEmpty ? null : ids.last, // e.g. 25165834
   ),
 );
 ```
+
+On a native Wayland session the search comes back empty, which is the correct
+answer: the process genuinely has no X window to parent to.
 
 `parentWindow` takes the decimal value directly and converts it, see the table
 below. Depending on `xdotool` at runtime is obviously not great for a shipped
