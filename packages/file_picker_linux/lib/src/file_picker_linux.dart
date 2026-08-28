@@ -105,7 +105,10 @@ class FilePickerLinux extends FilePickerPlatform {
   }) async {
     final FilePickerLinuxOptions options = switch (linuxOptions) {
       FilePickerLinuxOptions opts => opts,
-      _ => const FilePickerLinuxOptions(),
+      _ => FilePickerLinuxOptions(
+        acceptLabel: linuxOptions.acceptLabel,
+        lockParentWindow: linuxOptions.lockParentWindow,
+      ),
     };
 
     final filter = Filter(type, allowedExtensions);
@@ -116,8 +119,8 @@ class FilePickerLinux extends FilePickerPlatform {
       'filters': filter.toDBusArray(),
     };
 
-    if (linuxOptions.acceptLabel != null) {
-      xdpOption["accept_label"] = DBusString(linuxOptions.acceptLabel!);
+    if (options.acceptLabel != null) {
+      xdpOption["accept_label"] = DBusString(options.acceptLabel!);
     }
 
     if (initialDirectory != null) {
@@ -187,7 +190,10 @@ class FilePickerLinux extends FilePickerPlatform {
   }) async {
     final FilePickerLinuxOptions options = switch (linuxOptions) {
       FilePickerLinuxOptions opts => opts,
-      _ => const FilePickerLinuxOptions(),
+      _ => FilePickerLinuxOptions(
+        acceptLabel: linuxOptions.acceptLabel,
+        lockParentWindow: linuxOptions.lockParentWindow,
+      ),
     };
 
     Map<String, DBusValue> xdpOption = {
@@ -246,7 +252,10 @@ class FilePickerLinux extends FilePickerPlatform {
   }) async {
     final FilePickerLinuxOptions options = switch (linuxOptions) {
       FilePickerLinuxOptions opts => opts,
-      _ => const FilePickerLinuxOptions(),
+      _ => FilePickerLinuxOptions(
+        acceptLabel: linuxOptions.acceptLabel,
+        lockParentWindow: linuxOptions.lockParentWindow,
+      ),
     };
 
     Map<String, DBusValue> xdpOption = {
