@@ -33,6 +33,29 @@ Sent to the portal as `modal`. On its own it has no visible effect: the portal
 needs to know *which* window to be modal against, so it only locks the parent
 once `parentWindow` is also set.
 
+Whether you can set `parentWindow` at all depends on the session type, which
+makes this option behave very differently on X11 and on Wayland:
+
+| Session | Handle the portal expects | Practical result |
+| --- | --- | --- |
+| X11 | the window XID | obtainable, so the dialog is parented and genuinely modal |
+| Wayland | an [`xdg_foreign`](https://wayland.app/protocols/xdg-foreign-unstable-v2) exported handle | Flutter does not expose one, so the dialog stays unparented and `lockParentWindow` has no visible effect |
+
+Wayland is the default on current desktops, Ubuntu GNOME and Fedora included,
+so the second row is the common case rather than the exception. The option is
+still sent to the portal correctly, there is simply no window for the portal to
+attach the dialog to.
+
+If you need real modality today, running the app on XWayland gives you an XID
+to pass:
+
+```bash
+GDK_BACKEND=x11 flutter run -d linux
+xdotool search --name "<your window title>"   # decimal XID
+```
+
+`parentWindow` accepts that decimal value directly, see the table below.
+
 ### `parentWindow`
 
 The window identifier handed to the portal so it can parent the dialog. Accepted
@@ -46,11 +69,8 @@ forms:
 | `29360135` (decimal) | `x11:0x1c00007` |
 | `null` or empty | no parent window |
 
-Flutter does not expose the native window handle, so you have to obtain it
-yourself. Under X11 that is the window XID. Under Wayland it is an
-[`xdg_foreign`](https://wayland.app/protocols/xdg-foreign-unstable-v2) exported
-handle, which is considerably harder to get, so on Wayland sessions the dialog
-is usually left unparented.
+Flutter does not expose the native window handle, so obtaining it is on you.
+See the session table under `lockParentWindow` for what that means in practice.
 
 ## Development
 
