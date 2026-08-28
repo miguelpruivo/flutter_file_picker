@@ -1,5 +1,9 @@
 ## 1.0.2
 
+- Fixed `LinuxOptions.lockParentWindow` and `LinuxOptions.acceptLabel` being silently ignored. Passing a plain `LinuxOptions` fell back to a default `FilePickerLinuxOptions`, dropping whatever the caller had set, which is the exact API the deprecation on `FilePicker.pickFiles` points to. [#2183](https://github.com/miguelpruivo/flutter_file_picker/issues/2183)
+- `FilePickerLinuxOptions` now accepts `acceptLabel`, so it no longer has to be traded away in order to set `parentWindow`.
+- Documented the Linux specific options in the README, including that `lockParentWindow` needs `parentWindow` to have any visible effect.
+- Expanded the package example to show resolving `parentWindow` at runtime, which is what makes `lockParentWindow` lock anything.
 - Tightened the `file_picker_platform_interface` lower bound to `^3.2.0`. This package's `pickFile()`/`pickFiles()` signatures reference `DarwinOptions`, added in that version, so resolving against an older one would fail to compile.
 
 ## 1.0.1
