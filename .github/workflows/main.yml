@@ -108,6 +108,13 @@ jobs:
         if: matrix.flutter == 'stable'
         run: flutter test tool/test
 
+      # Catches the facade allowing platform implementations that predate the
+      # platform interface it requires, which resolves cleanly and then fails
+      # to compile. See https://github.com/miguelpruivo/flutter_file_picker/issues/2186
+      - name: Check facade implementation constraints
+        if: matrix.flutter == 'stable'
+        run: dart tool/check_facade_constraints.dart
+
   build_android:
     needs: [check_changes, test_flutter_versions]
     if: ${{ needs.check_changes.outputs.android == 'true' }}
