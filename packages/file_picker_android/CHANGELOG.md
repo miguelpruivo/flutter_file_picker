@@ -1,3 +1,7 @@
+## 1.0.4
+
+- Restored the module local `buildscript` classpath (AGP 8.5.2, Kotlin Gradle Plugin 1.8.22) that #2154 removed. It fixed `Unresolved reference compileSdk/namespace/minSdk` on some project configurations using AGP 9 with `android.newDsl=false`, reported in [#2170](https://github.com/miguelpruivo/flutter_file_picker/issues/2170). We could not reproduce the failure ourselves, on CI or on a real Windows machine matching every reported detail, but the removal is the only change between the last known-good version and the first broken one, and restoring it is a low risk, effectively a revert.
+
 ## 1.0.3
 
 - Tightened the `file_picker_platform_interface` lower bound to `^3.2.0`. This package's `pickFile()`/`pickFiles()` signatures reference `DarwinOptions`, added in that version, so resolving against an older one would fail to compile.
