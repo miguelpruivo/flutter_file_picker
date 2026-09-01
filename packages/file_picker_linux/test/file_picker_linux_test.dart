@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:file_picker_linux/file_picker_linux.dart';
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,6 +17,17 @@ void main() {
       final file = LinuxPlatformFile.fromPath('/tmp/test.png');
       expect(file.name, equals('test.png'));
       expect(file.uri.path, equals('/tmp/test.png'));
+    });
+
+    test('LinuxPlatformFile.size reflects bytesLength when known', () {
+      final withoutBytes = LinuxPlatformFile.fromPath('/tmp/test.png');
+      expect(withoutBytes.size, isNull);
+
+      final withBytes = LinuxPlatformFile.fromPath(
+        '/tmp/test.png',
+        bytes: Uint8List.fromList([1, 2, 3]),
+      );
+      expect(withBytes.size, equals(3));
     });
 
     test('Filter constructs filters correctly', () {

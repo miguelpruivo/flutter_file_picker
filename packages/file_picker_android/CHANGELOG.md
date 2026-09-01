@@ -1,3 +1,7 @@
+## 1.1.0
+
+- Implemented `PlatformFile.size`, returning the size Android already reports for a picked file synchronously, without doing any I/O.
+
 ## 1.0.3
 
 - Tightened the `file_picker_platform_interface` lower bound to `^3.2.0`. This package's `pickFile()`/`pickFiles()` signatures reference `DarwinOptions`, added in that version, so resolving against an older one would fail to compile.

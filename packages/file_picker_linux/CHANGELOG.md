@@ -1,3 +1,7 @@
+## 1.1.0
+
+- Implemented `PlatformFile.size`. XDG Desktop Portals only return a file path, not its size, so this returns `null` on Linux, use `length()` to actually read it from disk.
+
 ## 1.0.2
 
 - Fixed `LinuxOptions.lockParentWindow` and `LinuxOptions.acceptLabel` being silently ignored. Passing a plain `LinuxOptions` fell back to a default `FilePickerLinuxOptions`, dropping whatever the caller had set, which is the exact API the deprecation on `FilePicker.pickFiles` points to. [#2183](https://github.com/miguelpruivo/flutter_file_picker/issues/2183)

@@ -23,6 +23,15 @@ void main() {
       });
       expect(file.name, equals('test.png'));
       expect(file.uri.path, equals('/tmp/test.png'));
+      expect(file.size, equals(1024));
+    });
+
+    test('DarwinPlatformFile.size is null when not reported', () {
+      final file = DarwinPlatformFile.fromMap({
+        'name': 'test.png',
+        'path': '/tmp/test.png',
+      });
+      expect(file.size, isNull);
     });
 
     test(

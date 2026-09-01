@@ -1,3 +1,7 @@
+## 3.3.0
+
+- Added `PlatformFile.size`, a nullable `int` that returns the file's size in bytes immediately when the native picker already reported it, without doing any I/O. Returns `null` when it isn't known upfront; use `length()` in that case, which falls back to reading the file. Restores a synchronous way to get a file's size, addressing [#2187](https://github.com/miguelpruivo/flutter_file_picker/issues/2187).
+
 ## 3.2.0
 
 - Added `FilePickerPlatform.skipEntitlementsChecks()`, a no-op default hook that platform implementations can override. Lets `file_picker` dispatch through the platform interface instead of importing `file_picker_darwin` directly, which kept the facade package from being wasm compatible.

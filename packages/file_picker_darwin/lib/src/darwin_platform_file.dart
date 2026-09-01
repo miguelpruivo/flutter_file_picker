@@ -66,6 +66,12 @@ base class DarwinPlatformFile extends PlatformFile {
   }
 
   @override
+  int? get size {
+    final len = _bytesLength;
+    return (len != null && len > 0) ? len : null;
+  }
+
+  @override
   Future<int> length() async {
     final len = _bytesLength;
     if (len != null && len > 0) return len;

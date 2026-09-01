@@ -1,3 +1,7 @@
+## 1.1.0
+
+- Implemented `PlatformFile.size`, returning the size iOS/macOS already reports for a picked file synchronously, without doing any I/O.
+
 ## 1.0.4
 
 - `skipEntitlementsChecks()` now overrides the new `FilePickerPlatform.skipEntitlementsChecks()` hook instead of being called through a type test on `FilePickerPlatform.instance`. No behavior change on iOS or macOS.
