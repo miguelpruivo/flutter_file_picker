@@ -6,6 +6,15 @@ import org.gradle.kotlin.dsl.withGroovyBuilder
 group = "com.mr.flutter.plugin.filepicker"
 version = "1.0-SNAPSHOT"
 
+// Temporary workaround, not a permanent fix. Pinning an older AGP here while
+// the consuming app applies a newer one through the `plugins` block is
+// generally discouraged, this module didn't declare it until it broke
+// `android.newDsl=false` projects with custom root level Gradle
+// configuration (#2170). Flutter's own AGP 9 `newDsl` migration is still in
+// progress (https://github.com/flutter/flutter/issues/180137); its interim
+// compatibility shim doesn't appear to reliably reach plugin modules that
+// don't declare their own classpath. Remove this block again once that
+// migration lands upstream and `android.newDsl=false` is no longer needed.
 buildscript {
     repositories {
         google()
