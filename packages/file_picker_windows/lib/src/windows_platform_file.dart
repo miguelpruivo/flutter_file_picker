@@ -50,6 +50,8 @@ base class WindowsPlatformFile extends PlatformFile {
     return XFile(uri.toString(), name: name);
   }
 
+  /// `null` for a picked file. The picker only returns a file path, not its
+  /// size; use [length] to read it from disk instead.
   @override
   int? get size {
     final len = _bytesLength;

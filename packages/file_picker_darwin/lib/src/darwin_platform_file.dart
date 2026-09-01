@@ -65,6 +65,7 @@ base class DarwinPlatformFile extends PlatformFile {
     return XFile(uri.toString(), name: name);
   }
 
+  /// The size iOS/macOS already reported for this file when it was picked.
   @override
   int? get size {
     final len = _bytesLength;

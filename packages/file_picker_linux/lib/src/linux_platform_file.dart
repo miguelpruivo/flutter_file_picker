@@ -50,6 +50,8 @@ base class LinuxPlatformFile extends PlatformFile {
     return XFile(uri.toString(), name: name);
   }
 
+  /// `null` for a picked file. XDG Desktop Portals only return a file path,
+  /// not its size; use [length] to read it from disk instead.
   @override
   int? get size {
     final len = _bytesLength;

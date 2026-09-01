@@ -56,6 +56,7 @@ base class WebPlatformFile extends PlatformFile {
     return XFile(uri.toString(), name: name, bytes: _bytes);
   }
 
+  /// The browser's `File.size`, or the loaded bytes' length.
   @override
   int? get size {
     final len = _bytesLength;
