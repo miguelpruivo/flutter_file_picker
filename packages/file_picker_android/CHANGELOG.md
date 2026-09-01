@@ -2,6 +2,12 @@
 
 - Implemented `PlatformFile.size`, returning the size Android already reports for a picked file synchronously.
 
+## 1.0.4
+
+- Restored the module local `buildscript` classpath (AGP 8.5.2, Kotlin Gradle Plugin 1.8.22) that #2154 removed. It fixed `Unresolved reference compileSdk/namespace/minSdk` on project configurations using AGP 9 with `android.newDsl=false` and custom root level Gradle configuration, reported and confirmed fixed against a real affected project in [#2170](https://github.com/miguelpruivo/flutter_file_picker/issues/2170).
+
+  This is a temporary workaround, not a permanent fix. Pinning an older AGP via a module's own `buildscript` classpath while the consuming app applies a newer one through the `plugins` block is generally discouraged, and #2154 removed it for exactly that reason. Restoring it papers over a gap in Flutter's own AGP 9 `newDsl` migration, which is still in progress ([flutter/flutter#180137](https://github.com/flutter/flutter/issues/180137)): the interim compatibility shim that lets `android.newDsl=false` projects use AGP 9 does not appear to reliably reach plugin modules that don't declare their own classpath, at least for some custom root level Gradle setups. Remove this block again once that migration lands upstream and `android.newDsl=false` is no longer needed.
+
 ## 1.0.3
 
 - Tightened the `file_picker_platform_interface` lower bound to `^3.2.0`. This package's `pickFile()`/`pickFiles()` signatures reference `DarwinOptions`, added in that version, so resolving against an older one would fail to compile.

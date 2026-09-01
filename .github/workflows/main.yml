@@ -128,6 +128,31 @@ jobs:
         if: matrix.flutter == 'stable'
         run: |
           set -euo pipefail
+
+          # A release branch raises the facade's bounds to the versions it is
+          # about to publish. Those are not on pub.dev yet, so resolution would
+          # fail for a reason that says nothing about whether the constraints
+          # are right. Overriding them to the workspace does not work either,
+          # since every package here declares `resolution: workspace` and pub
+          # then refuses to resolve the facade itself. So this check waits for
+          # the release. `tool/test/facade_constraints_test.dart` covers the
+          # same mistake without needing pub.dev, and does run on release
+          # branches.
+          unpublished=""
+          for dir in "$GITHUB_WORKSPACE"/packages/*/; do
+            name=$(sed -n 's/^name: *//p' "$dir/pubspec.yaml" | head -1)
+            version=$(sed -n 's/^version: *//p' "$dir/pubspec.yaml" | head -1)
+            grep -q "^  $name:" "$GITHUB_WORKSPACE/packages/file_picker/pubspec.yaml" || continue
+            if ! curl -sf "https://pub.dev/api/packages/$name" | python3 -c \
+              "import sys,json;sys.exit(0 if any(v['version']=='$version' for v in json.load(sys.stdin)['versions']) else 1)"; then
+              unpublished="$unpublished $name $version,"
+            fi
+          done
+          if [ -n "$unpublished" ]; then
+            echo "::notice::Skipped, the facade requires versions this branch has not published yet:${unpublished%,}"
+            exit 0
+          fi
+
           app="$(mktemp -d)/facade_constraints_smoke_test"
           flutter create --platforms=web --org com.example "$app"
           cd "$app"
