@@ -108,6 +108,35 @@ jobs:
         if: matrix.flutter == 'stable'
         run: flutter test tool/test
 
+      # Catches the facade allowing a platform implementation that predates
+      # the platform interface it requires: every constraint is individually
+      # satisfied, but the combination does not compile. See
+      # https://github.com/vicajilau/flutter_file_picker/issues/2186
+      #
+      # A standalone app (outside this workspace, so implementations resolve
+      # from pub.dev instead of the local path) depends on the facade, then
+      # `pub downgrade` forces every dependency to the lowest version its
+      # constraint allows, exactly what an external app's lockfile could
+      # legitimately resolve to. `analyze` does not catch this: a plugin's
+      # platform-specific implementation is only pulled into the type-checked
+      # graph via the generated plugin registrant, which only a real build
+      # produces. `build web` was picked because it needs no extra SDK setup
+      # and, since dart2js compiles the whole plugin registrant regardless of
+      # which platform each implementation targets, it reliably catches this
+      # on every platform's implementation, not just web's.
+      - name: Check facade constraints against a downgraded resolution
+        if: matrix.flutter == 'stable'
+        run: |
+          set -euo pipefail
+          app="$(mktemp -d)/facade_constraints_smoke_test"
+          flutter create --platforms=web --org com.example "$app"
+          cd "$app"
+          flutter pub add "file_picker:{\"path\":\"$GITHUB_WORKSPACE/packages/file_picker\"}"
+          echo "import 'package:file_picker/file_picker.dart';" > lib/main.dart
+          echo "void main() => FilePicker.pickFiles();" >> lib/main.dart
+          flutter pub downgrade
+          flutter build web
+
   build_android:
     needs: [check_changes, test_flutter_versions]
     if: ${{ needs.check_changes.outputs.android == 'true' }}

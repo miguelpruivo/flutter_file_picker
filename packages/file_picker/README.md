@@ -6,14 +6,14 @@
   <a href="https://github.com/Solido/awesome-flutter">
     <img alt="Awesome Flutter" src="https://img.shields.io/badge/Awesome-Flutter-blue.svg?longCache=true&style=flat-square">
   </a>
-  <a href="https://github.com/miguelpruivo/flutter_file_picker/issues">
-    <img src="https://img.shields.io/github/issues/miguelpruivo/flutter_file_picker" alt="GitHub issues badge">
+  <a href="https://github.com/vicajilau/flutter_file_picker/issues">
+    <img src="https://img.shields.io/github/issues/vicajilau/flutter_file_picker" alt="GitHub issues badge">
   </a>
-  <a href="https://github.com/miguelpruivo/flutter_file_picker?tab=MIT-1-ov-file">
-    <img src="https://img.shields.io/github/license/miguelpruivo/flutter_file_picker" alt="GitHub license badge">
+  <a href="https://github.com/vicajilau/flutter_file_picker?tab=MIT-1-ov-file">
+    <img src="https://img.shields.io/github/license/vicajilau/flutter_file_picker" alt="GitHub license badge">
   </a>
-  <a href="https://github.com/miguelpruivo/flutter_file_picker/actions/workflows/main.yml">
-    <img alt="CI pipeline status" src="https://github.com/miguelpruivo/flutter_file_picker/actions/workflows/main.yml/badge.svg">
+  <a href="https://github.com/vicajilau/flutter_file_picker/actions/workflows/main.yml">
+    <img alt="CI pipeline status" src="https://github.com/vicajilau/flutter_file_picker/actions/workflows/main.yml/badge.svg">
   </a>
 </p>
 
