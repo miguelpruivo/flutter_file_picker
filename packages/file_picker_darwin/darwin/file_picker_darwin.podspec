@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
 iOS and macOS implementation of file_picker plugin
                        DESC
-  s.homepage         = 'https://github.com/miguelpruivo/flutter_file_picker'
+  s.homepage         = 'https://github.com/vicajilau/flutter_file_picker'
   s.license          = { :type => 'MIT', :file => '../LICENSE' }
   s.author           = 'Miguel Ruivo, Dominik Roszkowski'
   s.source           = { :path => '.' }
