@@ -6,7 +6,7 @@ labels: new issue
 
 ---
 
-Before creating an issue, make sure that you are on the latest `file_picker` version and that there aren't already any similar [opened issues](https://github.com/miguelpruivo/flutter_file_picker/issues).
+Before creating an issue, make sure that you are on the latest `file_picker` version and that there aren't already any similar [opened issues](https://github.com/vicajilau/flutter_file_picker/issues).
 
 Also, sometimes a simple `flutter clean` and `flutter build` again with latest file_picker version, may end up by fixing cached issues, so I encourage you to first do so.
 

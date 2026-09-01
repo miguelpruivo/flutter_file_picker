@@ -111,7 +111,7 @@ jobs:
       # Catches the facade allowing a platform implementation that predates
       # the platform interface it requires: every constraint is individually
       # satisfied, but the combination does not compile. See
-      # https://github.com/miguelpruivo/flutter_file_picker/issues/2186
+      # https://github.com/vicajilau/flutter_file_picker/issues/2186
       #
       # A standalone app (outside this workspace, so implementations resolve
       # from pub.dev instead of the local path) depends on the facade, then

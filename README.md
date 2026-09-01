@@ -4,14 +4,14 @@
   <a href="https://pub.dev/packages/file_picker">
     <img alt="pub package" src="https://img.shields.io/pub/v/file_picker.svg">
   </a>
-  <a href="https://github.com/miguelpruivo/flutter_file_picker/actions/workflows/main.yml">
-    <img alt="CI pipeline status" src="https://github.com/miguelpruivo/flutter_file_picker/actions/workflows/main.yml/badge.svg">
+  <a href="https://github.com/vicajilau/flutter_file_picker/actions/workflows/main.yml">
+    <img alt="CI pipeline status" src="https://github.com/vicajilau/flutter_file_picker/actions/workflows/main.yml/badge.svg">
   </a>
-  <a href="https://github.com/miguelpruivo/flutter_file_picker/issues">
-    <img alt="GitHub issues" src="https://img.shields.io/github/issues/miguelpruivo/flutter_file_picker">
+  <a href="https://github.com/vicajilau/flutter_file_picker/issues">
+    <img alt="GitHub issues" src="https://img.shields.io/github/issues/vicajilau/flutter_file_picker">
   </a>
-  <a href="https://github.com/miguelpruivo/flutter_file_picker/blob/master/LICENSE">
-    <img alt="License" src="https://img.shields.io/github/license/miguelpruivo/flutter_file_picker">
+  <a href="https://github.com/vicajilau/flutter_file_picker/blob/master/LICENSE">
+    <img alt="License" src="https://img.shields.io/github/license/vicajilau/flutter_file_picker">
   </a>
   <a href="https://github.com/Solido/awesome-flutter">
     <img alt="Awesome Flutter" src="https://img.shields.io/badge/Awesome-Flutter-blue.svg?longCache=true&style=flat-square">
