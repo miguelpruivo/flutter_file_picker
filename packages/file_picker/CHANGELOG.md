@@ -1,3 +1,8 @@
+## 12.1.3
+
+### General
+- Raised the lower bounds on the platform implementations to the first versions built against `file_picker_platform_interface` 3.2.0. The facade already required `^3.2.0` for the interface itself, but still allowed implementations predating the `DarwinOptions` parameter added there, so pub could legally resolve a combination that does not compile. [#2186](https://github.com/miguelpruivo/flutter_file_picker/issues/2186)
+
 ## 12.1.2
 
 ### General
