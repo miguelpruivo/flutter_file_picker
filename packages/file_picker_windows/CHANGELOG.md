@@ -2,7 +2,7 @@
 
 #### Desktop (Windows)
 
-- Implemented `PlatformFile.size`. The picker only returns a file path, not its size, so this returns `null` on Windows, use `length()` to actually read it from disk.
+- Implemented `PlatformFile.lengthSync()`. The picker only returns a file path, not its size, so this returns `null` on Windows, use `length()` to actually read it from disk.
 
 ## 1.1.0
 

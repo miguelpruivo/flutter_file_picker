@@ -19,15 +19,15 @@ void main() {
       expect(file.uri.path, equals('/tmp/test.png'));
     });
 
-    test('LinuxPlatformFile.size reflects bytesLength when known', () {
+    test('LinuxPlatformFile.lengthSync() reflects bytesLength when known', () {
       final withoutBytes = LinuxPlatformFile.fromPath('/tmp/test.png');
-      expect(withoutBytes.size, isNull);
+      expect(withoutBytes.lengthSync(), isNull);
 
       final withBytes = LinuxPlatformFile.fromPath(
         '/tmp/test.png',
         bytes: Uint8List.fromList([1, 2, 3]),
       );
-      expect(withBytes.size, equals(3));
+      expect(withBytes.lengthSync(), equals(3));
     });
 
     test('Filter constructs filters correctly', () {

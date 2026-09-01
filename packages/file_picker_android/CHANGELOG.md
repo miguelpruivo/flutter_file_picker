@@ -1,6 +1,6 @@
 ## 1.1.0
 
-- Implemented `PlatformFile.size`, returning the size Android already reports for a picked file synchronously.
+- Implemented `PlatformFile.lengthSync()`, returning the length Android already reports for a picked file synchronously.
 
 ## 1.0.4
 

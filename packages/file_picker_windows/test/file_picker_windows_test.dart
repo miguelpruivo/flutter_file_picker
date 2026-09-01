@@ -21,18 +21,21 @@ void main() {
       expect(file.uri.path, equals('/C:/Users/Test/file.txt'));
     });
 
-    test('WindowsPlatformFile.size reflects bytesLength when known', () {
-      final withoutBytes = WindowsPlatformFile.fromPath(
-        r'C:\Users\Test\file.txt',
-      );
-      expect(withoutBytes.size, isNull);
+    test(
+      'WindowsPlatformFile.lengthSync() reflects bytesLength when known',
+      () {
+        final withoutBytes = WindowsPlatformFile.fromPath(
+          r'C:\Users\Test\file.txt',
+        );
+        expect(withoutBytes.lengthSync(), isNull);
 
-      final withBytes = WindowsPlatformFile.fromPath(
-        r'C:\Users\Test\file.txt',
-        bytes: Uint8List.fromList([1, 2, 3]),
-      );
-      expect(withBytes.size, equals(3));
-    });
+        final withBytes = WindowsPlatformFile.fromPath(
+          r'C:\Users\Test\file.txt',
+          bytes: Uint8List.fromList([1, 2, 3]),
+        );
+        expect(withBytes.lengthSync(), equals(3));
+      },
+    );
 
     test('FilePickerWindowsOptions contains expected properties', () {
       const options = FilePickerWindowsOptions(

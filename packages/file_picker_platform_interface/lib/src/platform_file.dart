@@ -34,13 +34,13 @@ abstract base class PlatformFile {
   /// Get this file as an [XFile].
   XFile get xFile;
 
-  /// The size of the file in bytes, if already known without doing I/O, or
+  /// The length of the file in bytes, if already known without doing I/O, or
   /// `null` otherwise.
   ///
   /// Native pickers usually report a file's size as part of the pick result,
   /// in which case this returns it immediately. When they don't, use
   /// [length] instead, which falls back to reading the file to find out.
-  int? get size;
+  int? lengthSync();
 
   /// Get the length of the file in bytes.
   Future<int> length();

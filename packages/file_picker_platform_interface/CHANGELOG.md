@@ -1,6 +1,6 @@
 ## 3.3.0
 
-- Added `PlatformFile.size`, a nullable `int` that returns the file's size in bytes, as provided by the underlying file picker result. 
+- Added `PlatformFile.lengthSync()`, a nullable `int` returning the file's length in bytes as provided by the underlying file picker result, or `null` when it did not report one. Named to pair with the existing `length()`, the same way `dart:io`'s `File` does.
 
 ## 3.2.0
 

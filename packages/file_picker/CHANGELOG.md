@@ -1,8 +1,8 @@
 ## 12.2.0
 
 ### General
-- `PlatformFile.size` is back. It returns the size the native picker already reported, without any I/O, or `null` when the platform did not report one, in which case `length()` still reads it from disk. [#2187](https://github.com/vicajilau/flutter_file_picker/issues/2187)
-- Raised the lower bounds on the platform implementations and the platform interface together. `PlatformFile.size` is abstract, so an implementation published before it does not satisfy the new interface, and leaving the old bounds would let pub resolve a combination that compiles nowhere.
+- Added `PlatformFile.lengthSync()`, replacing the `size` property removed in 12.0. It returns the length the native picker already reported, without any I/O, or `null` when the platform did not report one, in which case `length()` still reads it from disk. [#2187](https://github.com/vicajilau/flutter_file_picker/issues/2187)
+- Raised the lower bounds on the platform implementations and the platform interface together. `PlatformFile.lengthSync()` is abstract, so an implementation published before it does not satisfy the new interface, and leaving the old bounds would let pub resolve a combination that compiles nowhere.
 
 ## 12.1.3
 

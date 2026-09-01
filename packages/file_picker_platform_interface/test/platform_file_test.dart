@@ -17,7 +17,7 @@ base class _TestPlatformFile extends PlatformFile {
   XFile get xFile => XFile(name);
 
   @override
-  int? get size => null;
+  int? lengthSync() => null;
 
   @override
   Future<int> length() async => 0;

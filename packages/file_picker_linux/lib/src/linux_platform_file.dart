@@ -55,7 +55,7 @@ base class LinuxPlatformFile extends PlatformFile {
   /// XDG Desktop Portals return a path and no size, so a picked file reports
   /// `null` here and [length] has to read the file to answer.
   @override
-  int? get size {
+  int? lengthSync() {
     final len = _bytesLength;
     return (len != null && len > 0) ? len : null;
   }

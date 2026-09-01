@@ -1,6 +1,6 @@
 ## 3.1.0
 
-- Implemented `PlatformFile.size`, returning the browser's `File.size` (or the loaded bytes' length) synchronously, without doing any I/O.
+- Implemented `PlatformFile.lengthSync()`, returning the browser's `File.size` (or the loaded bytes' length) synchronously, without doing any I/O.
 
 ## 3.0.3
 

@@ -58,7 +58,7 @@ base class WebPlatformFile extends PlatformFile {
 
   /// The browser's `File.size`, or the loaded bytes' length.
   @override
-  int? get size {
+  int? lengthSync() {
     final len = _bytesLength;
     if (len != null && len > 0) return len;
     return _bytes?.length;

@@ -1,6 +1,6 @@
 ## 1.1.0
 
-- Implemented `PlatformFile.size`, returning the size iOS/macOS already reports for a picked file synchronously, without doing any I/O.
+- Implemented `PlatformFile.lengthSync()`, returning the length iOS/macOS already reports for a picked file synchronously, without doing any I/O.
 
 ## 1.0.4
 

@@ -1,6 +1,6 @@
 ## 1.1.0
 
-- Implemented `PlatformFile.size`. XDG Desktop Portals only return a file path, not its size, so this returns `null` on Linux, use `length()` to actually read it from disk.
+- Implemented `PlatformFile.lengthSync()`. XDG Desktop Portals only return a file path, not its size, so this returns `null` on Linux, use `length()` to actually read it from disk.
 
 ## 1.0.2
 

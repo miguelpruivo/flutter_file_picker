@@ -19,7 +19,7 @@ base class TestPlatformFile extends PlatformFile {
   XFile get xFile => XFile(path ?? '');
 
   @override
-  int? get size => 100;
+  int? lengthSync() => 100;
 
   @override
   Future<int> length() async => 100;

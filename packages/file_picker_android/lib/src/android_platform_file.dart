@@ -82,7 +82,7 @@ base class AndroidPlatformFile extends PlatformFile {
 
   /// The size Android already reported for this file when it was picked.
   @override
-  int? get size {
+  int? lengthSync() {
     final len = _bytesLength;
     return (len != null && len > 0) ? len : null;
   }
