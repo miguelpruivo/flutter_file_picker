@@ -1,6 +1,6 @@
 ## 3.3.0
 
-- Added `PlatformFile.size`, a nullable `int` that returns the file's size in bytes immediately when the native picker already reported it, without doing any I/O. Returns `null` when it isn't known upfront; use `length()` in that case, which falls back to reading the file. Restores a synchronous way to get a file's size, addressing [#2187](https://github.com/miguelpruivo/flutter_file_picker/issues/2187).
+- Added `PlatformFile.size`, a nullable `int` that returns the file's size in bytes, as provided by the underlying file picker result. 
 
 ## 3.2.0
 
