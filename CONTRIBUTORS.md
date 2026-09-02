@@ -1,0 +1,126 @@
+# Contributors
+
+120 people have contributed code to `file_picker` since [Miguel Ruivo](https://github.com/miguelpruivo) opened the repository on 23 June 2018. Thank you, all of you.
+
+Listed by number of commits. Names are as they appear in the git history, and a few people who committed under more than one account have been merged into one entry. If your name is wrong, missing, or you would rather not be listed, open a pull request or an issue and we will fix it.
+
+- Victor Carreras
+- Miguel Ruivo
+- Navaron Bracke
+- Daniel Jimenez
+- philenius
+- Dominik Roszkowski
+- ShootingStarDragons
+- Gabriel Araujo
+- Amr Eniou
+- samoy
+- Andrzej Przedecki
+- Adam Velebil
+- alejandro-all-win-software
+- Fajrian Aidil Pratama
+- Thomas Guerin
+- GitHub Copilot
+- Rohan Sanap
+- Mikhail Novoseltsev
+- Muritz
+- David Skelly
+- abhi16180
+- Angelo Cassano
+- dependabot[bot]
+- TechnicJelle
+- Przemysław Wrzesiński
+- marco_bencivenni
+- SoftWyer
+- Leapward-Koex
+- mtz
+- BAHADUR ZAMAN
+- vito-go
+- liushihao
+- TwinStar
+- max_merkulov
+- andreaszapf
+- Nagornyj Vlad
+- Arjan Mels
+- Joseph Ramos
+- DatDang
+- Gergely Morva
+- Marco Bavagnoli
+- stakano
+- Aulig
+- Maurizio Pinotti
+- Todd Volkert
+- kirill
+- Patrick Wehri
+- Hitesh Kumar Saini
+- Chachuke
+- Feodor Fitsner
+- Tatsuya Kobayashi
+- eu
+- gstory
+- Abdelaziz Mahdy
+- LinXunFeng
+- Lilian Cadiou
+- Gray Mackall
+- Jonas Badstübner
+- Omar mgerbie
+- victordmpires
+- Guido Theelen
+- Sylphia Windy
+- Torongo
+- Ishanga Vidusha
+- BassamMutairi
+- Fabian Loeschner
+- 那思路なしろ
+- vinicios-cervantes
+- Eduardo Hernández Cano
+- Sebastian Roth
+- Vadym Pinchuk
+- Rohit R. Abbadi
+- Jonathan Kerbelis
+- Eddy Trouchaud
+- Theo Germain
+- palmoni5
+- Abdullah
+- marceloleda
+- Alexander Heinrich
+- Hasan M. Hallak
+- zmuranaka
+- leejooy96
+- Muhammed Furkan Yüceal
+- Michael Menzel
+- Saif
+- Rany Huang
+- ParasaranZenoti
+- Jonas Klock
+- Jonas
+- 靳兆鲁
+- zhaosiyang
+- Maxim
+- jmdc-stakano
+- xcsoft
+- Stéphane Archer
+- nilsreichardt
+- San Juan
+- Gabriel
+- Umar Salim
+- rohansohonee
+- Jithuraj
+- Minghimea
+- OutdatedGuy
+- tomk9
+- Sylvain Cleymans
+- Wei He
+- Nils Reichardt
+- Gabriel Terwesten
+- Pyungsoo Hwang
+- Jonathan Goyvaerts
+- Nolence
+- Ahmed Masoud
+- Yoshiteru Kawahara
+- Loc Le
+- Tejas Mehta
+- hashem78
+- nrikiji
+- DenchikBY
+- redsolver
+- markgrancapal
