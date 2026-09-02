@@ -136,8 +136,9 @@ jobs:
           # since every package here declares `resolution: workspace` and pub
           # then refuses to resolve the facade itself. So this check waits for
           # the release. `tool/test/facade_constraints_test.dart` covers the
-          # same mistake without needing pub.dev, and does run on release
-          # branches.
+          # pairing this build cannot produce anyway, the newest interface next
+          # to the oldest allowed implementation, and it reads that from
+          # pub.dev rather than from a resolution.
           unpublished=""
           for dir in "$GITHUB_WORKSPACE"/packages/*/; do
             name=$(sed -n 's/^name: *//p' "$dir/pubspec.yaml" | head -1)
