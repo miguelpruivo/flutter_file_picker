@@ -30,3 +30,7 @@ A release touching several packages at once produces several tags and several pa
 The `prepare` job needs the `RELEASE_PAT` repository secret (a personal access token with `repo`/"Contents: Read and write" access to this repository) to push tags with. GitHub does not trigger other workflows off a push made with the default `GITHUB_TOKEN`, so without it the pushed tags would never fire step 2 above.
 
 To check whether a given change made it into a published version of a package, find the tag for that version and see whether your commit is an ancestor of it (`git merge-base --is-ancestor <commit> <package_name>-v<version>`).
+
+## Contributors
+
+Everyone who has contributed code is listed in [`CONTRIBUTORS.md`](CONTRIBUTORS.md). It is generated from the git history, so opening a pull request is all it takes to end up there.
