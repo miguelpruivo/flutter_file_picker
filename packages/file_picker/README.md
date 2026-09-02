@@ -157,3 +157,7 @@ if (outputFile == null) {
   // User canceled the picker
 }
 ```
+
+## Credits
+
+`file_picker` was created by [Miguel Ruivo](https://github.com/miguelpruivo) on 23 June 2018, and he maintained it for close to eight years, from the first Android and iOS release through the desktop and web implementations that came later. The repository moved to its current home in 2026, and the work continues from what he built.
