@@ -10,7 +10,7 @@
   <a href="https://github.com/vicajilau/flutter_file_picker/issues">
     <img alt="GitHub issues" src="https://img.shields.io/github/issues/vicajilau/flutter_file_picker">
   </a>
-  <a href="https://github.com/vicajilau/flutter_file_picker/blob/master/LICENSE">
+  <a href="https://github.com/vicajilau/flutter_file_picker/blob/main/LICENSE">
     <img alt="License" src="https://img.shields.io/github/license/vicajilau/flutter_file_picker">
   </a>
   <a href="https://github.com/Solido/awesome-flutter">
