@@ -82,18 +82,43 @@ jobs:
       # ourselves. Tags are pushed one at a time, not batched in a single
       # `git push --tags`, since GitHub does not deliver push events for
       # tags when more than three are pushed together.
+      # `melos list` orders alphabetically, which is not a valid publish order.
+      # android_file_picker would be tagged before the platform interface it
+      # depends on, and since every tag starts its own independent publish run,
+      # it would reach pub.dev asking for an interface version that is not
+      # there yet. `melos publish` sorts by the dependency graph internally,
+      # but the tagging has to do it for itself, so the order comes from
+      # `melos list --graph` and a package is only tagged once everything it
+      # depends on has been.
       - name: Tag unpublished packages
         if: ${{ !inputs.dry_run }}
         run: |
           set -euo pipefail
-          melos list --no-private --no-published --json | jq -c '.[]' | while read -r pkg; do
-            name=$(jq -r '.name' <<< "$pkg")
-            version=$(jq -r '.version' <<< "$pkg")
-            tag="${name}-v${version}"
+          melos list --no-private --no-published --json > to-publish.json
+          melos list --no-private --graph > graph.json
+          python3 - <<'PY' > tags.txt
+          import json
+          pending = {p['name']: p['version'] for p in json.load(open('to-publish.json'))}
+          graph = json.load(open('graph.json'))
+          ordered, seen = [], set()
+          def visit(name):
+              if name in seen:
+                  return
+              seen.add(name)
+              for dep in graph.get(name, []):
+                  visit(dep)
+              if name in pending:
+                  ordered.append(f"{name}-v{pending[name]}")
+          for name in sorted(pending):
+              visit(name)
+          print('\n'.join(ordered))
+          PY
+          while read -r tag; do
+            [ -n "$tag" ] || continue
             echo "Tagging and pushing $tag"
             git tag "$tag"
             git push origin "$tag"
-          done
+          done < tags.txt
 
   publish:
     if: ${{ github.event_name == 'push' }}
