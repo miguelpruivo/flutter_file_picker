@@ -81,11 +81,7 @@ Each package keeps its own `pubspec.yaml` and `CHANGELOG.md` and is released ind
 
 ## Credits
 
-`file_picker` is [Miguel Ruivo](https://github.com/miguelpruivo)'s work.
-
-He wrote the first commit on 23 June 2018 and spent the next eight years turning it into the package Flutter reaches for whenever an app needs a file. Six platform implementations, more than a hundred releases, millions of downloads every month, and over a hundred people who sent a patch along the way.
-
-Maintenance moved to this repository in 2026. The architecture, the API and most of the hard problems were solved long before that, and everything here is built on top of them.
+`file_picker` was created and maintained by [Miguel Ruivo](https://github.com/miguelpruivo), starting in 2018, growing it from a single Android/iOS plugin into the federated, cross-platform package it is today. This repository continues that work under new ownership, built entirely on the foundation of his years of effort.
 
 Thank you, Miguel.
 
