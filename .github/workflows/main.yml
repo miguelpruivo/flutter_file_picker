@@ -315,3 +315,42 @@ jobs:
       - name: Build Web example (dart2js)
         working-directory: example
         run: flutter build web
+
+  # Single stable check for branch protection to require.
+  #
+  # The platform build jobs cannot be required directly. When one is skipped by
+  # its `if:`, GitHub reports it under the job's raw name, and for a matrix job
+  # that name still contains the unexpanded `${{ matrix.lane }}`, so the
+  # contexts that exist when it does run never appear and the pull request
+  # stays blocked on a check that will never report. The `Tests on Flutter
+  # <version>` names have the same problem for a different reason: they come
+  # from tool/fetch_versions.dart and change whenever Flutter releases.
+  #
+  # This job always runs, always reports under the same name, and fails if
+  # anything it depends on did not succeed or get skipped.
+  ci:
+    name: CI
+    needs:
+      - check_changes
+      - setup_flutter_versions
+      - test_flutter_versions
+      - build_android
+      - build_linux
+      - build_windows
+      - build_darwin
+      - build_web
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fail unless every job succeeded or was skipped
+        run: |
+          set -euo pipefail
+          results="${{ join(needs.*.result, ' ') }}"
+          echo "Upstream results: $results"
+          for result in $results; do
+            case "$result" in
+              success|skipped) ;;
+              *) echo "::error::A job this depends on reported '$result'"; exit 1 ;;
+            esac
+          done
