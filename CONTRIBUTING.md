@@ -31,6 +31,10 @@ The `prepare` job needs the `RELEASE_PAT` repository secret (a personal access t
 
 To check whether a given change made it into a published version of a package, find the tag for that version and see whether your commit is an ancestor of it (`git merge-base --is-ancestor <commit> <package_name>-v<version>`).
 
+## Security
+
+Found something exploitable? Do not open an issue or a pull request for it. Report it privately, see [`SECURITY.md`](SECURITY.md).
+
 ## Contributors
 
 Everyone who has contributed code is listed in [`CONTRIBUTORS.md`](CONTRIBUTORS.md). It is generated from the git history, so opening a pull request is all it takes to end up there.
