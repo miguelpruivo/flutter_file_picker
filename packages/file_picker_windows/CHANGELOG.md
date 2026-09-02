@@ -1,3 +1,9 @@
+## 1.2.0
+
+#### Desktop (Windows)
+
+- Implemented `PlatformFile.lengthSync()`. The picker only returns a file path, not its size, so this returns `null` on Windows, use `length()` to actually read it from disk.
+
 ## 1.1.0
 
 - Migrated `pickFile()`, `pickFiles()`, and `saveFile()` from the legacy `GetOpenFileNameW`/`GetSaveFileNameW` common dialogs to the modern `IFileOpenDialog`/`IFileSaveDialog` COM APIs, the same pattern `getDirectoryPath()` already used. This is a prerequisite for supporting custom dialog button text and other Common Item Dialog features on those entry points. Fixes [#2173](https://github.com/vicajilau/flutter_file_picker/issues/2173).

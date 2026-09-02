@@ -1,3 +1,7 @@
+## 1.1.0
+
+- Implemented `PlatformFile.lengthSync()`, returning the length Android already reports for a picked file synchronously.
+
 ## 1.0.4
 
 - Restored the module local `buildscript` classpath (AGP 8.5.2, Kotlin Gradle Plugin 1.8.22) that #2154 removed. It fixed `Unresolved reference compileSdk/namespace/minSdk` on project configurations using AGP 9 with `android.newDsl=false` and custom root level Gradle configuration, reported and confirmed fixed against a real affected project in [#2170](https://github.com/vicajilau/flutter_file_picker/issues/2170).

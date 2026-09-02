@@ -13,5 +13,14 @@ void main() {
     );
     expect(file.name, 'test.txt');
     expect(file.uri, Uri.parse('blob:http://localhost/123'));
+    expect(file.lengthSync(), 4);
+  });
+
+  test('WebPlatformFile.lengthSync() is null when not known', () {
+    final file = WebPlatformFile(
+      name: 'test.txt',
+      uri: Uri.parse('blob:http://localhost/123'),
+    );
+    expect(file.lengthSync(), isNull);
   });
 }

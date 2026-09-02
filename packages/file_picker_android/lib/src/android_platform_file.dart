@@ -80,6 +80,13 @@ base class AndroidPlatformFile extends PlatformFile {
     return XFile(uri.toString(), name: name);
   }
 
+  /// The size Android already reported for this file when it was picked.
+  @override
+  int? lengthSync() {
+    final len = _bytesLength;
+    return (len != null && len > 0) ? len : null;
+  }
+
   @override
   Future<int> length() async {
     final len = _bytesLength;

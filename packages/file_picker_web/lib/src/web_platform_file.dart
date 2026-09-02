@@ -56,6 +56,14 @@ base class WebPlatformFile extends PlatformFile {
     return XFile(uri.toString(), name: name, bytes: _bytes);
   }
 
+  /// The browser's `File.size`, or the loaded bytes' length.
+  @override
+  int? lengthSync() {
+    final len = _bytesLength;
+    if (len != null && len > 0) return len;
+    return _bytes?.length;
+  }
+
   /// Asynchronously calculates and returns the size of the file in bytes.
   @override
   Future<int> length() async {

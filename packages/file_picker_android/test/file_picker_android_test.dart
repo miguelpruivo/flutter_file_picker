@@ -42,6 +42,19 @@ void main() {
       expect(file.path, equals('/tmp/test_file.txt'));
     });
 
+    test('AndroidPlatformFile.lengthSync() reflects the reported size', () {
+      final withSize = AndroidPlatformFile.fromMap({
+        'path': '/tmp/test_file.txt',
+        'size': 2048,
+      });
+      expect(withSize.lengthSync(), equals(2048));
+
+      final withoutSize = AndroidPlatformFile.fromMap({
+        'path': '/tmp/test_file.txt',
+      });
+      expect(withoutSize.lengthSync(), isNull);
+    });
+
     test('AndroidPlatformFile throws ArgumentError on empty path and uri', () {
       expect(() => AndroidPlatformFile.fromMap({}), throwsArgumentError);
     });

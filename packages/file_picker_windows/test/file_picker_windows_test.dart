@@ -1,4 +1,5 @@
 import 'dart:isolate';
+import 'dart:typed_data';
 
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 import 'package:windows_file_picker/src/open_save_file_args.dart';
@@ -19,6 +20,22 @@ void main() {
       expect(file.name, equals('file.txt'));
       expect(file.uri.path, equals('/C:/Users/Test/file.txt'));
     });
+
+    test(
+      'WindowsPlatformFile.lengthSync() reflects bytesLength when known',
+      () {
+        final withoutBytes = WindowsPlatformFile.fromPath(
+          r'C:\Users\Test\file.txt',
+        );
+        expect(withoutBytes.lengthSync(), isNull);
+
+        final withBytes = WindowsPlatformFile.fromPath(
+          r'C:\Users\Test\file.txt',
+          bytes: Uint8List.fromList([1, 2, 3]),
+        );
+        expect(withBytes.lengthSync(), equals(3));
+      },
+    );
 
     test('FilePickerWindowsOptions contains expected properties', () {
       const options = FilePickerWindowsOptions(

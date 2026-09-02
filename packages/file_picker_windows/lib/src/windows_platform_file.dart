@@ -50,6 +50,16 @@ base class WindowsPlatformFile extends PlatformFile {
     return XFile(uri.toString(), name: name);
   }
 
+  /// Only known when this file was created with its bytes already in hand.
+  ///
+  /// The native dialog returns a path and no size, so a picked file reports
+  /// `null` here and [length] has to read the file to answer.
+  @override
+  int? lengthSync() {
+    final len = _bytesLength;
+    return (len != null && len > 0) ? len : null;
+  }
+
   @override
   Future<int> length() async {
     final len = _bytesLength;

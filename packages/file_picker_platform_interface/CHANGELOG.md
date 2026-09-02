@@ -1,3 +1,7 @@
+## 3.3.0
+
+- Added `PlatformFile.lengthSync()`, a nullable `int` returning the file's length in bytes as provided by the underlying file picker result, or `null` when it did not report one. Named to pair with the existing `length()`, the same way `dart:io`'s `File` does.
+
 ## 3.2.0
 
 - Added `FilePickerPlatform.skipEntitlementsChecks()`, a no-op default hook that platform implementations can override. Lets `file_picker` dispatch through the platform interface instead of importing `file_picker_darwin` directly, which kept the facade package from being wasm compatible.
