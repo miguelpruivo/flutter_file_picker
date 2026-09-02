@@ -5,7 +5,7 @@
 
 ## 1.0.3
 
-- Fixed a regression where `PrivacyInfo.xcprivacy` was never being bundled by Swift Package Manager, because SwiftPM resolves resource paths relative to the target's own directory. [#2175](https://github.com/miguelpruivo/flutter_file_picker/issues/2175)
+- Fixed a regression where `PrivacyInfo.xcprivacy` was never being bundled by Swift Package Manager, because SwiftPM resolves resource paths relative to the target's own directory. [#2175](https://github.com/vicajilau/flutter_file_picker/issues/2175)
 
 ## 1.0.2
 
